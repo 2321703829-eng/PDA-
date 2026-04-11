@@ -1,4 +1,4 @@
-# Odoo 社区版商用合规检查清单（给 Codex / VSCode 使用）
+﻿# Odoo 社区版商用合规检查清单（给 Codex / VSCode 使用）
 
 ## 文件用途
 
