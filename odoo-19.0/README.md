@@ -78,3 +78,19 @@
 4. [Odoo19物流留痕系统运单主对象与留痕主流程设计](02-%E4%B8%9A%E5%8A%A1%E4%B8%8E%E6%A8%A1%E5%9D%97/Odoo19%E7%89%A9%E6%B5%81%E7%95%99%E7%97%95%E7%B3%BB%E7%BB%9F%E8%BF%90%E5%8D%95%E4%B8%BB%E5%AF%B9%E8%B1%A1%E4%B8%8E%E7%95%99%E7%97%95%E4%B8%BB%E6%B5%81%E7%A8%8B%E8%AE%BE%E8%AE%A1.md)
 5. [Odoo19物流留痕系统跨模块接口与数据约束总规范](03-%E6%95%B0%E6%8D%AE%E4%B8%8E%E8%A7%84%E8%8C%83/Odoo19%E7%89%A9%E6%B5%81%E7%95%99%E7%97%95%E7%B3%BB%E7%BB%9F%E8%B7%A8%E6%A8%A1%E5%9D%97%E6%8E%A5%E5%8F%A3%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%BA%A6%E6%9D%9F%E6%80%BB%E8%A7%84%E8%8C%83.md)
 6. [Odoo19运单留痕证据表与事件设计](03-%E6%95%B0%E6%8D%AE%E4%B8%8E%E8%A7%84%E8%8C%83/Odoo19%E8%BF%90%E5%8D%95%E7%95%99%E7%97%95%E8%AF%81%E6%8D%AE%E8%A1%A8%E4%B8%8E%E4%BA%8B%E4%BB%B6%E8%AE%BE%E8%AE%A1.md)
+
+---
+
+## 团队开发 Skill
+
+仓库内共享的团队开发 skill 位于：
+
+- `../.codex/skills/odoo-logistics-spec-first`
+
+这个 skill 用于统一开发动作，强调：
+
+- 设计先行
+- 验证先行
+- OBB 优先
+- 规格先于代码
+- 文档沉淀不可省略

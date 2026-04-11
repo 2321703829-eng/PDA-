@@ -1,0 +1,4 @@
+interface:
+  display_name: "Odoo物流设计开发"
+  short_description: "面向Odoo物流留痕项目的设计先行与验证先行开发规范"
+  default_prompt: "Use $odoo-logistics-spec-first to design, implement, validate, and document a change in the Odoo logistics trace project."
