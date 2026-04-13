@@ -118,6 +118,22 @@ class LogisticsTraceEvidence(models.Model):
             },
         }
 
+    def upload_image_binary(self, *, file_name, content, content_type):
+        self.ensure_one()
+        if self.evidence_type not in ("image", "sign"):
+            raise UserError("Only image-type evidence supports picture upload.")
+
+        storage = LogisticsEvidenceImageStorage(self.env)
+        payload = storage.upload_image(
+            file_name=file_name,
+            content=content,
+            content_type=content_type,
+        )
+        image = self.register_uploaded_image(payload)
+        if self.state == "new":
+            self.action_mark_ok()
+        return image
+
     def register_uploaded_image(self, image_payload):
         self.ensure_one()
         return self.env["logistics.trace.evidence.image"].create(

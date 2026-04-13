@@ -4,8 +4,6 @@ import mimetypes
 from odoo import fields, models
 from odoo.exceptions import UserError
 
-from ..services.image_storage_service import LogisticsEvidenceImageStorage
-
 
 class LogisticsTraceEvidenceUploadWizard(models.TransientModel):
     _name = "logistics.trace.evidence.upload.wizard"
@@ -23,18 +21,12 @@ class LogisticsTraceEvidenceUploadWizard(models.TransientModel):
         self.ensure_one()
         if not self.file_data:
             raise UserError("Please choose a file to upload.")
-        if self.evidence_id.evidence_type not in ("image", "sign"):
-            raise UserError("Only image-type evidence supports picture upload.")
 
         content = base64.b64decode(self.file_data)
         content_type = mimetypes.guess_type(self.file_name or "")[0] or "application/octet-stream"
-        storage = LogisticsEvidenceImageStorage(self.env)
-        payload = storage.upload_image(
+        self.evidence_id.upload_image_binary(
             file_name=self.file_name,
             content=content,
             content_type=content_type,
         )
-        self.evidence_id.register_uploaded_image(payload)
-        if self.evidence_id.state == "new":
-            self.evidence_id.action_mark_ok()
         return {"type": "ir.actions.act_window_close"}
