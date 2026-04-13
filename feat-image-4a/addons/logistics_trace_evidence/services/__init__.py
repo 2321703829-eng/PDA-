@@ -1,0 +1,1 @@
+from .image_storage_service import LogisticsEvidenceImageStorage
