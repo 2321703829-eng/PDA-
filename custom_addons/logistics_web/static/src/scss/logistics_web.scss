@@ -1,0 +1,499 @@
+.o_logistics_web_page {
+    padding: 16px;
+}
+
+.o_logistics_web_page_header {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: flex-start;
+    margin-bottom: 16px;
+}
+
+.o_logistics_web_summary_band {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.o_logistics_web_summary_band_item,
+.o_logistics_web_summary_card,
+.o_logistics_web_placeholder_panel,
+.o_logistics_web_timeline_item,
+.o_logistics_web_evidence_thumb,
+.o_logistics_web_dashboard_row_card,
+.o_logistics_web_dashboard_change_card {
+    border: 1px solid #d9d9d9;
+    border-radius: 8px;
+    background: #ffffff;
+    padding: 12px;
+}
+
+.o_logistics_web_status_tag {
+    display: inline-flex;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: #eef3f8;
+    color: #234;
+    font-size: 12px;
+}
+
+.o_logistics_web_clickable {
+    cursor: pointer;
+    transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+}
+
+.o_logistics_web_clickable:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(18, 38, 63, 0.08);
+    border-color: #91b4d6;
+}
+
+.o_logistics_web_timeline,
+.o_logistics_web_evidence_viewer {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    box-sizing: border-box;
+}
+
+.o_logistics_web_timeline_header {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.o_logistics_web_timeline_title_group h3 {
+    margin: 0 0 4px 0;
+    font-size: 18px;
+}
+
+.o_logistics_web_timeline_title_group p {
+    margin: 0;
+    color: #5c6770;
+}
+
+.o_logistics_web_timeline_filters {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.o_logistics_web_evidence_strip {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.o_logistics_web_evidence_header {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.o_logistics_web_evidence_title_group h3 {
+    margin: 0 0 4px 0;
+    font-size: 18px;
+}
+
+.o_logistics_web_evidence_title_group p {
+    margin: 0;
+    color: #5c6770;
+}
+
+.o_logistics_web_evidence_stats {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.o_logistics_web_evidence_main {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr);
+    gap: 16px;
+    width: 100%;
+    min-width: 0;
+    align-items: start;
+}
+
+.o_logistics_web_evidence_stage,
+.o_logistics_web_evidence_sidebar {
+    border: 1px solid #d9d9d9;
+    border-radius: 8px;
+    background: #ffffff;
+    padding: 12px;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+.o_logistics_web_evidence_stage_toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.o_logistics_web_evidence_stage_counter {
+    font-size: 13px;
+    font-weight: 600;
+    color: #45515c;
+}
+
+.o_logistics_web_evidence_stage_body {
+    margin-bottom: 12px;
+}
+
+.o_logistics_web_evidence_stage_mock,
+.o_logistics_web_evidence_thumb_mock {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 220px;
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px dashed #91caff;
+    background: linear-gradient(135deg, #f0f9ff 0%, #e6f4ff 100%);
+    color: #1d4ed8;
+    font-weight: 600;
+}
+
+.o_logistics_web_evidence_stage_actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.o_logistics_web_evidence_meta h4 {
+    margin: 0 0 12px 0;
+}
+
+.o_logistics_web_evidence_meta dl {
+    display: grid;
+    gap: 12px;
+    margin: 0;
+}
+
+.o_logistics_web_evidence_meta dt {
+    margin: 0 0 4px 0;
+    font-size: 12px;
+    font-weight: 700;
+    color: #5c6770;
+    text-transform: uppercase;
+}
+
+.o_logistics_web_evidence_meta dd {
+    margin: 0;
+    color: #243447;
+}
+
+.o_logistics_web_evidence_thumb {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 140px;
+    max-width: 180px;
+
+    span {
+        color: #45515c;
+        font-size: 12px;
+        font-weight: 600;
+    }
+}
+
+.o_logistics_web_evidence_thumb_mock {
+    min-height: 72px;
+}
+
+.o_logistics_web_evidence_thumb_active {
+    border-color: #91b4d6;
+    box-shadow: 0 4px 14px rgba(18, 38, 63, 0.08);
+}
+
+.o_logistics_waybill_enhanced_detail {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 4px 0;
+}
+
+.o_logistics_waybill_enhanced_detail_primary {
+    margin-bottom: 20px;
+}
+
+.o_logistics_waybill_widget_block {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    min-width: 0;
+}
+
+.o_logistics_waybill_widget_heading {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: #243447;
+}
+
+.o_logistics_waybill_widget_host {
+    display: block;
+    width: 100%;
+    min-width: 0;
+}
+
+.o_logistics_waybill_widget_section,
+.o_logistics_waybill_widget_section > .o_field_widget,
+.o_logistics_waybill_panel_field,
+.o_logistics_waybill_panel_field.o_field_widget,
+.o_logistics_waybill_widget_field {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+.o_logistics_waybill_widget_section .o_field_widget,
+.o_logistics_waybill_panel_field .o_field_widget {
+    width: 100%;
+}
+
+.o_form_view .o_logistics_waybill_widget_section,
+.o_form_view .o_logistics_waybill_widget_section .o_field_widget,
+.o_form_view .o_logistics_waybill_widget_section .o_field_widget > div,
+.o_form_view .o_logistics_waybill_panel_field,
+.o_form_view .o_logistics_waybill_panel_field.o_field_widget,
+.o_form_view .o_logistics_waybill_panel_field .o_field_widget,
+.o_form_view .o_logistics_waybill_panel_field .o_field_widget > div,
+.o_form_view .o_logistics_waybill_widget_field {
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    flex: 0 0 100% !important;
+    box-sizing: border-box;
+}
+
+.o_form_view .o_logistics_waybill_enhanced_detail .o_field_widget {
+    margin-bottom: 0 !important;
+}
+
+.o_form_view .o_logistics_waybill_enhanced_detail .o_field_widget .o_label {
+    display: none !important;
+}
+
+.o_form_view .o_logistics_waybill_timeline_host,
+.o_form_view .o_logistics_waybill_evidence_host,
+.o_form_view .o_logistics_waybill_timeline_host > div,
+.o_form_view .o_logistics_waybill_evidence_host > div {
+    display: block;
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+.o_logistics_waybill_fallback_section {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed #d9d9d9;
+}
+
+.o_logistics_waybill_fallback_hint {
+    margin: 0 0 8px 0;
+    font-size: 13px;
+}
+
+.o_logistics_web_dashboard_header_meta {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.o_logistics_web_dashboard_section {
+    margin-bottom: 20px;
+}
+
+.o_logistics_web_section_heading {
+    margin-bottom: 12px;
+}
+
+.o_logistics_web_section_heading h2 {
+    margin: 0 0 4px 0;
+    font-size: 18px;
+}
+
+.o_logistics_web_section_heading p,
+.o_logistics_web_dashboard_row_hint,
+.o_logistics_web_feedback_strip p,
+.o_logistics_web_dashboard_change_body p,
+.o_logistics_web_placeholder_panel p,
+.o_logistics_web_page_header p {
+    margin: 0;
+    color: #5c6770;
+}
+
+.o_logistics_web_dashboard_cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+}
+
+.o_logistics_web_summary_card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.o_logistics_web_summary_card_value {
+    font-size: 28px;
+    line-height: 1;
+}
+
+.o_logistics_web_dashboard_grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    gap: 16px;
+}
+
+.o_logistics_web_dashboard_stack {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.o_logistics_web_dashboard_row_top,
+.o_logistics_web_dashboard_change_card {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.o_logistics_web_dashboard_row_card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.o_logistics_web_dashboard_row_title {
+    font-weight: 600;
+}
+
+.o_logistics_web_dashboard_row_tags,
+.o_logistics_web_dashboard_row_meta {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.o_logistics_web_dashboard_row_meta {
+    font-size: 13px;
+    color: #45515c;
+}
+
+.o_logistics_web_dashboard_row_actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.o_logistics_web_dashboard_change_card {
+    align-items: flex-start;
+}
+
+.o_logistics_web_dashboard_change_time {
+    min-width: 44px;
+    font-weight: 600;
+    color: #243447;
+}
+
+.o_logistics_web_dashboard_change_body {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.o_logistics_web_dashboard_targets {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+}
+
+.o_logistics_web_feedback_strip {
+    margin-bottom: 16px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: #fff7e6;
+    border: 1px solid #ffd591;
+}
+
+.o_logistics_web_timeline_item {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.o_logistics_web_timeline_item_time {
+    font-weight: 700;
+    color: #243447;
+    font-size: 24px;
+    line-height: 1;
+}
+
+.o_logistics_web_timeline_item_meta {
+    font-size: 13px;
+    color: #5c6770;
+}
+
+.o_logistics_web_timeline_item_body p {
+    margin: 0;
+    color: #45515c;
+}
+
+.o_logistics_web_timeline_item_actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.o_logistics_web_summary_card[data-tone="danger"],
+.o_logistics_web_status_tag[data-tone="danger"] {
+    background: #fff1f0;
+    border-color: #ffccc7;
+}
+
+.o_logistics_web_summary_card[data-tone="warning"],
+.o_logistics_web_status_tag[data-tone="warning"] {
+    background: #fff7e6;
+    border-color: #ffd591;
+}
+
+.o_logistics_web_summary_card[data-tone="info"],
+.o_logistics_web_status_tag[data-tone="info"] {
+    background: #e6f4ff;
+    border-color: #91caff;
+}
+
+@media (max-width: 900px) {
+    .o_logistics_web_page_header,
+    .o_logistics_web_dashboard_grid,
+    .o_logistics_web_dashboard_change_card,
+    .o_logistics_web_timeline_header,
+    .o_logistics_web_evidence_header,
+    .o_logistics_web_timeline_item {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .o_logistics_web_evidence_stage_toolbar {
+        flex-wrap: wrap;
+    }
+}

@@ -1,0 +1,413 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* logistics_web
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-04-14 10:30+0000\n"
+"PO-Revision-Date: 2026-04-14 10:30+0000\n"
+"Last-Translator: Codex\n"
+"Language-Team: zh_CN\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "Logistics Web"
+msgstr "物流前端增强"
+
+msgid "Frontend dashboards and widgets for logistics tracing"
+msgstr "物流追溯前端工作台与组件"
+
+msgid "Frontend"
+msgstr "前端"
+
+msgid "Management Dashboard"
+msgstr "管理工作台"
+
+msgid "Boss Trace Overview"
+msgstr "老板追溯总览"
+
+msgid "Admin View"
+msgstr "管理视角"
+
+msgid "Dispute Focus"
+msgstr "争议聚焦"
+
+msgid "Today at a Glance"
+msgstr "今日概览"
+
+msgid "Use these cards to decide what to inspect first."
+msgstr "通过这些卡片先判断应优先查看哪些对象。"
+
+msgid "Priority Queue"
+msgstr "优先处理队列"
+
+msgid "Objects that should be reviewed before normal browsing."
+msgstr "这些对象应在常规浏览前优先处理。"
+
+msgid "Recent Changes"
+msgstr "最近变化"
+
+msgid "Quick signal feed for new abnormal or evidence events."
+msgstr "快速查看新异常和证据变化。"
+
+msgid "Next Drill-Down Targets"
+msgstr "下一步下钻入口"
+
+msgid "The dashboard should guide users into waybill, exception, and batch detail pages."
+msgstr "工作台应引导用户进入运单、异常和批次详情页。"
+
+msgid "Open Waybill Tracking"
+msgstr "打开运单追踪"
+
+msgid "Open Current Exceptions"
+msgstr "打开当前异常"
+
+msgid "Open Batch Tracking"
+msgstr "打开批次追踪"
+
+msgid "Use waybill list for first-round filtering and detail inspection."
+msgstr "先通过运单列表做第一轮筛选，再进入详情查看。"
+
+msgid "See what needs attention first, then drill into waybills, batches, and exceptions."
+msgstr "先看哪些对象需要关注，再下钻到运单、批次和异常。"
+
+msgid "Executive View"
+msgstr "管理层视角"
+
+msgid "Loading dashboard summary..."
+msgstr "正在加载工作台摘要..."
+
+msgid "Loading boss trace summary..."
+msgstr "正在加载老板追溯摘要..."
+
+msgid "Owner:"
+msgstr "负责人："
+
+msgid "See the decision summary first, then drill into the disputes that need attention."
+msgstr "先看决策摘要，再下钻到需要关注的争议对象。"
+
+msgid "Waybill:"
+msgstr "运单："
+
+msgid "Batch:"
+msgstr "批次："
+
+msgid "Use exception list to process active issues and assign follow-up work."
+msgstr "通过异常列表处理当前问题并安排后续跟进。"
+
+msgid "Use batch pages when risk appears concentrated in one execution group."
+msgstr "当风险集中在某个执行组时，优先进入批次页面查看。"
+
+msgid "Dispute Focus Objects"
+msgstr "争议焦点对象"
+
+msgid "These are the current disputes most likely to need management attention."
+msgstr "这些是当前最需要管理层关注的争议对象。"
+
+msgid "Headline Signals"
+msgstr "关键指标"
+
+msgid "Use these cards to decide whether to go to disputes or batch-level risk review."
+msgstr "通过这些卡片判断应该进入争议处理还是批次风险查看。"
+
+msgid "Open Exception"
+msgstr "打开异常"
+
+msgid "Open Batch"
+msgstr "打开批次"
+
+msgid "Open Waybill"
+msgstr "打开运单"
+
+msgid "Open Full Image"
+msgstr "打开原图"
+
+msgid "Open Related Trace"
+msgstr "打开关联留痕"
+
+msgid "Open Related Exceptions"
+msgstr "打开关联异常"
+
+msgid "Trace & Evidence"
+msgstr "留痕与证据"
+
+msgid "Trace Timeline"
+msgstr "留痕时间线"
+
+msgid "Trace Timeline Fallback"
+msgstr "留痕时间线回退展示"
+
+msgid "Evidence Viewer"
+msgstr "证据查看器"
+
+msgid "Evidence Fallback"
+msgstr "证据回退展示"
+
+msgid "Use the fallback lists below only when checking raw linked records or troubleshooting widget rendering."
+msgstr "仅在查看原始关联记录或排查组件渲染问题时使用下面的回退列表。"
+
+msgid "Read the key fact chain before checking raw evidence."
+msgstr "请先阅读关键事实链，再查看原始证据。"
+
+msgid "Check evidence in context before making a handling decision."
+msgstr "做处理判断前，请结合上下文查看证据。"
+
+msgid "By"
+msgstr "提交人"
+
+msgid "Only With Images"
+msgstr "仅看带图记录"
+
+msgid "Only Exceptions"
+msgstr "仅看异常记录"
+
+msgid "Loading trace timeline..."
+msgstr "正在加载留痕时间线..."
+
+msgid "Loading evidence..."
+msgstr "正在加载证据..."
+
+msgid "Previous"
+msgstr "上一条"
+
+msgid "Next"
+msgstr "下一条"
+
+msgid "Trace"
+msgstr "留痕"
+
+msgid "Dashboard is showing placeholder data until the backend feed is ready."
+msgstr "后端聚合尚未就绪，当前显示的是占位数据。"
+
+msgid "Boss trace overview is showing placeholder data until backend aggregation is ready."
+msgstr "后端聚合尚未就绪，老板追溯总览当前显示的是占位数据。"
+
+msgid "Pending Exceptions"
+msgstr "待处理异常"
+
+msgid "Evidence Missing"
+msgstr "证据缺失"
+
+msgid "High Risk Batches"
+msgstr "高风险批次"
+
+msgid "New Disputes Today"
+msgstr "今日新增争议"
+
+msgid "Open High Risk Batches"
+msgstr "打开高风险批次"
+
+msgid "Open Today's Exceptions"
+msgstr "打开今日异常"
+
+msgid "Open Exceptions"
+msgstr "打开异常"
+
+msgid "Open Batches"
+msgstr "打开批次"
+
+msgid "Open Waves"
+msgstr "打开波次"
+
+msgid "Store delivery dispute needs verification"
+msgstr "门店配送争议待核实"
+
+msgid "Evidence incomplete, latest event is exception_report"
+msgstr "证据不完整，最新事件为异常上报"
+
+msgid "Waybill pending signoff review"
+msgstr "运单待签收复核"
+
+msgid "Store trace present, signoff evidence still missing"
+msgstr "门店留痕已存在，但签收证据仍缺失"
+
+msgid "Batch risk concentration needs drill-down"
+msgstr "批次风险集中，需要下钻查看"
+
+msgid "Dispatch Team"
+msgstr "调度组"
+
+msgid "Multiple related waybills reported abnormal in one batch"
+msgstr "同一批次下有多条关联运单上报异常"
+
+msgid "New damage exception reported"
+msgstr "新增破损异常"
+
+msgid "Waybill WB202604130001 was marked as damaged on arrival."
+msgstr "运单 WB202604130001 在到达时被标记为破损。"
+
+msgid "Loading trace uploaded"
+msgstr "已上传装货留痕"
+
+msgid "Batch BT20260413002 completed loading trace with 3 images."
+msgstr "批次 BT20260413002 已完成装货留痕，并上传 3 张图片。"
+
+msgid "Evidence gap warning generated"
+msgstr "已生成证据缺口预警"
+
+msgid "Waybill WB202604130018 has no signoff image after store arrival."
+msgstr "运单 WB202604130018 在到店后仍缺少签收图片。"
+
+msgid "Open Disputes"
+msgstr "打开争议"
+
+msgid "Critical Disputes"
+msgstr "严重争议"
+
+msgid "New Today"
+msgstr "今日新增"
+
+msgid "Exception"
+msgstr "异常"
+
+msgid "Waybill"
+msgstr "运单"
+
+msgid "Batch"
+msgstr "批次"
+
+msgid "Damage reported on WB202604130001"
+msgstr "WB202604130001 上报了破损异常"
+
+msgid "Evidence missing on WB202604130018"
+msgstr "WB202604130018 缺少证据"
+
+msgid "Critical store-arrival damage with image evidence pending confirmation."
+msgstr "门店到达时发生严重破损，图片证据待确认。"
+
+msgid "Signoff evidence has not been uploaded after store arrival trace."
+msgstr "门店到达留痕后，签收证据仍未上传。"
+
+msgid "No trace events are available yet for this waybill."
+msgstr "当前运单还没有可用的留痕事件。"
+
+msgid "No evidence images are available yet for this waybill."
+msgstr "当前运单还没有可用的证据图片。"
+
+msgid "trace"
+msgstr "留痕"
+
+msgid "Latest trace summary will appear here."
+msgstr "最新留痕摘要将在此显示。"
+
+msgid "pending"
+msgstr "待补充"
+
+msgid "Latest Trace"
+msgstr "最新留痕"
+
+msgid "open"
+msgstr "打开"
+
+msgid "Arrival Trace Status"
+msgstr "到场留痕状态"
+
+msgid "Current arrival trace status: %(status)s."
+msgstr "当前到场留痕状态：%(status)s。"
+
+msgid "Store"
+msgstr "门店"
+
+msgid "Signoff Trace Status"
+msgstr "签收留痕状态"
+
+msgid "Current signoff trace status: %(status)s."
+msgstr "当前签收留痕状态：%(status)s。"
+
+msgid "Customer"
+msgstr "客户"
+
+msgid "signoff issue"
+msgstr "签收问题"
+
+msgid "Driver"
+msgstr "司机"
+
+msgid "Evidence"
+msgstr "证据"
+
+msgid "Latest Evidence Snapshot"
+msgstr "最新证据快照"
+
+msgid "Evidence Snapshot"
+msgstr "证据快照"
+
+msgid "Latest evidence context."
+msgstr "最新证据上下文。"
+
+msgid "Evidence placeholder"
+msgstr "证据占位"
+
+msgid "for waybill review."
+msgstr "用于运单查看。"
+
+msgid "Unknown"
+msgstr "未知"
+
+msgid "exception"
+msgstr "异常"
+
+msgid "Evidence Preview"
+msgstr "证据预览"
+
+msgid "Open trace is not available yet for \"%s\"."
+msgstr "\"%s\" 暂时还不能打开留痕详情。"
+
+msgid "Open Trace"
+msgstr "打开留痕"
+
+msgid "Open evidence is not available yet for \"%s\"."
+msgstr "\"%s\" 暂时还不能打开证据。"
+
+msgid "Open Evidence"
+msgstr "打开证据"
+
+msgid "Open related trace is not available for this evidence item yet."
+msgstr "当前证据项暂时还不能打开关联留痕。"
+
+msgid "Open related exceptions is not available for this evidence item yet."
+msgstr "当前证据项暂时还不能打开关联异常。"
+
+msgid "Open full image is not available yet for \"%s\"."
+msgstr "\"%s\" 暂时还不能打开原图。"
+
+msgid "ok"
+msgstr "成功"
+
+msgid "Unassigned"
+msgstr "未分配"
+
+msgid "Unknown Waybill"
+msgstr "未知运单"
+
+msgid "Exception detail is available in the exception record."
+msgstr "异常详情可在异常记录中查看。"
+
+msgid "Waybill %(name)s"
+msgstr "运单 %(name)s"
+
+msgid "Batch %(name)s"
+msgstr "批次 %(name)s"
+
+msgid "Trace %(name)s"
+msgstr "留痕 %(name)s"
+
+msgid "%(exception_type)s reported on %(waybill_name)s"
+msgstr "%(waybill_name)s 上报了 %(exception_type)s"
+
+msgid "%(severity_label)s exception updated"
+msgstr "%(severity_label)s 异常已更新"
+
+msgid "No priority objects require review right now."
+msgstr "当前没有需要优先处理的对象。"
+
+msgid "No recent changes are available yet."
+msgstr "当前还没有最近变化。"
+
+msgid "No dispute focus objects need management attention right now."
+msgstr "当前没有需要管理层重点关注的争议对象。"

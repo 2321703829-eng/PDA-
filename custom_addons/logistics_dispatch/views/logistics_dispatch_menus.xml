@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_logistics_dispatch_root" name="Logistics" sequence="40"/>
+
+    <menuitem
+        id="menu_logistics_dispatch"
+        name="Dispatch"
+        parent="menu_logistics_dispatch_root"
+        sequence="10"/>
+
+    <menuitem
+        id="menu_logistics_dispatch_waybill"
+        name="Waybill Tracking"
+        parent="menu_logistics_dispatch"
+        action="action_logistics_dispatch_waybill"
+        sequence="10"/>
+
+    <menuitem
+        id="menu_logistics_dispatch_batch"
+        name="Batches"
+        parent="menu_logistics_dispatch"
+        action="action_logistics_dispatch_batch"
+        sequence="20"/>
+
+    <menuitem
+        id="menu_logistics_dispatch_wave"
+        name="Waves"
+        parent="menu_logistics_dispatch"
+        action="action_logistics_dispatch_wave"
+        sequence="30"/>
+</odoo>

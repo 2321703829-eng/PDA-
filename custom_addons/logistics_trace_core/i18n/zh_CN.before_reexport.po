@@ -1,0 +1,164 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* logistics_trace_core
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-04-14 10:30+0000\n"
+"PO-Revision-Date: 2026-04-14 10:30+0000\n"
+"Last-Translator: Codex\n"
+"Language-Team: zh_CN\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "Logistics Trace Core"
+msgstr "物流留痕核心"
+
+msgid "Core trace event model for batch and waybill fact records"
+msgstr "批次与运单事实留痕核心模型"
+
+msgid "Trace Events"
+msgstr "留痕事件"
+
+msgid "Trace Event"
+msgstr "留痕事件"
+
+msgid "Trace Context"
+msgstr "留痕上下文"
+
+msgid "Execution Context"
+msgstr "执行上下文"
+
+msgid "Remark"
+msgstr "备注"
+
+msgid "Describe the on-site fact captured by this trace event"
+msgstr "请描述该留痕记录捕获到的现场事实"
+
+msgid "Trace Time"
+msgstr "留痕时间"
+
+msgid "Event Type"
+msgstr "事件类型"
+
+msgid "Object Type"
+msgstr "对象类型"
+
+msgid "Waybill"
+msgstr "运单"
+
+msgid "Batch"
+msgstr "批次"
+
+msgid "Submitted By"
+msgstr "提交人"
+
+msgid "Submit User Name"
+msgstr "提交用户名"
+
+msgid "Submit Source"
+msgstr "提交来源"
+
+msgid "Source Channel"
+msgstr "来源渠道"
+
+msgid "Source Record ID"
+msgstr "来源记录 ID"
+
+msgid "Location"
+msgstr "地点"
+
+msgid "Plate No"
+msgstr "车牌号"
+
+msgid "Driver Name"
+msgstr "司机姓名"
+
+msgid "State"
+msgstr "状态"
+
+msgid "Draft"
+msgstr "草稿"
+
+msgid "Submitted"
+msgstr "已提交"
+
+msgid "Invalid"
+msgstr "无效"
+
+msgid "Manual"
+msgstr "手工"
+
+msgid "System"
+msgstr "系统"
+
+msgid "Mobile"
+msgstr "移动端"
+
+msgid "Arrive Loading Point"
+msgstr "到达装货点"
+
+msgid "Start Loading"
+msgstr "开始装货"
+
+msgid "Finish Loading"
+msgstr "完成装货"
+
+msgid "Departed"
+msgstr "已发车"
+
+msgid "Arrive Store"
+msgstr "到达门店"
+
+msgid "Deliver Finish"
+msgstr "配送完成"
+
+msgid "Signoff"
+msgstr "签收"
+
+msgid "Exception Report"
+msgstr "异常上报"
+
+msgid "Waybill Events"
+msgstr "运单留痕"
+
+msgid "Batch Events"
+msgstr "批次留痕"
+
+msgid "Exception Events"
+msgstr "异常留痕"
+
+msgid "Submitter"
+msgstr "提交人"
+
+msgid "Arrival Trace"
+msgstr "到场留痕"
+
+msgid "Signoff Trace"
+msgstr "签收留痕"
+
+msgid "Pending"
+msgstr "待补充"
+
+msgid "Latest Trace Summary"
+msgstr "最新留痕摘要"
+
+msgid "Latest Trace Time"
+msgstr "最新留痕时间"
+
+msgid "Latest Trace Type"
+msgstr "最新留痕类型"
+
+msgid "Trace Count"
+msgstr "留痕数"
+
+msgid "Batch trace events must be linked to a batch."
+msgstr "批次留痕事件必须关联到一个批次。"
+
+msgid "Waybill trace events must be linked to a waybill."
+msgstr "运单留痕事件必须关联到一条运单。"

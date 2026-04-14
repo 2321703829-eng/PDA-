@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="logistics_web.TraceTimelineWidget">
+        <div class="o_logistics_web_timeline">
+            <div class="o_logistics_web_timeline_header">
+                <div class="o_logistics_web_timeline_title_group">
+                    <h3>Trace Timeline</h3>
+                    <p>Read the key fact chain before checking raw evidence.</p>
+                </div>
+                <div class="o_logistics_web_timeline_filters">
+                    <button
+                        type="button"
+                        class="btn btn-secondary btn-sm"
+                        t-att-class="state.onlyWithImages ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm'"
+                        t-on-click="toggleOnlyWithImages">
+                        Only With Images
+                    </button>
+                    <button
+                        type="button"
+                        class="btn btn-secondary btn-sm"
+                        t-att-class="state.onlyExceptions ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm'"
+                        t-on-click="toggleOnlyExceptions">
+                        Only Exceptions
+                    </button>
+                </div>
+            </div>
+
+            <t t-if="isLoading">
+                <div class="o_logistics_web_placeholder_panel">
+                    <p>Loading trace timeline...</p>
+                </div>
+            </t>
+            <t t-elif="hasItems">
+                <t t-foreach="visibleItems" t-as="item" t-key="item.id or item.key">
+                    <div class="o_logistics_web_timeline_item o_logistics_web_clickable" t-on-click="() => this.onTraceClick(item)">
+                        <div class="o_logistics_web_timeline_item_time">
+                            <span><t t-esc="item.time or '--:--'"/></span>
+                        </div>
+                        <div class="o_logistics_web_timeline_item_title_block">
+                            <strong><t t-esc="item.title or item.label or item.eventType or item.event_type or 'Trace Event'"/></strong>
+                        </div>
+                        <div class="o_logistics_web_timeline_item_meta">
+                            <span>By <t t-esc="item.operator or 'Unknown'"/></span>
+                        </div>
+                        <div class="o_logistics_web_timeline_item_tags">
+                            <span class="o_logistics_web_status_tag">
+                                <t t-esc="item.eventType or item.event_type or 'trace'"/>
+                            </span>
+                            <t t-if="item.hasException">
+                                <span class="o_logistics_web_status_tag" data-tone="danger">
+                                    <t t-esc="item.exceptionLabel or 'exception'"/>
+                                </span>
+                            </t>
+                            <t t-if="item.evidenceCount">
+                                <span class="o_logistics_web_status_tag" data-tone="info">
+                                    <t t-esc="`${item.evidenceCount} image(s)`"/>
+                                </span>
+                            </t>
+                        </div>
+                        <div class="o_logistics_web_timeline_item_body">
+                            <p><t t-esc="item.summary or item.remark or ''"/></p>
+                        </div>
+                        <div class="o_logistics_web_timeline_item_actions">
+                            <button
+                                t-if="item.evidenceCount"
+                                type="button"
+                                class="btn btn-link btn-sm"
+                                t-on-click="(ev) => this.onEvidenceClick(item, ev)">
+                                Open Evidence
+                            </button>
+                            <button
+                                t-if="item.hasException"
+                                type="button"
+                                class="btn btn-link btn-sm"
+                                t-on-click="(ev) => this.onExceptionClick(item, ev)">
+                                Open Exception
+                            </button>
+                        </div>
+                    </div>
+                </t>
+            </t>
+            <t t-else="">
+                <div class="o_logistics_web_placeholder_panel">
+                    <p><t t-esc="emptyText"/></p>
+                </div>
+            </t>
+        </div>
+    </t>
+
+    <t t-name="logistics_web.EvidenceViewerWidget">
+        <div class="o_logistics_web_evidence_viewer">
+            <div class="o_logistics_web_evidence_header">
+                <div class="o_logistics_web_evidence_title_group">
+                    <h3>Evidence Viewer</h3>
+                    <p>Check evidence in context before making a handling decision.</p>
+                </div>
+                <div class="o_logistics_web_evidence_stats" t-if="hasItems">
+                    <span class="o_logistics_web_status_tag" data-tone="info">
+                        <t t-esc="`${allItems.length} item(s)`"/>
+                    </span>
+                    <t t-if="activeItem and activeItem.isExceptionEvidence">
+                        <span class="o_logistics_web_status_tag" data-tone="danger">
+                            Exception Evidence
+                        </span>
+                    </t>
+                </div>
+            </div>
+
+            <t t-if="isLoading">
+                <div class="o_logistics_web_placeholder_panel">
+                    <p>Loading evidence...</p>
+                </div>
+            </t>
+            <t t-elif="hasItems">
+                <div class="o_logistics_web_evidence_stage">
+                    <div class="o_logistics_web_evidence_stage_toolbar">
+                        <button
+                            type="button"
+                            class="btn btn-secondary btn-sm"
+                            t-on-click="onPrevClick"
+                            t-att-disabled="state.activeIndex === 0">
+                            Previous
+                        </button>
+                        <span class="o_logistics_web_evidence_stage_counter">
+                            <t t-esc="`${state.activeIndex + 1} / ${allItems.length}`"/>
+                        </span>
+                        <button
+                            type="button"
+                            class="btn btn-secondary btn-sm"
+                            t-on-click="onNextClick"
+                            t-att-disabled="state.activeIndex >= allItems.length - 1">
+                            Next
+                        </button>
+                    </div>
+
+                    <div class="o_logistics_web_evidence_stage_body">
+                        <div class="o_logistics_web_evidence_stage_mock">
+                            <span><t t-esc="activeItem.previewText or activeItem.label or activeItem.name or 'Evidence Preview'"/></span>
+                        </div>
+                    </div>
+
+                    <div class="o_logistics_web_evidence_meta">
+                        <h4><t t-esc="activeItem.name or activeItem.label or 'Evidence Item'"/></h4>
+                        <dl>
+                            <div>
+                                <dt>Trace</dt>
+                                <dd><t t-esc="activeItem.traceLabel or activeItem.trace_label or '--'"/></dd>
+                            </div>
+                            <div>
+                                <dt>Uploaded At</dt>
+                                <dd><t t-esc="activeItem.uploadedAt or activeItem.uploaded_at or '--'"/></dd>
+                            </div>
+                            <div>
+                                <dt>Uploader</dt>
+                                <dd><t t-esc="activeItem.uploader or '--'"/></dd>
+                            </div>
+                            <div>
+                                <dt>Remark</dt>
+                                <dd><t t-esc="activeItem.remark or '--'"/></dd>
+                            </div>
+                        </dl>
+                    </div>
+
+                    <div class="o_logistics_web_evidence_stage_actions">
+                        <button
+                            type="button"
+                            class="btn btn-link btn-sm"
+                            t-on-click="onTraceClick">
+                            Open Related Trace
+                        </button>
+                        <button
+                            t-if="activeItem and activeItem.isExceptionEvidence"
+                            type="button"
+                            class="btn btn-link btn-sm"
+                            t-on-click="onExceptionClick">
+                            Open Related Exceptions
+                        </button>
+                        <button
+                            type="button"
+                            class="btn btn-link btn-sm"
+                            t-on-click="onOpenFullImage">
+                            Open Full Image
+                        </button>
+                    </div>
+                </div>
+
+                <div class="o_logistics_web_evidence_strip">
+                    <t t-foreach="allItems" t-as="item" t-key="item.id or item.key">
+                        <div
+                            class="o_logistics_web_evidence_thumb o_logistics_web_clickable"
+                            t-att-class="state.activeIndex === item_index ? 'o_logistics_web_evidence_thumb_active' : ''"
+                            t-on-click="() => this.onThumbClick(item, item_index)">
+                            <div class="o_logistics_web_evidence_thumb_mock">
+                                <span><t t-esc="item.previewText or item.label or item.name or 'Evidence'"/></span>
+                            </div>
+                            <span><t t-esc="item.label or item.name or 'Evidence'"/></span>
+                        </div>
+                    </t>
+                </div>
+            </t>
+            <t t-else="">
+                <div class="o_logistics_web_placeholder_panel">
+                    <p><t t-esc="emptyText"/></p>
+                </div>
+            </t>
+        </div>
+    </t>
+</templates>

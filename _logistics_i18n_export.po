@@ -1,0 +1,1803 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* logistics_web
+# 	* logistics_dispatch
+# 	* logistics_trace_evidence
+# 	* logistics_trace_exception
+# 	* logistics_trace_core
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-04-14 02:52+0000\n"
+"PO-Revision-Date: 2026-04-14 02:52+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: logistics_trace_exception
+#: model_terms:ir.ui.view,arch_db:logistics_trace_exception.view_logistics_trace_exception_form
+msgid "<span class=\"o_stat_text\">Open Batch</span>"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model_terms:ir.ui.view,arch_db:logistics_trace_exception.view_logistics_trace_exception_form
+msgid "<span class=\"o_stat_text\">Open Trace</span>"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model_terms:ir.ui.view,arch_db:logistics_trace_exception.view_logistics_trace_exception_form
+msgid "<span class=\"o_stat_text\">Waybill</span>"
+msgstr ""
+
+#. modules: logistics_trace_core, logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__message_needaction
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception__message_needaction
+msgid "Action Needed"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception_process_log__action_time
+msgid "Action Time"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception_process_log__action_type
+msgid "Action Type"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model_terms:ir.ui.view,arch_db:logistics_trace_exception.view_logistics_trace_exception_search
+msgid "Active"
+msgstr ""
+
+#. modules: logistics_trace_core, logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__activity_ids
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception__activity_ids
+msgid "Activities"
+msgstr ""
+
+#. modules: logistics_trace_core, logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__activity_exception_decoration
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr ""
+
+#. modules: logistics_trace_core, logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__activity_state
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception__activity_state
+msgid "Activity State"
+msgstr ""
+
+#. modules: logistics_trace_core, logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__activity_type_icon
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception__activity_type_icon
+msgid "Activity Type Icon"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_batch__actual_depart_time
+msgid "Actual Depart Time"
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/dashboard_templates.xml:0
+msgid "Admin View"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_waybill_form
+msgid "Aggregates"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_dispatch_waybill__arrive_trace_status
+msgid "Arrival Trace"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields.selection,name:logistics_trace_core.selection__logistics_trace_event__event_type__arrive_loading_point
+msgid "Arrive Loading Point"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields.selection,name:logistics_trace_core.selection__logistics_trace_event__event_type__arrive_store
+msgid "Arrive Store"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_waybill__state__arrived
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_waybill_search
+msgid "Arrived"
+msgstr ""
+
+#. modules: logistics_trace_core, logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__message_attachment_count
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception__message_attachment_count
+msgid "Attachment Count"
+msgstr ""
+
+#. module: logistics_trace_evidence
+#: model:ir.model.fields.selection,name:logistics_trace_evidence.selection__logistics_trace_evidence__state__available
+msgid "Available"
+msgstr ""
+
+#. modules: logistics_dispatch, logistics_trace_core,
+#. logistics_trace_evidence, logistics_trace_exception
+#. odoo-python
+#: code:addons/logistics_trace_exception/models/logistics_trace_exception.py:0
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__batch_id
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__batch_id
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_trace_evidence__batch_id
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception__batch_id
+#: model:ir.model.fields.selection,name:logistics_trace_core.selection__logistics_trace_event__object_type__batch
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_waybill_search
+#: model_terms:ir.ui.view,arch_db:logistics_trace_core.view_logistics_trace_event_search
+#: model_terms:ir.ui.view,arch_db:logistics_trace_exception.view_logistics_trace_exception_search
+msgid "Batch"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_wave__total_batch_count
+msgid "Batch Count"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model_terms:ir.ui.view,arch_db:logistics_trace_core.view_logistics_trace_event_search
+msgid "Batch Events"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_batch__name
+msgid "Batch No"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_batch_form
+msgid "Batch-level execution note"
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/dashboard_templates.xml:0
+msgid "Batch:"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.actions.act_window,name:logistics_dispatch.action_logistics_dispatch_batch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_wave__batch_ids
+#: model:ir.ui.menu,name:logistics_dispatch.menu_logistics_dispatch_batch
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_wave_form
+msgid "Batches"
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/dashboard_templates.xml:0
+#: model:ir.actions.client,name:logistics_web.action_logistics_web_boss_trace
+#: model:ir.ui.menu,name:logistics_web.menu_logistics_web_boss_trace
+msgid "Boss Trace Overview"
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/widget_templates.xml:0
+msgid "By"
+msgstr ""
+
+#. modules: logistics_dispatch, logistics_trace_exception
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_batch__state__cancelled
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_wave__state__cancelled
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_waybill__state__cancelled
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_waybill_order_line__line_state__cancelled
+#: model:ir.model.fields.selection,name:logistics_trace_exception.selection__logistics_trace_exception__state__cancelled
+msgid "Cancelled"
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/widget_templates.xml:0
+msgid "Check evidence in context before making a handling decision."
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model_terms:ir.ui.view,arch_db:logistics_trace_exception.view_logistics_trace_exception_form
+msgid "Close"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception__close_summary
+#: model_terms:ir.ui.view,arch_db:logistics_trace_exception.view_logistics_trace_exception_form
+msgid "Close Summary"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model:ir.model.fields.selection,name:logistics_trace_exception.selection__logistics_dispatch_waybill__exception_status__closed
+#: model:ir.model.fields.selection,name:logistics_trace_exception.selection__logistics_trace_exception__state__closed
+msgid "Closed"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception__closed_time
+msgid "Closed Time"
+msgstr ""
+
+#. module: logistics_trace_evidence
+#: model:ir.model.fields.selection,name:logistics_trace_evidence.selection__logistics_dispatch_waybill__evidence_status__complete
+msgid "Complete"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model:ir.model.fields.selection,name:logistics_trace_exception.selection__logistics_trace_exception_process_log__action_type__create
+msgid "Create"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model_terms:ir.actions.act_window,help:logistics_trace_exception.action_logistics_trace_exception
+msgid ""
+"Create a trace exception or clear the default <strong>Active</strong> filter"
+" to review historical records."
+msgstr ""
+
+#. modules: logistics_dispatch, logistics_trace_core,
+#. logistics_trace_evidence, logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_batch__create_uid
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_wave__create_uid
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__create_uid
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill_order_line__create_uid
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__create_uid
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_trace_evidence__create_uid
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception__create_uid
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception_process_log__create_uid
+msgid "Created by"
+msgstr ""
+
+#. modules: logistics_dispatch, logistics_trace_core,
+#. logistics_trace_evidence, logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_batch__create_date
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_wave__create_date
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__create_date
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill_order_line__create_date
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__create_date
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_trace_evidence__create_date
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception__create_date
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception_process_log__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model:ir.model.fields.selection,name:logistics_trace_exception.selection__logistics_trace_exception__severity_level__critical
+msgid "Critical"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__customer_id
+msgid "Customer"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model:ir.model.fields.selection,name:logistics_trace_exception.selection__logistics_trace_exception__exception_type__damage
+msgid "Damage"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model:ir.model.fields.selection,name:logistics_trace_exception.selection__logistics_trace_exception__exception_type__delay
+msgid "Delay"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields.selection,name:logistics_trace_core.selection__logistics_trace_event__event_type__deliver_finish
+msgid "Deliver Finish"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_waybill_form
+msgid "Delivery Context"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__delivery_date
+msgid "Delivery Date"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields.selection,name:logistics_trace_core.selection__logistics_trace_event__event_type__departed
+msgid "Departed"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model_terms:ir.ui.view,arch_db:logistics_trace_exception.view_logistics_trace_exception_form
+msgid "Describe the business problem and current impact"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model_terms:ir.ui.view,arch_db:logistics_trace_core.view_logistics_trace_event_form
+msgid "Describe the on-site fact captured by this trace event"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception__description
+#: model_terms:ir.ui.view,arch_db:logistics_trace_exception.view_logistics_trace_exception_form
+msgid "Description"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.ui.menu,name:logistics_dispatch.menu_logistics_dispatch
+msgid "Dispatch"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model,name:logistics_dispatch.model_logistics_dispatch_batch
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_batch_form
+msgid "Dispatch Batch"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_batch_search
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_batch_tree
+msgid "Dispatch Batches"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_wave__dispatch_date
+msgid "Dispatch Date"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model,name:logistics_dispatch.model_logistics_dispatch_wave
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_wave_form
+msgid "Dispatch Wave"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_wave_search
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_wave_tree
+msgid "Dispatch Waves"
+msgstr ""
+
+#. module: logistics_web
+#: model:ir.model,name:logistics_web.model_logistics_dispatch_waybill
+msgid "Dispatch Waybill"
+msgstr ""
+
+#. modules: logistics_dispatch, logistics_trace_evidence,
+#. logistics_trace_exception, logistics_web
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_batch__display_name
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_wave__display_name
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill_order_line__display_name
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_trace_evidence__display_name
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_event__display_name
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception__display_name
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception_process_log__display_name
+#: model:ir.model.fields,field_description:logistics_web.field_logistics_dispatch_waybill__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/dashboard_templates.xml:0
+msgid "Dispute Focus"
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/dashboard_templates.xml:0
+msgid "Dispute Focus Objects"
+msgstr ""
+
+#. modules: logistics_dispatch, logistics_trace_core
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_batch__state__done
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_wave__state__done
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_waybill__state__done
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_waybill_order_line__line_state__done
+#: model:ir.model.fields.selection,name:logistics_trace_core.selection__logistics_dispatch_waybill__arrive_trace_status__done
+#: model:ir.model.fields.selection,name:logistics_trace_core.selection__logistics_dispatch_waybill__signoff_trace_status__done
+msgid "Done"
+msgstr ""
+
+#. modules: logistics_dispatch, logistics_trace_core,
+#. logistics_trace_exception
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_batch__state__draft
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_wave__state__draft
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_waybill__state__draft
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_waybill_order_line__line_state__draft
+#: model:ir.model.fields.selection,name:logistics_trace_core.selection__logistics_trace_event__state__draft
+#: model:ir.model.fields.selection,name:logistics_trace_exception.selection__logistics_trace_exception__state__draft
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_wave_search
+msgid "Draft"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_batch__driver_employee_id
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__driver_employee_id
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_batch_search
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_waybill_search
+msgid "Driver"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__driver_name
+msgid "Driver Name"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__event_type
+#: model_terms:ir.ui.view,arch_db:logistics_trace_core.view_logistics_trace_event_search
+msgid "Event Type"
+msgstr ""
+
+#. modules: logistics_trace_evidence, logistics_trace_exception
+#. odoo-python
+#: code:addons/logistics_trace_exception/models/logistics_trace_exception.py:0
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_trace_evidence__name
+msgid "Evidence"
+msgstr ""
+
+#. module: logistics_trace_evidence
+#: model_terms:ir.ui.view,arch_db:logistics_trace_evidence.view_logistics_trace_evidence_form
+msgid "Evidence Context"
+msgstr ""
+
+#. modules: logistics_trace_evidence, logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_dispatch_waybill__evidence_count
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_trace_event__evidence_count
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception__evidence_count
+msgid "Evidence Count"
+msgstr ""
+
+#. module: logistics_web
+#: model_terms:ir.ui.view,arch_db:logistics_web.view_logistics_web_waybill_form_inherit
+msgid "Evidence Fallback"
+msgstr ""
+
+#. module: logistics_trace_evidence
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_dispatch_waybill__evidence_ids
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_trace_event__evidence_ids
+msgid "Evidence Items"
+msgstr ""
+
+#. modules: logistics_dispatch, logistics_trace_exception
+#: model:ir.model.fields.selection,name:logistics_trace_exception.selection__logistics_trace_exception__exception_type__evidence_missing
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_waybill_search
+#: model_terms:ir.ui.view,arch_db:logistics_trace_exception.view_logistics_trace_exception_search
+msgid "Evidence Missing"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_waybill_search
+msgid "Evidence Partial"
+msgstr ""
+
+#. module: logistics_trace_evidence
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_dispatch_waybill__evidence_status
+msgid "Evidence Status"
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/js/widgets/trace_evidence_field_widgets.js:0
+#: code:addons/logistics_web/static/src/xml/widget_templates.xml:0
+#: model_terms:ir.ui.view,arch_db:logistics_web.view_logistics_web_waybill_form_inherit
+msgid "Evidence Viewer"
+msgstr ""
+
+#. module: logistics_web
+#: model:ir.model.fields,field_description:logistics_web.field_logistics_dispatch_waybill__evidence_viewer_panel
+msgid "Evidence Viewer Panel"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception_process_log__exception_id
+msgid "Exception"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_event__is_exception
+msgid "Exception Event"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model_terms:ir.ui.view,arch_db:logistics_trace_core.view_logistics_trace_event_search
+msgid "Exception Events"
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/widget_templates.xml:0
+msgid "Exception Evidence"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception__name
+msgid "Exception No"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model:ir.actions.act_window,name:logistics_trace_exception.action_logistics_trace_exception
+#: model:ir.ui.menu,name:logistics_trace_exception.menu_logistics_trace_exception
+msgid "Exception Queue"
+msgstr ""
+
+#. module: logistics_trace_evidence
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_trace_evidence__is_exception_related
+#: model_terms:ir.ui.view,arch_db:logistics_trace_evidence.view_logistics_trace_evidence_search
+msgid "Exception Related"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields.selection,name:logistics_trace_core.selection__logistics_trace_event__event_type__exception_report
+msgid "Exception Report"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_dispatch_waybill__exception_status
+msgid "Exception Status"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception__exception_type
+msgid "Exception Type"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_batch__exception_waybill_count
+msgid "Exception Waybill Count"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_dispatch_waybill__exception_ids
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_event__exception_ids
+#: model_terms:ir.ui.view,arch_db:logistics_trace_exception.view_logistics_dispatch_waybill_form_inherit_trace_exception
+msgid "Exceptions"
+msgstr ""
+
+#. modules: logistics_dispatch, logistics_trace_core
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_waybill_form
+#: model_terms:ir.ui.view,arch_db:logistics_trace_core.view_logistics_trace_event_form
+msgid "Execution Context"
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/dashboard_templates.xml:0
+msgid "Executive View"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill_order_line__external_order_no
+msgid "External Order No"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields.selection,name:logistics_trace_core.selection__logistics_trace_event__event_type__finish_loading
+msgid "Finish Loading"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_batch__finished_waybill_count
+msgid "Finished Waybill Count"
+msgstr ""
+
+#. modules: logistics_trace_core, logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__message_follower_ids
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception__message_follower_ids
+msgid "Followers"
+msgstr ""
+
+#. modules: logistics_trace_core, logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__message_partner_ids
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception__message_partner_ids
+msgid "Followers (Partners)"
+msgstr ""
+
+#. modules: logistics_trace_core, logistics_trace_exception
+#: model:ir.model.fields,help:logistics_trace_core.field_logistics_trace_event__activity_type_icon
+#: model:ir.model.fields,help:logistics_trace_exception.field_logistics_trace_exception__activity_type_icon
+msgid "Font awesome icon e.g. fa-tasks"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception_process_log__from_state
+msgid "From State"
+msgstr ""
+
+#. module: logistics_web
+#: model:ir.ui.menu,name:logistics_web.menu_logistics_web
+msgid "Frontend"
+msgstr ""
+
+#. module: logistics_trace_evidence
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_trace_evidence__full_url
+msgid "Full URL"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill_order_line__goods_summary
+msgid "Goods Summary"
+msgstr ""
+
+#. modules: logistics_trace_core, logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__has_message
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception__has_message
+msgid "Has Message"
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/dashboard_templates.xml:0
+msgid "Headline Signals"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model:ir.model.fields.selection,name:logistics_trace_exception.selection__logistics_dispatch_waybill__risk_level__high
+#: model:ir.model.fields.selection,name:logistics_trace_exception.selection__logistics_trace_exception__severity_level__high
+msgid "High"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model_terms:ir.ui.view,arch_db:logistics_trace_exception.view_logistics_trace_exception_search
+msgid "High Severity"
+msgstr ""
+
+#. modules: logistics_dispatch, logistics_trace_evidence,
+#. logistics_trace_exception, logistics_web
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_batch__id
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_wave__id
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill_order_line__id
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_trace_evidence__id
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_event__id
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception__id
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception_process_log__id
+#: model:ir.model.fields,field_description:logistics_web.field_logistics_dispatch_waybill__id
+msgid "ID"
+msgstr ""
+
+#. modules: logistics_trace_core, logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__activity_exception_icon
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception__activity_exception_icon
+msgid "Icon"
+msgstr ""
+
+#. modules: logistics_trace_core, logistics_trace_exception
+#: model:ir.model.fields,help:logistics_trace_core.field_logistics_trace_event__activity_exception_icon
+#: model:ir.model.fields,help:logistics_trace_exception.field_logistics_trace_exception__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr ""
+
+#. modules: logistics_trace_core, logistics_trace_exception
+#: model:ir.model.fields,help:logistics_trace_core.field_logistics_trace_event__message_needaction
+#: model:ir.model.fields,help:logistics_trace_exception.field_logistics_trace_exception__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr ""
+
+#. modules: logistics_trace_core, logistics_trace_exception
+#: model:ir.model.fields,help:logistics_trace_core.field_logistics_trace_event__message_has_error
+#: model:ir.model.fields,help:logistics_trace_core.field_logistics_trace_event__message_has_sms_error
+#: model:ir.model.fields,help:logistics_trace_exception.field_logistics_trace_exception__message_has_error
+#: model:ir.model.fields,help:logistics_trace_exception.field_logistics_trace_exception__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr ""
+
+#. module: logistics_trace_evidence
+#: model_terms:ir.ui.view,arch_db:logistics_trace_evidence.view_logistics_trace_evidence_form
+msgid "Image Access"
+msgstr ""
+
+#. module: logistics_trace_evidence
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_trace_evidence__image_access_key
+msgid "Image Access Key"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_wave__state__in_progress
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_wave_search
+msgid "In Progress"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_batch__state__in_transit
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_waybill__state__in_transit
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_batch_search
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_waybill_search
+msgid "In Transit"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_waybill_form
+msgid "Internal tracking note for this waybill"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields.selection,name:logistics_trace_core.selection__logistics_trace_event__state__invalid
+msgid "Invalid"
+msgstr ""
+
+#. modules: logistics_trace_core, logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__message_is_follower
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception__message_is_follower
+msgid "Is Follower"
+msgstr ""
+
+#. modules: logistics_dispatch, logistics_trace_core,
+#. logistics_trace_evidence, logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_batch__write_uid
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_wave__write_uid
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__write_uid
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill_order_line__write_uid
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__write_uid
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_trace_evidence__write_uid
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception__write_uid
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception_process_log__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. modules: logistics_dispatch, logistics_trace_core,
+#. logistics_trace_evidence, logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_batch__write_date
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_wave__write_date
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__write_date
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill_order_line__write_date
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__write_date
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_trace_evidence__write_date
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception__write_date
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception_process_log__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_dispatch_waybill__latest_trace_summary
+msgid "Latest Trace Summary"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_dispatch_waybill__latest_trace_time
+msgid "Latest Trace Time"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_dispatch_waybill__latest_trace_type
+msgid "Latest Trace Type"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_waybill_form
+msgid "Latest trace summary will appear here"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill_order_line__line_state
+msgid "Line Status"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_batch__state__loading
+msgid "Loading"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_batch__loading_position
+msgid "Loading Position"
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/dashboard_templates.xml:0
+msgid "Loading boss trace summary..."
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/dashboard_templates.xml:0
+msgid "Loading dashboard summary..."
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/widget_templates.xml:0
+msgid "Loading evidence..."
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/widget_templates.xml:0
+msgid "Loading trace timeline..."
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__location_text
+msgid "Location"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.ui.menu,name:logistics_dispatch.menu_logistics_dispatch_root
+msgid "Logistics"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model:ir.model,name:logistics_trace_exception.model_logistics_trace_event
+msgid "Logistics Trace Event"
+msgstr ""
+
+#. module: logistics_trace_evidence
+#: model:ir.model,name:logistics_trace_evidence.model_logistics_trace_evidence
+msgid "Logistics Trace Evidence"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model:ir.model,name:logistics_trace_exception.model_logistics_trace_exception
+msgid "Logistics Trace Exception"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model:ir.model,name:logistics_trace_exception.model_logistics_trace_exception_process_log
+msgid "Logistics Trace Exception Process Log"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model:ir.model.fields.selection,name:logistics_trace_exception.selection__logistics_dispatch_waybill__risk_level__low
+#: model:ir.model.fields.selection,name:logistics_trace_exception.selection__logistics_trace_exception__severity_level__low
+msgid "Low"
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/dashboard_templates.xml:0
+#: model:ir.actions.client,name:logistics_web.action_logistics_web_dashboard
+#: model:ir.ui.menu,name:logistics_web.menu_logistics_web_dashboard
+msgid "Management Dashboard"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields.selection,name:logistics_trace_core.selection__logistics_trace_event__submit_source__manual
+msgid "Manual"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model_terms:ir.ui.view,arch_db:logistics_trace_exception.view_logistics_trace_exception_form
+msgid "Mark Processing"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model:ir.model.fields.selection,name:logistics_trace_exception.selection__logistics_dispatch_waybill__risk_level__medium
+#: model:ir.model.fields.selection,name:logistics_trace_exception.selection__logistics_trace_exception__severity_level__medium
+msgid "Medium"
+msgstr ""
+
+#. modules: logistics_trace_core, logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__message_has_error
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception__message_has_error
+msgid "Message Delivery error"
+msgstr ""
+
+#. modules: logistics_trace_core, logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__message_ids
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception__message_ids
+msgid "Messages"
+msgstr ""
+
+#. modules: logistics_trace_evidence, logistics_trace_exception
+#: model:ir.model.fields.selection,name:logistics_trace_evidence.selection__logistics_dispatch_waybill__evidence_status__missing
+#: model:ir.model.fields.selection,name:logistics_trace_evidence.selection__logistics_trace_evidence__state__missing
+#: model:ir.model.fields.selection,name:logistics_trace_exception.selection__logistics_trace_exception__exception_type__missing
+msgid "Missing"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields.selection,name:logistics_trace_core.selection__logistics_trace_event__submit_source__mobile
+msgid "Mobile"
+msgstr ""
+
+#. modules: logistics_trace_core, logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__my_activity_date_deadline
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/widget_templates.xml:0
+msgid "Next"
+msgstr ""
+
+#. modules: logistics_trace_core, logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__activity_date_deadline
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr ""
+
+#. modules: logistics_trace_core, logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__activity_summary
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception__activity_summary
+msgid "Next Activity Summary"
+msgstr ""
+
+#. modules: logistics_trace_core, logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__activity_type_id
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception__activity_type_id
+msgid "Next Activity Type"
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/dashboard_templates.xml:0
+msgid "Next Drill-Down Targets"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model:ir.model.fields.selection,name:logistics_trace_exception.selection__logistics_dispatch_waybill__exception_status__none
+msgid "No Exception"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model_terms:ir.actions.act_window,help:logistics_trace_exception.action_logistics_trace_exception
+msgid "No active exceptions are waiting in the queue."
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/dashboard_templates.xml:0
+msgid "No dispute focus objects need management attention right now."
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/dashboard_templates.xml:0
+msgid "No priority objects require review right now."
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/dashboard_templates.xml:0
+msgid "No recent changes are available yet."
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception_process_log__note
+#: model:ir.model.fields.selection,name:logistics_trace_exception.selection__logistics_trace_exception_process_log__action_type__note
+msgid "Note"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_waybill_form
+msgid "Notes"
+msgstr ""
+
+#. modules: logistics_trace_core, logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__message_needaction_counter
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception__message_needaction_counter
+msgid "Number of Actions"
+msgstr ""
+
+#. modules: logistics_trace_core, logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__message_has_error_counter
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception__message_has_error_counter
+msgid "Number of errors"
+msgstr ""
+
+#. modules: logistics_trace_core, logistics_trace_exception
+#: model:ir.model.fields,help:logistics_trace_core.field_logistics_trace_event__message_needaction_counter
+#: model:ir.model.fields,help:logistics_trace_exception.field_logistics_trace_exception__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr ""
+
+#. modules: logistics_trace_core, logistics_trace_exception
+#: model:ir.model.fields,help:logistics_trace_core.field_logistics_trace_event__message_has_error_counter
+#: model:ir.model.fields,help:logistics_trace_exception.field_logistics_trace_exception__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__object_type
+msgid "Object Type"
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/dashboard_templates.xml:0
+msgid "Objects that should be reviewed before normal browsing."
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/widget_templates.xml:0
+msgid "Only Exceptions"
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/widget_templates.xml:0
+msgid "Only With Images"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model:ir.model.fields.selection,name:logistics_trace_exception.selection__logistics_dispatch_waybill__exception_status__open
+#: model:ir.model.fields.selection,name:logistics_trace_exception.selection__logistics_trace_exception__state__open
+#: model_terms:ir.ui.view,arch_db:logistics_trace_exception.view_logistics_trace_exception_search
+msgid "Open"
+msgstr ""
+
+#. modules: logistics_dispatch, logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/dashboard_templates.xml:0
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_waybill_form
+msgid "Open Batch"
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/dashboard_templates.xml:0
+msgid "Open Batch Tracking"
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/dashboard_templates.xml:0
+msgid "Open Current Exceptions"
+msgstr ""
+
+#. modules: logistics_trace_exception, logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/widget_templates.xml:0
+#: model_terms:ir.ui.view,arch_db:logistics_trace_exception.view_logistics_trace_exception_form
+msgid "Open Evidence"
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/dashboard_templates.xml:0
+#: code:addons/logistics_web/static/src/xml/widget_templates.xml:0
+msgid "Open Exception"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_dispatch_waybill__open_exception_count
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_event__open_exception_count
+msgid "Open Exception Count"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_waybill_search
+msgid "Open Exceptions"
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/widget_templates.xml:0
+msgid "Open Full Image"
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/widget_templates.xml:0
+msgid "Open Related Exceptions"
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/widget_templates.xml:0
+msgid "Open Related Trace"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_waybill_form
+msgid "Open Wave"
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/dashboard_templates.xml:0
+msgid "Open Waybill"
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/dashboard_templates.xml:0
+msgid "Open Waybill Tracking"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception_process_log__operator_id
+msgid "Operator"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception_process_log__operator_name
+msgid "Operator Name"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_wave__total_order_count
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__order_line_count
+msgid "Order Line Count"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__order_line_ids
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_waybill_form
+msgid "Order Lines"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model:ir.model.fields.selection,name:logistics_trace_exception.selection__logistics_trace_exception__exception_type__other
+msgid "Other"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception__is_overdue
+#: model_terms:ir.ui.view,arch_db:logistics_trace_exception.view_logistics_trace_exception_search
+msgid "Overdue"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model_terms:ir.ui.view,arch_db:logistics_trace_exception.view_logistics_trace_exception_search
+msgid "Owner"
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/dashboard_templates.xml:0
+msgid "Owner:"
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/dashboard_templates.xml:0
+msgid "P0 Entry"
+msgstr ""
+
+#. modules: logistics_trace_core, logistics_trace_evidence
+#: model:ir.model.fields.selection,name:logistics_trace_core.selection__logistics_dispatch_waybill__arrive_trace_status__partial
+#: model:ir.model.fields.selection,name:logistics_trace_core.selection__logistics_dispatch_waybill__signoff_trace_status__partial
+#: model:ir.model.fields.selection,name:logistics_trace_evidence.selection__logistics_dispatch_waybill__evidence_status__partial
+msgid "Partial"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields.selection,name:logistics_trace_core.selection__logistics_dispatch_waybill__arrive_trace_status__pending
+#: model:ir.model.fields.selection,name:logistics_trace_core.selection__logistics_dispatch_waybill__signoff_trace_status__pending
+msgid "Pending"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_batch__planned_depart_time
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_wave__planned_depart_time
+msgid "Planned Depart Time"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__plate_no
+msgid "Plate No"
+msgstr ""
+
+#. module: logistics_trace_evidence
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_trace_evidence__preview_url
+msgid "Preview URL"
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/widget_templates.xml:0
+msgid "Previous"
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/dashboard_templates.xml:0
+msgid "Priority Queue"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception__process_log_ids
+#: model_terms:ir.ui.view,arch_db:logistics_trace_exception.view_logistics_trace_exception_form
+msgid "Process Logs"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception__process_owner_id
+msgid "Process Owner"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception__process_owner_name
+msgid "Process Owner Name"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model:ir.model.fields.selection,name:logistics_trace_exception.selection__logistics_dispatch_waybill__exception_status__processing
+#: model:ir.model.fields.selection,name:logistics_trace_exception.selection__logistics_trace_exception__state__processing
+#: model_terms:ir.ui.view,arch_db:logistics_trace_exception.view_logistics_trace_exception_search
+msgid "Processing"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill_order_line__qty_summary
+msgid "Quantity"
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/dashboard_templates.xml:0
+msgid "Quick signal feed for new abnormal or evidence events."
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/widget_templates.xml:0
+msgid "Read the key fact chain before checking raw evidence."
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_batch__state__ready
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_wave__state__ready
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_waybill__state__ready
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_waybill_order_line__line_state__ready
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_batch_search
+msgid "Ready"
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/dashboard_templates.xml:0
+msgid "Recent Changes"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model_terms:ir.ui.view,arch_db:logistics_trace_exception.view_logistics_trace_exception_form
+msgid "Record the final handling result before closing"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model:ir.model.fields.selection,name:logistics_trace_exception.selection__logistics_trace_exception__exception_type__rejected
+msgid "Rejected"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model_terms:ir.ui.view,arch_db:logistics_trace_exception.view_logistics_trace_exception_form
+msgid "Related Context"
+msgstr ""
+
+#. modules: logistics_dispatch, logistics_trace_core,
+#. logistics_trace_evidence, logistics_trace_exception, logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/widget_templates.xml:0
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_batch__remark
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_wave__remark
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__remark
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__remark
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_trace_evidence__remark
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception__remark
+#: model_terms:ir.ui.view,arch_db:logistics_trace_core.view_logistics_trace_event_form
+msgid "Remark"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception__report_time
+msgid "Report Time"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception__reporter_user_id
+msgid "Reported By"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception__reporter_user_name
+msgid "Reporter Name"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model_terms:ir.ui.view,arch_db:logistics_trace_exception.view_logistics_trace_exception_form
+msgid "Resolve"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model:ir.model.fields.selection,name:logistics_trace_exception.selection__logistics_trace_exception__state__resolved
+msgid "Resolved"
+msgstr ""
+
+#. modules: logistics_trace_core, logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__activity_user_id
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception__activity_user_id
+msgid "Responsible User"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_dispatch_waybill__risk_level
+msgid "Risk Level"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__route_seq
+msgid "Route Sequence"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_batch__route_summary
+msgid "Route Summary"
+msgstr ""
+
+#. modules: logistics_trace_core, logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__message_has_sms_error
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill_order_line__sale_order_id
+msgid "Sale Order"
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/dashboard_templates.xml:0
+msgid ""
+"See the decision summary first, then drill into the disputes that need "
+"attention."
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/dashboard_templates.xml:0
+msgid ""
+"See what needs attention first, then drill into waybills, batches, and "
+"exceptions."
+msgstr ""
+
+#. module: logistics_trace_evidence
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_trace_evidence__sequence
+msgid "Sequence"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception__severity_level
+#: model_terms:ir.ui.view,arch_db:logistics_trace_exception.view_logistics_trace_exception_search
+msgid "Severity"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_waybill__state__signed
+msgid "Signed"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields.selection,name:logistics_trace_core.selection__logistics_trace_event__event_type__signoff
+msgid "Signoff"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model:ir.model.fields.selection,name:logistics_trace_exception.selection__logistics_trace_exception__exception_type__signoff_problem
+msgid "Signoff Problem"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_dispatch_waybill__signoff_trace_status
+msgid "Signoff Trace"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__source_channel
+msgid "Source Channel"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__source_record_id
+msgid "Source Record ID"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields.selection,name:logistics_trace_core.selection__logistics_trace_event__event_type__start_loading
+msgid "Start Loading"
+msgstr ""
+
+#. modules: logistics_trace_core, logistics_trace_evidence,
+#. logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__state
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_trace_evidence__state
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception__state
+#: model_terms:ir.ui.view,arch_db:logistics_trace_exception.view_logistics_trace_exception_search
+msgid "State"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model:ir.model.fields.selection,name:logistics_trace_exception.selection__logistics_trace_exception_process_log__action_type__state_change
+msgid "State Change"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_batch__state
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_wave__state
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__state
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_wave_search
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_waybill_search
+msgid "Status"
+msgstr ""
+
+#. modules: logistics_trace_core, logistics_trace_exception
+#: model:ir.model.fields,help:logistics_trace_core.field_logistics_trace_event__activity_state
+#: model:ir.model.fields,help:logistics_trace_exception.field_logistics_trace_exception__activity_state
+msgid ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill_order_line__stock_picking_id
+msgid "Stock Picking"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__store_id
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill_order_line__store_id
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_waybill_search
+msgid "Store"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model:ir.model.fields.selection,name:logistics_trace_exception.selection__logistics_trace_exception__exception_type__store_closed
+msgid "Store Closed"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__submit_source
+msgid "Submit Source"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__submit_user_name
+msgid "Submit User Name"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields.selection,name:logistics_trace_core.selection__logistics_trace_event__state__submitted
+msgid "Submitted"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__submit_user_id
+msgid "Submitted By"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model_terms:ir.ui.view,arch_db:logistics_trace_core.view_logistics_trace_event_search
+msgid "Submitter"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model_terms:ir.ui.view,arch_db:logistics_trace_exception.view_logistics_trace_exception_form
+msgid "Summaries"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields.selection,name:logistics_trace_core.selection__logistics_trace_event__submit_source__system
+msgid "System"
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/dashboard_templates.xml:0
+msgid ""
+"The dashboard should guide users into waybill, exception, and batch detail "
+"pages."
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/dashboard_templates.xml:0
+msgid ""
+"These are the current disputes most likely to need management attention."
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception_process_log__to_state
+msgid "To State"
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/dashboard_templates.xml:0
+msgid "Today at a Glance"
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/widget_templates.xml:0
+msgid "Trace"
+msgstr ""
+
+#. module: logistics_web
+#: model_terms:ir.ui.view,arch_db:logistics_web.view_logistics_web_waybill_form_inherit
+msgid "Trace & Evidence"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model_terms:ir.ui.view,arch_db:logistics_trace_core.view_logistics_trace_event_form
+msgid "Trace Context"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_dispatch_waybill__trace_count
+msgid "Trace Count"
+msgstr ""
+
+#. modules: logistics_trace_core, logistics_trace_evidence,
+#. logistics_trace_exception
+#. odoo-python
+#: code:addons/logistics_trace_exception/models/logistics_trace_exception.py:0
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__name
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_trace_evidence__trace_event_id
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception__trace_event_id
+#: model_terms:ir.ui.view,arch_db:logistics_trace_core.view_logistics_trace_event_form
+#: model_terms:ir.ui.view,arch_db:logistics_trace_evidence.view_logistics_trace_evidence_search
+msgid "Trace Event"
+msgstr ""
+
+#. module: logistics_trace_core
+#. odoo-python
+#: code:addons/logistics_trace_core/models/logistics_dispatch_waybill.py:0
+#: model:ir.actions.act_window,name:logistics_trace_core.action_logistics_trace_event
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_dispatch_waybill__trace_event_ids
+#: model:ir.ui.menu,name:logistics_trace_core.menu_logistics_trace_event
+#: model_terms:ir.ui.view,arch_db:logistics_trace_core.view_logistics_dispatch_waybill_form_inherit_trace_core
+#: model_terms:ir.ui.view,arch_db:logistics_trace_core.view_logistics_trace_event_search
+#: model_terms:ir.ui.view,arch_db:logistics_trace_core.view_logistics_trace_event_tree
+msgid "Trace Events"
+msgstr ""
+
+#. module: logistics_trace_evidence
+#: model:ir.actions.act_window,name:logistics_trace_evidence.action_logistics_trace_evidence
+#: model:ir.ui.menu,name:logistics_trace_evidence.menu_logistics_trace_evidence
+#: model_terms:ir.ui.view,arch_db:logistics_trace_evidence.view_logistics_trace_evidence_form
+#: model_terms:ir.ui.view,arch_db:logistics_trace_evidence.view_logistics_trace_evidence_search
+#: model_terms:ir.ui.view,arch_db:logistics_trace_evidence.view_logistics_trace_evidence_tree
+msgid "Trace Evidence"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model_terms:ir.ui.view,arch_db:logistics_trace_exception.view_logistics_trace_exception_form
+msgid "Trace Exception"
+msgstr ""
+
+#. module: logistics_trace_exception
+#: model_terms:ir.ui.view,arch_db:logistics_trace_exception.view_logistics_trace_exception_search
+#: model_terms:ir.ui.view,arch_db:logistics_trace_exception.view_logistics_trace_exception_tree
+msgid "Trace Exceptions"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__trace_time
+msgid "Trace Time"
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/js/widgets/trace_evidence_field_widgets.js:0
+#: code:addons/logistics_web/static/src/xml/widget_templates.xml:0
+#: model_terms:ir.ui.view,arch_db:logistics_web.view_logistics_web_waybill_form_inherit
+msgid "Trace Timeline"
+msgstr ""
+
+#. module: logistics_web
+#: model_terms:ir.ui.view,arch_db:logistics_web.view_logistics_web_waybill_form_inherit
+msgid "Trace Timeline Fallback"
+msgstr ""
+
+#. module: logistics_web
+#: model:ir.model.fields,field_description:logistics_web.field_logistics_dispatch_waybill__trace_timeline_panel
+msgid "Trace Timeline Panel"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_waybill_form
+msgid "Tracking Summary"
+msgstr ""
+
+#. modules: logistics_trace_core, logistics_trace_exception
+#: model:ir.model.fields,help:logistics_trace_core.field_logistics_trace_event__activity_exception_decoration
+#: model:ir.model.fields,help:logistics_trace_exception.field_logistics_trace_exception__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr ""
+
+#. modules: logistics_trace_evidence, logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/widget_templates.xml:0
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_trace_evidence__uploaded_at
+msgid "Uploaded At"
+msgstr ""
+
+#. modules: logistics_trace_evidence, logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/widget_templates.xml:0
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_trace_evidence__uploader_id
+#: model_terms:ir.ui.view,arch_db:logistics_trace_evidence.view_logistics_trace_evidence_search
+msgid "Uploader"
+msgstr ""
+
+#. module: logistics_trace_evidence
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_trace_evidence__uploader_name
+msgid "Uploader Name"
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/dashboard_templates.xml:0
+msgid "Use batch pages when risk appears concentrated in one execution group."
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/dashboard_templates.xml:0
+msgid "Use exception list to process active issues and assign follow-up work."
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/dashboard_templates.xml:0
+msgid "Use these cards to decide what to inspect first."
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/dashboard_templates.xml:0
+msgid ""
+"Use these cards to decide whether to go to disputes or batch-level risk "
+"review."
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/dashboard_templates.xml:0
+msgid "Use waybill list for first-round filtering and detail inspection."
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_batch__vehicle_id
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__vehicle_id
+msgid "Vehicle"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill_order_line__volume_summary
+msgid "Volume"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_batch__warehouse_id
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_wave__warehouse_id
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__warehouse_id
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_batch_search
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_wave_search
+msgid "Warehouse"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_batch__wave_id
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__wave_id
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_batch_search
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_waybill_search
+msgid "Wave"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_wave__name
+msgid "Wave No"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_wave_form
+msgid "Wave-level coordination notes"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.actions.act_window,name:logistics_dispatch.action_logistics_dispatch_wave
+#: model:ir.ui.menu,name:logistics_dispatch.menu_logistics_dispatch_wave
+msgid "Waves"
+msgstr ""
+
+#. modules: logistics_dispatch, logistics_trace_core,
+#. logistics_trace_evidence, logistics_trace_exception
+#. odoo-python
+#: code:addons/logistics_trace_exception/models/logistics_trace_exception.py:0
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill_order_line__waybill_id
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__waybill_id
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_trace_evidence__waybill_id
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception__waybill_id
+#: model:ir.model.fields.selection,name:logistics_trace_core.selection__logistics_trace_event__object_type__waybill
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_waybill_form
+#: model_terms:ir.ui.view,arch_db:logistics_trace_core.view_logistics_trace_event_search
+#: model_terms:ir.ui.view,arch_db:logistics_trace_evidence.view_logistics_trace_evidence_search
+#: model_terms:ir.ui.view,arch_db:logistics_trace_exception.view_logistics_trace_exception_search
+msgid "Waybill"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_batch__total_waybill_count
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_wave__total_waybill_count
+msgid "Waybill Count"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model_terms:ir.ui.view,arch_db:logistics_trace_core.view_logistics_trace_event_search
+msgid "Waybill Events"
+msgstr ""
+
+#. module: logistics_trace_exception
+#. odoo-python
+#: code:addons/logistics_trace_exception/models/logistics_dispatch_waybill.py:0
+msgid "Waybill Exceptions"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__name
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_waybill_search
+msgid "Waybill No"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model,name:logistics_dispatch.model_logistics_dispatch_waybill_order_line
+msgid "Waybill Order Line"
+msgstr ""
+
+#. module: logistics_dispatch
+#. odoo-python
+#: code:addons/logistics_dispatch/models/logistics_dispatch_waybill.py:0
+msgid "Waybill Order Lines"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.actions.act_window,name:logistics_dispatch.action_logistics_dispatch_waybill
+#: model:ir.ui.menu,name:logistics_dispatch.menu_logistics_dispatch_waybill
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_waybill_search
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_waybill_tree
+msgid "Waybill Tracking"
+msgstr ""
+
+#. module: logistics_web
+#. odoo-javascript
+#: code:addons/logistics_web/static/src/xml/dashboard_templates.xml:0
+msgid "Waybill:"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_batch__waybill_ids
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_batch_form
+msgid "Waybills"
+msgstr ""
+
+#. modules: logistics_trace_core, logistics_trace_exception
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__website_message_ids
+#: model:ir.model.fields,field_description:logistics_trace_exception.field_logistics_trace_exception__website_message_ids
+msgid "Website Messages"
+msgstr ""
+
+#. modules: logistics_trace_core, logistics_trace_exception
+#: model:ir.model.fields,help:logistics_trace_core.field_logistics_trace_event__website_message_ids
+#: model:ir.model.fields,help:logistics_trace_exception.field_logistics_trace_exception__website_message_ids
+msgid "Website communication history"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill_order_line__weight_summary
+msgid "Weight"
+msgstr ""
+
+#. module: logistics_trace_exception
+#. odoo-python
+#: code:addons/logistics_trace_exception/models/logistics_trace_exception.py:0
+msgid "trace_event_id"
+msgstr ""
+
+#. modules: logistics_dispatch, logistics_trace_core,
+#. logistics_trace_exception
+#. odoo-python
+#: code:addons/logistics_dispatch/models/logistics_dispatch_waybill.py:0
+#: code:addons/logistics_trace_core/models/logistics_dispatch_waybill.py:0
+#: code:addons/logistics_trace_exception/models/logistics_dispatch_waybill.py:0
+msgid "waybill_id"
+msgstr ""

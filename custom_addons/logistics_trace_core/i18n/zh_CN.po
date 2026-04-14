@@ -1,0 +1,486 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* logistics_trace_core
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-04-14 03:32+0000\n"
+"PO-Revision-Date: 2026-04-14 03:32+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__message_needaction
+msgid "Action Needed"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__activity_ids
+msgid "Activities"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__activity_state
+msgid "Activity State"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__activity_type_icon
+msgid "Activity Type Icon"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_dispatch_waybill__arrive_trace_status
+msgid "Arrival Trace"
+msgstr "到场留痕"
+
+#. module: logistics_trace_core
+#: model:ir.model.fields.selection,name:logistics_trace_core.selection__logistics_trace_event__event_type__arrive_loading_point
+msgid "Arrive Loading Point"
+msgstr "到达装货点"
+
+#. module: logistics_trace_core
+#: model:ir.model.fields.selection,name:logistics_trace_core.selection__logistics_trace_event__event_type__arrive_store
+msgid "Arrive Store"
+msgstr "到达门店"
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__message_attachment_count
+msgid "Attachment Count"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__batch_id
+#: model:ir.model.fields.selection,name:logistics_trace_core.selection__logistics_trace_event__object_type__batch
+#: model_terms:ir.ui.view,arch_db:logistics_trace_core.view_logistics_trace_event_search
+msgid "Batch"
+msgstr "批次"
+
+#. module: logistics_trace_core
+#: model_terms:ir.ui.view,arch_db:logistics_trace_core.view_logistics_trace_event_search
+msgid "Batch Events"
+msgstr "批次留痕"
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields.selection,name:logistics_trace_core.selection__logistics_trace_event__event_type__deliver_finish
+msgid "Deliver Finish"
+msgstr "配送完成"
+
+#. module: logistics_trace_core
+#: model:ir.model.fields.selection,name:logistics_trace_core.selection__logistics_trace_event__event_type__departed
+msgid "Departed"
+msgstr "已发车"
+
+#. module: logistics_trace_core
+#: model_terms:ir.ui.view,arch_db:logistics_trace_core.view_logistics_trace_event_form
+msgid "Describe the on-site fact captured by this trace event"
+msgstr "请描述该留痕记录捕获到的现场事实"
+
+#. module: logistics_trace_core
+#: model:ir.model,name:logistics_trace_core.model_logistics_dispatch_waybill
+msgid "Dispatch Waybill"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_dispatch_waybill__display_name
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields.selection,name:logistics_trace_core.selection__logistics_dispatch_waybill__arrive_trace_status__done
+#: model:ir.model.fields.selection,name:logistics_trace_core.selection__logistics_dispatch_waybill__signoff_trace_status__done
+msgid "Done"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields.selection,name:logistics_trace_core.selection__logistics_trace_event__state__draft
+msgid "Draft"
+msgstr "草稿"
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__driver_name
+msgid "Driver Name"
+msgstr "司机姓名"
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__event_type
+#: model_terms:ir.ui.view,arch_db:logistics_trace_core.view_logistics_trace_event_search
+msgid "Event Type"
+msgstr "事件类型"
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__evidence_count
+msgid "Evidence Count"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__is_exception
+msgid "Exception Event"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model_terms:ir.ui.view,arch_db:logistics_trace_core.view_logistics_trace_event_search
+msgid "Exception Events"
+msgstr "异常留痕"
+
+#. module: logistics_trace_core
+#: model:ir.model.fields.selection,name:logistics_trace_core.selection__logistics_trace_event__event_type__exception_report
+msgid "Exception Report"
+msgstr "异常上报"
+
+#. module: logistics_trace_core
+#: model_terms:ir.ui.view,arch_db:logistics_trace_core.view_logistics_trace_event_form
+msgid "Execution Context"
+msgstr "执行上下文"
+
+#. module: logistics_trace_core
+#: model:ir.model.fields.selection,name:logistics_trace_core.selection__logistics_trace_event__event_type__finish_loading
+msgid "Finish Loading"
+msgstr "完成装货"
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__message_follower_ids
+msgid "Followers"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__message_partner_ids
+msgid "Followers (Partners)"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,help:logistics_trace_core.field_logistics_trace_event__activity_type_icon
+msgid "Font awesome icon e.g. fa-tasks"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__has_message
+msgid "Has Message"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_dispatch_waybill__id
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__id
+msgid "ID"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__activity_exception_icon
+msgid "Icon"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,help:logistics_trace_core.field_logistics_trace_event__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,help:logistics_trace_core.field_logistics_trace_event__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,help:logistics_trace_core.field_logistics_trace_event__message_has_error
+#: model:ir.model.fields,help:logistics_trace_core.field_logistics_trace_event__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields.selection,name:logistics_trace_core.selection__logistics_trace_event__state__invalid
+msgid "Invalid"
+msgstr "无效"
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__message_is_follower
+msgid "Is Follower"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_dispatch_waybill__latest_trace_summary
+msgid "Latest Trace Summary"
+msgstr "最新留痕摘要"
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_dispatch_waybill__latest_trace_time
+msgid "Latest Trace Time"
+msgstr "最新留痕时间"
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_dispatch_waybill__latest_trace_type
+msgid "Latest Trace Type"
+msgstr "最新留痕类型"
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__location_text
+msgid "Location"
+msgstr "地点"
+
+#. module: logistics_trace_core
+#: model:ir.model,name:logistics_trace_core.model_logistics_trace_event
+msgid "Logistics Trace Event"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields.selection,name:logistics_trace_core.selection__logistics_trace_event__submit_source__manual
+msgid "Manual"
+msgstr "手工"
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__message_has_error
+msgid "Message Delivery error"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__message_ids
+msgid "Messages"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields.selection,name:logistics_trace_core.selection__logistics_trace_event__submit_source__mobile
+msgid "Mobile"
+msgstr "移动端"
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__activity_summary
+msgid "Next Activity Summary"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__activity_type_id
+msgid "Next Activity Type"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__message_needaction_counter
+msgid "Number of Actions"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__message_has_error_counter
+msgid "Number of errors"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,help:logistics_trace_core.field_logistics_trace_event__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,help:logistics_trace_core.field_logistics_trace_event__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__object_type
+msgid "Object Type"
+msgstr "对象类型"
+
+#. module: logistics_trace_core
+#: model:ir.model.fields.selection,name:logistics_trace_core.selection__logistics_dispatch_waybill__arrive_trace_status__partial
+#: model:ir.model.fields.selection,name:logistics_trace_core.selection__logistics_dispatch_waybill__signoff_trace_status__partial
+msgid "Partial"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields.selection,name:logistics_trace_core.selection__logistics_dispatch_waybill__arrive_trace_status__pending
+#: model:ir.model.fields.selection,name:logistics_trace_core.selection__logistics_dispatch_waybill__signoff_trace_status__pending
+msgid "Pending"
+msgstr "待补充"
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__plate_no
+msgid "Plate No"
+msgstr "车牌号"
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__remark
+#: model_terms:ir.ui.view,arch_db:logistics_trace_core.view_logistics_trace_event_form
+msgid "Remark"
+msgstr "备注"
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__activity_user_id
+msgid "Responsible User"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields.selection,name:logistics_trace_core.selection__logistics_trace_event__event_type__signoff
+msgid "Signoff"
+msgstr "签收"
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_dispatch_waybill__signoff_trace_status
+msgid "Signoff Trace"
+msgstr "签收留痕"
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__source_channel
+msgid "Source Channel"
+msgstr "来源渠道"
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__source_record_id
+msgid "Source Record ID"
+msgstr "来源记录 ID"
+
+#. module: logistics_trace_core
+#: model:ir.model.fields.selection,name:logistics_trace_core.selection__logistics_trace_event__event_type__start_loading
+msgid "Start Loading"
+msgstr "开始装货"
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__state
+msgid "State"
+msgstr "状态"
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,help:logistics_trace_core.field_logistics_trace_event__activity_state
+msgid ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__submit_source
+msgid "Submit Source"
+msgstr "提交来源"
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__submit_user_name
+msgid "Submit User Name"
+msgstr "提交用户名"
+
+#. module: logistics_trace_core
+#: model:ir.model.fields.selection,name:logistics_trace_core.selection__logistics_trace_event__state__submitted
+msgid "Submitted"
+msgstr "已提交"
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__submit_user_id
+msgid "Submitted By"
+msgstr "提交人"
+
+#. module: logistics_trace_core
+#: model_terms:ir.ui.view,arch_db:logistics_trace_core.view_logistics_trace_event_search
+msgid "Submitter"
+msgstr "提交人"
+
+#. module: logistics_trace_core
+#: model:ir.model.fields.selection,name:logistics_trace_core.selection__logistics_trace_event__submit_source__system
+msgid "System"
+msgstr "系统"
+
+#. module: logistics_trace_core
+#: model_terms:ir.ui.view,arch_db:logistics_trace_core.view_logistics_trace_event_form
+msgid "Trace Context"
+msgstr "留痕上下文"
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_dispatch_waybill__trace_count
+msgid "Trace Count"
+msgstr "留痕数"
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__name
+#: model_terms:ir.ui.view,arch_db:logistics_trace_core.view_logistics_trace_event_form
+msgid "Trace Event"
+msgstr "留痕事件"
+
+#. module: logistics_trace_core
+#. odoo-python
+#: code:addons/logistics_trace_core/models/logistics_dispatch_waybill.py:0
+#: model:ir.actions.act_window,name:logistics_trace_core.action_logistics_trace_event
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_dispatch_waybill__trace_event_ids
+#: model:ir.ui.menu,name:logistics_trace_core.menu_logistics_trace_event
+#: model_terms:ir.ui.view,arch_db:logistics_trace_core.view_logistics_dispatch_waybill_form_inherit_trace_core
+#: model_terms:ir.ui.view,arch_db:logistics_trace_core.view_logistics_trace_event_search
+#: model_terms:ir.ui.view,arch_db:logistics_trace_core.view_logistics_trace_event_tree
+msgid "Trace Events"
+msgstr "留痕事件"
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__trace_time
+msgid "Trace Time"
+msgstr "留痕时间"
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,help:logistics_trace_core.field_logistics_trace_event__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__waybill_id
+#: model:ir.model.fields.selection,name:logistics_trace_core.selection__logistics_trace_event__object_type__waybill
+#: model_terms:ir.ui.view,arch_db:logistics_trace_core.view_logistics_trace_event_search
+msgid "Waybill"
+msgstr "运单"
+
+#. module: logistics_trace_core
+#: model_terms:ir.ui.view,arch_db:logistics_trace_core.view_logistics_trace_event_search
+msgid "Waybill Events"
+msgstr "运单留痕"
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__website_message_ids
+msgid "Website Messages"
+msgstr ""
+
+#. module: logistics_trace_core
+#: model:ir.model.fields,help:logistics_trace_core.field_logistics_trace_event__website_message_ids
+msgid "Website communication history"
+msgstr ""
+
+#. module: logistics_trace_core
+#. odoo-python
+#: code:addons/logistics_trace_core/models/logistics_dispatch_waybill.py:0
+msgid "waybill_id"
+msgstr ""

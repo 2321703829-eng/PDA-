@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_logistics_web_waybill_form_inherit" model="ir.ui.view">
+        <field name="name">logistics.dispatch.waybill.form.logistics.web</field>
+        <field name="model">logistics.dispatch.waybill</field>
+        <field name="inherit_id" ref="logistics_dispatch.view_logistics_dispatch_waybill_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="attributes">
+                <attribute name="js_class">logistics_waybill_form</attribute>
+            </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page string="Trace &amp; Evidence">
+                    <div class="o_logistics_waybill_enhanced_detail o_logistics_waybill_enhanced_detail_primary">
+                        <div class="o_logistics_waybill_widget_block">
+                            <h3 class="o_logistics_waybill_widget_heading">Trace Timeline</h3>
+                            <div class="o_logistics_waybill_timeline_host o_logistics_waybill_widget_host"/>
+                        </div>
+
+                        <div class="o_logistics_waybill_widget_block">
+                            <h3 class="o_logistics_waybill_widget_heading">Evidence Viewer</h3>
+                            <div class="o_logistics_waybill_evidence_host o_logistics_waybill_widget_host"/>
+                        </div>
+                    </div>
+                    <div class="o_logistics_waybill_enhanced_detail o_logistics_waybill_fallback_section">
+                        <separator string="Fallback Data (Debug)"/>
+                        <label string="Use the fallback lists below only when checking raw linked records or troubleshooting widget rendering."
+                               class="text-muted o_logistics_waybill_fallback_hint"/>
+
+                        <group string="Trace Timeline Fallback" col="1">
+                            <field name="trace_event_ids" readonly="1">
+                                <list create="0" delete="0" open_form_view="1">
+                                    <field name="trace_time"/>
+                                    <field name="event_type"/>
+                                    <field name="submit_user_name"/>
+                                    <field name="evidence_count"/>
+                                    <field name="is_exception"/>
+                                    <field name="state"/>
+                                </list>
+                            </field>
+                        </group>
+                        <group string="Evidence Fallback" col="1">
+                            <field name="evidence_ids" readonly="1">
+                                <list create="0" delete="0" open_form_view="1">
+                                    <field name="name"/>
+                                    <field name="trace_event_id"/>
+                                    <field name="uploaded_at"/>
+                                    <field name="uploader_name"/>
+                                    <field name="is_exception_related"/>
+                                    <field name="sequence"/>
+                                </list>
+                            </field>
+                        </group>
+                    </div>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>
