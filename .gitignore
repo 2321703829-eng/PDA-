@@ -1,0 +1,5 @@
+.logs/
+.logs_runtime/
+.odoo_data/
+.venv/
+ai-code/odoo-reconstruct/
