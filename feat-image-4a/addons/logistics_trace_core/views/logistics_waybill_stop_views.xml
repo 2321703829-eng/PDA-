@@ -4,7 +4,7 @@
         <field name="name">logistics.waybill.stop.tree</field>
         <field name="model">logistics.waybill.stop</field>
         <field name="arch" type="xml">
-            <tree>
+            <list>
                 <field name="waybill_no"/>
                 <field name="batch_no"/>
                 <field name="stop_seq"/>
@@ -14,7 +14,7 @@
                 <field name="contact_phone"/>
                 <field name="driver_name"/>
                 <field name="vehicle_no"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -71,7 +71,7 @@
     <record id="action_logistics_waybill_stop" model="ir.actions.act_window">
         <field name="name">Waybill Stops</field>
         <field name="res_model">logistics.waybill.stop</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="search_view_id" ref="view_logistics_waybill_stop_search"/>
     </record>
 </odoo>
