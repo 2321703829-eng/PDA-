@@ -194,37 +194,8 @@ export class LogisticsWaybillFormRenderer extends FormRenderer {
             );
             return records.map((record) => this.mapEvidenceRecord(record));
         } catch {
-            return this.fallbackEvidenceItems;
+            return [];
         }
-    }
-
-    get fallbackEvidenceItems() {
-        const data = this.recordData;
-        const evidenceCount = Math.max(data.evidence_count || 0, 1);
-        const latestTraceTime = data.latest_trace_time || "--";
-        const storeName = this.getDisplayName(data.store_id) || _t("Store");
-        const driverName = this.getDisplayName(data.driver_employee_id) || _t("Driver");
-        const items = [];
-
-        for (let index = 0; index < Math.min(evidenceCount, 3); index++) {
-            items.push({
-                id: index + 1,
-                label: `${_t("Evidence")} ${String(index + 1).padStart(2, "0")}`,
-                name: index === 0 ? _t("Latest Evidence Snapshot") : `${_t("Evidence Snapshot")} ${index + 1}`,
-                traceLabel: data.latest_trace_type || _t("trace"),
-                uploadedAt: latestTraceTime,
-                uploader: index === 0 ? driverName : storeName,
-                remark:
-                    index === 0
-                        ? data.latest_trace_summary || _t("Latest evidence context.")
-                        : `${_t("Evidence placeholder")} ${index + 1} ${_t("for waybill review.")}`,
-                isExceptionEvidence:
-                    data.exception_status === "open" || data.exception_status === "processing",
-                previewText: `${_t("Evidence")} ${index + 1}`,
-            });
-        }
-
-        return items;
     }
 
     getDisplayName(value) {
@@ -245,6 +216,41 @@ export class LogisticsWaybillFormRenderer extends FormRenderer {
             id: value || false,
             label: "",
         };
+    }
+
+    cleanImageValue(value) {
+        if (!value || typeof value !== "string") {
+            return "";
+        }
+        const trimmed = value.trim();
+        if (
+            (trimmed.startsWith('"') && trimmed.endsWith('"')) ||
+            (trimmed.startsWith("'") && trimmed.endsWith("'"))
+        ) {
+            return trimmed.slice(1, -1).trim();
+        }
+        return trimmed;
+    }
+
+    normalizeImageUrl(value) {
+        const cleanedValue = this.cleanImageValue(value);
+        if (!cleanedValue) {
+            return "";
+        }
+        if (
+            cleanedValue.startsWith("http://") ||
+            cleanedValue.startsWith("https://") ||
+            cleanedValue.startsWith("file://") ||
+            cleanedValue.startsWith("blob:") ||
+            cleanedValue.startsWith("data:") ||
+            cleanedValue.startsWith("/")
+        ) {
+            return cleanedValue;
+        }
+        if (/^[A-Za-z]:[\\/]/.test(cleanedValue)) {
+            return `file:///${cleanedValue.replace(/\\/g, "/")}`;
+        }
+        return cleanedValue;
     }
 
     mapTraceRecord(record) {
@@ -268,6 +274,9 @@ export class LogisticsWaybillFormRenderer extends FormRenderer {
 
     mapEvidenceRecord(record) {
         const traceRef = this.getRelationalRef(record.trace_event_id);
+        const imageAccessKey = this.cleanImageValue(record.image_access_key);
+        const previewUrl = this.cleanImageValue(record.preview_url);
+        const fullUrl = this.cleanImageValue(record.full_url);
         return {
             id: record.id,
             label: record.name || `${_t("Evidence")} ${record.id}`,
@@ -280,9 +289,9 @@ export class LogisticsWaybillFormRenderer extends FormRenderer {
             isExceptionEvidence: !!record.is_exception_related,
             hasRelatedException: !!record.is_exception_related,
             previewText: record.name || _t("Evidence Preview"),
-            imageAccessKey: record.image_access_key || "",
-            previewUrl: record.preview_url || "",
-            fullUrl: record.full_url || "",
+            imageAccessKey,
+            previewUrl,
+            fullUrl,
             sequence: record.sequence || 10,
         };
     }
@@ -395,8 +404,9 @@ export class LogisticsWaybillFormRenderer extends FormRenderer {
     }
 
     onOpenFullImage(item) {
-        if (item?.fullUrl) {
-            window.open(item.fullUrl, "_blank", "noopener");
+        const openUrl = this.normalizeImageUrl(item?.fullUrl || item?.previewUrl || item?.imageAccessKey);
+        if (openUrl) {
+            window.open(openUrl, "_blank", "noopener");
             return;
         }
         this.notifyPending(

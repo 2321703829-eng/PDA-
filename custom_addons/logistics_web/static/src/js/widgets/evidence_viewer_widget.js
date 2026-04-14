@@ -20,6 +20,7 @@ export class EvidenceViewerWidget extends Component {
     setup() {
         this.state = useState({
             activeIndex: this.getInitialActiveIndex(),
+            failedPreviewKeys: {},
         });
     }
 
@@ -28,7 +29,7 @@ export class EvidenceViewerWidget extends Component {
     }
 
     get allItems() {
-        return Array.isArray(this.props.items) ? this.props.items : this.defaultItems;
+        return Array.isArray(this.props.items) ? this.props.items : [];
     }
 
     get hasItems() {
@@ -65,6 +66,86 @@ export class EvidenceViewerWidget extends Component {
         }
     }
 
+    get activePreviewUrl() {
+        return this.getItemPreviewUrl(this.activeItem);
+    }
+
+    get activeOpenUrl() {
+        return this.getItemOpenUrl(this.activeItem);
+    }
+
+    get hasActivePreview() {
+        return Boolean(this.activePreviewUrl) && !this.hasPreviewFailed(this.activeItem);
+    }
+
+    normalizeUrl(url) {
+        if (!url || typeof url !== "string") {
+            return "";
+        }
+        let normalized = url.trim();
+        if (
+            (normalized.startsWith('"') && normalized.endsWith('"')) ||
+            (normalized.startsWith("'") && normalized.endsWith("'"))
+        ) {
+            normalized = normalized.slice(1, -1).trim();
+        }
+        if (!normalized) {
+            return "";
+        }
+        if (
+            normalized.startsWith("http://") ||
+            normalized.startsWith("https://") ||
+            normalized.startsWith("file://") ||
+            normalized.startsWith("blob:") ||
+            normalized.startsWith("data:") ||
+            normalized.startsWith("/")
+        ) {
+            return normalized;
+        }
+        if (/^[A-Za-z]:[\\/]/.test(normalized)) {
+            return `file:///${normalized.replace(/\\/g, "/")}`;
+        }
+        return normalized;
+    }
+
+    getPreviewKey(item) {
+        return item?.id || item?.imageAccessKey || item?.name || item?.label || "";
+    }
+
+    hasPreviewFailed(item) {
+        const key = this.getPreviewKey(item);
+        return Boolean(key && this.state.failedPreviewKeys[key]);
+    }
+
+    markPreviewFailed(item) {
+        const key = this.getPreviewKey(item);
+        if (!key || this.state.failedPreviewKeys[key]) {
+            return;
+        }
+        this.state.failedPreviewKeys = {
+            ...this.state.failedPreviewKeys,
+            [key]: true,
+        };
+    }
+
+    getItemPreviewUrl(item) {
+        return this.normalizeUrl(item?.previewUrl || item?.fullUrl || item?.imageAccessKey || "");
+    }
+
+    getItemOpenUrl(item) {
+        return this.normalizeUrl(item?.fullUrl || item?.previewUrl || item?.imageAccessKey || "");
+    }
+
+    onStageImageError() {
+        if (this.activeItem) {
+            this.markPreviewFailed(this.activeItem);
+        }
+    }
+
+    onThumbImageError(item) {
+        this.markPreviewFailed(item);
+    }
+
     onThumbClick(item, index) {
         this.setActiveIndex(index);
     }
@@ -93,43 +174,5 @@ export class EvidenceViewerWidget extends Component {
         if (this.activeItem && this.props.onOpenFullImage) {
             this.props.onOpenFullImage(this.activeItem);
         }
-    }
-
-    get defaultItems() {
-        return [
-            {
-                id: 1,
-                label: "Evidence 01",
-                name: "Door Damage Photo",
-                traceLabel: "Exception Report",
-                uploadedAt: "2026-04-13 09:19",
-                uploader: "Li Si",
-                remark: "Front-left outer box visibly damaged.",
-                isExceptionEvidence: true,
-                previewText: "Damage Photo",
-            },
-            {
-                id: 2,
-                label: "Evidence 02",
-                name: "Arrival Receipt Photo",
-                traceLabel: "Arrive Store",
-                uploadedAt: "2026-04-13 08:43",
-                uploader: "Zhang San",
-                remark: "Arrival proof before unloading.",
-                isExceptionEvidence: false,
-                previewText: "Arrival Photo",
-            },
-            {
-                id: 3,
-                label: "Evidence 03",
-                name: "Loading Confirmation Photo",
-                traceLabel: "Loading Finish",
-                uploadedAt: "2026-04-13 07:56",
-                uploader: "Wang Wu",
-                remark: "Vehicle loaded and sealed.",
-                isExceptionEvidence: false,
-                previewText: "Loading Photo",
-            },
-        ];
     }
 }

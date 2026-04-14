@@ -23,8 +23,9 @@
                     </div>
                     <div class="o_logistics_waybill_enhanced_detail o_logistics_waybill_fallback_section">
                         <separator string="Fallback Data (Debug)"/>
-                        <label string="Use the fallback lists below only when checking raw linked records or troubleshooting widget rendering."
-                               class="text-muted o_logistics_waybill_fallback_hint"/>
+                        <div class="o_form_label text-muted o_logistics_waybill_fallback_hint">
+                            Use the fallback lists below only when checking raw linked records or troubleshooting widget rendering.
+                        </div>
 
                         <group string="Trace Timeline Fallback" col="1">
                             <field name="trace_event_ids" readonly="1">

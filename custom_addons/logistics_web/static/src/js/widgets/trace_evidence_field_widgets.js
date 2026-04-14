@@ -61,6 +61,41 @@ class LogisticsWaybillBasePanel extends Component {
         };
     }
 
+    cleanImageValue(value) {
+        if (!value || typeof value !== "string") {
+            return "";
+        }
+        const trimmed = value.trim();
+        if (
+            (trimmed.startsWith('"') && trimmed.endsWith('"')) ||
+            (trimmed.startsWith("'") && trimmed.endsWith("'"))
+        ) {
+            return trimmed.slice(1, -1).trim();
+        }
+        return trimmed;
+    }
+
+    normalizeImageUrl(value) {
+        const cleanedValue = this.cleanImageValue(value);
+        if (!cleanedValue) {
+            return "";
+        }
+        if (
+            cleanedValue.startsWith("http://") ||
+            cleanedValue.startsWith("https://") ||
+            cleanedValue.startsWith("file://") ||
+            cleanedValue.startsWith("blob:") ||
+            cleanedValue.startsWith("data:") ||
+            cleanedValue.startsWith("/")
+        ) {
+            return cleanedValue;
+        }
+        if (/^[A-Za-z]:[\\/]/.test(cleanedValue)) {
+            return `file:///${cleanedValue.replace(/\\/g, "/")}`;
+        }
+        return cleanedValue;
+    }
+
     notifyPending(message) {
         this.notificationService.add(message, { type: "info" });
     }
@@ -256,6 +291,9 @@ export class LogisticsEvidenceViewerField extends LogisticsWaybillBasePanel {
             );
             this.state.items = records.map((record) => {
                 const traceRef = this.getRelationalRef(record.trace_event_id);
+                const imageAccessKey = this.cleanImageValue(record.image_access_key);
+                const previewUrl = this.cleanImageValue(record.preview_url);
+                const fullUrl = this.cleanImageValue(record.full_url);
                 return {
                     id: record.id,
                     label: record.name || `Evidence ${record.id}`,
@@ -268,9 +306,9 @@ export class LogisticsEvidenceViewerField extends LogisticsWaybillBasePanel {
                     isExceptionEvidence: !!record.is_exception_related,
                     hasRelatedException: !!record.is_exception_related,
                     previewText: record.name || "Evidence Preview",
-                    imageAccessKey: record.image_access_key || "",
-                    previewUrl: record.preview_url || "",
-                    fullUrl: record.full_url || "",
+                    imageAccessKey,
+                    previewUrl,
+                    fullUrl,
                     sequence: record.sequence || 10,
                 };
             });
@@ -311,8 +349,9 @@ export class LogisticsEvidenceViewerField extends LogisticsWaybillBasePanel {
     }
 
     onOpenFullImage(item) {
-        if (item?.fullUrl) {
-            window.open(item.fullUrl, "_blank", "noopener");
+        const openUrl = this.normalizeImageUrl(item?.fullUrl || item?.previewUrl || item?.imageAccessKey);
+        if (openUrl) {
+            window.open(openUrl, "_blank", "noopener");
             return;
         }
         this.notifyPending(`Open full image is not available yet for "${item?.name || item?.label || "this evidence"}".`);
