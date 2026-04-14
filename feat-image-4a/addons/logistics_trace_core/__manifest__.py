@@ -10,6 +10,7 @@
         "data/ir_sequence_data.xml",
         "security/ir.model.access.csv",
         "views/logistics_trace_event_views.xml",
+        "views/logistics_waybill_stop_views.xml",
         "views/logistics_trace_menu.xml",
     ],
     "installable": True,

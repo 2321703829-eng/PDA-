@@ -1,2 +1,3 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_logistics_trace_event_user,access.logistics.trace.event.user,model_logistics_trace_event,stock.group_stock_user,1,1,1,0
+access_logistics_waybill_stop_user,access.logistics.waybill.stop.user,model_logistics_waybill_stop,stock.group_stock_user,1,1,1,0

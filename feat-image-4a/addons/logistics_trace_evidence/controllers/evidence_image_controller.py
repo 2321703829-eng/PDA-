@@ -72,6 +72,67 @@ class LogisticsTraceEvidenceImageController(http.Controller):
         ["/api/mini/logistics/waybills/<string:waybill_no>/stops"],
         type="http",
         auth="user",
+        methods=["POST"],
+        csrf=False,
+    )
+    def upsert_waybill_stops(self, waybill_no, **kwargs):
+        try:
+            waybill_no = (waybill_no or "").strip()
+            if not waybill_no:
+                return self._json_response(
+                    {"ok": False, "message": "waybill_no is required."},
+                    status=400,
+                )
+
+            payload = self._get_json_payload()
+            stops_payload = payload.get("stops") or []
+            if not isinstance(stops_payload, list) or not stops_payload:
+                return self._json_response(
+                    {"ok": False, "message": "stops must be a non-empty list."},
+                    status=400,
+                )
+
+            stop_model = request.env["logistics.waybill.stop"].sudo()
+            existing_stops = stop_model.search([("waybill_no", "=", waybill_no)])
+            stop_ids_to_keep = []
+
+            for index, stop_payload in enumerate(stops_payload, start=1):
+                stop_seq = int(stop_payload.get("stop_seq") or index)
+                values = self._prepare_waybill_stop_values(
+                    waybill_no=waybill_no,
+                    stop_payload=stop_payload,
+                    payload=payload,
+                    stop_seq=stop_seq,
+                )
+                stop = stop_model.search(
+                    [("waybill_no", "=", waybill_no), ("stop_seq", "=", stop_seq)],
+                    limit=1,
+                )
+                if stop:
+                    stop.write(values)
+                else:
+                    stop = stop_model.create(values)
+                stop_ids_to_keep.append(stop.id)
+
+            (existing_stops - stop_model.browse(stop_ids_to_keep)).unlink()
+            stops = stop_model.search([("waybill_no", "=", waybill_no)], order="stop_seq asc, id asc")
+            traces = self._search_waybill_traces(waybill_no)
+            payload = self._build_waybill_stops_payload(stops, traces)
+            return self._json_response(
+                {
+                    "ok": True,
+                    "message": "Waybill stops saved successfully.",
+                    "data": payload,
+                },
+                status=200,
+            )
+        except (UserError, ValueError) as exc:
+            return self._json_response({"ok": False, "message": str(exc)}, status=400)
+
+    @http.route(
+        ["/api/mini/logistics/waybills/<string:waybill_no>/stops"],
+        type="http",
+        auth="user",
         methods=["GET"],
         csrf=False,
     )
@@ -83,20 +144,18 @@ class LogisticsTraceEvidenceImageController(http.Controller):
                 status=400,
             )
 
-        traces = request.env["logistics.trace.event"].sudo().search(
-            [
-                ("biz_type", "=", "waybill"),
-                ("waybill_no", "=", waybill_no),
-            ],
-            order="route_sequence asc, occurred_at asc, id asc",
+        stops = request.env["logistics.waybill.stop"].sudo().search(
+            [("waybill_no", "=", waybill_no)],
+            order="stop_seq asc, id asc",
         )
-        if not traces:
+        if not stops:
             return self._json_response(
-                {"ok": False, "message": "Waybill not found."},
+                {"ok": False, "message": "Waybill stops not found."},
                 status=404,
             )
 
-        payload = self._build_waybill_stops_payload(traces)
+        traces = self._search_waybill_traces(waybill_no)
+        payload = self._build_waybill_stops_payload(stops, traces)
         return self._json_response(
             {
                 "ok": True,
@@ -256,91 +315,108 @@ class LogisticsTraceEvidenceImageController(http.Controller):
     def _get_json_payload():
         return request.httprequest.get_json(silent=True) or {}
 
-    def _build_waybill_stops_payload(self, traces):
-        first_trace = traces[0]
-        batch_no = next((trace.batch_no for trace in traces if trace.batch_no), first_trace.batch_no)
-        driver_name = next(
-            (trace.driver_name for trace in traces if trace.driver_name),
-            first_trace.driver_name,
+    @staticmethod
+    def _search_waybill_traces(waybill_no):
+        return request.env["logistics.trace.event"].sudo().search(
+            [
+                ("biz_type", "=", "waybill"),
+                ("waybill_no", "=", waybill_no),
+            ],
+            order="route_sequence asc, occurred_at asc, id asc",
         )
-        vehicle_no = next(
-            (trace.vehicle_no for trace in traces if trace.vehicle_no),
-            first_trace.vehicle_no,
-        )
+
+    def _prepare_waybill_stop_values(self, *, waybill_no, stop_payload, payload, stop_seq):
+        if not (stop_payload.get("store_name") or stop_payload.get("partner_id")):
+            raise UserError("Each stop must provide store_name or partner_id.")
+        return {
+            "waybill_no": waybill_no,
+            "batch_no": stop_payload.get("batch_no") or payload.get("batch_no"),
+            "stop_seq": stop_seq,
+            "store_name": stop_payload.get("store_name") or "",
+            "address": stop_payload.get("address"),
+            "lat": stop_payload.get("lat"),
+            "lng": stop_payload.get("lng"),
+            "contact_name": stop_payload.get("contact_name"),
+            "contact_phone": stop_payload.get("contact_phone"),
+            "contact_list_json": json.dumps(stop_payload.get("contact_list") or [], ensure_ascii=False),
+            "guide_url": stop_payload.get("guide_url"),
+            "goods_info": stop_payload.get("goods_info"),
+            "driver_name": stop_payload.get("driver_name") or payload.get("driver_name"),
+            "vehicle_no": stop_payload.get("vehicle_no") or payload.get("vehicle_no"),
+            "partner_id": stop_payload.get("partner_id"),
+            "stock_picking_id": stop_payload.get("stock_picking_id"),
+        }
+
+    def _build_waybill_stops_payload(self, stop_records, traces):
+        first_stop = stop_records[0]
+        first_trace = traces[:1]
+        first_trace = first_trace[0] if first_trace else None
+        batch_no = first_stop.batch_no or (first_trace.batch_no if first_trace else None)
+        driver_name = first_stop.driver_name or (first_trace.driver_name if first_trace else None)
+        vehicle_no = first_stop.vehicle_no or (first_trace.vehicle_no if first_trace else None)
         stops = []
         stop_index = {}
 
+        for node_id, stop_record in enumerate(stop_records, start=1):
+            stop = self._create_stop_payload_from_record(stop_record=stop_record, node_id=node_id)
+            stops.append(stop)
+            stop_index[stop_record.stop_seq] = stop
+
         for trace in traces:
-            partner = self._get_trace_partner(trace)
-            key = (
-                trace.route_sequence or 0,
-                partner.id if partner else 0,
-                trace.location_text or "",
-            )
-            stop = stop_index.get(key)
+            stop_seq = trace.route_sequence or 0
+            if not stop_seq and len(stops) == 1:
+                stop_seq = stops[0]["stop_seq"]
+            stop = stop_index.get(stop_seq)
             if not stop:
-                stop = self._create_stop_payload(
-                    trace=trace,
-                    partner=partner,
-                    node_id=len(stops) + 1,
-                )
-                stops.append(stop)
-                stop_index[key] = stop
-            self._merge_trace_into_stop(stop, trace, partner)
+                continue
+            self._merge_trace_into_stop(stop, trace)
 
         return {
-            "waybill_no": first_trace.waybill_no,
+            "waybill_no": first_stop.waybill_no,
             "batch_no": batch_no,
             "driver_name": driver_name,
             "vehicle_no": vehicle_no,
             "stops": stops,
         }
 
-    def _create_stop_payload(self, *, trace, partner, node_id):
-        contact_list = self._build_contact_list(partner)
+    def _create_stop_payload_from_record(self, *, stop_record, node_id):
+        contact_list = self._load_contact_list(stop_record)
         primary_contact = contact_list[0] if contact_list else {"name": None, "phone": None}
-        lat, lng = self._get_partner_coordinates(partner)
         return {
             "node_id": node_id,
-            "stop_seq": trace.route_sequence or node_id,
-            "store_name": partner.name if partner else (trace.location_text or trace.waybill_no),
-            "address": self._get_partner_address(partner) or trace.location_text,
-            "lat": lat,
-            "lng": lng,
+            "stop_seq": stop_record.stop_seq or node_id,
+            "store_name": stop_record.store_name,
+            "address": stop_record.address,
+            "lat": stop_record.lat,
+            "lng": stop_record.lng,
             "contact_name": primary_contact["name"],
             "contact_phone": primary_contact["phone"],
             "contact_list": contact_list,
-            "guide_url": self._get_guide_url(trace, partner),
-            "goods_info": self._build_goods_info(trace.stock_picking_id),
-            "status": self._trace_type_to_stop_status(trace.trace_type),
+            "guide_url": stop_record.guide_url,
+            "goods_info": stop_record.goods_info or self._build_goods_info(stop_record.stock_picking_id),
+            "status": "PENDING",
         }
 
-    def _merge_trace_into_stop(self, stop, trace, partner):
-        contact_list = self._build_contact_list(partner)
-        if contact_list:
-            stop["contact_list"] = contact_list
-            stop["contact_name"] = contact_list[0]["name"]
-            stop["contact_phone"] = contact_list[0]["phone"]
-
-        address = self._get_partner_address(partner) or trace.location_text
-        if address:
-            stop["address"] = address
-
-        lat, lng = self._get_partner_coordinates(partner)
-        if lat is not None:
-            stop["lat"] = lat
-        if lng is not None:
-            stop["lng"] = lng
-
-        guide_url = self._get_guide_url(trace, partner)
-        if guide_url:
-            stop["guide_url"] = guide_url
-
-        goods_info = self._build_goods_info(trace.stock_picking_id)
-        if goods_info:
-            stop["goods_info"] = goods_info
-
+    def _merge_trace_into_stop(self, stop, trace):
         stop["status"] = self._merge_stop_status(stop["status"], trace.trace_type, trace.is_exception)
+
+    @staticmethod
+    def _load_contact_list(stop_record):
+        if stop_record.contact_list_json:
+            try:
+                contact_list = json.loads(stop_record.contact_list_json)
+                if isinstance(contact_list, list):
+                    return contact_list[:3]
+            except json.JSONDecodeError:
+                pass
+        if stop_record.contact_name or stop_record.contact_phone:
+            return [
+                {
+                    "name": stop_record.contact_name or "",
+                    "phone": stop_record.contact_phone or "",
+                }
+            ]
+        return []
 
     @staticmethod
     def _get_trace_partner(trace):

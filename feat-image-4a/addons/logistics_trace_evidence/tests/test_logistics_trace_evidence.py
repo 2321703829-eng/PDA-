@@ -1,4 +1,5 @@
 from tempfile import TemporaryDirectory
+import json
 
 from odoo.tests.common import TransactionCase, tagged
 
@@ -76,30 +77,26 @@ class TestLogisticsTraceEvidence(TransactionCase):
 
     def test_build_waybill_stops_payload_merges_contacts_and_status(self):
         controller = LogisticsTraceEvidenceImageController()
-        store = self.env["res.partner"].create(
+        stop = self.env["logistics.waybill.stop"].create(
             {
-                "name": "XX Convenience Store",
-                "phone": "13800001111",
-                "website": "https://docs.qq.com/store-guide",
-                "street": "Guangzhou Road 1",
-                "partner_latitude": 23.137588,
-                "partner_longitude": 113.328755,
-            }
-        )
-        self.env["res.partner"].create(
-            {
-                "name": "Deputy Manager Wang",
-                "phone": "13800002222",
-                "parent_id": store.id,
-                "type": "contact",
-            }
-        )
-        self.env["res.partner"].create(
-            {
-                "name": "Assistant Chen",
-                "mobile": "13800003333",
-                "parent_id": store.id,
-                "type": "contact",
+                "waybill_no": "WB20260413001",
+                "batch_no": "BT20260413001",
+                "stop_seq": 1,
+                "store_name": "XX Convenience Store",
+                "address": "Guangzhou Road 1",
+                "lat": 23.137588,
+                "lng": 113.328755,
+                "contact_list_json": json.dumps(
+                    [
+                        {"name": "XX Convenience Store", "phone": "13800001111"},
+                        {"name": "Deputy Manager Wang", "phone": "13800002222"},
+                        {"name": "Assistant Chen", "phone": "13800003333"},
+                    ]
+                ),
+                "guide_url": "https://docs.qq.com/store-guide",
+                "goods_info": "Frozen Seafood x 2 boxes",
+                "driver_name": "Zhang San",
+                "vehicle_no": "YUEA12345",
             }
         )
 
@@ -110,7 +107,6 @@ class TestLogisticsTraceEvidence(TransactionCase):
                 "batch_no": "BT20260413001",
                 "trace_type": "arrive",
                 "route_sequence": 1,
-                "partner_id": store.id,
                 "driver_name": "Zhang San",
                 "vehicle_no": "YUEA12345",
                 "location_text": "Guangzhou Road 1",
@@ -122,7 +118,6 @@ class TestLogisticsTraceEvidence(TransactionCase):
                 "waybill_no": "WB20260413001",
                 "trace_type": "sign",
                 "route_sequence": 1,
-                "partner_id": store.id,
             }
         )
 
@@ -130,7 +125,7 @@ class TestLogisticsTraceEvidence(TransactionCase):
             [("waybill_no", "=", "WB20260413001")],
             order="route_sequence asc, occurred_at asc, id asc",
         )
-        payload = controller._build_waybill_stops_payload(traces)
+        payload = controller._build_waybill_stops_payload(stop, traces)
 
         self.assertEqual(payload["waybill_no"], "WB20260413001")
         self.assertEqual(payload["batch_no"], "BT20260413001")
@@ -148,13 +143,17 @@ class TestLogisticsTraceEvidence(TransactionCase):
         self.assertEqual(stop["contact_phone"], "13800001111")
         self.assertEqual(len(stop["contact_list"]), 3)
         self.assertEqual(stop["contact_list"][1]["name"], "Deputy Manager Wang")
+        self.assertEqual(stop["goods_info"], "Frozen Seafood x 2 boxes")
 
     def test_build_waybill_stops_payload_supports_leave_status_chain(self):
         controller = LogisticsTraceEvidenceImageController()
-        store = self.env["res.partner"].create(
+        stop = self.env["logistics.waybill.stop"].create(
             {
-                "name": "YY Convenience Store",
-                "street": "Shenzhen Road 8",
+                "waybill_no": "WB20260413002",
+                "batch_no": "BT20260413002",
+                "stop_seq": 1,
+                "store_name": "YY Convenience Store",
+                "address": "Shenzhen Road 8",
             }
         )
 
@@ -165,14 +164,13 @@ class TestLogisticsTraceEvidence(TransactionCase):
                 "batch_no": "BT20260413002",
                 "trace_type": "load",
                 "route_sequence": 1,
-                "partner_id": store.id,
             }
         )
         traces = self.env["logistics.trace.event"].search(
             [("waybill_no", "=", "WB20260413002")],
             order="route_sequence asc, occurred_at asc, id asc",
         )
-        payload = controller._build_waybill_stops_payload(traces)
+        payload = controller._build_waybill_stops_payload(stop, traces)
         self.assertEqual(payload["stops"][0]["status"], "CURRENT")
 
         self.env["logistics.trace.event"].create(
@@ -181,14 +179,13 @@ class TestLogisticsTraceEvidence(TransactionCase):
                 "waybill_no": "WB20260413002",
                 "trace_type": "leave",
                 "route_sequence": 1,
-                "partner_id": store.id,
             }
         )
         traces = self.env["logistics.trace.event"].search(
             [("waybill_no", "=", "WB20260413002")],
             order="route_sequence asc, occurred_at asc, id asc",
         )
-        payload = controller._build_waybill_stops_payload(traces)
+        payload = controller._build_waybill_stops_payload(stop, traces)
         self.assertEqual(payload["stops"][0]["status"], "LEAVED")
 
         self.env["logistics.trace.event"].create(
@@ -197,12 +194,50 @@ class TestLogisticsTraceEvidence(TransactionCase):
                 "waybill_no": "WB20260413002",
                 "trace_type": "arrive",
                 "route_sequence": 1,
-                "partner_id": store.id,
             }
         )
         traces = self.env["logistics.trace.event"].search(
             [("waybill_no", "=", "WB20260413002")],
             order="route_sequence asc, occurred_at asc, id asc",
         )
-        payload = controller._build_waybill_stops_payload(traces)
+        payload = controller._build_waybill_stops_payload(stop, traces)
+        self.assertEqual(payload["stops"][0]["status"], "ARRIVED")
+
+    def test_build_waybill_stops_payload_does_not_generate_extra_stop_from_location_text(self):
+        controller = LogisticsTraceEvidenceImageController()
+        stop = self.env["logistics.waybill.stop"].create(
+            {
+                "waybill_no": "WB20260413003",
+                "batch_no": "BT20260413003",
+                "stop_seq": 1,
+                "store_name": "Only Store",
+                "address": "Tianhe Road 9",
+            }
+        )
+        self.env["logistics.trace.event"].create(
+            {
+                "biz_type": "waybill",
+                "waybill_no": "WB20260413003",
+                "batch_no": "BT20260413003",
+                "trace_type": "leave",
+                "route_sequence": 1,
+                "location_text": "经度:113.81 纬度:23.26",
+            }
+        )
+        self.env["logistics.trace.event"].create(
+            {
+                "biz_type": "waybill",
+                "waybill_no": "WB20260413003",
+                "trace_type": "arrive",
+                "route_sequence": 1,
+                "location_text": "经度:113.81 纬度:23.26",
+            }
+        )
+        traces = self.env["logistics.trace.event"].search(
+            [("waybill_no", "=", "WB20260413003")],
+            order="route_sequence asc, occurred_at asc, id asc",
+        )
+        payload = controller._build_waybill_stops_payload(stop, traces)
+        self.assertEqual(len(payload["stops"]), 1)
+        self.assertEqual(payload["stops"][0]["store_name"], "Only Store")
         self.assertEqual(payload["stops"][0]["status"], "ARRIVED")
