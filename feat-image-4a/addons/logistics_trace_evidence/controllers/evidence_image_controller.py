@@ -426,22 +426,24 @@ class LogisticsTraceEvidenceImageController(http.Controller):
     @staticmethod
     def _trace_type_to_stop_status(trace_type):
         mapping = {
-            "load": "loaded",
-            "arrive": "arrived",
-            "sign": "signed",
-            "exception": "exception",
+            "load": "CURRENT",
+            "leave": "LEAVED",
+            "arrive": "ARRIVED",
+            "sign": "COMPLETED",
+            "exception": "EXCEPTION",
         }
-        return mapping.get(trace_type, "pending")
+        return mapping.get(trace_type, "PENDING")
 
     def _merge_stop_status(self, current_status, trace_type, is_exception):
         if is_exception or trace_type == "exception":
-            return "exception"
+            return "EXCEPTION"
         priority = {
-            "pending": 0,
-            "loaded": 1,
-            "arrived": 2,
-            "signed": 3,
-            "exception": 99,
+            "PENDING": 0,
+            "CURRENT": 1,
+            "LEAVED": 2,
+            "ARRIVED": 3,
+            "COMPLETED": 4,
+            "EXCEPTION": 99,
         }
         next_status = self._trace_type_to_stop_status(trace_type)
         if priority.get(next_status, 0) >= priority.get(current_status, 0):

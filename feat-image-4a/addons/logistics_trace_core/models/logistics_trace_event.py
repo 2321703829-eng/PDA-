@@ -29,6 +29,7 @@ class LogisticsTraceEvent(models.Model):
     trace_type = fields.Selection(
         [
             ("load", "Load"),
+            ("leave", "Leave"),
             ("arrive", "Arrive"),
             ("sign", "Sign"),
             ("exception", "Exception"),
