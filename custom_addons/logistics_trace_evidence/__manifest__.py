@@ -1,6 +1,6 @@
 {
     "name": "Logistics Trace Evidence",
-    "version": "19.0.1.0.0",
+    "version": "18.0.1.0.0",
     "summary": "Evidence model for logistics trace events",
     "license": "LGPL-3",
     "depends": [

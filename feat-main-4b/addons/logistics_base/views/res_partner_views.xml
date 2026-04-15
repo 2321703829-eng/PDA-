@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_partner_form_logistics_base" model="ir.ui.view">
+        <field name="name">res.partner.form.logistics.base</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Logistics" name="logistics">
+                    <group>
+                        <group string="Flags">
+                            <field name="is_logistics_customer"/>
+                            <field name="is_logistics_store"/>
+                            <field name="logistics_customer_status" invisible="not is_logistics_customer"/>
+                            <field name="logistics_store_status" invisible="not is_logistics_store"/>
+                        </group>
+                        <group string="Codes">
+                            <field name="logistics_customer_code" invisible="not is_logistics_customer"/>
+                            <field name="logistics_store_code" invisible="not is_logistics_store"/>
+                            <field name="logistics_customer_level" invisible="not is_logistics_customer"/>
+                            <field name="logistics_internal_reference"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Store Delivery" invisible="not is_logistics_store">
+                            <field name="logistics_delivery_time_window"/>
+                            <field name="partner_latitude"/>
+                            <field name="partner_longitude"/>
+                            <field name="logistics_need_sign_receipt"/>
+                        </group>
+                        <group string="Notes">
+                            <field name="logistics_service_note" placeholder="Service-level reminders for this customer"/>
+                            <field name="logistics_unload_requirement" invisible="not is_logistics_store" placeholder="Special unload rules or onsite requirements"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_res_partner_filter_logistics_base" model="ir.ui.view">
+        <field name="name">res.partner.search.logistics.base</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_res_partner_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <separator/>
+                <filter string="Logistics Customers" name="logistics_customers" domain="[('is_logistics_customer', '=', True)]"/>
+                <filter string="Logistics Stores" name="logistics_stores" domain="[('is_logistics_store', '=', True)]"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
