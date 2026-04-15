@@ -104,7 +104,6 @@ class TestLogisticsTraceEvidence(TransactionCase):
             {
                 "biz_type": "waybill",
                 "waybill_no": "WB20260413001",
-                "batch_no": "BT20260413001",
                 "trace_type": "arrive",
                 "route_sequence": 1,
                 "driver_name": "Zhang San",
@@ -161,7 +160,6 @@ class TestLogisticsTraceEvidence(TransactionCase):
             {
                 "biz_type": "waybill",
                 "waybill_no": "WB20260413002",
-                "batch_no": "BT20260413002",
                 "trace_type": "load",
                 "route_sequence": 1,
             }
@@ -218,7 +216,6 @@ class TestLogisticsTraceEvidence(TransactionCase):
             {
                 "biz_type": "waybill",
                 "waybill_no": "WB20260413003",
-                "batch_no": "BT20260413003",
                 "trace_type": "leave",
                 "route_sequence": 1,
                 "location_text": "经度:113.81 纬度:23.26",
