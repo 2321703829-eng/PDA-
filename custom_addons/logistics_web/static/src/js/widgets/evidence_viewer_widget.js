@@ -40,8 +40,16 @@ export class EvidenceViewerWidget extends Component {
         return this.allItems[this.state.activeIndex] || null;
     }
 
+    get totalItemCount() {
+        return this.allItems.length;
+    }
+
+    get exceptionEvidenceCount() {
+        return this.allItems.filter((item) => item.isExceptionEvidence).length;
+    }
+
     get emptyText() {
-        return this.props.emptyText || "No evidence items yet.";
+        return this.props.emptyText || "当前还没有证据。";
     }
 
     getInitialActiveIndex() {
@@ -74,8 +82,33 @@ export class EvidenceViewerWidget extends Component {
         return this.getItemOpenUrl(this.activeItem);
     }
 
+    get hasActiveOpenUrl() {
+        return Boolean(this.activeOpenUrl);
+    }
+
     get hasActivePreview() {
         return Boolean(this.activePreviewUrl) && !this.hasPreviewFailed(this.activeItem);
+    }
+
+    get activeSummaryText() {
+        const item = this.activeItem;
+        if (!item) {
+            return "当前还没有可查看的证据。";
+        }
+        const parts = [
+            `当前查看第 ${this.state.activeIndex + 1} / ${this.totalItemCount} 份证据`,
+            `关联留痕 ${item.traceLabel || item.trace_label || "--"}`,
+        ];
+        if (item.uploadedAt || item.uploaded_at) {
+            parts.push(`上传时间 ${item.uploadedAt || item.uploaded_at}`);
+        }
+        if (item.isExceptionEvidence) {
+            parts.push("与异常处理相关");
+        }
+        if (!this.hasActiveOpenUrl) {
+            parts.push("当前仅支持预览");
+        }
+        return parts.join("，") + "。";
     }
 
     normalizeUrl(url) {

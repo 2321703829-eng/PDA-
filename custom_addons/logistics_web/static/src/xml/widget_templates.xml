@@ -4,8 +4,8 @@
         <div class="o_logistics_web_timeline">
             <div class="o_logistics_web_timeline_header">
                 <div class="o_logistics_web_timeline_title_group">
-                    <h3>Trace Timeline</h3>
-                    <p>Read the key fact chain before checking raw evidence.</p>
+                    <h3>留痕时间线</h3>
+                    <p>先看事件顺序，再核对证据和异常。</p>
                 </div>
                 <div class="o_logistics_web_timeline_filters">
                     <button
@@ -13,21 +13,31 @@
                         class="btn btn-secondary btn-sm"
                         t-att-class="state.onlyWithImages ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm'"
                         t-on-click="toggleOnlyWithImages">
-                        Only With Images
+                        只看有图
                     </button>
                     <button
                         type="button"
                         class="btn btn-secondary btn-sm"
                         t-att-class="state.onlyExceptions ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm'"
                         t-on-click="toggleOnlyExceptions">
-                        Only Exceptions
+                        只看异常
                     </button>
+                </div>
+            </div>
+            <div class="o_logistics_web_feedback_strip o_logistics_web_feedback_strip_light" t-if="!isLoading">
+                <p><t t-esc="summaryText"/></p>
+                <div class="o_logistics_web_feedback_tags" t-if="hasActiveFilters">
+                    <t t-foreach="activeFilterLabels" t-as="label" t-key="label">
+                        <span class="o_logistics_web_status_tag" data-tone="info">
+                            <t t-esc="label"/>
+                        </span>
+                    </t>
                 </div>
             </div>
 
             <t t-if="isLoading">
                 <div class="o_logistics_web_placeholder_panel">
-                    <p>Loading trace timeline...</p>
+                    <p>正在加载留痕时间线...</p>
                 </div>
             </t>
             <t t-elif="hasItems">
@@ -37,23 +47,23 @@
                             <span><t t-esc="item.time or '--:--'"/></span>
                         </div>
                         <div class="o_logistics_web_timeline_item_title_block">
-                            <strong><t t-esc="item.title or item.label or item.eventType or item.event_type or 'Trace Event'"/></strong>
+                            <strong><t t-esc="item.title or item.label or item.eventTypeLabel or item.eventType or item.event_type or '留痕事件'"/></strong>
                         </div>
                         <div class="o_logistics_web_timeline_item_meta">
-                            <span>By <t t-esc="item.operator or 'Unknown'"/></span>
+                            <span>提交人：<t t-esc="item.operator or '未知'"/></span>
                         </div>
                         <div class="o_logistics_web_timeline_item_tags">
                             <span class="o_logistics_web_status_tag">
-                                <t t-esc="item.eventType or item.event_type or 'trace'"/>
+                                <t t-esc="item.eventTypeLabel or item.eventType or item.event_type or '留痕'"/>
                             </span>
                             <t t-if="item.hasException">
                                 <span class="o_logistics_web_status_tag" data-tone="danger">
-                                    <t t-esc="item.exceptionLabel or 'exception'"/>
+                                    <t t-esc="item.exceptionLabel or '异常相关'"/>
                                 </span>
                             </t>
                             <t t-if="item.evidenceCount">
                                 <span class="o_logistics_web_status_tag" data-tone="info">
-                                    <t t-esc="`${item.evidenceCount} image(s)`"/>
+                                    <t t-esc="`${item.evidenceCount} 张证据`"/>
                                 </span>
                             </t>
                         </div>
@@ -66,14 +76,14 @@
                                 type="button"
                                 class="btn btn-link btn-sm"
                                 t-on-click="(ev) => this.onEvidenceClick(item, ev)">
-                                Open Evidence
+                                查看证据
                             </button>
                             <button
                                 t-if="item.hasException"
                                 type="button"
                                 class="btn btn-link btn-sm"
                                 t-on-click="(ev) => this.onExceptionClick(item, ev)">
-                                Open Exception
+                                查看异常
                             </button>
                         </div>
                     </div>
@@ -91,16 +101,21 @@
         <div class="o_logistics_web_evidence_viewer">
             <div class="o_logistics_web_evidence_header">
                 <div class="o_logistics_web_evidence_title_group">
-                    <h3>Evidence Viewer</h3>
-                    <p>Check evidence in context before making a handling decision.</p>
+                    <h3>证据查看</h3>
+                    <p>结合留痕上下文看图片，再做处理判断。</p>
                 </div>
                 <div class="o_logistics_web_evidence_stats" t-if="hasItems">
                     <span class="o_logistics_web_status_tag" data-tone="info">
-                        <t t-esc="`${allItems.length} item(s)`"/>
+                        <t t-esc="`${allItems.length} 份证据`"/>
                     </span>
                     <t t-if="activeItem and activeItem.isExceptionEvidence">
                         <span class="o_logistics_web_status_tag" data-tone="danger">
-                            Exception Evidence
+                            异常相关
+                        </span>
+                    </t>
+                    <t t-if="activeItem and !hasActiveOpenUrl">
+                        <span class="o_logistics_web_status_tag">
+                            仅支持预览
                         </span>
                     </t>
                 </div>
@@ -108,10 +123,18 @@
 
             <t t-if="isLoading">
                 <div class="o_logistics_web_placeholder_panel">
-                    <p>Loading evidence...</p>
+                    <p>正在加载证据...</p>
                 </div>
             </t>
             <t t-elif="hasItems">
+                <div class="o_logistics_web_feedback_strip o_logistics_web_feedback_strip_light">
+                    <p><t t-esc="activeSummaryText"/></p>
+                    <div class="o_logistics_web_feedback_tags" t-if="exceptionEvidenceCount">
+                        <span class="o_logistics_web_status_tag" data-tone="warning">
+                            <t t-esc="`${exceptionEvidenceCount} 份异常相关证据`"/>
+                        </span>
+                    </div>
+                </div>
                 <div class="o_logistics_web_evidence_stage">
                     <div class="o_logistics_web_evidence_stage_toolbar">
                         <button
@@ -119,7 +142,7 @@
                             class="btn btn-secondary btn-sm"
                             t-on-click="onPrevClick"
                             t-att-disabled="state.activeIndex === 0">
-                            Previous
+                            上一张
                         </button>
                         <span class="o_logistics_web_evidence_stage_counter">
                             <t t-esc="`${state.activeIndex + 1} / ${allItems.length}`"/>
@@ -129,7 +152,7 @@
                             class="btn btn-secondary btn-sm"
                             t-on-click="onNextClick"
                             t-att-disabled="state.activeIndex >= allItems.length - 1">
-                            Next
+                            下一张
                         </button>
                     </div>
 
@@ -138,33 +161,33 @@
                             <img
                                 class="o_logistics_web_evidence_stage_image"
                                 t-att-src="activePreviewUrl"
-                                t-att-alt="activeItem.name or activeItem.label or 'Evidence Preview'"
+                                t-att-alt="activeItem.name or activeItem.label or '证据预览'"
                                 t-on-error="onStageImageError"/>
                         </t>
                         <t t-else="">
                             <div class="o_logistics_web_evidence_stage_mock">
-                                <span><t t-esc="activeItem.previewText or activeItem.label or activeItem.name or 'Evidence Preview'"/></span>
+                                <span><t t-esc="activeItem.previewText or activeItem.label or activeItem.name or '证据预览'"/></span>
                             </div>
                         </t>
                     </div>
 
                     <div class="o_logistics_web_evidence_meta">
-                        <h4><t t-esc="activeItem.name or activeItem.label or 'Evidence Item'"/></h4>
+                        <h4><t t-esc="activeItem.name or activeItem.label or '证据详情'"/></h4>
                         <dl>
                             <div>
-                                <dt>Trace</dt>
+                                <dt>所属留痕</dt>
                                 <dd><t t-esc="activeItem.traceLabel or activeItem.trace_label or '--'"/></dd>
                             </div>
                             <div>
-                                <dt>Uploaded At</dt>
+                                <dt>上传时间</dt>
                                 <dd><t t-esc="activeItem.uploadedAt or activeItem.uploaded_at or '--'"/></dd>
                             </div>
                             <div>
-                                <dt>Uploader</dt>
+                                <dt>上传人</dt>
                                 <dd><t t-esc="activeItem.uploader or '--'"/></dd>
                             </div>
                             <div>
-                                <dt>Remark</dt>
+                                <dt>备注</dt>
                                 <dd><t t-esc="activeItem.remark or '--'"/></dd>
                             </div>
                         </dl>
@@ -175,21 +198,21 @@
                             type="button"
                             class="btn btn-link btn-sm"
                             t-on-click="onTraceClick">
-                            Open Related Trace
+                            查看关联留痕
                         </button>
                         <button
                             t-if="activeItem and activeItem.isExceptionEvidence"
                             type="button"
                             class="btn btn-link btn-sm"
                             t-on-click="onExceptionClick">
-                            Open Related Exceptions
+                            查看关联异常
                         </button>
                         <button
                             type="button"
                             class="btn btn-link btn-sm"
                             t-att-disabled="!activeOpenUrl"
                             t-on-click="onOpenFullImage">
-                            Open Full Image
+                            打开原图
                         </button>
                     </div>
                 </div>
@@ -204,15 +227,15 @@
                                 <img
                                     class="o_logistics_web_evidence_thumb_image"
                                     t-att-src="getItemPreviewUrl(item)"
-                                    t-att-alt="item.label or item.name or 'Evidence'"
+                                    t-att-alt="item.label or item.name or '证据'"
                                     t-on-error="() => this.onThumbImageError(item)"/>
                             </t>
                             <t t-else="">
                                 <div class="o_logistics_web_evidence_thumb_mock">
-                                    <span><t t-esc="item.previewText or item.label or item.name or 'Evidence'"/></span>
+                                    <span><t t-esc="item.previewText or item.label or item.name or '证据'"/></span>
                                 </div>
                             </t>
-                            <span><t t-esc="item.label or item.name or 'Evidence'"/></span>
+                            <span><t t-esc="item.label or item.name or '证据'"/></span>
                         </div>
                     </t>
                 </div>

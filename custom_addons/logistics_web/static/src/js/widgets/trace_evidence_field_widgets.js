@@ -107,7 +107,7 @@ export class LogisticsTraceTimelineField extends LogisticsWaybillBasePanel {
             <TraceTimelineWidget
                 items="state.items"
                 loading="state.loading"
-                emptyText="'No trace events are available yet for this waybill.'"
+                emptyText="'当前运单还没有留痕记录。'"
                 onTraceClick.bind="onTraceClick"
                 onEvidenceClick.bind="onEvidenceClick"
                 onExceptionClick.bind="onExceptionClick"
@@ -149,14 +149,14 @@ export class LogisticsTraceTimelineField extends LogisticsWaybillBasePanel {
                 title: this.getEventTypeLabel(record.event_type),
                 eventType: record.event_type,
                 summary: record.remark || "",
-                operator: record.submit_user_name || "Unknown",
+                operator: record.submit_user_name || "未知",
                 evidenceCount: record.evidence_count || 0,
                 hasException: !!record.is_exception,
                 exceptionLabel:
                     record.is_exception && (record.open_exception_count || 0) > 0
-                        ? `${record.open_exception_count} exception(s)`
+                        ? `${record.open_exception_count} 条异常`
                         : record.is_exception
-                          ? "exception"
+                          ? "异常相关"
                           : "",
             }));
         } catch {
@@ -178,25 +178,25 @@ export class LogisticsTraceTimelineField extends LogisticsWaybillBasePanel {
 
     getEventTypeLabel(eventType) {
         const labels = {
-            arrive_loading_point: "Arrive Loading Point",
-            start_loading: "Start Loading",
-            finish_loading: "Finish Loading",
-            departed: "Departed",
-            arrive_store: "Arrive Store",
-            deliver_finish: "Deliver Finish",
-            signoff: "Signoff",
-            exception_report: "Exception Report",
+            arrive_loading_point: "到达装货点",
+            start_loading: "开始装车",
+            finish_loading: "装车完成",
+            departed: "仓库发车",
+            arrive_store: "到店",
+            deliver_finish: "交付完成",
+            signoff: "签收",
+            exception_report: "异常上报",
         };
-        return labels[eventType] || "Trace Event";
+        return labels[eventType] || "留痕事件";
     }
 
     async onTraceClick(item) {
         if (!item?.id) {
-            return this.notifyPending("Open trace is not available yet.");
+            return this.notifyPending("暂时还不能打开留痕详情。");
         }
         return this.actionService.doAction({
             type: "ir.actions.act_window",
-            name: item.title || "Open Trace",
+            name: item.title || "查看留痕",
             res_model: "logistics.trace.event",
             res_id: item.id,
             views: [[false, "form"]],
@@ -205,11 +205,11 @@ export class LogisticsTraceTimelineField extends LogisticsWaybillBasePanel {
 
     async onEvidenceClick(item) {
         if (!item?.id) {
-            return this.notifyPending("Open evidence is not available yet.");
+            return this.notifyPending("暂时还不能打开证据列表。");
         }
         return this.actionService.doAction({
             type: "ir.actions.act_window",
-            name: `Open Evidence - ${item.title || "Trace Event"}`,
+            name: `查看证据 - ${item.title || "留痕事件"}`,
             res_model: "logistics.trace.evidence",
             views: [
                 [false, "list"],
@@ -221,11 +221,11 @@ export class LogisticsTraceTimelineField extends LogisticsWaybillBasePanel {
 
     async onExceptionClick(item) {
         if (!item?.id) {
-            return this.notifyPending("Open exception is not available yet.");
+            return this.notifyPending("暂时还不能打开异常列表。");
         }
         return this.actionService.doAction({
             type: "ir.actions.act_window",
-            name: `Open Exceptions - ${item.title || "Trace Event"}`,
+            name: `查看异常 - ${item.title || "留痕事件"}`,
             res_model: "logistics.trace.exception",
             views: [
                 [false, "list"],
@@ -238,7 +238,7 @@ export class LogisticsTraceTimelineField extends LogisticsWaybillBasePanel {
 
 export const logisticsTraceTimelineField = {
     component: LogisticsTraceTimelineField,
-    displayName: _t("Trace Timeline"),
+    displayName: _t("留痕时间线"),
     supportedTypes: ["char"],
 };
 
@@ -250,7 +250,7 @@ export class LogisticsEvidenceViewerField extends LogisticsWaybillBasePanel {
             <EvidenceViewerWidget
                 items="state.items"
                 loading="state.loading"
-                emptyText="'No evidence images are available yet for this waybill.'"
+                emptyText="'当前运单还没有证据。'"
                 onTraceClick.bind="onTraceClick"
                 onExceptionClick.bind="onExceptionClick"
                 onOpenFullImage.bind="onOpenFullImage"
@@ -296,16 +296,16 @@ export class LogisticsEvidenceViewerField extends LogisticsWaybillBasePanel {
                 const fullUrl = this.cleanImageValue(record.full_url);
                 return {
                     id: record.id,
-                    label: record.name || `Evidence ${record.id}`,
-                    name: record.name || `Evidence ${record.id}`,
+                    label: record.name || `证据 ${record.id}`,
+                    name: record.name || `证据 ${record.id}`,
                     traceEventId: traceRef.id,
-                    traceLabel: traceRef.label || "Trace Event",
+                    traceLabel: traceRef.label || "留痕事件",
                     uploadedAt: record.uploaded_at || "--",
-                    uploader: record.uploader_name || "Unknown",
+                    uploader: record.uploader_name || "未知",
                     remark: record.remark || "",
                     isExceptionEvidence: !!record.is_exception_related,
                     hasRelatedException: !!record.is_exception_related,
-                    previewText: record.name || "Evidence Preview",
+                    previewText: record.name || "证据预览",
                     imageAccessKey,
                     previewUrl,
                     fullUrl,
@@ -321,11 +321,11 @@ export class LogisticsEvidenceViewerField extends LogisticsWaybillBasePanel {
 
     async onTraceClick(item) {
         if (!item?.traceEventId) {
-            return this.notifyPending("Open related trace is not available for this evidence item yet.");
+            return this.notifyPending("当前证据暂时还不能打开关联留痕。");
         }
         return this.actionService.doAction({
             type: "ir.actions.act_window",
-            name: item.traceLabel || "Open Trace",
+            name: item.traceLabel || "查看留痕",
             res_model: "logistics.trace.event",
             res_id: item.traceEventId,
             views: [[false, "form"]],
@@ -334,11 +334,11 @@ export class LogisticsEvidenceViewerField extends LogisticsWaybillBasePanel {
 
     async onExceptionClick(item) {
         if (!item?.traceEventId) {
-            return this.notifyPending("Open related exceptions is not available for this evidence item yet.");
+            return this.notifyPending("当前证据暂时还不能打开关联异常。");
         }
         return this.actionService.doAction({
             type: "ir.actions.act_window",
-            name: "Open Related Exceptions",
+            name: "查看关联异常",
             res_model: "logistics.trace.exception",
             views: [
                 [false, "list"],
@@ -354,13 +354,13 @@ export class LogisticsEvidenceViewerField extends LogisticsWaybillBasePanel {
             window.open(openUrl, "_blank", "noopener");
             return;
         }
-        this.notifyPending(`Open full image is not available yet for "${item?.name || item?.label || "this evidence"}".`);
+        this.notifyPending(`暂时还不能打开“${item?.name || item?.label || "当前证据"}”的原图。`);
     }
 }
 
 export const logisticsEvidenceViewerField = {
     component: LogisticsEvidenceViewerField,
-    displayName: _t("Evidence Viewer"),
+    displayName: _t("证据查看"),
     supportedTypes: ["char"],
 };
 

@@ -47,7 +47,7 @@ export class LogisticsWaybillFormRenderer extends FormRenderer {
                             waybillId: resId,
                             items: timelineItems,
                             loading: false,
-                            emptyText: _t("No trace events are available yet for this waybill."),
+                            emptyText: _t("当前运单还没有留痕记录。"),
                             onTraceClick: (item) => this.onTraceClick(item),
                             onEvidenceClick: (item) => this.onTraceEvidenceClick(item),
                             onExceptionClick: (item) => this.onTraceExceptionClick(item),
@@ -62,7 +62,7 @@ export class LogisticsWaybillFormRenderer extends FormRenderer {
                             waybillId: resId,
                             items: evidenceItems,
                             loading: false,
-                            emptyText: _t("No evidence images are available yet for this waybill."),
+                            emptyText: _t("当前运单还没有证据。"),
                             onTraceClick: (item) => this.onEvidenceTraceClick(item),
                             onExceptionClick: (item) => this.onEvidenceExceptionClick(item),
                             onOpenFullImage: (item) => this.onOpenFullImage(item),
@@ -97,48 +97,51 @@ export class LogisticsWaybillFormRenderer extends FormRenderer {
 
     get fallbackTimelineItems() {
         const data = this.recordData;
-        const latestTraceType = data.latest_trace_type || _t("trace");
+        const latestTraceType = data.latest_trace_type || _t("留痕");
         const latestTraceSummary =
-            data.latest_trace_summary || _t("Latest trace summary will appear here.");
+            data.latest_trace_summary || _t("最近留痕摘要会显示在这里。");
         const latestTraceTime = data.latest_trace_time || "--:--";
-        const arriveStatus = data.arrive_trace_status || _t("pending");
-        const signoffStatus = data.signoff_trace_status || _t("pending");
+        const arriveStatus = data.arrive_trace_status || _t("待补充");
+        const signoffStatus = data.signoff_trace_status || _t("待补充");
         const openExceptionCount = data.open_exception_count || 0;
         const evidenceCount = data.evidence_count || 0;
-        const waybillNo = data.name || _t("Waybill");
+        const waybillNo = data.name || _t("运单");
 
         return [
             {
                 id: `${waybillNo}_latest`,
                 time: latestTraceTime,
-                title: _t("Latest Trace"),
+                title: _t("最近进展"),
                 eventType: latestTraceType,
+                eventTypeLabel: latestTraceType,
                 summary: latestTraceSummary,
-                operator: this.getDisplayName(data.driver_employee_id) || _t("Dispatch Team"),
+                operator: this.getDisplayName(data.driver_employee_id) || _t("调度组"),
                 evidenceCount,
                 hasException: openExceptionCount > 0,
-                exceptionLabel: openExceptionCount > 0 ? `${openExceptionCount} ${_t("open")}` : "",
+                exceptionLabel: openExceptionCount > 0 ? `${openExceptionCount} 条异常` : "",
             },
             {
                 id: `${waybillNo}_arrive`,
                 time: latestTraceTime,
-                title: _t("Arrival Trace Status"),
+                title: _t("到店留痕"),
                 eventType: "arrive_status",
-                summary: _t("Current arrival trace status: %(status)s.") .replace("%(status)s", arriveStatus),
-                operator: this.getDisplayName(data.store_id) || _t("Store"),
+                eventTypeLabel: _t("到店状态"),
+                summary: _t("当前到店留痕状态：%(status)s。").replace("%(status)s", arriveStatus),
+                operator: this.getDisplayName(data.store_id) || _t("门店"),
                 evidenceCount: evidenceCount > 0 ? 1 : 0,
                 hasException: false,
             },
             {
                 id: `${waybillNo}_signoff`,
                 time: latestTraceTime,
-                title: _t("Signoff Trace Status"),
+                title: _t("签收留痕"),
                 eventType: "signoff_status",
-                summary: _t("Current signoff trace status: %(status)s.").replace("%(status)s", signoffStatus),
-                operator: this.getDisplayName(data.customer_id) || _t("Customer"),
+                eventTypeLabel: _t("签收状态"),
+                summary: _t("当前签收留痕状态：%(status)s。").replace("%(status)s", signoffStatus),
+                operator: this.getDisplayName(data.customer_id) || _t("客户"),
                 evidenceCount: evidenceCount > 1 ? 1 : 0,
                 hasException: signoffStatus === "exception",
-                exceptionLabel: signoffStatus === "exception" ? _t("signoff issue") : "",
+                exceptionLabel: signoffStatus === "exception" ? _t("签收异常") : "",
             },
         ];
     }
@@ -259,15 +262,16 @@ export class LogisticsWaybillFormRenderer extends FormRenderer {
             time: this.formatTraceTime(record.trace_time),
             title: this.getEventTypeLabel(record.event_type),
             eventType: record.event_type,
+            eventTypeLabel: this.getEventTypeLabel(record.event_type),
             summary: record.remark || "",
-            operator: record.submit_user_name || _t("Unknown"),
+            operator: record.submit_user_name || _t("未知"),
             evidenceCount: record.evidence_count || 0,
             hasException: !!record.is_exception,
             exceptionLabel:
                 record.is_exception && (record.open_exception_count || 0) > 0
-                    ? `${record.open_exception_count} exception(s)`
+                    ? `${record.open_exception_count} 条异常`
                     : record.is_exception
-                      ? _t("exception")
+                      ? _t("异常相关")
                       : "",
         };
     }
@@ -279,16 +283,16 @@ export class LogisticsWaybillFormRenderer extends FormRenderer {
         const fullUrl = this.cleanImageValue(record.full_url);
         return {
             id: record.id,
-            label: record.name || `${_t("Evidence")} ${record.id}`,
-            name: record.name || `${_t("Evidence")} ${record.id}`,
+            label: record.name || `${_t("证据")} ${record.id}`,
+            name: record.name || `${_t("证据")} ${record.id}`,
             traceEventId: traceRef.id,
-            traceLabel: traceRef.label || _t("Trace Event"),
+            traceLabel: traceRef.label || _t("留痕事件"),
             uploadedAt: record.uploaded_at || "--",
-            uploader: record.uploader_name || _t("Unknown"),
+            uploader: record.uploader_name || _t("未知"),
             remark: record.remark || "",
             isExceptionEvidence: !!record.is_exception_related,
             hasRelatedException: !!record.is_exception_related,
-            previewText: record.name || _t("Evidence Preview"),
+            previewText: record.name || _t("证据预览"),
             imageAccessKey,
             previewUrl,
             fullUrl,
@@ -308,25 +312,25 @@ export class LogisticsWaybillFormRenderer extends FormRenderer {
 
     getEventTypeLabel(eventType) {
         const labels = {
-            arrive_loading_point: _t("Arrive Loading Point"),
-            start_loading: _t("Start Loading"),
-            finish_loading: _t("Finish Loading"),
-            departed: _t("Departed"),
-            arrive_store: _t("Arrive Store"),
-            deliver_finish: _t("Deliver Finish"),
-            signoff: _t("Signoff"),
-            exception_report: _t("Exception Report"),
+            arrive_loading_point: _t("到达装货点"),
+            start_loading: _t("开始装车"),
+            finish_loading: _t("装车完成"),
+            departed: _t("仓库发车"),
+            arrive_store: _t("到店"),
+            deliver_finish: _t("交付完成"),
+            signoff: _t("签收"),
+            exception_report: _t("异常上报"),
         };
-        return labels[eventType] || _t("Trace Event");
+        return labels[eventType] || _t("留痕事件");
     }
 
     async onTraceClick(item) {
         if (!item?.id || typeof item.id !== "number") {
-            return this.notifyPending(_t('Open trace is not available yet for "%s".').replace("%s", item.title));
+            return this.notifyPending(_t('暂时还不能打开“%s”的留痕详情。').replace("%s", item.title));
         }
         return this.actionService.doAction({
             type: "ir.actions.act_window",
-            name: item.title || _t("Open Trace"),
+            name: item.title || _t("查看留痕"),
             res_model: "logistics.trace.event",
             res_id: item.id,
             views: [[false, "form"]],
@@ -335,11 +339,11 @@ export class LogisticsWaybillFormRenderer extends FormRenderer {
 
     async onTraceEvidenceClick(item) {
         if (!item?.id || typeof item.id !== "number") {
-            return this.notifyPending(_t('Open evidence is not available yet for "%s".').replace("%s", item.title));
+            return this.notifyPending(_t('暂时还不能打开“%s”的证据列表。').replace("%s", item.title));
         }
         return this.actionService.doAction({
             type: "ir.actions.act_window",
-            name: `${_t("Open Evidence")} - ${item.title || _t("Trace Event")}`,
+            name: `${_t("查看证据")} - ${item.title || _t("留痕事件")}`,
             res_model: "logistics.trace.evidence",
             views: [
                 [false, "list"],
@@ -353,7 +357,7 @@ export class LogisticsWaybillFormRenderer extends FormRenderer {
         if (item?.id && typeof item.id === "number") {
             return this.actionService.doAction({
                 type: "ir.actions.act_window",
-                name: `Open Exceptions - ${item.title || "Trace Event"}`,
+                name: `查看异常 - ${item.title || "留痕事件"}`,
                 res_model: "logistics.trace.exception",
                 views: [
                     [false, "list"],
@@ -364,7 +368,7 @@ export class LogisticsWaybillFormRenderer extends FormRenderer {
         }
         return this.actionService.doAction({
             type: "ir.actions.act_window",
-            name: _t("Open Exceptions"),
+            name: _t("查看异常"),
             res_model: "logistics.trace.exception",
             views: [
                 [false, "list"],
@@ -376,11 +380,11 @@ export class LogisticsWaybillFormRenderer extends FormRenderer {
 
     async onEvidenceTraceClick(item) {
         if (!item?.traceEventId) {
-            return this.notifyPending(_t("Open related trace is not available for this evidence item yet."));
+            return this.notifyPending(_t("当前证据暂时还不能打开关联留痕。"));
         }
         return this.actionService.doAction({
             type: "ir.actions.act_window",
-            name: item.traceLabel || _t("Open Trace"),
+            name: item.traceLabel || _t("查看留痕"),
             res_model: "logistics.trace.event",
             res_id: item.traceEventId,
             views: [[false, "form"]],
@@ -389,11 +393,11 @@ export class LogisticsWaybillFormRenderer extends FormRenderer {
 
     async onEvidenceExceptionClick(item) {
         if (!item?.traceEventId) {
-            return this.notifyPending(_t("Open related exceptions is not available for this evidence item yet."));
+            return this.notifyPending(_t("当前证据暂时还不能打开关联异常。"));
         }
         return this.actionService.doAction({
             type: "ir.actions.act_window",
-            name: _t("Open Related Exceptions"),
+            name: _t("查看关联异常"),
             res_model: "logistics.trace.exception",
             views: [
                 [false, "list"],
@@ -410,7 +414,7 @@ export class LogisticsWaybillFormRenderer extends FormRenderer {
             return;
         }
         this.notifyPending(
-            _t('Open full image is not available yet for "%s".').replace("%s", item.name || item.label)
+            _t('暂时还不能打开“%s”的原图。').replace("%s", item.name || item.label)
         );
     }
 

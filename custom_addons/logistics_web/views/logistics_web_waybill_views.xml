@@ -9,25 +9,39 @@
                 <attribute name="js_class">logistics_waybill_form</attribute>
             </xpath>
             <xpath expr="//notebook" position="inside">
-                <page string="Trace &amp; Evidence">
+                <page string="留痕与证据">
                     <div class="o_logistics_waybill_enhanced_detail o_logistics_waybill_enhanced_detail_primary">
+                        <div class="o_logistics_waybill_guide_strip">
+                            <div class="o_logistics_waybill_guide_item">
+                                <strong>先看留痕顺序</strong>
+                                <span>确认事件时间、提交人和异常标签。</span>
+                            </div>
+                            <div class="o_logistics_waybill_guide_item">
+                                <strong>再看证据图片</strong>
+                                <span>结合留痕上下文判断证据是否足够。</span>
+                            </div>
+                            <div class="o_logistics_waybill_guide_item">
+                                <strong>最后核对异常</strong>
+                                <span>只在需要追责、补证据或跟进处理时继续下钻。</span>
+                            </div>
+                        </div>
                         <div class="o_logistics_waybill_widget_block">
-                            <h3 class="o_logistics_waybill_widget_heading">Trace Timeline</h3>
+                            <h3 class="o_logistics_waybill_widget_heading">留痕时间线</h3>
                             <div class="o_logistics_waybill_timeline_host o_logistics_waybill_widget_host"/>
                         </div>
 
                         <div class="o_logistics_waybill_widget_block">
-                            <h3 class="o_logistics_waybill_widget_heading">Evidence Viewer</h3>
+                            <h3 class="o_logistics_waybill_widget_heading">证据查看</h3>
                             <div class="o_logistics_waybill_evidence_host o_logistics_waybill_widget_host"/>
                         </div>
                     </div>
                     <div class="o_logistics_waybill_enhanced_detail o_logistics_waybill_fallback_section">
-                        <separator string="Fallback Data (Debug)"/>
+                        <separator string="原始关联数据（调试）"/>
                         <div class="o_form_label text-muted o_logistics_waybill_fallback_hint">
-                            Use the fallback lists below only when checking raw linked records or troubleshooting widget rendering.
+                            仅在核对原始关联记录或排查组件显示问题时使用下方列表。
                         </div>
 
-                        <group string="Trace Timeline Fallback" col="1">
+                        <group string="留痕记录（原始）" col="1">
                             <field name="trace_event_ids" readonly="1">
                                 <list create="0" delete="0" open_form_view="1">
                                     <field name="trace_time"/>
@@ -39,7 +53,7 @@
                                 </list>
                             </field>
                         </group>
-                        <group string="Evidence Fallback" col="1">
+                        <group string="证据记录（原始）" col="1">
                             <field name="evidence_ids" readonly="1">
                                 <list create="0" delete="0" open_form_view="1">
                                     <field name="name"/>

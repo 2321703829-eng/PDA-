@@ -42,12 +42,50 @@ export class TraceTimelineWidget extends Component {
         });
     }
 
+    get totalItemCount() {
+        return this.allItems.length;
+    }
+
+    get visibleItemCount() {
+        return this.visibleItems.length;
+    }
+
+    get hasActiveFilters() {
+        return this.state.onlyWithImages || this.state.onlyExceptions;
+    }
+
+    get activeFilterLabels() {
+        const labels = [];
+        if (this.state.onlyWithImages) {
+            labels.push("只看有图");
+        }
+        if (this.state.onlyExceptions) {
+            labels.push("只看异常");
+        }
+        return labels;
+    }
+
+    get summaryText() {
+        const total = this.totalItemCount;
+        const visible = this.visibleItemCount;
+        if (!total) {
+            return "当前运单还没有留痕记录，可先回到基础信息确认流转状态。";
+        }
+        if (!this.hasActiveFilters) {
+            return `共 ${total} 条留痕，按时间顺序核对事件、证据和异常。`;
+        }
+        return `共 ${total} 条留痕，当前筛选出 ${visible} 条，可取消筛选继续查看完整过程。`;
+    }
+
     get hasItems() {
         return this.visibleItems.length > 0;
     }
 
     get emptyText() {
-        return this.props.emptyText || "No trace items match the current filters.";
+        if (this.totalItemCount && this.hasActiveFilters) {
+            return "当前筛选条件下没有匹配的留痕记录，可取消上方筛选后继续查看。";
+        }
+        return this.props.emptyText || "当前筛选条件下没有留痕记录。";
     }
 
     toggleOnlyWithImages() {
