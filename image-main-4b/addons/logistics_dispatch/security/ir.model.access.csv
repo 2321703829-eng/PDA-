@@ -3,4 +3,5 @@ access_logistics_dispatch_wave_user,logistics.dispatch.wave user,model_logistics
 access_logistics_dispatch_batch_user,logistics.dispatch.batch user,model_logistics_dispatch_batch,base.group_user,1,1,1,1
 access_logistics_dispatch_waybill_user,logistics.dispatch.waybill user,model_logistics_dispatch_waybill,base.group_user,1,1,1,1
 access_logistics_dispatch_waybill_order_line_user,logistics.dispatch.waybill.order.line user,model_logistics_dispatch_waybill_order_line,base.group_user,1,1,1,1
+access_logistics_dispatch_waybill_stop_user,logistics.dispatch.waybill.stop user,model_logistics_dispatch_waybill_stop,base.group_user,1,1,1,1
 

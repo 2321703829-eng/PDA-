@@ -8,6 +8,7 @@
         "mail",
         "fleet",
         "sale",
+        "stock_picking_batch",
     ],
     "data": [
         "security/ir.model.access.csv",

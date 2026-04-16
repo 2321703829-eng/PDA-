@@ -77,6 +77,7 @@ class LogisticsTraceEvent(models.Model):
         default="manual",
     )
     location_text = fields.Char(string="Location")
+    route_sequence = fields.Integer(string="Route Sequence", index=True)
     plate_no = fields.Char(string="Plate No")
     driver_name = fields.Char(string="Driver Name")
     remark = fields.Text(string="Remark", tracking=True)

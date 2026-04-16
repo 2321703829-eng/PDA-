@@ -1,4 +1,5 @@
-from odoo import fields, models
+from odoo import api, fields, models
+from odoo.exceptions import ValidationError
 
 
 class LogisticsDispatchWaybillOrderLine(models.Model):
@@ -30,3 +31,29 @@ class LogisticsDispatchWaybillOrderLine(models.Model):
         default="draft",
         required=True,
     )
+
+    @api.onchange("sale_order_id")
+    def _onchange_sale_order_id(self):
+        for record in self:
+            sale_order = record.sale_order_id
+            if not sale_order:
+                continue
+            if not record.external_order_no:
+                record.external_order_no = sale_order.client_order_ref or sale_order.name
+            if not record.store_id:
+                record.store_id = sale_order.partner_shipping_id or sale_order.partner_id
+
+    @api.onchange("stock_picking_id")
+    def _onchange_stock_picking_id(self):
+        for record in self:
+            picking = record.stock_picking_id
+            if not picking:
+                continue
+            if not record.store_id:
+                record.store_id = picking.partner_id
+
+    @api.constrains("sale_order_id", "stock_picking_id")
+    def _check_order_source(self):
+        for record in self:
+            if not record.sale_order_id and not record.stock_picking_id:
+                raise ValidationError("Waybill order line must reference sale.order or stock.picking.")

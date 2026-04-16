@@ -100,9 +100,19 @@ class LogisticsDispatchWaybill(models.Model):
         "waybill_id",
         string="Order Lines",
     )
+    stop_ids = fields.One2many(
+        "logistics.dispatch.waybill.stop",
+        "waybill_id",
+        string="Stops",
+    )
     order_line_count = fields.Integer(
         string="Order Line Count",
         compute="_compute_order_line_count",
+        store=True,
+    )
+    stop_count = fields.Integer(
+        string="Stop Count",
+        compute="_compute_stop_count",
         store=True,
     )
     remark = fields.Text(string="Remark")
@@ -111,6 +121,11 @@ class LogisticsDispatchWaybill(models.Model):
     def _compute_order_line_count(self):
         for record in self:
             record.order_line_count = len(record.order_line_ids)
+
+    @api.depends("stop_ids")
+    def _compute_stop_count(self):
+        for record in self:
+            record.stop_count = len(record.stop_ids)
 
     @api.onchange("store_id")
     def _onchange_store_id(self):
@@ -155,6 +170,17 @@ class LogisticsDispatchWaybill(models.Model):
             "type": "ir.actions.act_window",
             "name": _("Waybill Order Lines"),
             "res_model": "logistics.dispatch.waybill.order.line",
+            "view_mode": "list,form",
+            "domain": [("waybill_id", "=", self.id)],
+            "context": {"default_waybill_id": self.id},
+        }
+
+    def action_open_stops(self):
+        self.ensure_one()
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Waybill Stops"),
+            "res_model": "logistics.dispatch.waybill.stop",
             "view_mode": "list,form",
             "domain": [("waybill_id", "=", self.id)],
             "context": {"default_waybill_id": self.id},

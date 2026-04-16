@@ -23,9 +23,19 @@
         <field name="arch" type="xml">
             <form string="Dispatch Batch">
                 <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button
+                            name="action_open_stock_batch"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-cubes"
+                            string="Odoo Batch"
+                            invisible="not stock_picking_batch_id"/>
+                    </div>
                     <group>
                         <group>
                             <field name="name"/>
+                            <field name="stock_picking_batch_id"/>
                             <field name="wave_id"/>
                             <field name="warehouse_id"/>
                             <field name="state"/>

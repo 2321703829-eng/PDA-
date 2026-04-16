@@ -47,6 +47,13 @@
                             icon="fa-list">
                             <field name="order_line_count" string="Order Lines" widget="statinfo"/>
                         </button>
+                        <button
+                            name="action_open_stops"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-map-marker">
+                            <field name="stop_count" string="Stops" widget="statinfo"/>
+                        </button>
                     </div>
                     <div class="oe_title">
                         <h1>
@@ -108,6 +115,22 @@
                                     <field name="goods_summary"/>
                                     <field name="qty_summary"/>
                                     <field name="line_state"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Stops">
+                            <field name="stop_ids">
+                                <list editable="bottom">
+                                    <field name="stop_seq"/>
+                                    <field name="partner_id"/>
+                                    <field name="store_name"/>
+                                    <field name="address"/>
+                                    <field name="lat"/>
+                                    <field name="lng"/>
+                                    <field name="contact_name"/>
+                                    <field name="contact_phone"/>
+                                    <field name="guide_url"/>
+                                    <field name="goods_info"/>
                                 </list>
                             </field>
                         </page>
