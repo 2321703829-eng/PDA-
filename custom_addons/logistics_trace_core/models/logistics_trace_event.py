@@ -4,57 +4,57 @@ from odoo.exceptions import ValidationError
 
 class LogisticsTraceEvent(models.Model):
     _name = "logistics.trace.event"
-    _description = "Logistics Trace Event"
+    _description = "物流留痕事件"
     _inherit = ["mail.thread", "mail.activity.mixin"]
     _order = "trace_time desc, id desc"
     _rec_name = "name"
 
     EVENT_SELECTION = [
-        ("arrive_loading_point", "Arrive Loading Point"),
-        ("start_loading", "Start Loading"),
-        ("finish_loading", "Finish Loading"),
-        ("departed", "Departed"),
-        ("arrive_store", "Arrive Store"),
-        ("deliver_finish", "Deliver Finish"),
-        ("signoff", "Signoff"),
-        ("exception_report", "Exception Report"),
+        ("arrive_loading_point", "到达装车点"),
+        ("start_loading", "开始装车"),
+        ("finish_loading", "完成装车"),
+        ("departed", "已发车"),
+        ("arrive_store", "到达门店"),
+        ("deliver_finish", "完成配送"),
+        ("signoff", "完成签收"),
+        ("exception_report", "异常上报"),
     ]
 
     OBJECT_SELECTION = [
-        ("batch", "Batch"),
-        ("waybill", "Waybill"),
+        ("batch", "批次"),
+        ("waybill", "运单"),
     ]
 
     SUBMIT_SOURCE_SELECTION = [
-        ("manual", "Manual"),
-        ("system", "System"),
-        ("mobile", "Mobile"),
+        ("manual", "人工"),
+        ("system", "系统"),
+        ("mobile", "移动端"),
     ]
 
     STATE_SELECTION = [
-        ("draft", "Draft"),
-        ("submitted", "Submitted"),
-        ("invalid", "Invalid"),
+        ("draft", "草稿"),
+        ("submitted", "已提交"),
+        ("invalid", "无效"),
     ]
 
-    name = fields.Char(string="Trace Event", required=True, copy=False, default="New", tracking=True)
-    event_type = fields.Selection(EVENT_SELECTION, string="Event Type", required=True, tracking=True)
+    name = fields.Char(string="留痕事件", required=True, copy=False, default="New", tracking=True)
+    event_type = fields.Selection(EVENT_SELECTION, string="留痕类型", required=True, tracking=True)
     object_type = fields.Selection(
         OBJECT_SELECTION,
-        string="Object Type",
+        string="对象类型",
         required=True,
         default="waybill",
         tracking=True,
     )
-    batch_id = fields.Many2one("logistics.dispatch.batch", string="Batch", ondelete="cascade", index=True)
+    batch_id = fields.Many2one("logistics.dispatch.batch", string="批次", ondelete="cascade", index=True)
     waybill_id = fields.Many2one(
         "logistics.dispatch.waybill",
-        string="Waybill",
+        string="运单",
         ondelete="cascade",
         index=True,
     )
     trace_time = fields.Datetime(
-        string="Trace Time",
+        string="留痕时间",
         required=True,
         default=fields.Datetime.now,
         tracking=True,
@@ -62,31 +62,31 @@ class LogisticsTraceEvent(models.Model):
     )
     submit_user_id = fields.Many2one(
         "res.users",
-        string="Submitted By",
+        string="提交人",
         default=lambda self: self.env.user,
         tracking=True,
     )
     submit_user_name = fields.Char(
-        string="Submit User Name",
+        string="提交人姓名",
         compute="_compute_submit_user_name",
         store=True,
     )
     submit_source = fields.Selection(
         SUBMIT_SOURCE_SELECTION,
-        string="Submit Source",
+        string="提交来源",
         default="manual",
     )
-    location_text = fields.Char(string="Location")
-    plate_no = fields.Char(string="Plate No")
-    driver_name = fields.Char(string="Driver Name")
-    remark = fields.Text(string="Remark", tracking=True)
-    evidence_count = fields.Integer(string="Evidence Count", default=0)
-    is_exception = fields.Boolean(string="Exception Event", tracking=True)
-    source_channel = fields.Char(string="Source Channel")
-    source_record_id = fields.Char(string="Source Record ID")
+    location_text = fields.Char(string="现场位置")
+    plate_no = fields.Char(string="车牌号")
+    driver_name = fields.Char(string="司机姓名")
+    remark = fields.Text(string="备注", tracking=True)
+    evidence_count = fields.Integer(string="证据数", default=0)
+    is_exception = fields.Boolean(string="异常事件", tracking=True)
+    source_channel = fields.Char(string="来源渠道")
+    source_record_id = fields.Char(string="来源记录号")
     state = fields.Selection(
         STATE_SELECTION,
-        string="State",
+        string="状态",
         required=True,
         default="submitted",
         tracking=True,
@@ -101,9 +101,9 @@ class LogisticsTraceEvent(models.Model):
     def _check_object_link(self):
         for record in self:
             if record.object_type == "batch" and not record.batch_id:
-                raise ValidationError("Batch trace events must be linked to a batch.")
+                raise ValidationError("批次留痕事件必须关联到一个批次。")
             if record.object_type == "waybill" and not record.waybill_id:
-                raise ValidationError("Waybill trace events must be linked to a waybill.")
+                raise ValidationError("运单留痕事件必须关联到一张运单。")
 
     @api.onchange("waybill_id")
     def _onchange_waybill_id(self):

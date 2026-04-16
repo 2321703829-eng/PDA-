@@ -110,12 +110,12 @@ msgstr "图片访问 Key"
 #. module: logistics_trace_evidence
 #: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_trace_evidence__write_uid
 msgid "Last Updated by"
-msgstr ""
+msgstr "更新人"
 
 #. module: logistics_trace_evidence
 #: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_trace_evidence__write_date
 msgid "Last Updated on"
-msgstr ""
+msgstr "更新时间"
 
 #. module: logistics_trace_evidence
 #: model:ir.model,name:logistics_trace_evidence.model_logistics_trace_event

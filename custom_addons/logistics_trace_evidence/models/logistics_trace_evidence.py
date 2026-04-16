@@ -3,26 +3,26 @@ from odoo import api, fields, models
 
 class LogisticsTraceEvidence(models.Model):
     _name = "logistics.trace.evidence"
-    _description = "Logistics Trace Evidence"
+    _description = "物流留痕证据"
     _order = "uploaded_at desc, sequence asc, id desc"
     _rec_name = "name"
 
     STATE_SELECTION = [
-        ("available", "Available"),
-        ("missing", "Missing"),
+        ("available", "可用"),
+        ("missing", "缺失"),
     ]
 
-    name = fields.Char(string="Evidence", required=True, copy=False, default="New")
+    name = fields.Char(string="证据名称", required=True, copy=False, default="New")
     trace_event_id = fields.Many2one(
         "logistics.trace.event",
-        string="Trace Event",
+        string="留痕事件",
         required=True,
         ondelete="cascade",
         index=True,
     )
     waybill_id = fields.Many2one(
         "logistics.dispatch.waybill",
-        string="Waybill",
+        string="运单",
         related="trace_event_id.waybill_id",
         store=True,
         readonly=True,
@@ -30,41 +30,41 @@ class LogisticsTraceEvidence(models.Model):
     )
     batch_id = fields.Many2one(
         "logistics.dispatch.batch",
-        string="Batch",
+        string="批次",
         related="trace_event_id.batch_id",
         store=True,
         readonly=True,
         index=True,
     )
-    image_access_key = fields.Char(string="Image Access Key", index=True)
-    preview_url = fields.Char(string="Preview URL")
-    full_url = fields.Char(string="Full URL")
+    image_access_key = fields.Char(string="图片访问 Key", index=True)
+    preview_url = fields.Char(string="预览地址")
+    full_url = fields.Char(string="原图地址")
     uploaded_at = fields.Datetime(
-        string="Uploaded At",
+        string="上传时间",
         required=True,
         default=fields.Datetime.now,
         index=True,
     )
     uploader_id = fields.Many2one(
         "res.users",
-        string="Uploader",
+        string="上传人",
         default=lambda self: self.env.user,
     )
     uploader_name = fields.Char(
-        string="Uploader Name",
+        string="上传人姓名",
         compute="_compute_uploader_name",
         store=True,
     )
-    remark = fields.Char(string="Remark")
+    remark = fields.Char(string="备注")
     is_exception_related = fields.Boolean(
-        string="Exception Related",
+        string="异常相关",
         compute="_compute_exception_flags",
         store=True,
     )
-    sequence = fields.Integer(string="Sequence", default=10)
+    sequence = fields.Integer(string="顺序", default=10)
     state = fields.Selection(
         STATE_SELECTION,
-        string="State",
+        string="状态",
         required=True,
         default="available",
     )

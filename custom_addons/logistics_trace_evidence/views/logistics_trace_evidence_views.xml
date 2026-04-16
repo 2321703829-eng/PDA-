@@ -4,7 +4,7 @@
         <field name="name">logistics.trace.evidence.tree</field>
         <field name="model">logistics.trace.evidence</field>
         <field name="arch" type="xml">
-            <list string="Trace Evidence">
+            <list string="留痕证据">
                 <field name="uploaded_at"/>
                 <field name="name"/>
                 <field name="trace_event_id"/>
@@ -21,7 +21,7 @@
         <field name="name">logistics.trace.evidence.form</field>
         <field name="model">logistics.trace.evidence</field>
         <field name="arch" type="xml">
-            <form string="Trace Evidence">
+            <form string="留痕证据">
                 <sheet>
                     <div class="oe_title">
                         <h1>
@@ -43,12 +43,12 @@
                         </group>
                     </group>
                     <group>
-                        <group string="Image Access">
+                        <group string="图片访问">
                             <field name="image_access_key"/>
                             <field name="preview_url"/>
                             <field name="full_url"/>
                         </group>
-                        <group string="Evidence Context">
+                        <group string="证据上下文">
                             <field name="is_exception_related" readonly="1"/>
                             <field name="remark"/>
                         </group>
@@ -62,23 +62,23 @@
         <field name="name">logistics.trace.evidence.search</field>
         <field name="model">logistics.trace.evidence</field>
         <field name="arch" type="xml">
-            <search string="Trace Evidence">
+            <search string="留痕证据">
                 <field name="name"/>
                 <field name="trace_event_id"/>
                 <field name="waybill_id"/>
                 <field name="image_access_key"/>
-                <filter string="Exception Related" name="exception_related" domain="[('is_exception_related', '=', True)]"/>
+                <filter string="异常相关" name="exception_related" domain="[('is_exception_related', '=', True)]"/>
                 <group>
-                    <filter string="Waybill" name="group_waybill" context="{'group_by': 'waybill_id'}"/>
-                    <filter string="Trace Event" name="group_trace" context="{'group_by': 'trace_event_id'}"/>
-                    <filter string="Uploader" name="group_uploader" context="{'group_by': 'uploader_id'}"/>
+                    <filter string="按运单" name="group_waybill" context="{'group_by': 'waybill_id'}"/>
+                    <filter string="按留痕事件" name="group_trace" context="{'group_by': 'trace_event_id'}"/>
+                    <filter string="按上传人" name="group_uploader" context="{'group_by': 'uploader_id'}"/>
                 </group>
             </search>
         </field>
     </record>
 
     <record id="action_logistics_trace_evidence" model="ir.actions.act_window">
-        <field name="name">Trace Evidence</field>
+        <field name="name">证据</field>
         <field name="res_model">logistics.trace.evidence</field>
         <field name="view_mode">list,form</field>
         <field name="search_view_id" ref="view_logistics_trace_evidence_search"/>
@@ -86,8 +86,8 @@
 
     <menuitem
         id="menu_logistics_trace_evidence"
-        name="Trace Evidence"
-        parent="logistics_dispatch.menu_logistics_dispatch_root"
+        name="证据"
+        parent="logistics_dispatch.menu_logistics_dispatch"
         action="action_logistics_trace_evidence"
-        sequence="41"/>
+        sequence="50"/>
 </odoo>

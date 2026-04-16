@@ -1,24 +1,29 @@
 {
     "name": "Logistics Web",
     "version": "19.0.1.0.0",
-    "summary": "Frontend enhancement layer for the Odoo logistics backend",
+    "summary": "物流后台前端增强层",
     "license": "LGPL-3",
     "depends": [
         "web",
+        "base_import",
         "logistics_dispatch",
         "logistics_trace_core",
         "logistics_trace_evidence",
         "logistics_trace_exception",
     ],
     "data": [
+        "data/base_import_mapping_data.xml",
         "views/logistics_web_actions.xml",
         "views/logistics_web_menus.xml",
         "views/logistics_web_templates.xml",
         "views/logistics_web_waybill_views.xml",
+        "data/logistics_web_label_sync.xml",
     ],
     "assets": {
         "web.assets_backend": [
-            "logistics_web/static/src/js/actions/*.js",
+            "logistics_web/static/src/js/actions/home_action.js",
+            "logistics_web/static/src/js/actions/dashboard_action_v2.js",
+            "logistics_web/static/src/js/actions/boss_trace_action_v2.js",
             "logistics_web/static/src/js/components/*.js",
             "logistics_web/static/src/js/services/*.js",
             "logistics_web/static/src/js/views/*.js",

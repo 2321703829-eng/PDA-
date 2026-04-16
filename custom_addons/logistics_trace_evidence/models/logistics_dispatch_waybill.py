@@ -7,17 +7,17 @@ class LogisticsDispatchWaybill(models.Model):
     evidence_ids = fields.One2many(
         "logistics.trace.evidence",
         "waybill_id",
-        string="Evidence Items",
+        string="证据项",
     )
     evidence_count = fields.Integer(
-        string="Evidence Count",
+        string="证据数",
         compute="_compute_evidence_metrics",
         store=True,
         readonly=True,
     )
     evidence_status = fields.Selection(
-        [("missing", "Missing"), ("partial", "Partial"), ("complete", "Complete")],
-        string="Evidence Status",
+        [("missing", "待补充"), ("partial", "部分齐全"), ("complete", "已齐全")],
+        string="证据状态",
         compute="_compute_evidence_metrics",
         store=True,
         readonly=True,

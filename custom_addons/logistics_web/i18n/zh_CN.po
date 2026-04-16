@@ -15,15 +15,27 @@ msgstr ""
 
 #. module: logistics_web
 msgid "Frontend"
-msgstr "前端"
+msgstr "运营与追溯"
 
 #. module: logistics_web
 msgid "Management Dashboard"
-msgstr "管理工作台"
+msgstr "运营工作台"
 
 #. module: logistics_web
 msgid "Boss Trace Overview"
-msgstr "老板追溯总览"
+msgstr "管理层总览"
+
+#. module: logistics_web
+msgid "运营与追溯"
+msgstr "运营与追溯"
+
+#. module: logistics_web
+msgid "运营工作台"
+msgstr "运营工作台"
+
+#. module: logistics_web
+msgid "管理层总览"
+msgstr "管理层总览"
 
 #. module: logistics_web
 msgid "P0 Entry"

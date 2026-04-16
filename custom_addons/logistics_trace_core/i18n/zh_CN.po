@@ -220,12 +220,12 @@ msgstr ""
 #. module: logistics_trace_core
 #: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__write_uid
 msgid "Last Updated by"
-msgstr ""
+msgstr "更新人"
 
 #. module: logistics_trace_core
 #: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_trace_event__write_date
 msgid "Last Updated on"
-msgstr ""
+msgstr "更新时间"
 
 #. module: logistics_trace_core
 #: model:ir.model.fields,field_description:logistics_trace_core.field_logistics_dispatch_waybill__latest_trace_summary

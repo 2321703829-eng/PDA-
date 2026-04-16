@@ -1,21 +1,28 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <menuitem
+        id="menu_logistics_web_home"
+        name="首页"
+        parent="logistics_dispatch.menu_logistics_dispatch_root"
+        action="action_logistics_web_home"
+        sequence="10"/>
+
+    <menuitem
         id="menu_logistics_web"
-        name="前端"
+        name="所有统计图表"
         parent="logistics_dispatch.menu_logistics_dispatch_root"
         sequence="60"/>
 
     <menuitem
         id="menu_logistics_web_dashboard"
-        name="管理工作台"
+        name="物流工作台"
         parent="menu_logistics_web"
         action="action_logistics_web_dashboard"
         sequence="10"/>
 
     <menuitem
         id="menu_logistics_web_boss_trace"
-        name="老板追溯总览"
+        name="管理看板"
         parent="menu_logistics_web"
         action="action_logistics_web_boss_trace"
         sequence="20"/>

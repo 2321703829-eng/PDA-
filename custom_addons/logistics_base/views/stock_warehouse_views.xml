@@ -6,7 +6,7 @@
         <field name="inherit_id" ref="stock.view_warehouse"/>
         <field name="arch" type="xml">
             <xpath expr="//sheet/notebook" position="before">
-                <group string="Logistics">
+                <group string="物流信息">
                     <group>
                         <field name="logistics_contact_name"/>
                         <field name="logistics_contact_phone"/>

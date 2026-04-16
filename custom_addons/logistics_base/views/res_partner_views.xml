@@ -6,15 +6,15 @@
         <field name="inherit_id" ref="base.view_partner_form"/>
         <field name="arch" type="xml">
             <xpath expr="//notebook" position="inside">
-                <page string="Logistics" name="logistics">
+                <page string="物流信息" name="logistics">
                     <group>
-                        <group string="Flags">
+                        <group string="业务标记">
                             <field name="is_logistics_customer"/>
                             <field name="is_logistics_store"/>
                             <field name="logistics_customer_status" invisible="not is_logistics_customer"/>
                             <field name="logistics_store_status" invisible="not is_logistics_store"/>
                         </group>
-                        <group string="Codes">
+                        <group string="编号信息">
                             <field name="logistics_customer_code" invisible="not is_logistics_customer"/>
                             <field name="logistics_store_code" invisible="not is_logistics_store"/>
                             <field name="logistics_customer_level" invisible="not is_logistics_customer"/>
@@ -22,15 +22,15 @@
                         </group>
                     </group>
                     <group>
-                        <group string="Store Delivery" invisible="not is_logistics_store">
+                        <group string="门店配送" invisible="not is_logistics_store">
                             <field name="logistics_delivery_time_window"/>
                             <field name="partner_latitude"/>
                             <field name="partner_longitude"/>
                             <field name="logistics_need_sign_receipt"/>
                         </group>
-                        <group string="Notes">
-                            <field name="logistics_service_note" placeholder="Service-level reminders for this customer"/>
-                            <field name="logistics_unload_requirement" invisible="not is_logistics_store" placeholder="Special unload rules or onsite requirements"/>
+                        <group string="业务备注">
+                            <field name="logistics_service_note" placeholder="填写客户服务提醒或履约备注"/>
+                            <field name="logistics_unload_requirement" invisible="not is_logistics_store" placeholder="填写门店卸货要求或现场注意事项"/>
                         </group>
                     </group>
                 </page>
@@ -45,8 +45,8 @@
         <field name="arch" type="xml">
             <xpath expr="//search" position="inside">
                 <separator/>
-                <filter string="Logistics Customers" name="logistics_customers" domain="[('is_logistics_customer', '=', True)]"/>
-                <filter string="Logistics Stores" name="logistics_stores" domain="[('is_logistics_store', '=', True)]"/>
+                <filter string="物流客户" name="logistics_customers" domain="[('is_logistics_customer', '=', True)]"/>
+                <filter string="物流门店" name="logistics_stores" domain="[('is_logistics_store', '=', True)]"/>
             </xpath>
         </field>
     </record>

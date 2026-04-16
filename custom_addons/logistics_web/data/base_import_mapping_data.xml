@@ -1,0 +1,645 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="base_import_mapping_wave_wave" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.wave</field>
+        <field name="column_name">wave</field>
+        <field name="field_name">wave_no</field>
+    </record>
+    <record id="base_import_mapping_wave_wave_no" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.wave</field>
+        <field name="column_name">wave no</field>
+        <field name="field_name">wave_no</field>
+    </record>
+    <record id="base_import_mapping_wave_wave_no_code" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.wave</field>
+        <field name="column_name">wave_no</field>
+        <field name="field_name">wave_no</field>
+    </record>
+    <record id="base_import_mapping_wave_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.wave</field>
+        <field name="column_name">波次</field>
+        <field name="field_name">wave_no</field>
+    </record>
+    <record id="base_import_mapping_wave_cn_no" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.wave</field>
+        <field name="column_name">波次号</field>
+        <field name="field_name">wave_no</field>
+    </record>
+
+    <record id="base_import_mapping_batch_batch" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.batch</field>
+        <field name="column_name">batch</field>
+        <field name="field_name">batch_no</field>
+    </record>
+    <record id="base_import_mapping_batch_batch_no" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.batch</field>
+        <field name="column_name">batch no</field>
+        <field name="field_name">batch_no</field>
+    </record>
+    <record id="base_import_mapping_batch_batch_no_code" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.batch</field>
+        <field name="column_name">batch_no</field>
+        <field name="field_name">batch_no</field>
+    </record>
+    <record id="base_import_mapping_batch_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.batch</field>
+        <field name="column_name">批次</field>
+        <field name="field_name">batch_no</field>
+    </record>
+    <record id="base_import_mapping_batch_cn_no" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.batch</field>
+        <field name="column_name">批次号</field>
+        <field name="field_name">batch_no</field>
+    </record>
+    <record id="base_import_mapping_batch_wave" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.batch</field>
+        <field name="column_name">wave</field>
+        <field name="field_name">wave_no</field>
+    </record>
+    <record id="base_import_mapping_batch_wave_no" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.batch</field>
+        <field name="column_name">wave no</field>
+        <field name="field_name">wave_no</field>
+    </record>
+    <record id="base_import_mapping_batch_wave_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.batch</field>
+        <field name="column_name">波次</field>
+        <field name="field_name">wave_no</field>
+    </record>
+    <record id="base_import_mapping_batch_warehouse" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.batch</field>
+        <field name="column_name">warehouse</field>
+        <field name="field_name">warehouse_id</field>
+    </record>
+    <record id="base_import_mapping_batch_warehouse_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.batch</field>
+        <field name="column_name">仓库</field>
+        <field name="field_name">warehouse_id</field>
+    </record>
+    <record id="base_import_mapping_batch_driver" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.batch</field>
+        <field name="column_name">driver</field>
+        <field name="field_name">driver_employee_id</field>
+    </record>
+    <record id="base_import_mapping_batch_driver_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.batch</field>
+        <field name="column_name">司机</field>
+        <field name="field_name">driver_employee_id</field>
+    </record>
+
+    <record id="base_import_mapping_waybill_waybill" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill</field>
+        <field name="column_name">waybill</field>
+        <field name="field_name">waybill_no</field>
+    </record>
+    <record id="base_import_mapping_waybill_waybill_no" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill</field>
+        <field name="column_name">waybill no</field>
+        <field name="field_name">waybill_no</field>
+    </record>
+    <record id="base_import_mapping_waybill_waybill_code" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill</field>
+        <field name="column_name">waybill_no</field>
+        <field name="field_name">waybill_no</field>
+    </record>
+    <record id="base_import_mapping_waybill_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill</field>
+        <field name="column_name">运单</field>
+        <field name="field_name">waybill_no</field>
+    </record>
+    <record id="base_import_mapping_waybill_cn_no" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill</field>
+        <field name="column_name">运单号</field>
+        <field name="field_name">waybill_no</field>
+    </record>
+    <record id="base_import_mapping_waybill_batch" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill</field>
+        <field name="column_name">batch</field>
+        <field name="field_name">batch_no</field>
+    </record>
+    <record id="base_import_mapping_waybill_batch_no" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill</field>
+        <field name="column_name">batch no</field>
+        <field name="field_name">batch_no</field>
+    </record>
+    <record id="base_import_mapping_waybill_batch_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill</field>
+        <field name="column_name">批次</field>
+        <field name="field_name">batch_no</field>
+    </record>
+    <record id="base_import_mapping_waybill_batch_cn_no" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill</field>
+        <field name="column_name">批次号</field>
+        <field name="field_name">batch_no</field>
+    </record>
+    <record id="base_import_mapping_waybill_customer_no" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill</field>
+        <field name="column_name">customer no</field>
+        <field name="field_name">customer_no</field>
+    </record>
+    <record id="base_import_mapping_waybill_customer_no_code" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill</field>
+        <field name="column_name">customer_no</field>
+        <field name="field_name">customer_no</field>
+    </record>
+    <record id="base_import_mapping_waybill_customer_no_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill</field>
+        <field name="column_name">客户号</field>
+        <field name="field_name">customer_no</field>
+    </record>
+    <record id="base_import_mapping_waybill_customer_name" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill</field>
+        <field name="column_name">customer name</field>
+        <field name="field_name">customer_name</field>
+    </record>
+    <record id="base_import_mapping_waybill_customer" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill</field>
+        <field name="column_name">customer</field>
+        <field name="field_name">customer_name</field>
+    </record>
+    <record id="base_import_mapping_waybill_customer_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill</field>
+        <field name="column_name">客户</field>
+        <field name="field_name">customer_name</field>
+    </record>
+    <record id="base_import_mapping_waybill_customer_name_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill</field>
+        <field name="column_name">客户名称</field>
+        <field name="field_name">customer_name</field>
+    </record>
+    <record id="base_import_mapping_waybill_store_no" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill</field>
+        <field name="column_name">store no</field>
+        <field name="field_name">store_no</field>
+    </record>
+    <record id="base_import_mapping_waybill_store_no_code" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill</field>
+        <field name="column_name">store_no</field>
+        <field name="field_name">store_no</field>
+    </record>
+    <record id="base_import_mapping_waybill_store_no_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill</field>
+        <field name="column_name">门店号</field>
+        <field name="field_name">store_no</field>
+    </record>
+    <record id="base_import_mapping_waybill_store_name" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill</field>
+        <field name="column_name">store name</field>
+        <field name="field_name">store_name</field>
+    </record>
+    <record id="base_import_mapping_waybill_store" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill</field>
+        <field name="column_name">store</field>
+        <field name="field_name">store_name</field>
+    </record>
+    <record id="base_import_mapping_waybill_store_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill</field>
+        <field name="column_name">门店</field>
+        <field name="field_name">store_name</field>
+    </record>
+    <record id="base_import_mapping_waybill_store_name_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill</field>
+        <field name="column_name">门店名称</field>
+        <field name="field_name">store_name</field>
+    </record>
+    <record id="base_import_mapping_waybill_exception_status_code" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill</field>
+        <field name="column_name">exception_status</field>
+        <field name="field_name">exception_status</field>
+    </record>
+    <record id="base_import_mapping_waybill_exception_status_name" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill</field>
+        <field name="column_name">exception status</field>
+        <field name="field_name">exception_status</field>
+    </record>
+    <record id="base_import_mapping_waybill_evidence_status_code" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill</field>
+        <field name="column_name">evidence_status</field>
+        <field name="field_name">evidence_status</field>
+    </record>
+    <record id="base_import_mapping_waybill_evidence_status_name" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill</field>
+        <field name="column_name">evidence status</field>
+        <field name="field_name">evidence_status</field>
+    </record>
+    <record id="base_import_mapping_waybill_risk_level_code" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill</field>
+        <field name="column_name">risk_level</field>
+        <field name="field_name">risk_level</field>
+    </record>
+    <record id="base_import_mapping_waybill_risk_level_name" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill</field>
+        <field name="column_name">risk level</field>
+        <field name="field_name">risk_level</field>
+    </record>
+    <record id="base_import_mapping_waybill_risk_name" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill</field>
+        <field name="column_name">risk</field>
+        <field name="field_name">risk_level</field>
+    </record>
+
+    <record id="base_import_mapping_customer_line_waybill_no_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill.customer.line</field>
+        <field name="column_name">运单号</field>
+        <field name="field_name">waybill_no</field>
+    </record>
+    <record id="base_import_mapping_customer_line_sequence_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill.customer.line</field>
+        <field name="column_name">顺序</field>
+        <field name="field_name">sequence</field>
+    </record>
+    <record id="base_import_mapping_customer_line_customer_no_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill.customer.line</field>
+        <field name="column_name">客户号</field>
+        <field name="field_name">customer_no</field>
+    </record>
+    <record id="base_import_mapping_customer_line_customer_name_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill.customer.line</field>
+        <field name="column_name">客户名称</field>
+        <field name="field_name">customer_name</field>
+    </record>
+    <record id="base_import_mapping_customer_line_store_no_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill.customer.line</field>
+        <field name="column_name">门店号</field>
+        <field name="field_name">store_no</field>
+    </record>
+    <record id="base_import_mapping_customer_line_store_name_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill.customer.line</field>
+        <field name="column_name">门店名称</field>
+        <field name="field_name">store_name</field>
+    </record>
+    <record id="base_import_mapping_customer_line_delivery_note_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill.customer.line</field>
+        <field name="column_name">配送备注</field>
+        <field name="field_name">delivery_note</field>
+    </record>
+    <record id="base_import_mapping_customer_line_signoff_requirement_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill.customer.line</field>
+        <field name="column_name">签收要求</field>
+        <field name="field_name">signoff_requirement</field>
+    </record>
+
+    <record id="base_import_mapping_goods_line_waybill_no_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill.customer.goods.line</field>
+        <field name="column_name">运单号</field>
+        <field name="field_name">waybill_no</field>
+    </record>
+    <record id="base_import_mapping_goods_line_customer_no_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill.customer.goods.line</field>
+        <field name="column_name">客户号</field>
+        <field name="field_name">customer_no</field>
+    </record>
+    <record id="base_import_mapping_goods_line_goods_code_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill.customer.goods.line</field>
+        <field name="column_name">货品编码</field>
+        <field name="field_name">goods_code</field>
+    </record>
+    <record id="base_import_mapping_goods_line_goods_name_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill.customer.goods.line</field>
+        <field name="column_name">货品名称</field>
+        <field name="field_name">goods_name</field>
+    </record>
+    <record id="base_import_mapping_goods_line_specification_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill.customer.goods.line</field>
+        <field name="column_name">规格</field>
+        <field name="field_name">specification</field>
+    </record>
+    <record id="base_import_mapping_goods_line_quantity_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill.customer.goods.line</field>
+        <field name="column_name">数量</field>
+        <field name="field_name">quantity</field>
+    </record>
+    <record id="base_import_mapping_goods_line_package_count_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill.customer.goods.line</field>
+        <field name="column_name">件数</field>
+        <field name="field_name">package_count</field>
+    </record>
+    <record id="base_import_mapping_goods_line_uom_name_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill.customer.goods.line</field>
+        <field name="column_name">单位</field>
+        <field name="field_name">uom_name</field>
+    </record>
+    <record id="base_import_mapping_goods_line_weight_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill.customer.goods.line</field>
+        <field name="column_name">重量</field>
+        <field name="field_name">weight</field>
+    </record>
+    <record id="base_import_mapping_goods_line_volume_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill.customer.goods.line</field>
+        <field name="column_name">体积</field>
+        <field name="field_name">volume</field>
+    </record>
+    <record id="base_import_mapping_goods_line_temperature_zone_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill.customer.goods.line</field>
+        <field name="column_name">温层</field>
+        <field name="field_name">temperature_zone</field>
+    </record>
+    <record id="base_import_mapping_goods_line_package_type_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill.customer.goods.line</field>
+        <field name="column_name">包装类型</field>
+        <field name="field_name">package_type</field>
+    </record>
+    <record id="base_import_mapping_goods_line_remark_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill.customer.goods.line</field>
+        <field name="column_name">备注</field>
+        <field name="field_name">remark</field>
+    </record>
+
+    <record id="base_import_mapping_trace_name" model="base_import.mapping">
+        <field name="res_model">logistics.trace.event</field>
+        <field name="column_name">trace event</field>
+        <field name="field_name">name</field>
+    </record>
+    <record id="base_import_mapping_trace_name_code" model="base_import.mapping">
+        <field name="res_model">logistics.trace.event</field>
+        <field name="column_name">trace_event</field>
+        <field name="field_name">name</field>
+    </record>
+    <record id="base_import_mapping_trace_name_cn" model="base_import.mapping">
+        <field name="res_model">logistics.trace.event</field>
+        <field name="column_name">留痕事件</field>
+        <field name="field_name">name</field>
+    </record>
+    <record id="base_import_mapping_trace_type" model="base_import.mapping">
+        <field name="res_model">logistics.trace.event</field>
+        <field name="column_name">event type</field>
+        <field name="field_name">event_type</field>
+    </record>
+    <record id="base_import_mapping_trace_type_code" model="base_import.mapping">
+        <field name="res_model">logistics.trace.event</field>
+        <field name="column_name">event_type</field>
+        <field name="field_name">event_type</field>
+    </record>
+    <record id="base_import_mapping_trace_type_cn" model="base_import.mapping">
+        <field name="res_model">logistics.trace.event</field>
+        <field name="column_name">留痕类型</field>
+        <field name="field_name">event_type</field>
+    </record>
+    <record id="base_import_mapping_trace_batch" model="base_import.mapping">
+        <field name="res_model">logistics.trace.event</field>
+        <field name="column_name">batch</field>
+        <field name="field_name">batch_id</field>
+    </record>
+    <record id="base_import_mapping_trace_batch_cn" model="base_import.mapping">
+        <field name="res_model">logistics.trace.event</field>
+        <field name="column_name">批次</field>
+        <field name="field_name">batch_id</field>
+    </record>
+    <record id="base_import_mapping_trace_waybill" model="base_import.mapping">
+        <field name="res_model">logistics.trace.event</field>
+        <field name="column_name">waybill</field>
+        <field name="field_name">waybill_id</field>
+    </record>
+    <record id="base_import_mapping_trace_waybill_cn" model="base_import.mapping">
+        <field name="res_model">logistics.trace.event</field>
+        <field name="column_name">运单</field>
+        <field name="field_name">waybill_id</field>
+    </record>
+    <record id="base_import_mapping_trace_time" model="base_import.mapping">
+        <field name="res_model">logistics.trace.event</field>
+        <field name="column_name">trace time</field>
+        <field name="field_name">trace_time</field>
+    </record>
+    <record id="base_import_mapping_trace_time_code" model="base_import.mapping">
+        <field name="res_model">logistics.trace.event</field>
+        <field name="column_name">trace_time</field>
+        <field name="field_name">trace_time</field>
+    </record>
+    <record id="base_import_mapping_trace_time_cn" model="base_import.mapping">
+        <field name="res_model">logistics.trace.event</field>
+        <field name="column_name">留痕时间</field>
+        <field name="field_name">trace_time</field>
+    </record>
+
+    <record id="base_import_mapping_evidence_name" model="base_import.mapping">
+        <field name="res_model">logistics.trace.evidence</field>
+        <field name="column_name">evidence</field>
+        <field name="field_name">name</field>
+    </record>
+    <record id="base_import_mapping_evidence_name_2" model="base_import.mapping">
+        <field name="res_model">logistics.trace.evidence</field>
+        <field name="column_name">evidence name</field>
+        <field name="field_name">name</field>
+    </record>
+    <record id="base_import_mapping_evidence_name_cn" model="base_import.mapping">
+        <field name="res_model">logistics.trace.evidence</field>
+        <field name="column_name">证据名称</field>
+        <field name="field_name">name</field>
+    </record>
+    <record id="base_import_mapping_evidence_trace" model="base_import.mapping">
+        <field name="res_model">logistics.trace.evidence</field>
+        <field name="column_name">trace event</field>
+        <field name="field_name">trace_event_id</field>
+    </record>
+    <record id="base_import_mapping_evidence_trace_code" model="base_import.mapping">
+        <field name="res_model">logistics.trace.evidence</field>
+        <field name="column_name">trace_event</field>
+        <field name="field_name">trace_event_id</field>
+    </record>
+    <record id="base_import_mapping_evidence_trace_cn" model="base_import.mapping">
+        <field name="res_model">logistics.trace.evidence</field>
+        <field name="column_name">留痕事件</field>
+        <field name="field_name">trace_event_id</field>
+    </record>
+    <record id="base_import_mapping_evidence_uploaded" model="base_import.mapping">
+        <field name="res_model">logistics.trace.evidence</field>
+        <field name="column_name">uploaded at</field>
+        <field name="field_name">uploaded_at</field>
+    </record>
+    <record id="base_import_mapping_evidence_uploaded_code" model="base_import.mapping">
+        <field name="res_model">logistics.trace.evidence</field>
+        <field name="column_name">uploaded_at</field>
+        <field name="field_name">uploaded_at</field>
+    </record>
+    <record id="base_import_mapping_evidence_uploaded_cn" model="base_import.mapping">
+        <field name="res_model">logistics.trace.evidence</field>
+        <field name="column_name">上传时间</field>
+        <field name="field_name">uploaded_at</field>
+    </record>
+
+    <record id="base_import_mapping_exception_no" model="base_import.mapping">
+        <field name="res_model">logistics.trace.exception</field>
+        <field name="column_name">exception no</field>
+        <field name="field_name">exception_no</field>
+    </record>
+    <record id="base_import_mapping_exception_no_code" model="base_import.mapping">
+        <field name="res_model">logistics.trace.exception</field>
+        <field name="column_name">exception_no</field>
+        <field name="field_name">exception_no</field>
+    </record>
+    <record id="base_import_mapping_exception_no_cn" model="base_import.mapping">
+        <field name="res_model">logistics.trace.exception</field>
+        <field name="column_name">异常单号</field>
+        <field name="field_name">exception_no</field>
+    </record>
+    <record id="base_import_mapping_exception_no_cn_2" model="base_import.mapping">
+        <field name="res_model">logistics.trace.exception</field>
+        <field name="column_name">异常编号</field>
+        <field name="field_name">exception_no</field>
+    </record>
+    <record id="base_import_mapping_exception_type" model="base_import.mapping">
+        <field name="res_model">logistics.trace.exception</field>
+        <field name="column_name">exception type</field>
+        <field name="field_name">exception_type</field>
+    </record>
+    <record id="base_import_mapping_exception_type_code" model="base_import.mapping">
+        <field name="res_model">logistics.trace.exception</field>
+        <field name="column_name">exception_type</field>
+        <field name="field_name">exception_type</field>
+    </record>
+    <record id="base_import_mapping_exception_type_cn" model="base_import.mapping">
+        <field name="res_model">logistics.trace.exception</field>
+        <field name="column_name">异常类型</field>
+        <field name="field_name">exception_type</field>
+    </record>
+    <record id="base_import_mapping_exception_severity" model="base_import.mapping">
+        <field name="res_model">logistics.trace.exception</field>
+        <field name="column_name">severity</field>
+        <field name="field_name">severity_level</field>
+    </record>
+    <record id="base_import_mapping_exception_severity_level" model="base_import.mapping">
+        <field name="res_model">logistics.trace.exception</field>
+        <field name="column_name">severity level</field>
+        <field name="field_name">severity_level</field>
+    </record>
+    <record id="base_import_mapping_exception_severity_code" model="base_import.mapping">
+        <field name="res_model">logistics.trace.exception</field>
+        <field name="column_name">severity_level</field>
+        <field name="field_name">severity_level</field>
+    </record>
+    <record id="base_import_mapping_exception_severity_cn" model="base_import.mapping">
+        <field name="res_model">logistics.trace.exception</field>
+        <field name="column_name">严重等级</field>
+        <field name="field_name">severity_level</field>
+    </record>
+    <record id="base_import_mapping_exception_state" model="base_import.mapping">
+        <field name="res_model">logistics.trace.exception</field>
+        <field name="column_name">state</field>
+        <field name="field_name">state</field>
+    </record>
+    <record id="base_import_mapping_exception_state_cn" model="base_import.mapping">
+        <field name="res_model">logistics.trace.exception</field>
+        <field name="column_name">状态</field>
+        <field name="field_name">state</field>
+    </record>
+    <record id="base_import_mapping_exception_waybill" model="base_import.mapping">
+        <field name="res_model">logistics.trace.exception</field>
+        <field name="column_name">waybill</field>
+        <field name="field_name">waybill_no</field>
+    </record>
+    <record id="base_import_mapping_exception_waybill_no" model="base_import.mapping">
+        <field name="res_model">logistics.trace.exception</field>
+        <field name="column_name">waybill no</field>
+        <field name="field_name">waybill_no</field>
+    </record>
+    <record id="base_import_mapping_exception_waybill_code" model="base_import.mapping">
+        <field name="res_model">logistics.trace.exception</field>
+        <field name="column_name">waybill_no</field>
+        <field name="field_name">waybill_no</field>
+    </record>
+    <record id="base_import_mapping_exception_waybill_cn" model="base_import.mapping">
+        <field name="res_model">logistics.trace.exception</field>
+        <field name="column_name">运单</field>
+        <field name="field_name">waybill_no</field>
+    </record>
+    <record id="base_import_mapping_exception_waybill_cn_no" model="base_import.mapping">
+        <field name="res_model">logistics.trace.exception</field>
+        <field name="column_name">运单号</field>
+        <field name="field_name">waybill_no</field>
+    </record>
+    <record id="base_import_mapping_exception_batch" model="base_import.mapping">
+        <field name="res_model">logistics.trace.exception</field>
+        <field name="column_name">batch</field>
+        <field name="field_name">batch_no</field>
+    </record>
+    <record id="base_import_mapping_exception_batch_no" model="base_import.mapping">
+        <field name="res_model">logistics.trace.exception</field>
+        <field name="column_name">batch no</field>
+        <field name="field_name">batch_no</field>
+    </record>
+    <record id="base_import_mapping_exception_batch_code" model="base_import.mapping">
+        <field name="res_model">logistics.trace.exception</field>
+        <field name="column_name">batch_no</field>
+        <field name="field_name">batch_no</field>
+    </record>
+    <record id="base_import_mapping_exception_batch_cn" model="base_import.mapping">
+        <field name="res_model">logistics.trace.exception</field>
+        <field name="column_name">批次</field>
+        <field name="field_name">batch_no</field>
+    </record>
+    <record id="base_import_mapping_exception_batch_cn_no" model="base_import.mapping">
+        <field name="res_model">logistics.trace.exception</field>
+        <field name="column_name">批次号</field>
+        <field name="field_name">batch_no</field>
+    </record>
+    <record id="base_import_mapping_exception_trace" model="base_import.mapping">
+        <field name="res_model">logistics.trace.exception</field>
+        <field name="column_name">trace event</field>
+        <field name="field_name">trace_event_name</field>
+    </record>
+    <record id="base_import_mapping_exception_trace_name" model="base_import.mapping">
+        <field name="res_model">logistics.trace.exception</field>
+        <field name="column_name">trace event name</field>
+        <field name="field_name">trace_event_name</field>
+    </record>
+    <record id="base_import_mapping_exception_trace_code" model="base_import.mapping">
+        <field name="res_model">logistics.trace.exception</field>
+        <field name="column_name">trace_event</field>
+        <field name="field_name">trace_event_name</field>
+    </record>
+    <record id="base_import_mapping_exception_trace_cn" model="base_import.mapping">
+        <field name="res_model">logistics.trace.exception</field>
+        <field name="column_name">留痕事件</field>
+        <field name="field_name">trace_event_name</field>
+    </record>
+    <record id="base_import_mapping_exception_owner" model="base_import.mapping">
+        <field name="res_model">logistics.trace.exception</field>
+        <field name="column_name">process owner name</field>
+        <field name="field_name">process_owner_name</field>
+    </record>
+    <record id="base_import_mapping_exception_owner_cn" model="base_import.mapping">
+        <field name="res_model">logistics.trace.exception</field>
+        <field name="column_name">处理负责人</field>
+        <field name="field_name">process_owner_name</field>
+    </record>
+    <record id="base_import_mapping_exception_owner_cn_name" model="base_import.mapping">
+        <field name="res_model">logistics.trace.exception</field>
+        <field name="column_name">处理负责人姓名</field>
+        <field name="field_name">process_owner_name</field>
+    </record>
+    <record id="base_import_mapping_exception_report_time" model="base_import.mapping">
+        <field name="res_model">logistics.trace.exception</field>
+        <field name="column_name">report time</field>
+        <field name="field_name">report_time</field>
+    </record>
+    <record id="base_import_mapping_exception_report_time_code" model="base_import.mapping">
+        <field name="res_model">logistics.trace.exception</field>
+        <field name="column_name">report_time</field>
+        <field name="field_name">report_time</field>
+    </record>
+    <record id="base_import_mapping_exception_report_time_cn" model="base_import.mapping">
+        <field name="res_model">logistics.trace.exception</field>
+        <field name="column_name">上报时间</field>
+        <field name="field_name">report_time</field>
+    </record>
+    <record id="base_import_mapping_exception_description" model="base_import.mapping">
+        <field name="res_model">logistics.trace.exception</field>
+        <field name="column_name">description</field>
+        <field name="field_name">description</field>
+    </record>
+    <record id="base_import_mapping_exception_description_cn" model="base_import.mapping">
+        <field name="res_model">logistics.trace.exception</field>
+        <field name="column_name">异常说明</field>
+        <field name="field_name">description</field>
+    </record>
+    <record id="base_import_mapping_exception_remark" model="base_import.mapping">
+        <field name="res_model">logistics.trace.exception</field>
+        <field name="column_name">remark</field>
+        <field name="field_name">remark</field>
+    </record>
+    <record id="base_import_mapping_exception_remark_cn" model="base_import.mapping">
+        <field name="res_model">logistics.trace.exception</field>
+        <field name="column_name">备注</field>
+        <field name="field_name">remark</field>
+    </record>
+</odoo>

@@ -7,42 +7,42 @@ class LogisticsDispatchWaybill(models.Model):
     trace_event_ids = fields.One2many(
         "logistics.trace.event",
         "waybill_id",
-        string="Trace Events",
+        string="留痕事件",
     )
     trace_count = fields.Integer(
-        string="Trace Count",
+        string="留痕数",
         compute="_compute_trace_metrics",
         store=True,
         readonly=True,
     )
     latest_trace_time = fields.Datetime(
-        string="Latest Trace Time",
+        string="最新留痕时间",
         compute="_compute_trace_metrics",
         store=True,
         readonly=True,
     )
     latest_trace_type = fields.Char(
-        string="Latest Trace Type",
+        string="最新留痕类型",
         compute="_compute_trace_metrics",
         store=True,
         readonly=True,
     )
     latest_trace_summary = fields.Char(
-        string="Latest Trace Summary",
+        string="最新留痕摘要",
         compute="_compute_trace_metrics",
         store=True,
         readonly=True,
     )
     arrive_trace_status = fields.Selection(
-        [("pending", "Pending"), ("partial", "Partial"), ("done", "Done")],
-        string="Arrival Trace",
+        [("pending", "待补充"), ("partial", "部分完成"), ("done", "已完成")],
+        string="到店留痕",
         compute="_compute_trace_metrics",
         store=True,
         readonly=True,
     )
     signoff_trace_status = fields.Selection(
-        [("pending", "Pending"), ("partial", "Partial"), ("done", "Done")],
-        string="Signoff Trace",
+        [("pending", "待补充"), ("partial", "部分完成"), ("done", "已完成")],
+        string="签收留痕",
         compute="_compute_trace_metrics",
         store=True,
         readonly=True,
@@ -79,7 +79,7 @@ class LogisticsDispatchWaybill(models.Model):
         self.ensure_one()
         return {
             "type": "ir.actions.act_window",
-            "name": _("Trace Events"),
+            "name": _("留痕事件"),
             "res_model": "logistics.trace.event",
             "view_mode": "list,form",
             "domain": [("waybill_id", "=", self.id)],

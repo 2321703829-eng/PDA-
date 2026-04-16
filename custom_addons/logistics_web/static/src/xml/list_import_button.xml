@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="logistics_web.ListView.ImportButton" t-inherit="web.ListView" t-inherit-mode="extension">
+        <xpath expr="//t[@t-set-slot='control-panel-create-button']/button[contains(@class, 'o_list_button_add')]" position="after">
+            <button
+                t-if="!editedRecord and showLogisticsImportButton"
+                type="button"
+                class="btn btn-secondary ms-2 o_logistics_import_button"
+                t-on-click="onClickLogisticsImport">
+                导入
+            </button>
+        </xpath>
+    </t>
+
+    <t t-name="logistics_web.ImportDataSidepanel" t-inherit="ImportDataSidepanel" t-inherit-mode="extension">
+        <xpath expr="//div[contains(@class, 'o_import_formatting')]/h4" position="replace">
+            <h4>导入格式</h4>
+        </xpath>
+    </t>
+
+</templates>
