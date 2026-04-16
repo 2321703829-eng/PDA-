@@ -165,6 +165,82 @@ class LogisticsTraceEvidenceImageController(http.Controller):
         )
 
     @http.route(
+        ["/api/mini/logistics/waybills/<string:waybill_no>/stops/<int:stop_seq>/evidences"],
+        type="http",
+        auth="user",
+        methods=["DELETE"],
+        csrf=False,
+    )
+    def delete_waybill_stop_evidences(self, waybill_no, stop_seq, **kwargs):
+        waybill_no = (waybill_no or "").strip()
+        if not waybill_no:
+            return self._json_response(
+                {"ok": False, "message": "waybill_no is required."},
+                status=400,
+            )
+        if stop_seq <= 0:
+            return self._json_response(
+                {"ok": False, "message": "stop_seq must be a positive integer."},
+                status=400,
+            )
+
+        stop_records = request.env["logistics.waybill.stop"].sudo().search(
+            [("waybill_no", "=", waybill_no)],
+            order="stop_seq asc, id asc",
+        )
+        if not stop_records:
+            return self._json_response(
+                {"ok": False, "message": "Waybill stops not found."},
+                status=404,
+            )
+
+        traces = self._search_waybill_traces(waybill_no)
+        stop_traces = self._filter_traces_for_stop(stop_records, traces, stop_seq)
+        if not stop_traces:
+            return self._json_response(
+                {
+                    "ok": True,
+                    "message": "No evidences found for the selected stop.",
+                    "data": {
+                        "waybill_no": waybill_no,
+                        "stop_seq": stop_seq,
+                        "deleted_evidence_count": 0,
+                        "deleted_image_count": 0,
+                    },
+                },
+                status=200,
+            )
+
+        evidences = (
+            request.env["logistics.trace.evidence"]
+            .sudo()
+            .search(
+                [
+                    ("trace_id", "in", stop_traces.ids),
+                    ("evidence_type", "in", ("image", "sign")),
+                ]
+            )
+        )
+        deleted_evidence_count = len(evidences)
+        deleted_image_count = sum(len(evidence.image_ids) for evidence in evidences)
+        if evidences:
+            evidences.unlink()
+
+        return self._json_response(
+            {
+                "ok": True,
+                "message": "Stop evidences deleted successfully.",
+                "data": {
+                    "waybill_no": waybill_no,
+                    "stop_seq": stop_seq,
+                    "deleted_evidence_count": deleted_evidence_count,
+                    "deleted_image_count": deleted_image_count,
+                },
+            },
+            status=200,
+        )
+
+    @http.route(
         ["/api/mini/logistics/evidences"],
         type="http",
         auth="user",
@@ -395,10 +471,15 @@ class LogisticsTraceEvidenceImageController(http.Controller):
             "guide_url": stop_record.guide_url,
             "goods_info": stop_record.goods_info or self._build_goods_info(stop_record.stock_picking_id),
             "status": "PENDING",
+            "evidence_images": [],
         }
 
     def _merge_trace_into_stop(self, stop, trace):
         stop["status"] = self._merge_stop_status(stop["status"], trace.trace_type, trace.is_exception)
+        stop["evidence_images"] = self._merge_stop_evidence_images(
+            stop.get("evidence_images") or [],
+            trace,
+        )
 
     @staticmethod
     def _load_contact_list(stop_record):
@@ -498,6 +579,40 @@ class LogisticsTraceEvidenceImageController(http.Controller):
                 lines.append(f"{move.product_id.display_name} x {qty:g}")
 
         return "; ".join(lines)
+
+    def _filter_traces_for_stop(self, stop_records, traces, stop_seq):
+        only_stop_seq = stop_records.mapped("stop_seq")
+        single_stop_seq = only_stop_seq[0] if len(only_stop_seq) == 1 else None
+        return traces.filtered(
+            lambda trace: (trace.route_sequence or single_stop_seq or 0) == stop_seq
+        )
+
+    def _merge_stop_evidence_images(self, current_images, trace):
+        merged = list(current_images)
+        seen_keys = {
+            (image.get("image_id"), image.get("image_access_key"))
+            for image in merged
+        }
+        for evidence in trace.sudo().mapped("evidence_ids"):
+            for image in evidence.image_ids:
+                key = (image.id, image.image_access_key)
+                if key in seen_keys:
+                    continue
+                seen_keys.add(key)
+                merged.append(
+                    {
+                        "image_id": image.id,
+                        "evidence_id": evidence.id,
+                        "trace_event_id": trace.id,
+                        "trace_type": trace.trace_type,
+                        "image_access_key": image.image_access_key,
+                        "file_name": image.source_filename or image.stored_file_name,
+                        "preview_url": image.preview_url,
+                        "download_url": image.download_url,
+                        "storage_status": image.storage_status,
+                    }
+                )
+        return merged
 
     @staticmethod
     def _trace_type_to_stop_status(trace_type):

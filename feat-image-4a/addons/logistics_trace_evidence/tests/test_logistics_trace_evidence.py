@@ -99,8 +99,7 @@ class TestLogisticsTraceEvidence(TransactionCase):
                 "vehicle_no": "YUEA12345",
             }
         )
-
-        self.env["logistics.trace.event"].create(
+        trace = self.env["logistics.trace.event"].create(
             {
                 "biz_type": "waybill",
                 "waybill_no": "WB20260413001",
@@ -111,6 +110,20 @@ class TestLogisticsTraceEvidence(TransactionCase):
                 "location_text": "Guangzhou Road 1",
             }
         )
+        evidence = self.env["logistics.trace.evidence"].create(
+            {
+                "name": "Stop Arrive Image",
+                "trace_id": trace.id,
+                "evidence_type": "image",
+            }
+        )
+        image_payload = self.storage.upload_image(
+            file_name="stop-arrive.jpg",
+            content=b"stop-arrive",
+            content_type="image/jpeg",
+        )
+        image = evidence.register_uploaded_image(image_payload)
+
         self.env["logistics.trace.event"].create(
             {
                 "biz_type": "waybill",
@@ -143,6 +156,11 @@ class TestLogisticsTraceEvidence(TransactionCase):
         self.assertEqual(len(stop["contact_list"]), 3)
         self.assertEqual(stop["contact_list"][1]["name"], "Deputy Manager Wang")
         self.assertEqual(stop["goods_info"], "Frozen Seafood x 2 boxes")
+        self.assertEqual(len(stop["evidence_images"]), 1)
+        self.assertEqual(stop["evidence_images"][0]["image_id"], image.id)
+        self.assertEqual(stop["evidence_images"][0]["evidence_id"], evidence.id)
+        self.assertEqual(stop["evidence_images"][0]["trace_event_id"], trace.id)
+        self.assertEqual(stop["evidence_images"][0]["image_access_key"], image.image_access_key)
 
     def test_build_waybill_stops_payload_supports_leave_status_chain(self):
         controller = LogisticsTraceEvidenceImageController()
