@@ -12,6 +12,7 @@
         "views/res_partner_views.xml",
         "views/hr_employee_views.xml",
         "views/stock_warehouse_views.xml",
+        "views/logistics_base_menus.xml",
     ],
     "installable": True,
     "application": False,

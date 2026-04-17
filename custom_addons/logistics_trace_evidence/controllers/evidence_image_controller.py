@@ -1,6 +1,6 @@
 import json
 
-from odoo import http
+from odoo import fields, http
 from odoo.exceptions import UserError
 from odoo.http import request
 
@@ -48,11 +48,11 @@ class LogisticsTraceEvidenceImageController(http.Controller):
             payload = self._get_json_payload()
             event_type = self._resolve_event_type(payload)
             trace_model = request.env["logistics.trace.event"].sudo()
+            trace_time = payload.get("trace_time") or payload.get("occurred_at")
 
             values = {
                 "event_type": event_type,
                 "submit_source": "mobile",
-                "trace_time": payload.get("trace_time") or payload.get("occurred_at"),
                 "remark": payload.get("remark"),
                 "driver_name": payload.get("driver_name"),
                 "plate_no": payload.get("vehicle_no") or payload.get("plate_no"),
@@ -62,6 +62,8 @@ class LogisticsTraceEvidenceImageController(http.Controller):
                 "source_record_id": payload.get("source_record_id"),
                 "is_exception": event_type == "exception_report",
             }
+            if trace_time:
+                values["trace_time"] = trace_time
 
             batch = self._find_batch(payload)
             waybill = self._find_waybill(payload)
@@ -260,6 +262,58 @@ class LogisticsTraceEvidenceImageController(http.Controller):
         return self._json_response({"ok": True, "data": payload}, status=200)
 
     @http.route(
+        ["/api/mini/logistics/waybills/<string:waybill_no>/stops/<int:stop_seq>/evidences"],
+        type="http",
+        auth="user",
+        methods=["DELETE"],
+        csrf=False,
+    )
+    def delete_stop_evidences(self, waybill_no, stop_seq, **kwargs):
+        waybill = self._find_waybill({"waybill_no": waybill_no})
+        if not waybill:
+            return self._json_response({"ok": False, "message": "Waybill not found."}, status=404)
+
+        stop_records = request.env["logistics.dispatch.waybill.stop"].sudo().search(
+            [("waybill_id", "=", waybill.id)],
+            order="stop_seq asc, id asc",
+        )
+        if not stop_records:
+            return self._json_response({"ok": False, "message": "Waybill stops not found."}, status=404)
+
+        traces = self._search_waybill_traces(waybill)
+        matched_traces = traces.filtered(
+            lambda trace: self._resolve_trace_stop_seq(trace, stop_records) == stop_seq
+        )
+        if not matched_traces:
+            return self._json_response(
+                {"ok": False, "message": "No trace evidences found for the stop."},
+                status=404,
+            )
+
+        evidence_model = request.env["logistics.trace.evidence"].sudo()
+        evidences = evidence_model.search([("trace_event_id", "in", matched_traces.ids)])
+        deleted_count = len(evidences)
+        if evidences:
+            evidences.unlink()
+
+        refreshed_traces = self._search_waybill_traces(waybill)
+        payload = self._build_waybill_stops_payload(waybill, stop_records, refreshed_traces)
+        return self._json_response(
+            {
+                "ok": True,
+                "message": "Stop evidences deleted successfully.",
+                "data": {
+                    "waybill_id": waybill.id,
+                    "waybill_no": waybill.name,
+                    "stop_seq": stop_seq,
+                    "deleted_count": deleted_count,
+                    "stops": payload["stops"],
+                },
+            },
+            status=200,
+        )
+
+    @http.route(
         ["/logistics_trace/evidence-images/<string:image_access_key>"],
         type="http",
         auth="user",
@@ -335,6 +389,7 @@ class LogisticsTraceEvidenceImageController(http.Controller):
     def _build_waybill_stops_payload(self, waybill, stop_records, traces):
         stops = []
         stop_index = {}
+        evidence_by_trace = self._build_evidence_map(traces)
         for node_id, stop_record in enumerate(stop_records, start=1):
             stop = {
                 "node_id": node_id,
@@ -349,18 +404,17 @@ class LogisticsTraceEvidenceImageController(http.Controller):
                 "guide_url": stop_record.guide_url,
                 "goods_info": stop_record.goods_info or self._build_goods_info(stop_record.stock_picking_id),
                 "status": "PENDING",
+                "evidence_images": [],
             }
             stops.append(stop)
             stop_index[stop_record.stop_seq] = stop
 
         for trace in traces:
-            stop_seq = trace.route_sequence or 0
-            if not stop_seq and len(stops) == 1:
-                stop_seq = stops[0]["stop_seq"]
+            stop_seq = self._resolve_trace_stop_seq(trace, stop_records)
             stop = stop_index.get(stop_seq)
             if not stop:
                 continue
-            stop["status"] = self._merge_stop_status(stop["status"], trace.event_type, trace.is_exception)
+            self._merge_trace_into_stop(stop, trace, evidence_by_trace.get(trace.id, []))
 
         return {
             "waybill_id": waybill.id,
@@ -371,6 +425,43 @@ class LogisticsTraceEvidenceImageController(http.Controller):
             "vehicle_no": waybill.vehicle_id.license_plate if waybill.vehicle_id else False,
             "stops": stops,
         }
+
+    @staticmethod
+    def _resolve_trace_stop_seq(trace, stop_records):
+        stop_seq = trace.route_sequence or 0
+        if not stop_seq and len(stop_records) == 1:
+            stop_seq = stop_records[0].stop_seq
+        return stop_seq
+
+    def _build_evidence_map(self, traces):
+        evidence_map = {}
+        if not traces:
+            return evidence_map
+
+        evidences = request.env["logistics.trace.evidence"].sudo().search(
+            [("trace_event_id", "in", traces.ids)],
+            order="uploaded_at asc, id asc",
+        )
+        for evidence in evidences:
+            evidence_map.setdefault(evidence.trace_event_id.id, []).append(
+                {
+                    "evidence_id": evidence.id,
+                    "image_access_key": evidence.image_access_key,
+                    "preview_url": evidence.preview_url,
+                    "full_url": evidence.full_url,
+                    "state": evidence.state,
+                    "uploaded_at": (
+                        fields.Datetime.to_string(evidence.uploaded_at) if evidence.uploaded_at else False
+                    ),
+                    "uploader_name": evidence.uploader_name,
+                }
+            )
+        return evidence_map
+
+    def _merge_trace_into_stop(self, stop, trace, evidences):
+        stop["status"] = self._merge_stop_status(stop["status"], trace.event_type, trace.is_exception)
+        if evidences:
+            stop["evidence_images"] = evidences
 
     @staticmethod
     def _load_contact_list(stop_record):
