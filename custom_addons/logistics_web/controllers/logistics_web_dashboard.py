@@ -46,30 +46,30 @@ class LogisticsWebDashboardController(http.Controller):
 
         return {
             "code": 0,
-            "message": _("ok"),
+            "message": _("成功"),
             "data": {
                 "summary_cards": [
                     {
                         "key": "pending_exception_count",
-                        "label": _("Pending Exceptions"),
+                        "label": _("待处理异常"),
                         "value": pending_exception_count,
                         "tone": "danger" if pending_exception_count else "default",
                     },
                     {
                         "key": "evidence_missing_count",
-                        "label": _("Evidence Missing"),
+                        "label": _("证据缺失"),
                         "value": evidence_missing_count,
                         "tone": "warning" if evidence_missing_count else "default",
                     },
                     {
                         "key": "high_risk_batch_count",
-                        "label": _("High Risk Batches"),
+                        "label": _("高风险批次"),
                         "value": high_risk_batch_count,
                         "tone": "danger" if high_risk_batch_count else "default",
                     },
                     {
                         "key": "new_dispute_count",
-                        "label": _("New Disputes Today"),
+                        "label": _("今日新增异常"),
                         "value": new_dispute_count,
                         "tone": "info" if new_dispute_count else "default",
                     },
@@ -81,7 +81,7 @@ class LogisticsWebDashboardController(http.Controller):
                         "title": self._build_exception_title(exception),
                         "status": exception.state,
                         "targetType": "exception",
-                        "owner": exception.process_owner_name or exception.reporter_user_name or _("Unassigned"),
+                        "owner": exception.process_owner_name or exception.reporter_user_name or _("待分配"),
                         "hint": self._build_exception_hint(exception),
                     }
                     for exception in priority_exceptions
@@ -137,36 +137,36 @@ class LogisticsWebDashboardController(http.Controller):
 
         return {
             "code": 0,
-            "message": _("ok"),
+            "message": _("成功"),
             "data": {
                 "headline_cards": [
                     {
                         "key": "open_disputes",
-                        "label": _("Open Disputes"),
+                        "label": _("待处理异常"),
                         "value": open_disputes,
                         "tone": "danger" if open_disputes else "default",
                     },
                     {
                         "key": "high_risk_batches",
-                        "label": _("High Risk Batches"),
+                        "label": _("高风险批次"),
                         "value": high_risk_batches,
                         "tone": "warning" if high_risk_batches else "default",
                     },
                     {
                         "key": "critical_disputes",
-                        "label": _("Critical Disputes"),
+                        "label": _("严重异常"),
                         "value": critical_disputes,
                         "tone": "danger" if critical_disputes else "default",
                     },
                     {
                         "key": "evidence_missing",
-                        "label": _("Evidence Missing"),
+                        "label": _("证据缺失"),
                         "value": evidence_missing,
                         "tone": "warning" if evidence_missing else "default",
                     },
                     {
                         "key": "today_new",
-                        "label": _("New Today"),
+                        "label": _("今日新增"),
                         "value": today_new,
                         "tone": "info" if today_new else "default",
                     },
@@ -181,7 +181,7 @@ class LogisticsWebDashboardController(http.Controller):
                         "title": self._build_exception_title(exception),
                         "severity": exception.severity_level,
                         "state": exception.state,
-                        "owner": exception.process_owner_name or exception.reporter_user_name or _("Unassigned"),
+                        "owner": exception.process_owner_name or exception.reporter_user_name or _("待分配"),
                         "waybill": exception.waybill_id.name or "",
                         "batch": exception.batch_id.name or "",
                         "hint": self._build_exception_hint(exception),
@@ -192,12 +192,12 @@ class LogisticsWebDashboardController(http.Controller):
         }
 
     def _build_exception_title(self, exception):
-        waybill_name = exception.waybill_id.name or _("Unknown Waybill")
+        waybill_name = exception.waybill_id.name or _("未知运单")
         exception_type = dict(exception._fields["exception_type"].selection).get(
             exception.exception_type,
-            exception.exception_type or _("Exception"),
+            exception.exception_type or _("异常"),
         )
-        return _("%(exception_type)s reported on %(waybill_name)s") % {
+        return _("%(waybill_name)s发生%(exception_type)s") % {
             "exception_type": exception_type,
             "waybill_name": waybill_name,
         }
@@ -205,20 +205,20 @@ class LogisticsWebDashboardController(http.Controller):
     def _build_recent_exception_title(self, exception):
         severity_label = dict(exception._fields["severity_level"].selection).get(
             exception.severity_level,
-            exception.severity_level or _("Unknown"),
+            exception.severity_level or _("未知"),
         )
-        return _("%(severity_label)s exception updated") % {
+        return _("%(severity_label)s异常已更新") % {
             "severity_label": severity_label,
         }
 
     def _build_exception_hint(self, exception):
         parts = []
         if exception.waybill_id:
-            parts.append(_("Waybill %(name)s") % {"name": exception.waybill_id.name})
+            parts.append(_("运单 %(name)s") % {"name": exception.waybill_id.name})
         if exception.batch_id:
-            parts.append(_("Batch %(name)s") % {"name": exception.batch_id.name})
+            parts.append(_("批次 %(name)s") % {"name": exception.batch_id.name})
         if exception.trace_event_id:
-            parts.append(_("Trace %(name)s") % {"name": exception.trace_event_id.name})
+            parts.append(_("留痕 %(name)s") % {"name": exception.trace_event_id.name})
         if exception.description:
             parts.append(exception.description[:120])
-        return " | ".join(parts) or _("Exception detail is available in the exception record.")
+        return " | ".join(parts) or _("可在异常记录中查看详情。")

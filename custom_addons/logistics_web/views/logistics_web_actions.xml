@@ -1,12 +1,23 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <record id="action_logistics_web_home" model="ir.actions.client">
+        <field name="name">首页</field>
+        <field name="tag">logistics_web.home</field>
+    </record>
+
     <record id="action_logistics_web_dashboard" model="ir.actions.client">
-        <field name="name">管理工作台</field>
+        <field name="name">物流工作台</field>
         <field name="tag">logistics_web.dashboard</field>
     </record>
 
     <record id="action_logistics_web_boss_trace" model="ir.actions.client">
-        <field name="name">老板追溯总览</field>
+        <field name="name">管理看板</field>
         <field name="tag">logistics_web.boss_trace</field>
+    </record>
+
+    <record id="action_logistics_web_import_center" model="ir.actions.client">
+        <field name="name">导入中心</field>
+        <field name="tag">logistics_web.import_center</field>
+        <field name="params" eval="{'source_model': 'logistics.dispatch.waybill'}"/>
     </record>
 </odoo>
