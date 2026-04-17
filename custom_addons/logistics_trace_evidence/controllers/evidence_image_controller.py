@@ -248,7 +248,10 @@ class LogisticsTraceEvidenceImageController(http.Controller):
     def get_waybill_stops(self, waybill_no, **kwargs):
         waybill = self._find_waybill({"waybill_no": waybill_no})
         if not waybill:
-            return self._json_response({"ok": False, "message": "Waybill not found."}, status=404)
+            legacy_payload = self._build_legacy_waybill_stops_payload(waybill_no)
+            if not legacy_payload:
+                return self._json_response({"ok": False, "message": "Waybill not found."}, status=404)
+            return self._json_response({"ok": True, "data": legacy_payload}, status=200)
 
         stops = request.env["logistics.dispatch.waybill.stop"].sudo().search(
             [("waybill_id", "=", waybill.id)],
@@ -426,6 +429,77 @@ class LogisticsTraceEvidenceImageController(http.Controller):
             "stops": stops,
         }
 
+    def _build_legacy_waybill_stops_payload(self, waybill_no):
+        legacy_rows = self._fetch_legacy_waybill_stop_rows(waybill_no)
+        if not legacy_rows:
+            return None
+
+        first_row = legacy_rows[0]
+        stops = []
+        for node_id, row in enumerate(legacy_rows, start=1):
+            contact_list = self._load_legacy_contact_list(row)
+            primary_contact = contact_list[0] if contact_list else {"name": None, "phone": None}
+            stops.append(
+                {
+                    "node_id": node_id,
+                    "stop_seq": row.get("stop_seq") or node_id,
+                    "store_name": row.get("store_name"),
+                    "address": row.get("address"),
+                    "lat": row.get("lat"),
+                    "lng": row.get("lng"),
+                    "contact_name": primary_contact.get("name"),
+                    "contact_phone": primary_contact.get("phone"),
+                    "contact_list": contact_list,
+                    "guide_url": row.get("guide_url"),
+                    "goods_info": row.get("goods_info") or "",
+                    "status": "PENDING",
+                    "evidence_images": [],
+                }
+            )
+
+        return {
+            "waybill_id": False,
+            "waybill_no": waybill_no,
+            "batch_id": False,
+            "batch_no": first_row.get("batch_no") or False,
+            "driver_name": first_row.get("driver_name") or False,
+            "vehicle_no": first_row.get("vehicle_no") or False,
+            "stops": stops,
+        }
+
+    @staticmethod
+    def _fetch_legacy_waybill_stop_rows(waybill_no):
+        cr = request.env.cr
+        cr.execute("SELECT to_regclass('public.logistics_waybill_stop')")
+        if not cr.fetchone()[0]:
+            return []
+
+        cr.execute(
+            """
+            SELECT
+                id,
+                waybill_no,
+                batch_no,
+                stop_seq,
+                store_name,
+                address,
+                contact_name,
+                contact_phone,
+                guide_url,
+                driver_name,
+                vehicle_no,
+                contact_list_json,
+                goods_info,
+                lat,
+                lng
+            FROM logistics_waybill_stop
+            WHERE waybill_no = %s
+            ORDER BY stop_seq ASC, id ASC
+            """,
+            [waybill_no],
+        )
+        return cr.dictfetchall()
+
     @staticmethod
     def _resolve_trace_stop_seq(trace, stop_records):
         stop_seq = trace.route_sequence or 0
@@ -474,6 +548,25 @@ class LogisticsTraceEvidenceImageController(http.Controller):
                 pass
         if stop_record.contact_name or stop_record.contact_phone:
             return [{"name": stop_record.contact_name or "", "phone": stop_record.contact_phone or ""}]
+        return []
+
+    @staticmethod
+    def _load_legacy_contact_list(stop_row):
+        raw_json = stop_row.get("contact_list_json")
+        if raw_json:
+            try:
+                contact_list = json.loads(raw_json)
+                if isinstance(contact_list, list):
+                    return contact_list[:3]
+            except json.JSONDecodeError:
+                pass
+        if stop_row.get("contact_name") or stop_row.get("contact_phone"):
+            return [
+                {
+                    "name": stop_row.get("contact_name") or "",
+                    "phone": stop_row.get("contact_phone") or "",
+                }
+            ]
         return []
 
     @staticmethod
