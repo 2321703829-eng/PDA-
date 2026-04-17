@@ -1,7 +1,6 @@
 /** @odoo-module */
 
 import { Component, onWillStart, useRef, useState } from "@odoo/owl";
-import { registry } from "@web/core/registry";
 import { Layout } from "@web/search/layout";
 import { standardActionServiceProps } from "@web/webclient/actions/action_service";
 
@@ -241,5 +240,3 @@ export class LogisticsImportCenterAction extends Component {
         return payload;
     }
 }
-
-registry.category("actions").add("logistics_web.import_center", LogisticsImportCenterAction);

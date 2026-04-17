@@ -21,6 +21,7 @@
     ],
     "assets": {
         "web.assets_backend": [
+            "logistics_web/static/src/js/actions/logistics_action_registry.js",
             "logistics_web/static/src/js/actions/home_action.js",
             "logistics_web/static/src/js/actions/dashboard_action_v2.js",
             "logistics_web/static/src/js/actions/boss_trace_action_v2.js",
@@ -29,7 +30,12 @@
             "logistics_web/static/src/js/services/*.js",
             "logistics_web/static/src/js/views/*.js",
             "logistics_web/static/src/js/widgets/*.js",
-            "logistics_web/static/src/xml/*.xml",
+            "logistics_web/static/src/xml/boss_trace_templates.xml",
+            "logistics_web/static/src/xml/home_action_templates.xml",
+            "logistics_web/static/src/xml/dashboard_action_templates.xml",
+            "logistics_web/static/src/xml/boss_trace_action_templates.xml",
+            "logistics_web/static/src/xml/import_center_templates.xml",
+            "logistics_web/static/src/xml/widget_templates.xml",
             "logistics_web/static/src/scss/*.scss",
         ],
     },
