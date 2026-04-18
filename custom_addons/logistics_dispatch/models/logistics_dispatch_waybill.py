@@ -154,19 +154,9 @@ class LogisticsDispatchWaybill(models.Model):
         "waybill_id",
         string="货物明细",
     )
-    stop_ids = fields.One2many(
-        "logistics.dispatch.waybill.stop",
-        "waybill_id",
-        string="Stops",
-    )
     order_line_count = fields.Integer(
         string="明细数",
         compute="_compute_order_line_count",
-        store=True,
-    )
-    stop_count = fields.Integer(
-        string="停靠点数",
-        compute="_compute_stop_count",
         store=True,
     )
     customer_line_count = fields.Integer(
@@ -301,11 +291,6 @@ class LogisticsDispatchWaybill(models.Model):
         for record in self:
             record.order_line_count = len(record.order_line_ids)
 
-    @api.depends("stop_ids")
-    def _compute_stop_count(self):
-        for record in self:
-            record.stop_count = len(record.stop_ids)
-
     @api.depends(
         "customer_line_ids",
         "goods_line_ids",
@@ -419,17 +404,6 @@ class LogisticsDispatchWaybill(models.Model):
             "context": {"default_waybill_id": self.id},
         }
 
-    def action_open_stops(self):
-        self.ensure_one()
-        return {
-            "type": "ir.actions.act_window",
-            "name": _("停靠点"),
-            "res_model": "logistics.dispatch.waybill.stop",
-            "view_mode": "list,form",
-            "domain": [("waybill_id", "=", self.id)],
-            "context": {"default_waybill_id": self.id},
-        }
-
     def action_open_customer_lines(self):
         self.ensure_one()
         return {
@@ -450,33 +424,4 @@ class LogisticsDispatchWaybill(models.Model):
             "view_mode": "list,form",
             "domain": [("waybill_id", "=", self.id)],
             "context": {"default_waybill_id": self.id},
-        }
-
-    def action_open_trace_events(self):
-        self.ensure_one()
-        return {
-            "type": "ir.actions.act_window",
-            "name": _("Trace Events"),
-            "res_model": "logistics.trace.event",
-            "view_mode": "list,form",
-            "domain": [("waybill_id", "=", self.id)],
-            "context": {
-                "default_waybill_id": self.id,
-                "default_batch_id": self.batch_id.id,
-                "default_object_type": "waybill",
-            },
-        }
-
-    def action_open_evidences(self):
-        self.ensure_one()
-        return {
-            "type": "ir.actions.act_window",
-            "name": _("Image Evidences"),
-            "res_model": "logistics.trace.evidence",
-            "view_mode": "list,form",
-            "domain": [("waybill_id", "=", self.id)],
-            "context": {
-                "default_waybill_id": self.id,
-                "search_default_waybill_id": self.id,
-            },
         }

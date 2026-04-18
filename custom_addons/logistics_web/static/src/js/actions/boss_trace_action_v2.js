@@ -1,13 +1,13 @@
 /** @odoo-module */
 
 import { Component, onWillStart, useState } from "@odoo/owl";
+import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 
 export class LogisticsBossTraceAction extends Component {
     static template = "logistics_web.BossTraceAction";
 
     setup() {
-        this.orm = useService("orm");
         this.actionService = useService("action");
         this.state = useState({
             loading: true,
@@ -42,19 +42,6 @@ export class LogisticsBossTraceAction extends Component {
         };
     }
 
-    get exceptionTypeLabels() {
-        return {
-            delay: "延误",
-            damage: "破损",
-            missing: "缺失",
-            rejected: "拒收",
-            store_closed: "门店关闭",
-            signoff_problem: "签收异常",
-            evidence_missing: "证据缺失",
-            other: "其他",
-        };
-    }
-
     get severityLabels() {
         return {
             low: "低",
@@ -75,124 +62,24 @@ export class LogisticsBossTraceAction extends Component {
         };
     }
 
-    get todayStart() {
-        return this.formatDateTime(new Date(new Date().setHours(0, 0, 0, 0)));
-    }
-
-    get todayEnd() {
-        return this.formatDateTime(new Date(new Date().setHours(23, 59, 59, 999)));
-    }
-
-    formatDateTime(date) {
-        const pad = (value) => String(value).padStart(2, "0");
-        return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
-    }
-
-    buildExceptionTitle(item) {
-        const typeLabel = this.exceptionTypeLabels[item.exception_type] || item.exception_type || "异常";
-        const waybillName = item.waybill_id?.[1] || "未知运单";
-        return `${typeLabel} - ${waybillName}`;
-    }
-
-    buildExceptionHint(item) {
-        const parts = [];
-        if (item.waybill_id?.[1]) {
-            parts.push(`运单 ${item.waybill_id[1]}`);
-        }
-        if (item.batch_id?.[1]) {
-            parts.push(`批次 ${item.batch_id[1]}`);
-        }
-        if (item.trace_event_id?.[1]) {
-            parts.push(`留痕 ${item.trace_event_id[1]}`);
-        }
-        if (item.description) {
-            parts.push(item.description.slice(0, 80));
-        }
-        return parts.join(" / ") || "进入异常详情可查看责任、证据和处理进度。";
-    }
-
     async loadBossTrace() {
         try {
-            const openDomain = [["state", "in", ["open", "processing"]]];
-            const [openExceptions, criticalExceptions, highRiskBatchRows, evidenceMissing, todayNew, focusExceptions] =
-                await Promise.all([
-                    this.orm.call("logistics.trace.exception", "search_count", [openDomain]),
-                    this.orm.call("logistics.trace.exception", "search_count", [[
-                        ["state", "in", ["open", "processing"]],
-                        ["severity_level", "=", "critical"],
-                    ]]),
-                    this.orm.searchRead(
-                        "logistics.trace.exception",
-                        [
-                            ["state", "in", ["open", "processing"]],
-                            ["severity_level", "in", ["high", "critical"]],
-                            ["batch_id", "!=", false],
-                        ],
-                        ["batch_id"],
-                        { limit: 200 }
-                    ),
-                    this.orm.call("logistics.trace.exception", "search_count", [[
-                        ["state", "in", ["open", "processing"]],
-                        ["exception_type", "=", "evidence_missing"],
-                    ]]),
-                    this.orm.call("logistics.trace.exception", "search_count", [[
-                        ["report_time", ">=", this.todayStart],
-                        ["report_time", "<=", this.todayEnd],
-                    ]]),
-                    this.orm.searchRead(
-                        "logistics.trace.exception",
-                        openDomain,
-                        [
-                            "id",
-                            "name",
-                            "exception_type",
-                            "severity_level",
-                            "state",
-                            "description",
-                            "process_owner_name",
-                            "reporter_user_name",
-                            "waybill_id",
-                            "batch_id",
-                            "trace_event_id",
-                        ],
-                        { order: "severity_level desc, is_overdue desc, report_time desc, id desc", limit: 6 }
-                    ),
-                ]);
+            const payload = await this.apiRequest("/api/admin/logistics/boss_trace/summary", {
+                method: "POST",
+            });
+            const data = payload.data || {};
 
-            const highRiskBatches = new Set(
-                (highRiskBatchRows || []).map((row) => row.batch_id && row.batch_id[0]).filter(Boolean)
-            ).size;
-
-            this.state.headlineCards = [
-                { key: "open_exceptions", label: "待处理异常", value: openExceptions, tone: openExceptions ? "danger" : "default" },
-                { key: "high_risk_batches", label: "风险批次", value: highRiskBatches, tone: highRiskBatches ? "warning" : "default" },
-                { key: "critical_exceptions", label: "严重异常", value: criticalExceptions, tone: criticalExceptions ? "danger" : "default" },
-                { key: "evidence_missing", label: "待补证据", value: evidenceMissing, tone: evidenceMissing ? "warning" : "default" },
-                { key: "today_new", label: "今日新增", value: todayNew, tone: todayNew ? "info" : "default" },
-            ];
-
-            this.state.focusObjects = (focusExceptions || []).map((item) => ({
-                key: item.name,
-                code: item.name,
-                exception_id: item.id,
-                waybill_id: item.waybill_id?.[0] || false,
-                batch_id: item.batch_id?.[0] || false,
-                title: this.buildExceptionTitle(item),
-                severity: item.severity_level,
-                severityLabel: this.severityLabels[item.severity_level] || item.severity_level,
-                state: item.state,
-                stateLabel: this.stateLabels[item.state] || item.state,
-                owner: item.process_owner_name || item.reporter_user_name || "未分配",
-                waybill: item.waybill_id?.[1] || "",
-                batch: item.batch_id?.[1] || "",
-                hint: this.buildExceptionHint(item),
+            this.state.headlineCards = data.headline_cards || [];
+            this.state.focusObjects = (data.focus_objects || []).map((item) => ({
+                ...item,
+                severityLabel: this.severityLabels[item.severity] || item.severity || "",
+                stateLabel: this.stateLabels[item.state] || item.state || "",
             }));
-
             this.state.error = "";
-        } catch {
+        } catch (error) {
             this.state.headlineCards = [];
             this.state.focusObjects = [];
-            this.state.error = "管理看板加载失败，请刷新页面或稍后再试。";
+            this.state.error = error.message || "管理看板加载失败，请刷新页面或稍后再试。";
         } finally {
             this.state.loading = false;
         }
@@ -204,7 +91,7 @@ export class LogisticsBossTraceAction extends Component {
             return this.openExceptionList([["state", "in", ["open", "processing"]]], "打开待处理异常");
         }
         if (key === "high_risk_batches") {
-            return this.openBatchList([], "打开风险批次");
+            return this.openBatchList([], "打开高风险批次");
         }
         if (key === "critical_exceptions") {
             return this.openExceptionList(
@@ -215,7 +102,7 @@ export class LogisticsBossTraceAction extends Component {
         if (key === "evidence_missing") {
             return this.openExceptionList(
                 [["state", "in", ["open", "processing"]], ["exception_type", "=", "evidence_missing"]],
-                "打开待补证据异常"
+                "打开证据缺失异常"
             );
         }
         if (key === "today_new") {
@@ -256,10 +143,7 @@ export class LogisticsBossTraceAction extends Component {
             type: "ir.actions.act_window",
             name,
             res_model: "logistics.trace.exception",
-            views: [
-                [false, "list"],
-                [false, "form"],
-            ],
+            views: [[false, "list"], [false, "form"]],
             domain,
         });
     }
@@ -279,10 +163,7 @@ export class LogisticsBossTraceAction extends Component {
             type: "ir.actions.act_window",
             name,
             res_model: "logistics.dispatch.batch",
-            views: [
-                [false, "list"],
-                [false, "form"],
-            ],
+            views: [[false, "list"], [false, "form"]],
             domain,
         });
     }
@@ -306,4 +187,23 @@ export class LogisticsBossTraceAction extends Component {
             res_id: resId,
         });
     }
+
+    async apiRequest(url, options = {}) {
+        const method = options.method || "GET";
+        const response = await fetch(url, {
+            method,
+            headers: { "Content-Type": "application/json", ...(options.headers || {}) },
+            body: options.body !== undefined ? options.body : (method === "POST" ? JSON.stringify({}) : undefined),
+        });
+        const payload = await response.json().catch(() => null);
+        if (!response.ok || !payload || payload.code !== 0) {
+            throw new Error(payload?.data?.errors?.[0]?.error_message || payload?.message || "请求失败。");
+        }
+        return payload;
+    }
+}
+
+const actionsRegistry = registry.category("actions");
+if (!actionsRegistry.contains("logistics_web.boss_trace")) {
+    actionsRegistry.add("logistics_web.boss_trace", LogisticsBossTraceAction);
 }

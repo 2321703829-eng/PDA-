@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="logistics_web.ImportResultAction">
+        <div class="o_action o_logistics_web_import_result_action">
+            <Layout display="display">
+                <div class="o_logistics_web_page o_logistics_web_import_result_page">
+                    <div class="o_logistics_web_page_header o_logistics_web_dashboard_header">
+                        <div>
+                            <h1><t t-esc="this.ui.title"/></h1>
+                            <p><t t-esc="this.ui.subtitle"/></p>
+                        </div>
+                        <div class="o_logistics_web_dashboard_header_meta o_logistics_web_import_result_header_actions">
+                            <span class="o_logistics_web_status_tag" t-att-data-tone="statusTone">
+                                <t t-esc="result?.status_label || '待加载'"/>
+                            </span>
+                            <button type="button" class="btn btn-secondary" t-att-disabled="state.loading or state.refreshing" t-on-click="refreshResult">
+                                <t t-esc="state.refreshing ? '刷新中...' : this.ui.refresh"/>
+                            </button>
+                            <button type="button" class="btn btn-secondary" t-att-disabled="!canDownloadErrorReport" t-att-title="canDownloadErrorReport ? '' : this.ui.noReport" t-on-click="downloadErrorReport">
+                                <t t-esc="this.ui.downloadErrorReport"/>
+                            </button>
+                            <button type="button" class="btn btn-primary" t-att-disabled="!canOpenWaybillList" t-on-click="openWaybillList">
+                                <t t-esc="this.ui.openWaybillList"/>
+                            </button>
+                            <button type="button" class="btn btn-secondary" t-att-disabled="!state.importBatchNo" t-on-click="continueReviewByBatch">
+                                <t t-esc="this.ui.continueReview"/>
+                            </button>
+                        </div>
+                    </div>
+
+                    <t t-if="state.loading">
+                        <div class="o_logistics_web_placeholder_panel">
+                            <p><t t-esc="this.ui.loading"/></p>
+                        </div>
+                    </t>
+                    <t t-else="">
+                        <t t-if="state.error">
+                            <div class="o_logistics_web_feedback_strip">
+                                <p><t t-esc="state.error"/></p>
+                            </div>
+                        </t>
+
+                        <section class="o_logistics_web_dashboard_section">
+                            <div class="o_logistics_web_section_heading">
+                                <h2>结果头部</h2>
+                                <p><t t-esc="summaryText"/></p>
+                            </div>
+                            <div class="o_logistics_web_import_result_hero">
+                                <div class="o_logistics_web_placeholder_panel o_logistics_web_import_result_hero_card">
+                                    <span class="o_logistics_web_summary_card_label">导入批次号</span>
+                                    <strong class="o_logistics_web_summary_card_value o_logistics_web_summary_card_value_small">
+                                        <t t-esc="result?.import_batch_no || state.importBatchNo || '--'"/>
+                                    </strong>
+                                </div>
+                                <div class="o_logistics_web_placeholder_panel o_logistics_web_import_result_hero_card">
+                                    <span class="o_logistics_web_summary_card_label">模板编码</span>
+                                    <strong class="o_logistics_web_summary_card_value o_logistics_web_summary_card_value_small">
+                                        <t t-esc="result?.template_code || '--'"/>
+                                    </strong>
+                                </div>
+                                <div class="o_logistics_web_placeholder_panel o_logistics_web_import_result_hero_card">
+                                    <span class="o_logistics_web_summary_card_label">模板版本</span>
+                                    <strong class="o_logistics_web_summary_card_value">
+                                        <t t-esc="result?.template_version || '--'"/>
+                                    </strong>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="o_logistics_web_dashboard_section">
+                            <div class="o_logistics_web_section_heading">
+                                <h2><t t-esc="this.ui.resultSummaryTitle"/></h2>
+                                <p>优先阅读本次导入的行级结果和新增写入规模。</p>
+                            </div>
+                            <div class="o_logistics_web_dashboard_cards">
+                                <t t-foreach="resultCards" t-as="item" t-key="item.key">
+                                    <div class="o_logistics_web_summary_card" t-att-data-tone="item.tone || false">
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="item.label"/></span>
+                                        <strong class="o_logistics_web_summary_card_value"><t t-esc="item.value"/></strong>
+                                    </div>
+                                </t>
+                            </div>
+                        </section>
+
+                        <section class="o_logistics_web_dashboard_section">
+                            <div class="o_logistics_web_section_heading">
+                                <h2><t t-esc="this.ui.batchInfoTitle"/></h2>
+                                <p>回看文件来源和批次处理时间，不在结果页做可编辑表单。</p>
+                            </div>
+                            <div class="o_logistics_web_import_result_info_grid">
+                                <t t-foreach="batchInfoCards" t-as="card" t-key="card.key">
+                                    <div class="o_logistics_web_import_result_info_card">
+                                        <strong><t t-esc="card.title"/></strong>
+                                        <dl class="o_logistics_web_import_result_info_list">
+                                            <t t-foreach="card.items" t-as="item" t-key="item[0]">
+                                                <div class="o_logistics_web_import_result_info_row">
+                                                    <dt><t t-esc="item[0]"/></dt>
+                                                    <dd><t t-esc="item[1]"/></dd>
+                                                </div>
+                                            </t>
+                                        </dl>
+                                    </div>
+                                </t>
+                            </div>
+                        </section>
+
+                        <section class="o_logistics_web_dashboard_section">
+                            <div class="o_logistics_web_section_heading">
+                                <h2><t t-esc="this.ui.nextActionTitle"/></h2>
+                                <p>优先继续核验结果，再决定是否返回导入中心重新处理。</p>
+                            </div>
+                            <div class="o_logistics_web_import_action_bar">
+                                <button type="button" class="btn btn-primary" t-att-disabled="!canOpenWaybillList" t-on-click="openWaybillList">
+                                    <t t-esc="this.ui.openWaybillList"/>
+                                </button>
+                                <button type="button" class="btn btn-secondary" t-att-disabled="!state.importBatchNo" t-on-click="continueReviewByBatch">
+                                    <t t-esc="this.ui.continueReview"/>
+                                </button>
+                                <button type="button" class="btn btn-secondary" t-on-click="backToImportCenter">
+                                    <t t-esc="this.ui.backToImportCenter"/>
+                                </button>
+                            </div>
+                        </section>
+
+                        <section t-if="shouldShowFailureSection" class="o_logistics_web_dashboard_section">
+                            <div class="o_logistics_web_section_heading">
+                                <h2><t t-esc="this.ui.failureTitle"/></h2>
+                                <p>失败记录或错误报告存在时，这里会展开显示处理提示。</p>
+                            </div>
+                            <div class="o_logistics_web_import_error_panel">
+                                <div class="o_logistics_web_feedback_tags">
+                                    <span class="o_logistics_web_status_tag" data-tone="warning">
+                                        失败记录数：<t t-esc="formatCount(result?.failed_record_count)"/>
+                                    </span>
+                                    <span class="o_logistics_web_status_tag" t-att-data-tone="canDownloadErrorReport ? 'warning' : 'info'">
+                                        <t t-esc="canDownloadErrorReport ? '当前批次存在错误报告' : '当前批次无错误报告'"/>
+                                    </span>
+                                </div>
+                                <t t-if="result?.failure_reason">
+                                    <p class="o_logistics_web_import_result_failure_reason">
+                                        <t t-esc="result.failure_reason"/>
+                                    </p>
+                                </t>
+                                <div class="o_logistics_web_import_action_bar">
+                                    <button type="button" class="btn btn-secondary" t-att-disabled="!canDownloadErrorReport" t-att-title="canDownloadErrorReport ? '' : this.ui.noReport" t-on-click="downloadErrorReport">
+                                        <t t-esc="this.ui.downloadErrorReport"/>
+                                    </button>
+                                </div>
+                            </div>
+                        </section>
+                    </t>
+                </div>
+            </Layout>
+        </div>
+    </t>
+</templates>

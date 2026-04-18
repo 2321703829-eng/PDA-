@@ -1,22 +1,49 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <menuitem
-        id="menu_logistics_web"
-        name="前端"
+        id="menu_logistics_web_home"
+        name="首页"
         parent="logistics_dispatch.menu_logistics_dispatch_root"
+        action="action_logistics_web_home"
+        sequence="10"/>
+
+    <menuitem
+        id="menu_logistics_web"
+        name="所有统计图表"
+        parent="logistics_dispatch.menu_logistics_dispatch_root"
+        action="action_logistics_web_stats_center"
+        groups="base.group_system,logistics_web.group_logistics_analysis_viewer"
         sequence="60"/>
 
     <menuitem
+        id="menu_logistics_web_stats_center"
+        name="统计图表中心"
+        parent="menu_logistics_web"
+        action="action_logistics_web_stats_center"
+        groups="base.group_system,logistics_web.group_logistics_analysis_viewer"
+        sequence="5"/>
+
+    <menuitem
+        id="menu_logistics_web_driver_management"
+        name="司机管理"
+        parent="logistics_dispatch.menu_logistics_dispatch"
+        action="action_logistics_web_driver_management"
+        groups="base.group_system,logistics_web.group_logistics_driver_management_viewer"
+        sequence="40"/>
+
+    <menuitem
         id="menu_logistics_web_dashboard"
-        name="管理工作台"
+        name="物流工作台"
         parent="menu_logistics_web"
         action="action_logistics_web_dashboard"
+        groups="base.group_system,logistics_web.group_logistics_analysis_viewer"
         sequence="10"/>
 
     <menuitem
         id="menu_logistics_web_boss_trace"
-        name="老板追溯总览"
+        name="管理看板"
         parent="menu_logistics_web"
         action="action_logistics_web_boss_trace"
+        groups="base.group_system,logistics_web.group_logistics_analysis_viewer"
         sequence="20"/>
 </odoo>

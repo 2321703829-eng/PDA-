@@ -5,12 +5,12 @@ class LogisticsDispatchWaybill(models.Model):
     _inherit = "logistics.dispatch.waybill"
 
     trace_timeline_panel = fields.Char(
-        string="Trace Timeline Panel",
+        string="留痕时间线面板",
         compute="_compute_ui_panels",
         readonly=True,
     )
     evidence_viewer_panel = fields.Char(
-        string="Evidence Viewer Panel",
+        string="证据查看面板",
         compute="_compute_ui_panels",
         readonly=True,
     )

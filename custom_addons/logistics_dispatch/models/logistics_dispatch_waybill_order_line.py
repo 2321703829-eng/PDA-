@@ -1,5 +1,4 @@
-from odoo import api, fields, models
-from odoo.exceptions import ValidationError
+from odoo import fields, models
 
 
 class LogisticsDispatchWaybillOrderLine(models.Model):
@@ -9,51 +8,25 @@ class LogisticsDispatchWaybillOrderLine(models.Model):
 
     waybill_id = fields.Many2one(
         "logistics.dispatch.waybill",
-        string="Waybill",
+        string="运单",
         required=True,
         ondelete="cascade",
     )
-    sale_order_id = fields.Many2one("sale.order", string="Sale Order", ondelete="set null")
-    stock_picking_id = fields.Many2one("stock.picking", string="Stock Picking", ondelete="set null")
-    external_order_no = fields.Char(string="External Order No", index=True)
+    sale_order_id = fields.Many2one("sale.order", string="销售订单", ondelete="set null")
+    stock_picking_id = fields.Many2one("stock.picking", string="出库单", ondelete="set null")
+    external_order_no = fields.Char(string="外部单号", index=True)
     store_id = fields.Many2one(
         "res.partner",
-        string="Store",
+        string="门店",
         domain="[('is_logistics_store', '=', True)]",
     )
-    goods_summary = fields.Char(string="Goods Summary")
-    qty_summary = fields.Float(string="Quantity", digits="Product Unit of Measure")
-    weight_summary = fields.Float(string="Weight")
-    volume_summary = fields.Float(string="Volume")
+    goods_summary = fields.Char(string="货物摘要")
+    qty_summary = fields.Float(string="数量", digits="Product Unit of Measure")
+    weight_summary = fields.Float(string="重量")
+    volume_summary = fields.Float(string="体积")
     line_state = fields.Selection(
-        [("draft", "Draft"), ("ready", "Ready"), ("done", "Done"), ("cancelled", "Cancelled")],
-        string="Line Status",
+        [("draft", "草稿"), ("ready", "待执行"), ("done", "已完成"), ("cancelled", "已取消")],
+        string="明细状态",
         default="draft",
         required=True,
     )
-
-    @api.onchange("sale_order_id")
-    def _onchange_sale_order_id(self):
-        for record in self:
-            sale_order = record.sale_order_id
-            if not sale_order:
-                continue
-            if not record.external_order_no:
-                record.external_order_no = sale_order.client_order_ref or sale_order.name
-            if not record.store_id:
-                record.store_id = sale_order.partner_shipping_id or sale_order.partner_id
-
-    @api.onchange("stock_picking_id")
-    def _onchange_stock_picking_id(self):
-        for record in self:
-            picking = record.stock_picking_id
-            if not picking:
-                continue
-            if not record.store_id:
-                record.store_id = picking.partner_id
-
-    @api.constrains("sale_order_id", "stock_picking_id")
-    def _check_order_source(self):
-        for record in self:
-            if not record.sale_order_id and not record.stock_picking_id:
-                raise ValidationError("Waybill order line must reference sale.order or stock.picking.")

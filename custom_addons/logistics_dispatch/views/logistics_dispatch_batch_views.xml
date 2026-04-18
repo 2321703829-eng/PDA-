@@ -4,7 +4,7 @@
         <field name="name">logistics.dispatch.batch.tree</field>
         <field name="model">logistics.dispatch.batch</field>
         <field name="arch" type="xml">
-            <list string="Dispatch Batches">
+            <list string="批次列表">
                 <field name="name"/>
                 <field name="wave_id"/>
                 <field name="warehouse_id"/>
@@ -21,21 +21,11 @@
         <field name="name">logistics.dispatch.batch.form</field>
         <field name="model">logistics.dispatch.batch</field>
         <field name="arch" type="xml">
-            <form string="Dispatch Batch">
+            <form string="批次">
                 <sheet>
-                    <div class="oe_button_box" name="button_box">
-                        <button
-                            name="action_open_stock_batch"
-                            type="object"
-                            class="oe_stat_button"
-                            icon="fa-cubes"
-                            string="Odoo Batch"
-                            invisible="not stock_picking_batch_id"/>
-                    </div>
                     <group>
                         <group>
                             <field name="name"/>
-                            <field name="stock_picking_batch_id"/>
                             <field name="wave_id"/>
                             <field name="warehouse_id"/>
                             <field name="state"/>
@@ -59,10 +49,10 @@
                         </group>
                     </group>
                     <group>
-                        <field name="remark" placeholder="Batch-level execution note"/>
+                        <field name="remark" placeholder="填写本批次的执行备注"/>
                     </group>
                     <notebook>
-                        <page string="Waybills">
+                        <page string="运单">
                             <field name="waybill_ids" readonly="1">
                                 <list>
                                     <field name="name"/>
@@ -84,25 +74,25 @@
         <field name="name">logistics.dispatch.batch.search</field>
         <field name="model">logistics.dispatch.batch</field>
         <field name="arch" type="xml">
-            <search string="Dispatch Batches">
+            <search string="批次查询">
                 <field name="name"/>
                 <field name="wave_id"/>
                 <field name="warehouse_id"/>
                 <field name="vehicle_id"/>
                 <field name="driver_employee_id"/>
-                <filter string="Ready" name="ready" domain="[('state', '=', 'ready')]"/>
-                <filter string="In Transit" name="in_transit" domain="[('state', '=', 'in_transit')]"/>
+                <filter string="待执行" name="ready" domain="[('state', '=', 'ready')]"/>
+                <filter string="在途" name="in_transit" domain="[('state', '=', 'in_transit')]"/>
                 <group>
-                    <filter string="Wave" name="group_wave" context="{'group_by': 'wave_id'}"/>
-                    <filter string="Warehouse" name="group_warehouse" context="{'group_by': 'warehouse_id'}"/>
-                    <filter string="Driver" name="group_driver" context="{'group_by': 'driver_employee_id'}"/>
+                    <filter string="按波次" name="group_wave" context="{'group_by': 'wave_id'}"/>
+                    <filter string="按仓库" name="group_warehouse" context="{'group_by': 'warehouse_id'}"/>
+                    <filter string="按司机" name="group_driver" context="{'group_by': 'driver_employee_id'}"/>
                 </group>
             </search>
         </field>
     </record>
 
     <record id="action_logistics_dispatch_batch" model="ir.actions.act_window">
-        <field name="name">Batches</field>
+        <field name="name">批次</field>
         <field name="res_model">logistics.dispatch.batch</field>
         <field name="view_mode">list,form</field>
         <field name="search_view_id" ref="view_logistics_dispatch_batch_search"/>

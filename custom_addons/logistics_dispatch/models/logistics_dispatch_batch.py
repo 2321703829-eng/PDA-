@@ -1,4 +1,4 @@
-from odoo import _, api, fields, models
+from odoo import api, fields, models
 from odoo.exceptions import ValidationError
 
 
@@ -8,18 +8,12 @@ class LogisticsDispatchBatch(models.Model):
     _order = "planned_depart_time desc, id desc"
 
     name = fields.Char(string="批次号", required=True, copy=False, default="新建", index=True)
-    stock_picking_batch_id = fields.Many2one(
-        "stock.picking.batch",
-        string="Odoo 批次",
-        ondelete="set null",
-        help="复用 Odoo 原生批处理作为执行基础，避免维护一套平行批次主数据。",
-    )
-    wave_id = fields.Many2one("logistics.dispatch.wave", string="波次", ondelete="set null")
     batch_no = fields.Char(
         string="批次号（导入导出）",
         compute="_compute_batch_no",
         inverse="_inverse_batch_no",
     )
+    wave_id = fields.Many2one("logistics.dispatch.wave", string="波次", ondelete="set null")
     wave_no = fields.Char(
         string="波次号（导入导出）",
         compute="_compute_wave_no",
@@ -91,33 +85,6 @@ class LogisticsDispatchBatch(models.Model):
             raise ValidationError(f"波次号“{wave_no}”匹配到多条波次记录，请先去重。")
         return waves
 
-    @api.onchange("stock_picking_batch_id")
-    def _onchange_stock_picking_batch_id(self):
-        for record in self:
-            stock_batch = record.stock_picking_batch_id
-            if not stock_batch:
-                continue
-            if not record.name or record.name == "New":
-                record.name = stock_batch.name
-            if not record.warehouse_id and stock_batch.picking_ids:
-                warehouse = stock_batch.picking_ids[:1].picking_type_id.warehouse_id
-                if warehouse:
-                    record.warehouse_id = warehouse
-            if not record.planned_depart_time:
-                record.planned_depart_time = stock_batch.scheduled_date
-
-    def action_open_stock_batch(self):
-        self.ensure_one()
-        if not self.stock_picking_batch_id:
-            return False
-        return {
-            "type": "ir.actions.act_window",
-            "name": _("Odoo Batch"),
-            "res_model": "stock.picking.batch",
-            "view_mode": "form",
-            "res_id": self.stock_picking_batch_id.id,
-        }
-
     @api.depends("waybill_ids", "waybill_ids.state", "waybill_ids.exception_status")
     def _compute_counts(self):
         for record in self:
@@ -130,16 +97,6 @@ class LogisticsDispatchBatch(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
-            if vals.get("stock_picking_batch_id") and vals.get("name", "新建") in ("New", "新建"):
-                stock_batch = self.env["stock.picking.batch"].browse(vals["stock_picking_batch_id"])
-                if stock_batch.exists():
-                    vals["name"] = stock_batch.name
-                    if not vals.get("planned_depart_time"):
-                        vals["planned_depart_time"] = stock_batch.scheduled_date
-                    if not vals.get("warehouse_id") and stock_batch.picking_ids:
-                        warehouse = stock_batch.picking_ids[:1].picking_type_id.warehouse_id
-                        if warehouse:
-                            vals["warehouse_id"] = warehouse.id
             if "batch_no" in vals:
                 vals["name"] = (vals.pop("batch_no") or "").strip() or vals.get("name") or "新建"
             if "wave_no" in vals and not vals.get("wave_id"):

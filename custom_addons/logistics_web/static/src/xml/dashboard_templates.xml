@@ -1,5 +1,190 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
+    <t t-name="logistics_web.HomeAction">
+        <div class="o_action o_logistics_web_home_action">
+            <Layout display="display">
+                <div class="o_logistics_web_page o_logistics_web_homepage">
+                    <div class="o_logistics_web_page_header o_logistics_web_home_hero">
+                        <div class="o_logistics_web_home_hero_main">
+                            <div class="o_logistics_web_home_brandline">
+                                <span class="o_logistics_web_home_brand"><t t-esc="this.ui.brandTitle"/></span>
+                                <span class="o_logistics_web_status_tag o_logistics_web_status_tag_brand"><t t-esc="this.ui.badgePrimary"/></span>
+                            </div>
+                            <h1><t t-esc="this.ui.heroTitle"/></h1>
+                            <p><t t-esc="this.ui.heroSubtitle"/></p>
+                        </div>
+                        <div class="o_logistics_web_home_hero_side">
+                            <span class="o_logistics_web_status_tag"><t t-esc="this.ui.badgeSecondary"/></span>
+                            <div class="o_logistics_web_home_hero_note">
+                                <strong>首页原则</strong>
+                                <span>先选企业模块，再看物流重点，再决定进入哪个工作区继续处理。</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <t t-if="state.loading">
+                        <div class="o_logistics_web_placeholder_panel">
+                            <p><t t-esc="this.ui.loading"/></p>
+                        </div>
+                    </t>
+                    <t t-else="">
+                        <t t-if="state.error">
+                            <div class="o_logistics_web_feedback_strip">
+                                <p><t t-esc="state.error"/></p>
+                            </div>
+                        </t>
+
+                        <section class="o_logistics_web_dashboard_section">
+                            <div class="o_logistics_web_section_heading">
+                                <h2><t t-esc="this.ui.sectionModules"/></h2>
+                                <p><t t-esc="this.ui.sectionModulesHint"/></p>
+                            </div>
+                            <div class="o_logistics_web_home_module_grid">
+                                <t t-foreach="state.moduleCards" t-as="item" t-key="item.key">
+                                    <div class="o_logistics_web_placeholder_panel o_logistics_web_clickable o_logistics_web_home_module_card" t-on-click="() => this.onModuleCardClick(item)">
+                                        <strong><t t-esc="item.title"/></strong>
+                                        <p><t t-esc="item.hint"/></p>
+                                    </div>
+                                </t>
+                            </div>
+                        </section>
+
+                        <section class="o_logistics_web_dashboard_section">
+                            <div class="o_logistics_web_section_heading">
+                                <h2><t t-esc="this.ui.sectionHeadline"/></h2>
+                                <p><t t-esc="this.ui.sectionHeadlineHint"/></p>
+                            </div>
+                            <div class="o_logistics_web_dashboard_cards o_logistics_web_home_card_grid">
+                                <t t-foreach="state.headlineCards" t-as="card" t-key="card.key">
+                                    <div class="o_logistics_web_summary_card o_logistics_web_clickable" t-att-data-tone="card.tone or 'default'" t-on-click="() => this.onHeadlineClick(card)">
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="card.label"/></span>
+                                        <strong class="o_logistics_web_summary_card_value"><t t-esc="card.value"/></strong>
+                                    </div>
+                                </t>
+                            </div>
+                        </section>
+
+                        <section class="o_logistics_web_dashboard_section">
+                            <div class="o_logistics_web_section_heading">
+                                <h2><t t-esc="this.ui.sectionMetrics"/></h2>
+                                <p><t t-esc="this.ui.sectionMetricsHint"/></p>
+                            </div>
+                            <div class="o_logistics_web_home_metric_grid">
+                                <t t-foreach="state.metricCards" t-as="card" t-key="card.key">
+                                    <div class="o_logistics_web_placeholder_panel">
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="card.label"/></span>
+                                        <strong class="o_logistics_web_home_metric_value">
+                                            <t t-esc="card.value"/><small><t t-esc="card.suffix"/></small>
+                                        </strong>
+                                    </div>
+                                </t>
+                            </div>
+                        </section>
+
+                        <section class="o_logistics_web_dashboard_section">
+                            <div class="o_logistics_web_section_heading">
+                                <h2><t t-esc="this.ui.sectionTrends"/></h2>
+                                <p><t t-esc="this.ui.sectionTrendsHint"/></p>
+                            </div>
+                            <div class="o_logistics_web_home_trend_grid">
+                                <t t-foreach="state.trendCards" t-as="card" t-key="card.key">
+                                    <div class="o_logistics_web_placeholder_panel o_logistics_web_home_trend_card" t-att-data-tone="card.tone or 'default'">
+                                        <strong><t t-esc="card.title"/></strong>
+                                        <div class="o_logistics_web_home_trend_current"><t t-esc="card.current"/></div>
+                                        <div class="o_logistics_web_home_trend_delta"><t t-esc="card.label"/></div>
+                                    </div>
+                                </t>
+                            </div>
+                        </section>
+
+                        <section class="o_logistics_web_dashboard_section">
+                            <div class="o_logistics_web_section_heading">
+                                <h2><t t-esc="this.ui.sectionCockpit"/></h2>
+                                <p><t t-esc="this.ui.sectionCockpitHint"/></p>
+                            </div>
+                            <div class="o_logistics_web_home_cockpit_grid">
+                                <t t-foreach="state.boardPanels" t-as="panel" t-key="panel.key">
+                                    <div class="o_logistics_web_home_cockpit_panel" t-att-data-tone="panel.tone or 'default'">
+                                        <div class="o_logistics_web_home_cockpit_top">
+                                            <strong><t t-esc="panel.title"/></strong>
+                                        </div>
+                                        <div class="o_logistics_web_home_cockpit_value"><t t-esc="panel.emphasis"/></div>
+                                        <p class="o_logistics_web_home_cockpit_summary"><t t-esc="panel.summary"/></p>
+                                        <div class="o_logistics_web_home_cockpit_metrics">
+                                            <t t-foreach="panel.items" t-as="item" t-key="item.label">
+                                                <div class="o_logistics_web_home_cockpit_metric">
+                                                    <span><t t-esc="item.label"/></span>
+                                                    <strong><t t-esc="item.value"/></strong>
+                                                </div>
+                                            </t>
+                                        </div>
+                                    </div>
+                                </t>
+                            </div>
+                        </section>
+
+                        <div class="o_logistics_web_home_grid">
+                            <section class="o_logistics_web_dashboard_section">
+                                <div class="o_logistics_web_section_heading">
+                                    <h2><t t-esc="this.ui.sectionQuick"/></h2>
+                                    <p><t t-esc="this.ui.sectionQuickHint"/></p>
+                                </div>
+                                <div class="o_logistics_web_home_quick_grid">
+                                    <t t-foreach="state.quickLinks" t-as="item" t-key="item.key">
+                                        <div class="o_logistics_web_placeholder_panel o_logistics_web_clickable" t-att-data-tone="item.tone or 'default'" t-on-click="() => this.onQuickLinkClick(item)">
+                                            <strong><t t-esc="item.title"/></strong>
+                                            <p><t t-esc="item.hint"/></p>
+                                        </div>
+                                    </t>
+                                </div>
+                            </section>
+
+                            <section class="o_logistics_web_dashboard_section">
+                                <div class="o_logistics_web_section_heading">
+                                    <h2><t t-esc="this.ui.sectionGuides"/></h2>
+                                    <p><t t-esc="this.ui.sectionGuidesHint"/></p>
+                                </div>
+                                <div class="o_logistics_web_home_guide_grid">
+                                    <t t-foreach="state.guideCards" t-as="item" t-key="item.key">
+                                        <div class="o_logistics_web_placeholder_panel">
+                                            <strong><t t-esc="item.title"/></strong>
+                                            <p><t t-esc="item.description"/></p>
+                                        </div>
+                                    </t>
+                                </div>
+                            </section>
+                        </div>
+
+                        <section class="o_logistics_web_dashboard_section">
+                            <div class="o_logistics_web_section_heading">
+                                <h2><t t-esc="this.ui.sectionRecent"/></h2>
+                                <p><t t-esc="this.ui.sectionRecentHint"/></p>
+                            </div>
+                            <div class="o_logistics_web_dashboard_stack">
+                                <t t-if="state.recentItems.length">
+                                    <t t-foreach="state.recentItems" t-as="item" t-key="item.key">
+                                        <div class="o_logistics_web_dashboard_change_card">
+                                            <div class="o_logistics_web_dashboard_change_body">
+                                                <strong><t t-esc="item.title"/></strong>
+                                                <p><t t-esc="item.subtitle"/></p>
+                                                <span><t t-esc="item.summary"/></span>
+                                            </div>
+                                        </div>
+                                    </t>
+                                </t>
+                                <t t-else="">
+                                    <div class="o_logistics_web_placeholder_panel">
+                                        <p><t t-esc="this.ui.noRecent"/></p>
+                                    </div>
+                                </t>
+                            </div>
+                        </section>
+                    </t>
+                </div>
+            </Layout>
+        </div>
+    </t>
+
     <t t-name="logistics_web.DashboardAction">
         <div class="o_logistics_web_page">
             <div class="o_logistics_web_page_header o_logistics_web_dashboard_header">
@@ -30,17 +215,24 @@
                         <h2><t t-esc="this.ui.sectionSummaryTitle"/></h2>
                         <p><t t-esc="this.ui.sectionSummaryHint"/></p>
                     </div>
-                    <div class="o_logistics_web_dashboard_cards">
-                        <t t-foreach="state.summaryCards" t-as="card" t-key="card.key">
-                            <div
-                                class="o_logistics_web_summary_card o_logistics_web_clickable"
-                                t-att-data-tone="card.tone or 'default'"
-                                t-on-click="() => this.onSummaryCardClick(card)">
-                                <span class="o_logistics_web_summary_card_label"><t t-esc="card.label"/></span>
-                                <strong class="o_logistics_web_summary_card_value"><t t-esc="card.value"/></strong>
-                            </div>
-                        </t>
-                    </div>
+                    <t t-if="state.summaryCards.length">
+                        <div class="o_logistics_web_dashboard_cards">
+                            <t t-foreach="state.summaryCards" t-as="card" t-key="card.key">
+                                <div
+                                    class="o_logistics_web_summary_card o_logistics_web_clickable"
+                                    t-att-data-tone="card.tone or 'default'"
+                                    t-on-click="() => this.onSummaryCardClick(card)">
+                                    <span class="o_logistics_web_summary_card_label"><t t-esc="card.label"/></span>
+                                    <strong class="o_logistics_web_summary_card_value"><t t-esc="card.value"/></strong>
+                                </div>
+                            </t>
+                        </div>
+                    </t>
+                    <t t-else="">
+                        <div class="o_logistics_web_placeholder_panel">
+                            <p><t t-esc="this.ui.summaryEmpty"/></p>
+                        </div>
+                    </t>
                 </section>
 
                 <div class="o_logistics_web_dashboard_grid">

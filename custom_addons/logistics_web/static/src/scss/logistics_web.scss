@@ -1138,6 +1138,87 @@
     flex-wrap: wrap;
 }
 
+.o_logistics_web_import_result_page {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+.o_logistics_web_import_result_header_actions {
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.o_logistics_web_import_result_hero {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+}
+
+.o_logistics_web_import_result_hero_card,
+.o_logistics_web_import_result_info_card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.o_logistics_web_import_result_info_grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 14px;
+}
+
+.o_logistics_web_import_result_info_card {
+    padding: 18px;
+    border: 1px solid var(--lw-border);
+    border-radius: 18px;
+    background: linear-gradient(180deg, #ffffff 0%, #f6faff 100%);
+    box-shadow: 0 8px 20px rgba(31, 45, 61, 0.04);
+}
+
+.o_logistics_web_import_result_info_list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 0;
+}
+
+.o_logistics_web_import_result_info_row {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(35, 72, 111, 0.08);
+}
+
+.o_logistics_web_import_result_info_row:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
+}
+
+.o_logistics_web_import_result_info_row dt,
+.o_logistics_web_import_result_info_row dd {
+    margin: 0;
+}
+
+.o_logistics_web_import_result_info_row dt {
+    color: var(--lw-text-subtle);
+}
+
+.o_logistics_web_import_result_info_row dd {
+    color: var(--lw-text-main);
+    font-weight: 600;
+    text-align: right;
+    word-break: break-all;
+}
+
+.o_logistics_web_import_result_failure_reason {
+    margin: 0;
+    color: var(--lw-text-main);
+    line-height: 1.7;
+}
+
 .o_logistics_web_import_table {
     margin-bottom: 0;
 }
@@ -1268,7 +1349,8 @@
     .o_logistics_web_timeline_header,
     .o_logistics_web_evidence_header,
     .o_logistics_web_timeline_item,
-    .o_logistics_web_feedback_strip_light {
+    .o_logistics_web_feedback_strip_light,
+    .o_logistics_web_import_result_info_row {
         display: flex;
         flex-direction: column;
     }

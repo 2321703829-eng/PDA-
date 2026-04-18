@@ -1,6 +1,6 @@
 {
     "name": "Logistics Web",
-    "version": "18.0.1.0.0",
+    "version": "19.0.1.0.0",
     "summary": "物流后台前端增强层",
     "license": "LGPL-3",
     "depends": [
@@ -12,6 +12,7 @@
         "logistics_trace_exception",
     ],
     "data": [
+        "security/logistics_web_security.xml",
         "data/base_import_mapping_data.xml",
         "views/logistics_web_actions.xml",
         "views/logistics_web_menus.xml",
@@ -26,6 +27,9 @@
             "logistics_web/static/src/js/actions/dashboard_action_v2.js",
             "logistics_web/static/src/js/actions/boss_trace_action_v2.js",
             "logistics_web/static/src/js/actions/import_center_action.js",
+            "logistics_web/static/src/js/actions/import_result_action.js",
+            "logistics_web/static/src/js/actions/driver_management_action_v2.js",
+            "logistics_web/static/src/js/actions/stats_center_action.js",
             "logistics_web/static/src/js/components/*.js",
             "logistics_web/static/src/js/services/*.js",
             "logistics_web/static/src/js/views/*.js",
@@ -34,7 +38,11 @@
             "logistics_web/static/src/xml/home_action_templates.xml",
             "logistics_web/static/src/xml/dashboard_action_templates.xml",
             "logistics_web/static/src/xml/boss_trace_action_templates.xml",
+            "logistics_web/static/src/xml/driver_management_templates_safe.xml",
             "logistics_web/static/src/xml/import_center_templates.xml",
+            "logistics_web/static/src/xml/import_result_templates.xml",
+            "logistics_web/static/src/xml/stats_center_templates.xml",
+            "logistics_web/static/src/xml/list_import_button.xml",
             "logistics_web/static/src/xml/widget_templates.xml",
             "logistics_web/static/src/scss/*.scss",
         ],

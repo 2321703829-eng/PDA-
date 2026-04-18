@@ -89,6 +89,13 @@ class IrUiMenu(models.Model):
                 "sequence": 60,
             },
             {
+                "xmlid": "logistics_web.menu_logistics_web_stats_center",
+                "label": "缁熻鍥捐〃涓績",
+                "parent_xmlid": "logistics_web.menu_logistics_web",
+                "action_xmlid": "logistics_web.action_logistics_web_stats_center",
+                "sequence": 5,
+            },
+            {
                 "xmlid": "account.menu_finance",
                 "label": "发票",
                 "parent_xmlid": root_xmlid,
@@ -214,6 +221,14 @@ class IrUiMenu(models.Model):
                 active=spec.get("active"),
                 action_xmlid=spec.get("action_xmlid"),
             )
+
+        self._sync_menu(
+            "logistics_web.menu_logistics_web_stats_center",
+            label="\u7edf\u8ba1\u56fe\u8868\u4e2d\u5fc3",
+            parent_xmlid="logistics_web.menu_logistics_web",
+            sequence=5,
+            action_xmlid="logistics_web.action_logistics_web_stats_center",
+        )
 
         action_specs = {
             "logistics_dispatch.action_logistics_dispatch_waybill": "运单",

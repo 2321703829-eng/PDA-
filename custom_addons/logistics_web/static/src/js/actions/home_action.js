@@ -1,6 +1,7 @@
 /** @odoo-module */
 
 import { Component, onWillStart, useState } from "@odoo/owl";
+import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { Layout } from "@web/search/layout";
 import { standardActionServiceProps } from "@web/webclient/actions/action_service";
@@ -109,7 +110,7 @@ export class LogisticsHomeAction extends Component {
             { key: "fleet", title: "车队", hint: "查看车辆、车务记录和相关成本。", actionXmlid: "fleet.fleet_vehicle_action" },
             { key: "employee", title: "员工", hint: "进入员工档案、岗位和组织信息。", actionXmlid: "hr.open_view_employee_list" },
             { key: "inventory", title: "库存", hint: "查看库存作业、出入库单和履约流转。", actionXmlid: "stock.action_picking_tree_all" },
-            { key: "dashboard", title: "所有统计图表", hint: "查看物流工作台和管理看板的统计摘要。", actionXmlid: "logistics_web.action_logistics_web_dashboard" },
+            { key: "dashboard", title: "所有统计图表", hint: "进入统计图表中心，查看物流分析与排行分布。", actionXmlid: "logistics_web.action_logistics_web_stats_center" },
             { key: "invoice", title: "发票", hint: "进入开票、发票列表和对账处理。", actionXmlid: "account.action_move_out_invoice_type" },
             { key: "settings", title: "设置", hint: "进入系统设置和基础参数配置。", actionXmlid: "base_setup.action_general_configuration" },
         ];
@@ -269,7 +270,7 @@ export class LogisticsHomeAction extends Component {
                 { key: "dispatcher", title: "调度", description: "先进入物流模块，再看待执行运单、批次和波次安排。" },
                 { key: "operator", title: "运营", description: "先看待处理异常和待补证据，再进入物流模块中的异常与证据继续跟进。" },
                 { key: "manager", title: "管理层", description: "先看首页摘要和管理看板，再决定是否进入物流模块定位重点问题。" },
-                { key: "new_user", title: "新用户", description: "先理解企业模块结构，再进入对应模块，不需要一开始就理解全部业务表。 " },
+                { key: "new_user", title: "新用户", description: "先理解企业模块结构，再进入对应模块，不需要一开始就理解全部业务表。" },
             ];
 
             this.state.recentItems = (recentExceptions || []).map((item) => ({
@@ -299,6 +300,9 @@ export class LogisticsHomeAction extends Component {
 
     async onModuleCardClick(item) {
         try {
+            if (item?.action) {
+                return this.actionService.doAction(item.action);
+            }
             if (item?.actionXmlid) {
                 return this.actionService.doAction(item.actionXmlid);
             }
@@ -347,4 +351,9 @@ export class LogisticsHomeAction extends Component {
             domain: [["state", "in", ["open", "processing"]]],
         });
     }
+}
+
+const actionsRegistry = registry.category("actions");
+if (!actionsRegistry.contains("logistics_web.home")) {
+    actionsRegistry.add("logistics_web.home", LogisticsHomeAction);
 }
