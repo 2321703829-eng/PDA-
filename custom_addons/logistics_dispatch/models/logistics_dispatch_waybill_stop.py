@@ -1,3 +1,5 @@
+import json
+
 from odoo import api, fields, models
 
 
@@ -87,3 +89,161 @@ class LogisticsDispatchWaybillStop(models.Model):
                 record.lat = record.partner_id.partner_latitude
             if "partner_longitude" in record.partner_id._fields and not record.lng:
                 record.lng = record.partner_id.partner_longitude
+
+    @api.model
+    def _legacy_stop_table_exists(self):
+        self.env.cr.execute("SELECT to_regclass('public.logistics_waybill_stop')")
+        row = self.env.cr.fetchone()
+        return bool(row and row[0])
+
+    def _legacy_stop_keys(self):
+        keys = []
+        for record in self:
+            waybill_no = record.waybill_id.name or ""
+            if waybill_no and record.stop_seq:
+                keys.append((waybill_no, record.stop_seq))
+        return keys
+
+    def _legacy_contact_list_json(self):
+        self.ensure_one()
+        if self.contact_list_json:
+            try:
+                raw = json.loads(self.contact_list_json)
+                if isinstance(raw, list):
+                    return json.dumps(raw, ensure_ascii=False)
+            except json.JSONDecodeError:
+                pass
+        if self.contact_name or self.contact_phone:
+            return json.dumps(
+                [{"name": self.contact_name or "", "phone": self.contact_phone or ""}],
+                ensure_ascii=False,
+            )
+        return json.dumps([], ensure_ascii=False)
+
+    def _resolve_legacy_company_id(self):
+        self.ensure_one()
+        company = (
+            self.company_id
+            or self.waybill_id.warehouse_id.company_id
+            or self.batch_id.warehouse_id.company_id
+            or self.env.company
+        )
+        return company.id or None
+
+    def _legacy_stop_vals(self):
+        self.ensure_one()
+        return {
+            "company_id": self._resolve_legacy_company_id(),
+            "stop_seq": self.stop_seq,
+            "partner_id": self.partner_id.id or None,
+            "stock_picking_id": self.stock_picking_id.id or None,
+            "waybill_no": self.waybill_id.name or None,
+            "batch_no": self.batch_id.name or None,
+            "store_name": self.store_name or None,
+            "address": self.address or None,
+            "contact_name": self.contact_name or None,
+            "contact_phone": self.contact_phone or None,
+            "guide_url": self.guide_url or None,
+            "driver_name": self.waybill_id.driver_employee_id.name or None,
+            "vehicle_no": self.waybill_id.vehicle_id.license_plate or None,
+            "contact_list_json": self._legacy_contact_list_json(),
+            "goods_info": self.goods_info or None,
+            "lat": self.lat if self.lat or self.lat == 0 else None,
+            "lng": self.lng if self.lng or self.lng == 0 else None,
+            "active": self.active,
+            "create_uid": self.env.uid,
+            "write_uid": self.env.uid,
+        }
+
+    @api.model
+    def _delete_legacy_stop_rows(self, keys):
+        if not keys or not self._legacy_stop_table_exists():
+            return
+        for waybill_no, stop_seq in sorted(set(keys)):
+            self.env.cr.execute(
+                """
+                DELETE FROM logistics_waybill_stop
+                WHERE waybill_no = %s AND stop_seq = %s
+                """,
+                (waybill_no, stop_seq),
+            )
+
+    def _sync_legacy_stop_rows(self):
+        if not self or not self._legacy_stop_table_exists():
+            return
+        self._delete_legacy_stop_rows(self._legacy_stop_keys())
+        for record in self:
+            vals = record._legacy_stop_vals()
+            if not vals["waybill_no"] or not vals["stop_seq"]:
+                continue
+            self.env.cr.execute(
+                """
+                INSERT INTO logistics_waybill_stop (
+                    company_id,
+                    stop_seq,
+                    partner_id,
+                    stock_picking_id,
+                    create_uid,
+                    write_uid,
+                    waybill_no,
+                    batch_no,
+                    store_name,
+                    address,
+                    contact_name,
+                    contact_phone,
+                    guide_url,
+                    driver_name,
+                    vehicle_no,
+                    contact_list_json,
+                    goods_info,
+                    lat,
+                    lng,
+                    active,
+                    create_date,
+                    write_date
+                ) VALUES (
+                    %(company_id)s,
+                    %(stop_seq)s,
+                    %(partner_id)s,
+                    %(stock_picking_id)s,
+                    %(create_uid)s,
+                    %(write_uid)s,
+                    %(waybill_no)s,
+                    %(batch_no)s,
+                    %(store_name)s,
+                    %(address)s,
+                    %(contact_name)s,
+                    %(contact_phone)s,
+                    %(guide_url)s,
+                    %(driver_name)s,
+                    %(vehicle_no)s,
+                    %(contact_list_json)s,
+                    %(goods_info)s,
+                    %(lat)s,
+                    %(lng)s,
+                    %(active)s,
+                    NOW(),
+                    NOW()
+                )
+                """,
+                vals,
+            )
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        records._sync_legacy_stop_rows()
+        return records
+
+    def write(self, vals):
+        legacy_keys = self._legacy_stop_keys()
+        result = super().write(vals)
+        self._delete_legacy_stop_rows(legacy_keys)
+        self._sync_legacy_stop_rows()
+        return result
+
+    def unlink(self):
+        legacy_keys = self._legacy_stop_keys()
+        result = super().unlink()
+        self._delete_legacy_stop_rows(legacy_keys)
+        return result

@@ -1,8 +1,28 @@
+import logging
+
 from odoo import api, models
+from odoo.exceptions import UserError
+
+
+_LOGGER = logging.getLogger(__name__)
 
 
 class IrUiMenu(models.Model):
     _inherit = "ir.ui.menu"
+
+    @api.model
+    def _sync_label_in_lang(self, record, label, lang_code="zh_CN"):
+        if not record or label is None:
+            return
+        try:
+            record.with_context(lang=lang_code).write({"name": label})
+        except UserError:
+            _LOGGER.warning(
+                "Skip localized label sync for %s because language %s is not ready in database %s",
+                record,
+                lang_code,
+                self.env.cr.dbname,
+            )
 
     @api.model
     def _sync_menu(self, xmlid, *, label=None, parent_xmlid=None, sequence=None, active=None, action_xmlid=None):
@@ -29,7 +49,7 @@ class IrUiMenu(models.Model):
         if vals:
             menu.write(vals)
             if label is not None:
-                menu.with_context(lang="zh_CN").write({"name": label})
+                self._sync_label_in_lang(menu, label)
         return menu
 
     @api.model
@@ -38,7 +58,7 @@ class IrUiMenu(models.Model):
         if not action:
             return None
         action.write({"name": label})
-        action.with_context(lang="zh_CN").write({"name": label})
+        self._sync_label_in_lang(action, label)
         return action
 
     @api.model

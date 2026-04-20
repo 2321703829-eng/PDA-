@@ -425,3 +425,37 @@ class LogisticsDispatchWaybill(models.Model):
             "domain": [("waybill_id", "=", self.id)],
             "context": {"default_waybill_id": self.id},
         }
+    def action_open_trace_events(self):
+        self.ensure_one()
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Trace Events"),
+            "res_model": "logistics.trace.event",
+            "view_mode": "list,form",
+            "domain": [("waybill_id", "=", self.id)],
+            "context": {
+                "default_waybill_id": self.id,
+                "default_batch_id": self.batch_id.id,
+                "default_object_type": "waybill",
+            },
+        }
+
+    def action_open_evidences(self):
+        self.ensure_one()
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Image Evidences"),
+            "res_model": "logistics.trace.evidence",
+            "view_mode": "list,form",
+            "domain": [("waybill_id", "=", self.id)],
+            "context": {
+                "default_waybill_id": self.id,
+                "search_default_waybill_id": self.id,
+            },
+        }
+
+    def unlink(self):
+        legacy_stop_keys = self.mapped("stop_ids")._legacy_stop_keys()
+        result = super().unlink()
+        self.env["logistics.dispatch.waybill.stop"]._delete_legacy_stop_rows(legacy_stop_keys)
+        return result

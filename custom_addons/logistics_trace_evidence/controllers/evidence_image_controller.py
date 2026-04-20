@@ -435,27 +435,36 @@ class LogisticsTraceEvidenceImageController(http.Controller):
             return None
 
         first_row = legacy_rows[0]
+        legacy_traces = self._search_legacy_waybill_traces(waybill_no)
+        legacy_evidence_map = self._build_legacy_evidence_map(legacy_traces)
         stops = []
+        stop_index = {}
         for node_id, row in enumerate(legacy_rows, start=1):
             contact_list = self._load_legacy_contact_list(row)
             primary_contact = contact_list[0] if contact_list else {"name": None, "phone": None}
-            stops.append(
-                {
-                    "node_id": node_id,
-                    "stop_seq": row.get("stop_seq") or node_id,
-                    "store_name": row.get("store_name"),
-                    "address": row.get("address"),
-                    "lat": row.get("lat"),
-                    "lng": row.get("lng"),
-                    "contact_name": primary_contact.get("name"),
-                    "contact_phone": primary_contact.get("phone"),
-                    "contact_list": contact_list,
-                    "guide_url": row.get("guide_url"),
-                    "goods_info": row.get("goods_info") or "",
-                    "status": "PENDING",
-                    "evidence_images": [],
-                }
-            )
+            stop = {
+                "node_id": node_id,
+                "stop_seq": row.get("stop_seq") or node_id,
+                "store_name": row.get("store_name"),
+                "address": row.get("address"),
+                "lat": row.get("lat"),
+                "lng": row.get("lng"),
+                "contact_name": primary_contact.get("name"),
+                "contact_phone": primary_contact.get("phone"),
+                "contact_list": contact_list,
+                "guide_url": row.get("guide_url"),
+                "goods_info": row.get("goods_info") or "",
+                "status": "PENDING",
+                "evidence_images": [],
+            }
+            stops.append(stop)
+            stop_index[stop["stop_seq"]] = stop
+
+        for trace in legacy_traces:
+            stop = stop_index.get(trace.route_sequence or 0)
+            if not stop:
+                continue
+            self._merge_trace_into_stop(stop, trace, legacy_evidence_map.get(trace.id, []))
 
         return {
             "waybill_id": False,
@@ -501,6 +510,17 @@ class LogisticsTraceEvidenceImageController(http.Controller):
         return cr.dictfetchall()
 
     @staticmethod
+    def _search_legacy_waybill_traces(waybill_no):
+        return request.env["logistics.trace.event"].sudo().search(
+            [
+                ("object_type", "=", "waybill"),
+                ("waybill_id", "=", False),
+                ("source_record_id", "=", waybill_no),
+            ],
+            order="route_sequence asc, trace_time asc, id asc",
+        )
+
+    @staticmethod
     def _resolve_trace_stop_seq(trace, stop_records):
         stop_seq = trace.route_sequence or 0
         if not stop_seq and len(stop_records) == 1:
@@ -528,6 +548,63 @@ class LogisticsTraceEvidenceImageController(http.Controller):
                         fields.Datetime.to_string(evidence.uploaded_at) if evidence.uploaded_at else False
                     ),
                     "uploader_name": evidence.uploader_name,
+                }
+            )
+        return evidence_map
+
+    def _build_legacy_evidence_map(self, traces):
+        evidence_map = {}
+        if not traces:
+            return evidence_map
+
+        evidences = request.env["logistics.trace.evidence"].sudo().search(
+            [("trace_event_id", "in", traces.ids)],
+            order="id asc",
+        )
+        if not evidences:
+            return evidence_map
+
+        evidence_by_id = {evidence.id: evidence for evidence in evidences}
+        cr = request.env.cr
+        cr.execute("SELECT to_regclass('public.logistics_trace_evidence_image')")
+        if not cr.fetchone()[0]:
+            return evidence_map
+
+        cr.execute(
+            """
+            SELECT
+                id,
+                evidence_id,
+                image_access_key,
+                source_filename,
+                stored_file_name,
+                storage_status
+            FROM logistics_trace_evidence_image
+            WHERE evidence_id = ANY(%s)
+            ORDER BY id ASC
+            """,
+            [list(evidence_by_id)],
+        )
+        base_url = request.httprequest.host_url.rstrip("/")
+        for row in cr.dictfetchall():
+            evidence = evidence_by_id.get(row["evidence_id"])
+            if not evidence or not row.get("image_access_key"):
+                continue
+            image_access_key = row["image_access_key"]
+            preview_url = f"{base_url}/logistics_trace/evidence-images/{image_access_key}"
+            evidence_map.setdefault(evidence.trace_event_id.id, []).append(
+                {
+                    "evidence_id": evidence.id,
+                    "image_access_key": image_access_key,
+                    "preview_url": preview_url,
+                    "full_url": preview_url,
+                    "state": evidence.state,
+                    "uploaded_at": (
+                        fields.Datetime.to_string(evidence.uploaded_at) if evidence.uploaded_at else False
+                    ),
+                    "uploader_name": evidence.uploader_name,
+                    "file_name": row.get("source_filename") or row.get("stored_file_name"),
+                    "storage_status": row.get("storage_status"),
                 }
             )
         return evidence_map

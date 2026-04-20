@@ -280,7 +280,8 @@ class WaybillStandardImportService:
         }
         batch.sudo().write({"state": "importing", "confirmed_at": fields.Datetime.now(), "failure_reason": False})
         try:
-            cls._apply_import(env, source_data, stats)
+            with env.cr.savepoint():
+                cls._apply_import(env, source_data, stats)
         except Exception as exc:
             batch.sudo().write(
                 {
@@ -1039,6 +1040,7 @@ class WaybillStandardImportService:
         waybill_model = env["logistics.dispatch.waybill"].sudo()
         customer_line_model = env["logistics.dispatch.waybill.customer.line"].sudo()
         goods_line_model = env["logistics.dispatch.waybill.customer.goods.line"].sudo()
+        stop_model = env["logistics.dispatch.waybill.stop"].sudo()
 
         waybill_rows = source_data["waybill_rows"]
         customer_rows = source_data["customer_rows"]
@@ -1048,6 +1050,18 @@ class WaybillStandardImportService:
             model_name="stock.warehouse",
             field_name="code",
             values={row["warehouse_code"] for row in waybill_rows if row.get("warehouse_code")},
+        )
+        customer_map = cls._search_partner_map(
+            env,
+            model_domain=[("is_logistics_customer", "=", True)],
+            field_name="logistics_customer_code",
+            values={row["customer_no"] for row in customer_rows if row.get("customer_no")},
+        )
+        store_map = cls._search_partner_map(
+            env,
+            model_domain=[("is_logistics_store", "=", True)],
+            field_name="logistics_store_code",
+            values={row["store_no"] for row in customer_rows + goods_rows if row.get("store_no")},
         )
 
         existing_waybills = waybill_model.search([("name", "in", [row["waybill_no"] for row in waybill_rows])])
@@ -1081,10 +1095,8 @@ class WaybillStandardImportService:
             customer_line = customer_line_model.create(
                 {
                     "waybill_id": waybill.id,
-                    "customer_no": row["customer_no"],
-                    "customer_name": row.get("customer_name") or False,
-                    "store_no": row.get("store_no") or False,
-                    "store_name": row.get("store_name") or False,
+                    "customer_id": customer_map[row["customer_no"]].id if row.get("customer_no") else False,
+                    "store_id": store_map[row["store_no"]].id if row.get("store_no") else False,
                     "delivery_note": row.get("delivery_remark") or False,
                     "signoff_requirement": row.get("signoff_requirement") or False,
                     "customer_ref": row.get("customer_ref") or False,
@@ -1093,7 +1105,9 @@ class WaybillStandardImportService:
             customer_line_record_map[cls._customer_key(row)] = customer_line
             stats["created_customer_line_count"] += 1
 
+        goods_rows_by_customer_key = {}
         for row in goods_rows:
+            goods_rows_by_customer_key.setdefault(cls._customer_key(row), []).append(row)
             customer_line = customer_line_record_map.get(cls._customer_key(row))
             if not customer_line:
                 stats["skipped_record_count"] += 1
@@ -1101,8 +1115,8 @@ class WaybillStandardImportService:
             goods_line_model.create(
                 {
                     "customer_line_id": customer_line.id,
-                    "goods_code": row.get("goods_code") or False,
                     "goods_name": row["goods_name"],
+                    "goods_code": row.get("goods_code") or False,
                     "specification": row.get("spec") or False,
                     "quantity": cls._safe_float(row.get("qty"), default=0.0),
                     "package_count": cls._safe_int(row.get("package_count"), default=0),
@@ -1115,6 +1129,85 @@ class WaybillStandardImportService:
                 }
             )
             stats["created_goods_line_count"] += 1
+
+        cls._create_imported_waybill_stops(
+            stop_model=stop_model,
+            customer_line_record_map=customer_line_record_map,
+            goods_rows_by_customer_key=goods_rows_by_customer_key,
+        )
+
+    @classmethod
+    def _create_imported_waybill_stops(cls, *, stop_model, customer_line_record_map, goods_rows_by_customer_key):
+        customer_lines_by_waybill = {}
+        for customer_key, customer_line in customer_line_record_map.items():
+            customer_lines_by_waybill.setdefault(customer_line.waybill_id.id, []).append((customer_key, customer_line))
+
+        for _waybill_id, customer_items in customer_lines_by_waybill.items():
+            for stop_seq, (customer_key, customer_line) in enumerate(customer_items, start=1):
+                stop_vals = cls._build_stop_vals_from_customer_line(
+                    customer_line=customer_line,
+                    stop_seq=stop_seq,
+                    goods_rows=goods_rows_by_customer_key.get(customer_key, []),
+                )
+                stop_model.create(stop_vals)
+
+    @classmethod
+    def _build_stop_vals_from_customer_line(cls, *, customer_line, stop_seq, goods_rows):
+        store = customer_line.store_id
+        address = False
+        contact_name = False
+        contact_phone = False
+        lat = False
+        lng = False
+        if store:
+            address = store.contact_address or store.street or store.display_name or False
+            contact_name = store.name or False
+            contact_phone = store.phone or store.mobile or False
+            lat = getattr(store, "partner_latitude", False) or False
+            lng = getattr(store, "partner_longitude", False) or False
+        return {
+            "waybill_id": customer_line.waybill_id.id,
+            "partner_id": store.id if store else False,
+            "stop_seq": stop_seq,
+            "store_name": customer_line.store_name or customer_line.customer_name or f"Stop {stop_seq}",
+            "address": address,
+            "contact_name": contact_name,
+            "contact_phone": contact_phone,
+            "lat": lat,
+            "lng": lng,
+            "goods_info": cls._compose_stop_goods_info(goods_rows),
+        }
+
+    @classmethod
+    def _compose_stop_goods_info(cls, goods_rows):
+        if not goods_rows:
+            return "共0单 | 整件0 · 散件0 | 重量0 kg"
+
+        order_refs = set()
+        whole_count = 0
+        loose_count = 0
+        total_weight = 0.0
+        for row in goods_rows:
+            remark = (row.get("remark") or "").strip()
+            if remark:
+                order_refs.update(ref.strip() for ref in remark.split(";") if ref.strip())
+            qty = cls._safe_float(row.get("qty"), default=0.0)
+            package_count = cls._safe_int(row.get("package_count"), default=0)
+            whole_count += package_count
+            loose_count += max(int(round(qty - package_count)), 0)
+            total_weight += cls._safe_float(row.get("weight"), default=0.0)
+
+        order_count = len(order_refs) or len(goods_rows)
+        return (
+            f"共{order_count}单 | 整件{whole_count} · 散件{loose_count} | "
+            f"重量{cls._format_summary_number(total_weight)} kg"
+        )
+
+    @classmethod
+    def _format_summary_number(cls, value):
+        if float(value).is_integer():
+            return str(int(value))
+        return f"{value:.2f}".rstrip("0").rstrip(".")
 
     @classmethod
     def _build_result_payload(cls, batch):
