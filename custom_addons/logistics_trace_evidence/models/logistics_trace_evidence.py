@@ -12,7 +12,7 @@ class LogisticsTraceEvidence(models.Model):
         ("missing", "缺失"),
     ]
 
-    name = fields.Char(string="证据名称", required=True, copy=False, default="New")
+    name = fields.Char(string="证据名称", required=True, copy=False, default="新建")
     trace_event_id = fields.Many2one(
         "logistics.trace.event",
         string="留痕事件",
@@ -82,11 +82,11 @@ class LogisticsTraceEvidence(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
-            if vals.get("name", "New") == "New":
+            if vals.get("name", "新建") in ("New", "新建"):
                 vals["name"] = self._build_evidence_name(vals)
         return super().create(vals_list)
 
     def _build_evidence_name(self, vals):
         uploaded_at = vals.get("uploaded_at")
         uploaded_dt = fields.Datetime.to_datetime(uploaded_at) if uploaded_at else fields.Datetime.now()
-        return f"Evidence - {fields.Datetime.to_string(uploaded_dt)}"
+        return f"证据 - {fields.Datetime.to_string(uploaded_dt)}"

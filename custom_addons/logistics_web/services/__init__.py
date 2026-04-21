@@ -1,0 +1,1 @@
+from . import waybill_standard_import_service_v2

@@ -2,25 +2,25 @@ from odoo import api, fields, models
 from odoo.exceptions import ValidationError
 
 
+def _standard_import_templates(env):
+    return [
+        {
+            "label": env._("下载标准模板（英文列头）"),
+            "template": "/api/admin/logistics/imports/waybill-standard/template/download?template_code=TSL-IMPORT-WAYBILL-V2&template_version=v2&template_locale=en_US",
+        },
+        {
+            "label": env._("下载标准模板（中文列头）"),
+            "template": "/api/admin/logistics/imports/waybill-standard/template/download?template_code=TSL-IMPORT-WAYBILL-V2&template_version=v2&template_locale=zh_CN",
+        },
+    ]
+
+
 class LogisticsDispatchWaybillImportSupport(models.Model):
     _inherit = "logistics.dispatch.waybill"
 
     @api.model
     def get_import_templates(self):
-        return [
-            {
-                "label": self.env._("下载运单标准模板"),
-                "template": "/logistics_dispatch/static/src/import_templates/logistics_dispatch_waybill_import_template.csv",
-            },
-            {
-                "label": self.env._("下载客户明细模板"),
-                "template": "/logistics_dispatch/static/src/import_templates/logistics_dispatch_waybill_customer_line_import_template.csv",
-            },
-            {
-                "label": self.env._("下载货物明细模板"),
-                "template": "/logistics_dispatch/static/src/import_templates/logistics_dispatch_waybill_customer_goods_line_import_template.csv",
-            },
-        ]
+        return _standard_import_templates(self.env)
 
 
 class LogisticsDispatchWaybillCustomerLineImportSupport(models.Model):
@@ -28,16 +28,7 @@ class LogisticsDispatchWaybillCustomerLineImportSupport(models.Model):
 
     @api.model
     def get_import_templates(self):
-        return [
-            {
-                "label": self.env._("下载客户明细模板"),
-                "template": "/logistics_dispatch/static/src/import_templates/logistics_dispatch_waybill_customer_line_import_template.csv",
-            },
-            {
-                "label": self.env._("下载货物明细模板"),
-                "template": "/logistics_dispatch/static/src/import_templates/logistics_dispatch_waybill_customer_goods_line_import_template.csv",
-            },
-        ]
+        return _standard_import_templates(self.env)
 
     @api.model
     def _resolve_waybill_by_no(self, waybill_no):
@@ -72,7 +63,7 @@ class LogisticsDispatchWaybillCustomerGoodsLineImportSupport(models.Model):
         inverse="_inverse_waybill_no",
     )
     customer_no = fields.Char(
-        string="客户编号",
+        string="客户号",
         compute="_compute_customer_no",
         inverse="_inverse_customer_no",
     )
@@ -84,12 +75,7 @@ class LogisticsDispatchWaybillCustomerGoodsLineImportSupport(models.Model):
 
     @api.model
     def get_import_templates(self):
-        return [
-            {
-                "label": self.env._("下载货物明细模板"),
-                "template": "/logistics_dispatch/static/src/import_templates/logistics_dispatch_waybill_customer_goods_line_import_template.csv",
-            }
-        ]
+        return _standard_import_templates(self.env)
 
     @api.depends("customer_line_id.waybill_id.name")
     def _compute_waybill_no(self):
@@ -131,9 +117,9 @@ class LogisticsDispatchWaybillCustomerGoodsLineImportSupport(models.Model):
     @api.model
     def _ensure_unique_import_record(self, records, field_label, value):
         if not records:
-            raise ValidationError(f"未找到“{field_label}”={value} 对应的记录。")
+            raise ValidationError(f'未找到“{field_label}” = {value} 对应的记录。')
         if len(records) > 1:
-            raise ValidationError(f"“{field_label}”={value} 匹配到多条记录，请先去重。")
+            raise ValidationError(f'“{field_label}” = {value} 匹配到多条记录，请先去重。')
         return records
 
     @api.model
@@ -141,14 +127,14 @@ class LogisticsDispatchWaybillCustomerGoodsLineImportSupport(models.Model):
         domain = [("waybill_id.name", "=", waybill_no)]
         if customer_no:
             domain.append(("customer_id.logistics_customer_code", "=", customer_no))
-            label = "运单号 + 客户编号"
+            label = "运单号 + 客户号"
             value = f"{waybill_no} / {customer_no}"
         elif customer_name:
             domain.append(("customer_id.name", "=", customer_name))
             label = "运单号 + 客户名称"
             value = f"{waybill_no} / {customer_name}"
         else:
-            raise ValidationError("货物导入必须至少提供运单号和客户编号或客户名称。")
+            raise ValidationError("货物导入至少需要提供运单号与客户号或客户名称。")
         customer_lines = self.env["logistics.dispatch.waybill.customer.line"].search(domain, limit=2)
         return self._ensure_unique_import_record(customer_lines, label, value)
 

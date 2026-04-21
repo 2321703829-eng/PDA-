@@ -47,7 +47,7 @@ class IrUiMenu(models.Model):
         menu_specs = (
             {
                 "xmlid": root_xmlid,
-                "label": "天枢科技首页",
+                "label": "天枢科技物流系统",
                 "sequence": 10,
                 "action_xmlid": "logistics_web.action_logistics_web_home",
             },
@@ -87,6 +87,13 @@ class IrUiMenu(models.Model):
                 "label": "所有统计图表",
                 "parent_xmlid": root_xmlid,
                 "sequence": 60,
+            },
+            {
+                "xmlid": "logistics_web.menu_logistics_web_stats_center",
+                "label": "缁熻鍥捐〃涓績",
+                "parent_xmlid": "logistics_web.menu_logistics_web",
+                "action_xmlid": "logistics_web.action_logistics_web_stats_center",
+                "sequence": 5,
             },
             {
                 "xmlid": "account.menu_finance",
@@ -172,6 +179,7 @@ class IrUiMenu(models.Model):
                 "xmlid": "logistics_dispatch.menu_logistics_dispatch_import_waybill",
                 "label": "运单导入",
                 "parent_xmlid": "logistics_dispatch.menu_logistics_dispatch_import_center",
+                "active": False,
                 "action_xmlid": "logistics_dispatch.action_logistics_dispatch_waybill_import_center_direct",
                 "sequence": 10,
             },
@@ -179,6 +187,7 @@ class IrUiMenu(models.Model):
                 "xmlid": "logistics_dispatch.menu_logistics_dispatch_import_customer_line",
                 "label": "客户明细导入",
                 "parent_xmlid": "logistics_dispatch.menu_logistics_dispatch_import_center",
+                "active": False,
                 "action_xmlid": "logistics_dispatch.action_logistics_dispatch_waybill_customer_line_import_center_direct",
                 "sequence": 20,
             },
@@ -186,6 +195,7 @@ class IrUiMenu(models.Model):
                 "xmlid": "logistics_dispatch.menu_logistics_dispatch_import_customer_goods_line",
                 "label": "货物明细导入",
                 "parent_xmlid": "logistics_dispatch.menu_logistics_dispatch_import_center",
+                "active": False,
                 "action_xmlid": "logistics_dispatch.action_logistics_dispatch_waybill_customer_goods_line_import_center_direct",
                 "sequence": 30,
             },
@@ -212,6 +222,14 @@ class IrUiMenu(models.Model):
                 action_xmlid=spec.get("action_xmlid"),
             )
 
+        self._sync_menu(
+            "logistics_web.menu_logistics_web_stats_center",
+            label="\u7edf\u8ba1\u56fe\u8868\u4e2d\u5fc3",
+            parent_xmlid="logistics_web.menu_logistics_web",
+            sequence=5,
+            action_xmlid="logistics_web.action_logistics_web_stats_center",
+        )
+
         action_specs = {
             "logistics_dispatch.action_logistics_dispatch_waybill": "运单",
             "logistics_dispatch.action_logistics_dispatch_batch": "批次",
@@ -236,6 +254,8 @@ class IrUiMenu(models.Model):
             "mail.menu_root_discuss",
             "contacts.menu_contacts",
             "utm.menu_link_tracker_root",
+            "spreadsheet_dashboard.spreadsheet_dashboard_menu_root",
+            "base.menu_tests",
             "utm.marketing_utm",
             "base.menu_management",
         ):

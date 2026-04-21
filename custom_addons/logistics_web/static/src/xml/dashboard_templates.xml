@@ -215,17 +215,24 @@
                         <h2><t t-esc="this.ui.sectionSummaryTitle"/></h2>
                         <p><t t-esc="this.ui.sectionSummaryHint"/></p>
                     </div>
-                    <div class="o_logistics_web_dashboard_cards">
-                        <t t-foreach="state.summaryCards" t-as="card" t-key="card.key">
-                            <div
-                                class="o_logistics_web_summary_card o_logistics_web_clickable"
-                                t-att-data-tone="card.tone or 'default'"
-                                t-on-click="() => this.onSummaryCardClick(card)">
-                                <span class="o_logistics_web_summary_card_label"><t t-esc="card.label"/></span>
-                                <strong class="o_logistics_web_summary_card_value"><t t-esc="card.value"/></strong>
-                            </div>
-                        </t>
-                    </div>
+                    <t t-if="state.summaryCards.length">
+                        <div class="o_logistics_web_dashboard_cards">
+                            <t t-foreach="state.summaryCards" t-as="card" t-key="card.key">
+                                <div
+                                    class="o_logistics_web_summary_card o_logistics_web_clickable"
+                                    t-att-data-tone="card.tone or 'default'"
+                                    t-on-click="() => this.onSummaryCardClick(card)">
+                                    <span class="o_logistics_web_summary_card_label"><t t-esc="card.label"/></span>
+                                    <strong class="o_logistics_web_summary_card_value"><t t-esc="card.value"/></strong>
+                                </div>
+                            </t>
+                        </div>
+                    </t>
+                    <t t-else="">
+                        <div class="o_logistics_web_placeholder_panel">
+                            <p><t t-esc="this.ui.summaryEmpty"/></p>
+                        </div>
+                    </t>
                 </section>
 
                 <div class="o_logistics_web_dashboard_grid">

@@ -7,7 +7,7 @@ class LogisticsDispatchBatch(models.Model):
     _description = "物流批次"
     _order = "planned_depart_time desc, id desc"
 
-    name = fields.Char(string="批次号", required=True, copy=False, default="New", index=True)
+    name = fields.Char(string="批次号", required=True, copy=False, default="新建", index=True)
     batch_no = fields.Char(
         string="批次号（导入导出）",
         compute="_compute_batch_no",
@@ -69,7 +69,7 @@ class LogisticsDispatchBatch(models.Model):
 
     def _inverse_batch_no(self):
         for record in self:
-            record.name = (record.batch_no or "").strip() or record.name or "New"
+            record.name = (record.batch_no or "").strip() or record.name or "新建"
 
     def _inverse_wave_no(self):
         for record in self:
@@ -98,12 +98,12 @@ class LogisticsDispatchBatch(models.Model):
     def create(self, vals_list):
         for vals in vals_list:
             if "batch_no" in vals:
-                vals["name"] = (vals.pop("batch_no") or "").strip() or vals.get("name") or "New"
+                vals["name"] = (vals.pop("batch_no") or "").strip() or vals.get("name") or "新建"
             if "wave_no" in vals and not vals.get("wave_id"):
                 wave_no = (vals.pop("wave_no") or "").strip()
                 vals["wave_id"] = self._resolve_wave_by_no(wave_no).id if wave_no else False
-            if vals.get("name", "New") == "New":
-                vals["name"] = self.env["ir.sequence"].next_by_code("logistics.dispatch.batch") or "New"
+            if vals.get("name", "新建") in ("New", "新建"):
+                vals["name"] = self.env["ir.sequence"].next_by_code("logistics.dispatch.batch") or "新建"
         return super().create(vals_list)
 
     def write(self, vals):

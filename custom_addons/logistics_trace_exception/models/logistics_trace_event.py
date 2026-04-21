@@ -7,16 +7,16 @@ class LogisticsTraceEvent(models.Model):
     exception_ids = fields.One2many(
         "logistics.trace.exception",
         "trace_event_id",
-        string="Exceptions",
+        string="异常记录",
     )
     open_exception_count = fields.Integer(
-        string="Open Exception Count",
+        string="待处理异常数",
         compute="_compute_open_exception_count",
         store=True,
         readonly=True,
     )
     is_exception = fields.Boolean(
-        string="Exception Event",
+        string="异常事件",
         compute="_compute_is_exception",
         store=True,
         readonly=True,

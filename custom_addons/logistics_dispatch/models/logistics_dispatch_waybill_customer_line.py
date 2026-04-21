@@ -3,22 +3,22 @@ from odoo.exceptions import ValidationError
 
 
 class LogisticsDispatchWaybillCustomerLine(models.Model):
+    _name = "logistics.dispatch.waybill.customer.line"
+    _description = "运单客户明细"
+    _order = "sequence, id"
+
     @api.model
     def get_import_templates(self):
         return [
             {
                 "label": self.env._("下载客户明细模板"),
-                "template": "/logistics_dispatch/static/src/import_templates/logistics_dispatch_waybill_customer_line_import_template.csv",
+                "template": "/logistics_dispatch/static/src/import_templates/运单客户明细导入模板.csv",
             },
             {
                 "label": self.env._("下载货物明细模板"),
-                "template": "/logistics_dispatch/static/src/import_templates/logistics_dispatch_waybill_customer_goods_line_import_template.csv",
+                "template": "/logistics_dispatch/static/src/import_templates/运单货物明细导入模板.csv",
             },
         ]
-
-    _name = "logistics.dispatch.waybill.customer.line"
-    _description = "运单客户明细"
-    _order = "sequence, id"
 
     sequence = fields.Integer(string="排序", default=10)
     waybill_id = fields.Many2one(
@@ -29,7 +29,7 @@ class LogisticsDispatchWaybillCustomerLine(models.Model):
         index=True,
     )
     waybill_no = fields.Char(
-        string="杩愬崟鍙凤紙瀵煎叆瀵煎嚭锛?,
+        string="运单号（导入导出）",
         compute="_compute_waybill_no",
         inverse="_inverse_waybill_no",
     )
@@ -40,7 +40,7 @@ class LogisticsDispatchWaybillCustomerLine(models.Model):
         ondelete="set null",
     )
     customer_no = fields.Char(
-        string="客户编号",
+        string="客户号",
         compute="_compute_customer_no",
         inverse="_inverse_customer_no",
     )
@@ -56,7 +56,7 @@ class LogisticsDispatchWaybillCustomerLine(models.Model):
         ondelete="set null",
     )
     store_no = fields.Char(
-        string="门店编号",
+        string="门店号",
         compute="_compute_store_no",
         inverse="_inverse_store_no",
     )
@@ -65,18 +65,18 @@ class LogisticsDispatchWaybillCustomerLine(models.Model):
         compute="_compute_store_name",
         inverse="_inverse_store_name",
     )
-    delivery_note = fields.Text(string="客户配送备注")
-    signoff_requirement = fields.Char(string="客户签收要求")
+    delivery_note = fields.Text(string="配送备注")
+    signoff_requirement = fields.Char(string="签收要求")
     goods_line_ids = fields.One2many(
         "logistics.dispatch.waybill.customer.goods.line",
         "customer_line_id",
         string="货物明细",
     )
     goods_line_count = fields.Integer(string="货物条数", compute="_compute_totals", store=True)
-    total_goods_qty = fields.Float(string="客户货物总数量", compute="_compute_totals", store=True)
-    total_package_count = fields.Integer(string="客户货物总件数", compute="_compute_totals", store=True)
-    total_weight = fields.Float(string="客户货物总重量", compute="_compute_totals", store=True)
-    total_volume = fields.Float(string="客户货物总体积", compute="_compute_totals", store=True)
+    total_goods_qty = fields.Float(string="货物总数量", compute="_compute_totals", store=True)
+    total_package_count = fields.Integer(string="货物总件数", compute="_compute_totals", store=True)
+    total_weight = fields.Float(string="货物总重量", compute="_compute_totals", store=True)
+    total_volume = fields.Float(string="货物总体积", compute="_compute_totals", store=True)
 
     @api.depends("waybill_id.name")
     def _compute_waybill_no(self):
@@ -131,9 +131,7 @@ class LogisticsDispatchWaybillCustomerLine(models.Model):
     def _inverse_customer_name(self):
         for record in self:
             customer_name = (record.customer_name or "").strip()
-            record.customer_id = (
-                self._resolve_partner_by_name(customer_name, "customer") if customer_name else False
-            )
+            record.customer_id = self._resolve_partner_by_name(customer_name, "customer") if customer_name else False
 
     def _inverse_store_no(self):
         for record in self:
@@ -148,36 +146,30 @@ class LogisticsDispatchWaybillCustomerLine(models.Model):
     @api.model
     def _ensure_unique_record(self, records, field_label, value):
         if not records:
-            raise ValidationError(f"未找到{field_label}“{value}”对应的记录。")
+            raise ValidationError(f'未找到“{field_label}” = {value} 对应的记录。')
         if len(records) > 1:
-            raise ValidationError(f"{field_label}“{value}”匹配到多条记录，请先去重。")
+            raise ValidationError(f'“{field_label}” = {value} 匹配到多条记录，请先去重。')
         return records
 
     @api.model
     def _resolve_partner_by_code(self, code, partner_type):
         field_name = "logistics_customer_code" if partner_type == "customer" else "logistics_store_code"
         flag_name = "is_logistics_customer" if partner_type == "customer" else "is_logistics_store"
-        label = "客户编号" if partner_type == "customer" else "门店编号"
-        partners = self.env["res.partner"].search(
-            [(field_name, "=", code), (flag_name, "=", True)],
-            limit=2,
-        )
+        label = "客户号" if partner_type == "customer" else "门店号"
+        partners = self.env["res.partner"].search([(field_name, "=", code), (flag_name, "=", True)], limit=2)
         return self._ensure_unique_record(partners, label, code)
 
     @api.model
     def _resolve_partner_by_name(self, name, partner_type):
         flag_name = "is_logistics_customer" if partner_type == "customer" else "is_logistics_store"
         label = "客户名称" if partner_type == "customer" else "门店名称"
-        partners = self.env["res.partner"].search(
-            [("name", "=", name), (flag_name, "=", True)],
-            limit=2,
-        )
+        partners = self.env["res.partner"].search([("name", "=", name), (flag_name, "=", True)], limit=2)
         return self._ensure_unique_record(partners, label, name)
 
     @api.model
     def _resolve_waybill_by_no(self, waybill_no):
         waybills = self.env["logistics.dispatch.waybill"].search([("name", "=", waybill_no)], limit=2)
-        return self._ensure_unique_record(waybills, "杩愬崟鍙?", waybill_no)
+        return self._ensure_unique_record(waybills, "运单号", waybill_no)
 
     @api.model_create_multi
     def create(self, vals_list):

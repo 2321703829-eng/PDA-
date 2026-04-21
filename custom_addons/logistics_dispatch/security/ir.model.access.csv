@@ -5,4 +5,5 @@ access_logistics_dispatch_waybill_user,logistics.dispatch.waybill user,model_log
 access_logistics_dispatch_waybill_customer_line_user,logistics.dispatch.waybill.customer.line user,model_logistics_dispatch_waybill_customer_line,base.group_user,1,1,1,1
 access_logistics_dispatch_waybill_customer_goods_line_user,logistics.dispatch.waybill.customer.goods.line user,model_logistics_dispatch_waybill_customer_goods_line,base.group_user,1,1,1,1
 access_logistics_dispatch_waybill_order_line_user,logistics.dispatch.waybill.order.line user,model_logistics_dispatch_waybill_order_line,base.group_user,1,1,1,1
+access_logistics_import_batch_user,logistics.import.batch user,model_logistics_import_batch,base.group_user,1,1,1,1
 

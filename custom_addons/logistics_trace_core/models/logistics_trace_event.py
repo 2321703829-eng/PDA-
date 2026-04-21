@@ -37,7 +37,7 @@ class LogisticsTraceEvent(models.Model):
         ("invalid", "无效"),
     ]
 
-    name = fields.Char(string="留痕事件", required=True, copy=False, default="New", tracking=True)
+    name = fields.Char(string="留痕事件", required=True, copy=False, default="新建", tracking=True)
     event_type = fields.Selection(EVENT_SELECTION, string="留痕类型", required=True, tracking=True)
     object_type = fields.Selection(
         OBJECT_SELECTION,
@@ -133,7 +133,7 @@ class LogisticsTraceEvent(models.Model):
             if waybill_id and not vals.get("batch_id"):
                 waybill = self.env["logistics.dispatch.waybill"].browse(waybill_id)
                 vals["batch_id"] = waybill.batch_id.id
-            if vals.get("name", "New") == "New":
+            if vals.get("name", "新建") in ("New", "新建"):
                 vals["name"] = self._build_event_name(vals)
         return super().create(vals_list)
 
@@ -141,4 +141,5 @@ class LogisticsTraceEvent(models.Model):
         event_type = vals.get("event_type") or "trace"
         trace_time = vals.get("trace_time")
         trace_dt = fields.Datetime.to_datetime(trace_time) if trace_time else fields.Datetime.now()
-        return f"{event_type.replace('_', ' ').title()} - {fields.Datetime.to_string(trace_dt)}"
+        event_label = dict(self.EVENT_SELECTION).get(event_type, "留痕事件")
+        return f"{event_label} - {fields.Datetime.to_string(trace_dt)}"

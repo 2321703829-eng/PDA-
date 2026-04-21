@@ -35,4 +35,11 @@ Current effective business baseline:
 - Historical names such as `logistics_order`, `logistics_trace`, and `logistics_exception` should be treated as bridge or archive terminology unless a document explicitly says it is historical.
 - Any real code or document change must update `docs/change_notes/`.
 
+## Design Consistency Standard
+
+- For warehouse module pages and other adjacent backend modules, default to the existing logistics module style.
+- Reuse logistics page structure, interaction rhythm, button placement, state display, and page flow before introducing new patterns.
+- Treat warehouse and logistics as sibling modules inside one system: business content may differ, but overall backend style should stay aligned.
+- Before proposing a new warehouse page layout, first identify the closest logistics reference page and adapt from it.
+
 For the full working rules, follow the root guide in [`../AGENTS.md`](d:/Desktop/Odoo/AGENTS.md).

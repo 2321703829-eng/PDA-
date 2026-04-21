@@ -7,16 +7,12 @@ class LogisticsDispatchWaybill(models.Model):
     def get_import_templates(self):
         return [
             {
-                "label": _("下载运单标准模板"),
-                "template": "/logistics_dispatch/static/src/import_templates/运单标准导入模板.csv",
+                "label": _("下载标准模板（英文列头）"),
+                "template": "/api/admin/logistics/imports/waybill-standard/template/download?template_code=TSL-IMPORT-WAYBILL-V2&template_version=v2&template_locale=en_US",
             },
             {
-                "label": _("下载客户明细模板"),
-                "template": "/logistics_dispatch/static/src/import_templates/运单客户明细导入模板.csv",
-            },
-            {
-                "label": _("下载货物明细模板"),
-                "template": "/logistics_dispatch/static/src/import_templates/运单货物明细导入模板.csv",
+                "label": _("下载标准模板（中文列头）"),
+                "template": "/api/admin/logistics/imports/waybill-standard/template/download?template_code=TSL-IMPORT-WAYBILL-V2&template_version=v2&template_locale=zh_CN",
             },
         ]
 
@@ -25,7 +21,7 @@ class LogisticsDispatchWaybill(models.Model):
     _order = "delivery_date desc, id desc"
     _rec_name = "name"
 
-    name = fields.Char(string="运单号", required=True, copy=False, default="New", index=True)
+    name = fields.Char(string="运单号", required=True, copy=False, default="新建", index=True)
     waybill_no = fields.Char(
         string="运单号（导入导出）",
         compute="_compute_waybill_no",
@@ -227,7 +223,7 @@ class LogisticsDispatchWaybill(models.Model):
 
     def _inverse_waybill_no(self):
         for record in self:
-            record.name = (record.waybill_no or "").strip() or record.name or "New"
+            record.name = (record.waybill_no or "").strip() or record.name or "新建"
 
     def _inverse_batch_no(self):
         for record in self:
@@ -328,7 +324,7 @@ class LogisticsDispatchWaybill(models.Model):
     def create(self, vals_list):
         for vals in vals_list:
             if "waybill_no" in vals:
-                vals["name"] = (vals.pop("waybill_no") or "").strip() or vals.get("name") or "New"
+                vals["name"] = (vals.pop("waybill_no") or "").strip() or vals.get("name") or "新建"
             if "batch_no" in vals and not vals.get("batch_id"):
                 batch_no = (vals.pop("batch_no") or "").strip()
                 vals["batch_id"] = self._resolve_batch_by_no(batch_no).id if batch_no else False
@@ -348,8 +344,8 @@ class LogisticsDispatchWaybill(models.Model):
             if "store_name" in vals and not vals.get("store_id"):
                 store_name = (vals.pop("store_name") or "").strip()
                 vals["store_id"] = self._resolve_partner_by_name(store_name, "store").id if store_name else False
-            if vals.get("name", "New") == "New":
-                vals["name"] = self.env["ir.sequence"].next_by_code("logistics.dispatch.waybill") or "New"
+            if vals.get("name", "新建") in ("New", "新建"):
+                vals["name"] = self.env["ir.sequence"].next_by_code("logistics.dispatch.waybill") or "新建"
         return super().create(vals_list)
 
     def write(self, vals):

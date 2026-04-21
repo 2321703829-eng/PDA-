@@ -6,7 +6,7 @@ class LogisticsDispatchWave(models.Model):
     _description = "物流波次"
     _order = "dispatch_date desc, id desc"
 
-    name = fields.Char(string="波次号", required=True, copy=False, default="New", index=True)
+    name = fields.Char(string="波次号", required=True, copy=False, default="新建", index=True)
     wave_no = fields.Char(
         string="波次号（导入导出）",
         compute="_compute_wave_no",
@@ -44,7 +44,7 @@ class LogisticsDispatchWave(models.Model):
 
     def _inverse_wave_no(self):
         for record in self:
-            record.name = (record.wave_no or "").strip() or record.name or "New"
+            record.name = (record.wave_no or "").strip() or record.name or "新建"
 
     @api.depends("batch_ids", "batch_ids.total_waybill_count", "batch_ids.waybill_ids.order_line_ids")
     def _compute_counts(self):
@@ -59,9 +59,9 @@ class LogisticsDispatchWave(models.Model):
     def create(self, vals_list):
         for vals in vals_list:
             if "wave_no" in vals:
-                vals["name"] = (vals.pop("wave_no") or "").strip() or vals.get("name") or "New"
-            if vals.get("name", "New") == "New":
-                vals["name"] = self.env["ir.sequence"].next_by_code("logistics.dispatch.wave") or "New"
+                vals["name"] = (vals.pop("wave_no") or "").strip() or vals.get("name") or "新建"
+            if vals.get("name", "新建") in ("New", "新建"):
+                vals["name"] = self.env["ir.sequence"].next_by_code("logistics.dispatch.wave") or "新建"
         return super().create(vals_list)
 
     def write(self, vals):

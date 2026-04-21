@@ -7,10 +7,10 @@ class LogisticsTraceEvent(models.Model):
     evidence_ids = fields.One2many(
         "logistics.trace.evidence",
         "trace_event_id",
-        string="Evidence Items",
+        string="证据记录",
     )
     evidence_count = fields.Integer(
-        string="Evidence Count",
+        string="证据数",
         compute="_compute_evidence_count",
         store=True,
         readonly=True,

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <menuitem id="menu_logistics_dispatch_root" name="天枢科技首页" sequence="10"/>
+    <menuitem id="menu_logistics_dispatch_root" name="天枢科技物流系统" sequence="10"/>
 
     <menuitem
         id="menu_logistics_dispatch"
@@ -68,6 +68,7 @@
         name="运单导入"
         parent="menu_logistics_dispatch_import_center"
         action="action_logistics_dispatch_waybill_import_center_direct"
+        groups="base.group_no_one"
         sequence="10"/>
 
     <menuitem
@@ -75,6 +76,7 @@
         name="客户明细导入"
         parent="menu_logistics_dispatch_import_center"
         action="action_logistics_dispatch_waybill_customer_line_import_center_direct"
+        groups="base.group_no_one"
         sequence="20"/>
 
     <menuitem
@@ -82,5 +84,18 @@
         name="货物明细导入"
         parent="menu_logistics_dispatch_import_center"
         action="action_logistics_dispatch_waybill_customer_goods_line_import_center_direct"
+        groups="base.group_no_one"
         sequence="30"/>
+
+    <record id="menu_logistics_dispatch_import_waybill" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+
+    <record id="menu_logistics_dispatch_import_customer_line" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+
+    <record id="menu_logistics_dispatch_import_customer_goods_line" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
 </odoo>

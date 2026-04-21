@@ -36,7 +36,7 @@ class LogisticsTraceException(models.Model):
         ("cancelled", "已取消"),
     ]
 
-    name = fields.Char(string="异常单号", required=True, copy=False, default="New", tracking=True)
+    name = fields.Char(string="异常单号", required=True, copy=False, default="新建", tracking=True)
     exception_no = fields.Char(
         string="异常单号（导入导出）",
         compute="_compute_exception_no",
@@ -195,7 +195,7 @@ class LogisticsTraceException(models.Model):
 
     def _inverse_exception_no(self):
         for record in self:
-            record.name = (record.exception_no or "").strip() or record.name or "New"
+            record.name = (record.exception_no or "").strip() or record.name or "新建"
 
     def _inverse_waybill_no(self):
         for record in self:
@@ -269,7 +269,7 @@ class LogisticsTraceException(models.Model):
         records = self.browse()
         for vals in vals_list:
             if "exception_no" in vals:
-                vals["name"] = (vals.pop("exception_no") or "").strip() or vals.get("name") or "New"
+                vals["name"] = (vals.pop("exception_no") or "").strip() or vals.get("name") or "新建"
             if "waybill_no" in vals and not vals.get("waybill_id"):
                 waybill_no = (vals.pop("waybill_no") or "").strip()
                 vals["waybill_id"] = self._resolve_waybill_by_no(waybill_no).id if waybill_no else False
@@ -293,7 +293,7 @@ class LogisticsTraceException(models.Model):
             elif vals.get("waybill_id") and not vals.get("batch_id"):
                 waybill = self.env["logistics.dispatch.waybill"].browse(vals["waybill_id"])
                 vals["batch_id"] = waybill.batch_id.id
-            if vals.get("name", "New") == "New":
+            if vals.get("name", "新建") in ("New", "新建"):
                 vals["name"] = self._build_exception_name(vals)
         records = super().create(vals_list)
         records._create_process_logs("create", from_state=False)

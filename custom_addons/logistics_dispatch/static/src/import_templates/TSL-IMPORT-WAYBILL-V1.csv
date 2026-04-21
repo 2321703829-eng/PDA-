@@ -1,0 +1,4 @@
+row_no,import_batch_mark,waybill_no,batch_no,wave_no,delivery_date,customer_no,customer_name,store_no,store_name,delivery_remark,goods_code,goods_name,spec,qty,package_count,uom_name,weight,volume,temperature_zone,package_type,remark
+1,APR16-A,WB260416-0001,BT260416-0001,WV260416-01,2026-04-16,CUST-001,Customer A,STORE-001,Store A,Morning delivery,SKU-001,Fresh Milk,250ml*24,120,10,box,360,1.2,chilled,carton,Unload first
+2,APR16-A,WB260416-0001,BT260416-0001,WV260416-01,2026-04-16,CUST-001,Customer A,STORE-001,Store A,Morning delivery,SKU-002,Yogurt,200g*12,60,6,box,95,0.5,chilled,carton,Cold chain
+3,APR16-A,WB260416-0001,BT260416-0001,WV260416-01,2026-04-16,CUST-002,Customer B,STORE-002,Store B,Back door unload,SKU-003,Frozen Dumpling,1kg*8,32,4,box,128,0.9,frozen,foam_box,Keep frozen

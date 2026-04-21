@@ -23,6 +23,10 @@ patch(ListController.prototype, {
     },
 
     onClickLogisticsImport() {
+        if (this.props.resModel === "logistics.dispatch.waybill") {
+            this.actionService.doAction("logistics_web.action_logistics_web_import_center");
+            return;
+        }
         this.actionService.doAction({
             type: "ir.actions.client",
             tag: "import",
