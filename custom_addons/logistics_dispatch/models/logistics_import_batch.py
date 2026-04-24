@@ -7,7 +7,7 @@ from odoo import api, fields, models
 
 class LogisticsImportBatch(models.Model):
     _name = "logistics.import.batch"
-    _description = "Logistics Import Batch"
+    _description = "导入批次"
     _order = "create_date desc, id desc"
 
     name = fields.Char(

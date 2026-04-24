@@ -247,4 +247,17 @@
             </t>
         </div>
     </t>
+
+    <t t-name="logistics_web.EnterpriseHomeSystray">
+        <div class="o_tianshu_home_systray">
+            <button
+                type="button"
+                class="btn o_tianshu_home_systray_btn"
+                t-on-click="goHome"
+                title="返回企业首页">
+                <i class="fa fa-home"/>
+                <span>企业首页</span>
+            </button>
+        </div>
+    </t>
 </templates>

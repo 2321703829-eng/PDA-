@@ -6,7 +6,7 @@
                 <div class="o_logistics_web_page o_logistics_web_import_center_page">
                     <div class="o_logistics_web_page_header o_logistics_web_dashboard_header o_logistics_web_page_hero o_logistics_import_page_hero o_logistics_import_center_page_hero">
                         <div class="o_logistics_web_page_hero_main">
-                            <span class="o_logistics_web_page_kicker">PHASE 3 IMPORT</span>
+                            <span class="o_logistics_web_page_kicker">导入中心</span>
                             <h1><t t-esc="this.ui.title"/></h1>
                             <p><t t-esc="this.ui.subtitle"/></p>
                         </div>
@@ -42,7 +42,7 @@
                         <div class="o_logistics_web_feedback_strip o_logistics_web_feedback_strip_light o_logistics_import_entry_strip">
                             <p>
                                 <t t-esc="this.ui.entryCurrentLabel"/>：<strong><t t-esc="this.sourceConfig.entryTitle"/></strong>。
-                                <t t-esc="this.ui.entryRecommendLabel"/> <strong><t t-esc="this.sourceConfig.focusSheetLabel"/></strong> Sheet。
+                                <t t-esc="this.ui.entryRecommendLabel"/> <strong><t t-esc="this.sourceConfig.focusSheetLabel"/></strong> 工作表。
                             </p>
                             <div class="o_logistics_web_feedback_tags">
                                 <span class="o_logistics_web_status_tag" data-tone="info">
@@ -110,7 +110,7 @@
                                     <div class="o_logistics_web_summary_card">
                                         <span class="o_logistics_web_summary_card_label"><t t-esc="this.ui.importBatchNoLabel"/></span>
                                         <strong class="o_logistics_web_summary_card_value o_logistics_web_summary_card_value_small">
-                                            <t t-esc="state.precheckResult.import_batch_no"/>
+                                            <t t-esc="state.precheckResult.task_no || state.precheckResult.import_batch_no"/>
                                         </strong>
                                     </div>
                                     <div class="o_logistics_web_summary_card">
@@ -160,7 +160,7 @@
                                             <table class="table table-sm o_logistics_web_import_table">
                                                 <thead>
                                                     <tr>
-                                                        <th>Sheet</th>
+                                                        <th>工作表</th>
                                                         <th><t t-esc="this.ui.rowNumberLabel"/></th>
                                                         <th><t t-esc="this.ui.fieldLabel"/></th>
                                                         <th><t t-esc="this.ui.errorCodeLabel"/></th>
@@ -207,7 +207,7 @@
                                     <div class="o_logistics_web_summary_card">
                                         <span class="o_logistics_web_summary_card_label"><t t-esc="this.ui.importBatchNoLabel"/></span>
                                         <strong class="o_logistics_web_summary_card_value o_logistics_web_summary_card_value_small">
-                                            <t t-esc="state.importResult.import_batch_no"/>
+                                            <t t-esc="state.importResult.task_no || state.importResult.import_batch_no"/>
                                         </strong>
                                     </div>
                                     <div class="o_logistics_web_summary_card" t-att-data-tone="state.importResult.status === 'finished' ? 'success' : 'warning'">
@@ -256,7 +256,7 @@
                                     <button
                                         type="button"
                                         class="btn btn-secondary"
-                                        t-att-disabled="!currentImportBatchNo"
+                                        t-att-disabled="!currentTaskNo"
                                         t-on-click="openImportResultPage">
                                         <t t-esc="this.ui.openResultPage"/>
                                     </button>

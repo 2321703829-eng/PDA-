@@ -4,7 +4,7 @@
         <div class="o_logistics_web_page o_logistics_boss_page">
             <div class="o_logistics_web_page_header o_logistics_web_dashboard_header o_logistics_web_page_hero o_logistics_boss_page_hero">
                 <div class="o_logistics_web_page_hero_main">
-                    <span class="o_logistics_web_page_kicker">PHASE 3 BOARD</span>
+                    <span class="o_logistics_web_page_kicker">管理看板</span>
                     <h1><t t-esc="this.ui.title"/></h1>
                     <p><t t-esc="this.ui.subtitle"/></p>
                 </div>

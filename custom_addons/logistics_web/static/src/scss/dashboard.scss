@@ -61,6 +61,21 @@
     color: rgba(243, 250, 255, 0.88);
 }
 
+.o_logistics_dashboard_header_actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.o_logistics_dashboard_header_actions .btn {
+    min-height: 40px;
+    border-radius: 999px;
+    padding-inline: 18px;
+    box-shadow: 0 12px 22px rgba(6, 49, 79, 0.14);
+}
+
 .o_logistics_dashboard_section {
     margin-bottom: 0;
 }
@@ -205,6 +220,10 @@
     .o_logistics_dashboard_summary_band,
     .o_logistics_dashboard_targets {
         grid-template-columns: 1fr;
+    }
+
+    .o_logistics_dashboard_header_actions {
+        justify-content: flex-start;
     }
 
     .o_logistics_dashboard_summary_card,

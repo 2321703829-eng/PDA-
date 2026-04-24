@@ -104,6 +104,7 @@ class LogisticsWebImportController(http.Controller):
                     "data": {
                         "template_code": WaybillStandardImportService.TEMPLATE_CODE,
                         "template_version": WaybillStandardImportService.TEMPLATE_VERSION,
+                        "task_no": False,
                         "import_batch_no": False,
                         "precheck_token": False,
                         "error_report_url": False,
@@ -142,6 +143,7 @@ class LogisticsWebImportController(http.Controller):
                 request.env,
                 precheck_token=payload.get("precheck_token"),
                 import_batch_no=payload.get("import_batch_no", ""),
+                task_no=payload.get("task_no", ""),
             )
         except ValidationError as exc:
             return self._json_response(
@@ -163,13 +165,28 @@ class LogisticsWebImportController(http.Controller):
             }
         )
 
+    @http.route("/api/admin/logistics/imports/tasks/<string:task_no>", type="http", auth="user", methods=["GET"])
+    def get_import_task_result(self, task_no=None, **kwargs):
+        payload = self._merged_payload()
+        return self._get_import_task_result_response(
+            task_no=task_no or payload.get("task_no"),
+            import_batch_no=payload.get("import_batch_no"),
+        )
+
     @http.route("/api/admin/logistics/imports/waybill-standard/result", type="http", auth="user", methods=["GET"])
     def get_waybill_import_result(self, **kwargs):
         payload = self._merged_payload()
+        return self._get_import_task_result_response(
+            task_no=payload.get("task_no"),
+            import_batch_no=payload.get("import_batch_no"),
+        )
+
+    def _get_import_task_result_response(self, *, task_no=None, import_batch_no=None):
         try:
-            data = WaybillStandardImportService.get_import_result(
+            data = WaybillStandardImportService.get_import_task_result(
                 request.env,
-                import_batch_no=payload.get("import_batch_no"),
+                task_no=task_no or "",
+                import_batch_no=import_batch_no or "",
             )
         except ValidationError as exc:
             return self._json_response(
@@ -177,7 +194,7 @@ class LogisticsWebImportController(http.Controller):
                     "code": 1,
                     "message": "查询导入结果失败",
                     "data": {"errors": [{"error_code": "IMPORT_RESULT_NOT_FOUND", "error_message": str(exc)}]},
-                    "request_id": self._build_request_id("req_import_result"),
+                    "request_id": self._build_request_id("req_import_task_result"),
                 },
                 status=400,
             )
@@ -187,18 +204,94 @@ class LogisticsWebImportController(http.Controller):
                 "code": 0,
                 "message": "成功",
                 "data": data,
-                "request_id": self._build_request_id("req_import_result"),
+                "request_id": self._build_request_id("req_import_task_result"),
             }
+        )
+
+    @http.route("/api/admin/logistics/imports/tasks/<string:task_no>/lines", type="http", auth="user", methods=["GET"])
+    def get_import_task_lines(self, task_no=None, **kwargs):
+        payload = self._merged_payload()
+        try:
+            data = WaybillStandardImportService.get_import_task_lines(
+                request.env,
+                task_no=task_no or payload.get("task_no"),
+                page=payload.get("page", 1),
+                page_size=payload.get("page_size", 20),
+                status=payload.get("status", ""),
+            )
+        except ValidationError as exc:
+            return self._json_response(
+                {
+                    "code": 1,
+                    "message": "查询导入行结果失败",
+                    "data": {"errors": [{"error_code": "IMPORT_TASK_LINE_NOT_FOUND", "error_message": str(exc)}]},
+                    "request_id": self._build_request_id("req_import_task_lines"),
+                },
+                status=400,
+            )
+        return self._json_response(
+            {
+                "code": 0,
+                "message": "成功",
+                "data": data,
+                "request_id": self._build_request_id("req_import_task_lines"),
+            }
+        )
+
+    @http.route("/api/admin/logistics/imports/tasks/<string:task_no>/errors", type="http", auth="user", methods=["GET"])
+    def get_import_task_errors(self, task_no=None, **kwargs):
+        payload = self._merged_payload()
+        try:
+            data = WaybillStandardImportService.get_import_task_errors(
+                request.env,
+                task_no=task_no or payload.get("task_no"),
+                page=payload.get("page", 1),
+                page_size=payload.get("page_size", 50),
+            )
+        except ValidationError as exc:
+            return self._json_response(
+                {
+                    "code": 1,
+                    "message": "查询导入错误明细失败",
+                    "data": {"errors": [{"error_code": "IMPORT_TASK_ERROR_NOT_FOUND", "error_message": str(exc)}]},
+                    "request_id": self._build_request_id("req_import_task_errors"),
+                },
+                status=400,
+            )
+        return self._json_response(
+            {
+                "code": 0,
+                "message": "成功",
+                "data": data,
+                "request_id": self._build_request_id("req_import_task_errors"),
+            }
+        )
+
+    @http.route("/api/admin/logistics/imports/tasks/<string:task_no>/error-report", type="http", auth="user", methods=["GET"])
+    def download_import_task_error_report(self, task_no=None, **kwargs):
+        payload = self._merged_payload()
+        return self._download_import_error_report_response(
+            task_no=task_no or payload.get("task_no"),
+            import_batch_no=payload.get("import_batch_no", ""),
+            precheck_token=payload.get("precheck_token", ""),
         )
 
     @http.route("/api/admin/logistics/imports/waybill-standard/error-report", type="http", auth="user", methods=["GET"])
     def download_waybill_import_error_report(self, **kwargs):
         payload = self._merged_payload()
+        return self._download_import_error_report_response(
+            task_no=payload.get("task_no"),
+            import_batch_no=payload.get("import_batch_no", ""),
+            precheck_token=payload.get("precheck_token", ""),
+        )
+
+    def _download_import_error_report_response(self, *, task_no=None, import_batch_no="", precheck_token=""):
         try:
-            report = WaybillStandardImportService.build_error_report(
+            report = WaybillStandardImportService.build_import_task_error_report(
                 request.env,
-                import_batch_no=payload.get("import_batch_no", ""),
-                precheck_token=payload.get("precheck_token", ""),
+                task_no=task_no or "",
+                import_batch_no=import_batch_no,
+                precheck_token=precheck_token,
             )
         except ValidationError as exc:
             return self._json_response(
@@ -206,7 +299,7 @@ class LogisticsWebImportController(http.Controller):
                     "code": 1,
                     "message": "下载错误报告失败",
                     "data": {"errors": [{"error_code": "ERROR_REPORT_NOT_FOUND", "error_message": str(exc)}]},
-                    "request_id": self._build_request_id("req_import_error_report"),
+                    "request_id": self._build_request_id("req_import_task_error_report"),
                 },
                 status=400,
             )

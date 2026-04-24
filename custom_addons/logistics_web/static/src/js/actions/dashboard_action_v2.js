@@ -2,13 +2,22 @@
 
 import { Component, onWillStart, useState } from "@odoo/owl";
 import { registry } from "@web/core/registry";
+import { Layout } from "@web/search/layout";
 import { useService } from "@web/core/utils/hooks";
+import { standardActionServiceProps } from "@web/webclient/actions/action_service";
 
 export class LogisticsDashboardAction extends Component {
     static template = "logistics_web.DashboardAction";
+    static components = { Layout };
+    static props = { ...standardActionServiceProps };
 
     setup() {
         this.actionService = useService("action");
+        this.menuService = useService("menu");
+        this.display = {
+            controlPanel: false,
+            searchPanel: false,
+        };
         this.state = useState({
             loading: true,
             error: "",
@@ -49,6 +58,8 @@ export class LogisticsDashboardAction extends Component {
             openExceptionHint: "直接进入待处理异常，查看责任、证据和处理进度。",
             openBatchTitle: "批次跟进",
             openBatchHint: "当问题集中在同一执行批次时，从批次视角继续查看。",
+            backHome: "返回企业首页",
+            openStatsCenter: "查看统计图表",
             noPermission: "当前账号暂无查看物流工作台的权限。",
         };
     }
@@ -139,6 +150,23 @@ export class LogisticsDashboardAction extends Component {
         if (target === "batch") {
             return this.openBatchList([], "批次跟进");
         }
+    }
+
+    async goToEnterpriseHome() {
+        const menu = this.findMenuByLabels(["天枢科技企业系统", "首页"]);
+        if (menu) {
+            return this.menuService.selectMenu(menu);
+        }
+        return this.actionService.doAction("logistics_web.action_logistics_web_home");
+    }
+
+    async goToStatsCenter() {
+        return this.actionService.doAction("logistics_web.action_logistics_web_stats_center");
+    }
+
+    findMenuByLabels(labels) {
+        const normalized = new Set(labels);
+        return this.menuService.getAll().find((menu) => normalized.has(menu.name) && menu.actionID);
     }
 
     async openWaybillList(domain = [], name = "运单追踪") {

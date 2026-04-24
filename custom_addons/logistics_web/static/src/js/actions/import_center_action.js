@@ -8,18 +8,18 @@ import { standardActionServiceProps } from "@web/webclient/actions/action_servic
 const SOURCE_MODEL_CONFIG = {
     "logistics.dispatch.waybill": {
         entryTitle: "\u8fd0\u5355\u5bfc\u5165",
-        focusSheetLabel: "\u8fd0\u5355",
-        focusHint: "\u4f18\u5148\u586b\u5199\u8fd0\u5355 Sheet\uff0c\u518d\u7ee7\u7eed\u8865\u9f50\u5ba2\u6237\u660e\u7ec6\u548c\u8d27\u7269\u660e\u7ec6\u3002",
+        focusSheetLabel: "\u56db Sheet \u6b63\u5f0f\u6a21\u677f",
+        focusHint: "\u4f18\u5148\u6309 Waybill / CustomerLine / OrderLine / GoodsLine \u56db\u4e2a\u5de5\u4f5c\u8868\u586b\u5199\uff0c\u8ba9\u7cfb\u7edf\u7a33\u5b9a\u65b0\u5efa\u6ce2\u6b21\u3001\u6279\u6b21\u3001\u8fd0\u5355\u4e0e\u4e0b\u6e38\u660e\u7ec6\u3002",
     },
     "logistics.dispatch.waybill.customer.line": {
         entryTitle: "\u5ba2\u6237\u660e\u7ec6\u5bfc\u5165",
-        focusSheetLabel: "\u5ba2\u6237\u660e\u7ec6",
-        focusHint: "\u4f18\u5148\u786e\u8ba4\u5ba2\u6237\u660e\u7ec6 Sheet\uff0c\u5e76\u68c0\u67e5\u5b83\u5f15\u7528\u7684\u8fd0\u5355\u53f7\u5df2\u5b58\u5728\u4e8e\u8fd0\u5355 Sheet\u3002",
+        focusSheetLabel: "\u56db Sheet \u6b63\u5f0f\u6a21\u677f",
+        focusHint: "\u4f18\u5148\u786e\u8ba4 CustomerLine \u5de5\u4f5c\u8868\u5185\u7684\u95e8\u5e97\u8282\u70b9\u6807\u8bc6\u3001\u5ba2\u6237\u5feb\u7167\u548c\u914d\u9001\u753b\u50cf\u5b57\u6bb5\uff0c\u907f\u514d\u540c\u4e00\u8fd0\u5355\u4e0b\u51fa\u73b0\u51b2\u7a81\u8282\u70b9\u3002",
     },
     "logistics.dispatch.waybill.customer.goods.line": {
         entryTitle: "\u8d27\u7269\u660e\u7ec6\u5bfc\u5165",
-        focusSheetLabel: "\u8d27\u7269\u660e\u7ec6",
-        focusHint: "\u4f18\u5148\u68c0\u67e5\u8d27\u7269\u660e\u7ec6 Sheet\uff0c\u5e76\u786e\u8ba4\u5bf9\u5e94\u5ba2\u6237\u5173\u7cfb\u5df2\u5b58\u5728\u4e8e\u5ba2\u6237\u660e\u7ec6 Sheet\u3002",
+        focusSheetLabel: "\u56db Sheet \u6b63\u5f0f\u6a21\u677f",
+        focusHint: "\u4f18\u5148\u68c0\u67e5 GoodsLine \u5de5\u4f5c\u8868\u5185\u7684\u8d27\u7269\u540d\u79f0\u3001\u6570\u91cf\u3001\u91d1\u989d\u3001\u91cd\u91cf\u4f53\u79ef\u4e0e order_line_no \u5f52\u5c5e\u5173\u7cfb\uff0c\u907f\u514d\u5f71\u54cd\u6574\u6761\u4e3b\u94fe\u5bfc\u5165\u3002",
     },
 };
 
@@ -51,9 +51,9 @@ export class LogisticsImportCenterAction extends Component {
 
         onWillStart(async () => {
             await this.loadTemplateMeta();
-            const importBatchNo = this.props.action?.params?.import_batch_no;
-            if (importBatchNo) {
-                await this.loadImportResultByBatch(importBatchNo, { silent: true });
+            const taskNo = this.props.action?.params?.task_no || this.props.action?.params?.import_batch_no;
+            if (taskNo) {
+                await this.loadImportResultByTask(taskNo, { silent: true });
             }
         });
     }
@@ -61,16 +61,16 @@ export class LogisticsImportCenterAction extends Component {
     get ui() {
         return {
             title: "\u5bfc\u5165\u4e2d\u5fc3",
-            subtitle: "\u5148\u4e0b\u8f7d\u6807\u51c6\u6a21\u677f\uff0c\u518d\u4e0a\u4f20 V2 \u4e09 Sheet \u6587\u4ef6\u6267\u884c\u9884\u6821\u9a8c\uff0c\u786e\u8ba4\u901a\u8fc7\u540e\u518d\u6b63\u5f0f\u5bfc\u5165\uff0c\u907f\u514d\u628a\u4e0d\u5b8c\u6574\u6570\u636e\u76f4\u63a5\u5199\u5165\u4e1a\u52a1\u5e93\u3002",
-            badgePrimary: "TSL-IMPORT-WAYBILL-V2",
-            badgeSecondary: "\u6574\u5355\u5bfc\u5165\u95ed\u73af",
+            subtitle: "\u5148\u4e0b\u8f7d\u56db Sheet \u6807\u51c6\u6a21\u677f\uff0c\u518d\u4e0a\u4f20\u6587\u4ef6\u6267\u884c\u9884\u6821\u9a8c\uff0c\u786e\u8ba4\u901a\u8fc7\u540e\u518d\u6b63\u5f0f\u5bfc\u5165\uff0c\u8ba9\u7cfb\u7edf\u76f4\u63a5\u65b0\u5efa\u6ce2\u6b21\u3001\u6279\u6b21\u3001\u8fd0\u5355\u3001\u95e8\u5e97\u8282\u70b9\u3001\u8ba2\u5355\u884c\u548c\u8d27\u7269\u884c\u3002",
+            badgePrimary: "TSL-IMPORT-WAYBILL-V3",
+            badgeSecondary: "\u56db Sheet \u6b63\u5f0f\u6a21\u677f",
             heroNoteTitle: "\u5f53\u524d\u5de5\u4f5c\u65b9\u5411",
             heroNoteBody: "\u5148\u786e\u8ba4\u5165\u53e3\u548c\u6a21\u677f\uff0c\u518d\u5b8c\u6210\u9884\u6821\u9a8c\u3001\u6b63\u5f0f\u5bfc\u5165\u4e0e\u7ed3\u679c\u56de\u770b\uff0c\u907f\u514d\u628a\u6d41\u7a0b\u62c6\u6563\u5230\u591a\u4e2a\u9875\u9762\u91cc\u3002",
             loading: "\u6b63\u5728\u52a0\u8f7d\u5bfc\u5165\u4e2d\u5fc3...",
             sectionTemplateTitle: "\u6807\u51c6\u6a21\u677f\u4e0b\u8f7d",
-            sectionTemplateHint: "\u5f53\u524d\u7edf\u4e00\u4f7f\u7528\u4e00\u4efd V2 \u6807\u51c6\u6a21\u677f\uff0c\u5185\u90e8\u56fa\u5b9a\u5305\u542b\u8fd0\u5355\u3001\u5ba2\u6237\u660e\u7ec6\u3001\u8d27\u7269\u660e\u7ec6 3 \u4e2a Sheet\u3002",
+            sectionTemplateHint: "\u5f53\u524d\u9ed8\u8ba4\u4f7f\u7528 V3 \u56db Sheet \u6807\u51c6\u6a21\u677f\uff1b\u65e7\u5355\u8868\u4e0e\u65e7\u4e09\u5f20\u5de5\u4f5c\u8868\u53e3\u5f84\u4ec5\u4fdd\u7559\u517c\u5bb9\uff0c\u4e0d\u518d\u662f\u9ed8\u8ba4\u5165\u53e3\u3002",
             sectionUploadTitle: "\u4e0a\u4f20\u4e0e\u9884\u6821\u9a8c",
-            sectionUploadHint: "\u4e0a\u4f20\u6807\u51c6\u6a21\u677f\u6587\u4ef6\u540e\uff0c\u5148\u505a\u4e09 Sheet \u9884\u6821\u9a8c\uff0c\u518d\u51b3\u5b9a\u662f\u5426\u6b63\u5f0f\u5bfc\u5165\u3002",
+            sectionUploadHint: "\u4e0a\u4f20\u56db Sheet \u6807\u51c6\u6a21\u677f\u540e\uff0c\u5148\u505a\u53ef\u5efa\u6863\u9884\u6821\u9a8c\uff0c\u518d\u51b3\u5b9a\u662f\u5426\u6b63\u5f0f\u5bfc\u5165\u3002",
             sectionPrecheckTitle: "\u9884\u6821\u9a8c\u7ed3\u679c",
             sectionPrecheckHint: "\u5148\u770b\u901a\u8fc7\u6570\u91cf\u548c\u9519\u8bef\u660e\u7ec6\uff0c\u518d\u51b3\u5b9a\u662f\u5426\u6267\u884c\u6b63\u5f0f\u5bfc\u5165\u3002",
             sectionResultTitle: "\u5bfc\u5165\u7ed3\u679c",
@@ -96,7 +96,7 @@ export class LogisticsImportCenterAction extends Component {
             downloadTemplate: "\u4e0b\u8f7d\u6a21\u677f",
             currentFileLabel: "\u5f53\u524d\u6587\u4ef6",
             precheckingText: "\u9884\u6821\u9a8c\u4e2d...",
-            importBatchNoLabel: "\u5bfc\u5165\u6279\u6b21\u53f7",
+            importBatchNoLabel: "\u5bfc\u5165\u4efb\u52a1\u53f7",
             totalRowsLabel: "\u603b\u884c\u6570",
             failedRowsLabel: "\u5931\u8d25\u884c\u6570",
             canImportLabel: "\u53ef\u6b63\u5f0f\u5bfc\u5165",
@@ -132,15 +132,21 @@ export class LogisticsImportCenterAction extends Component {
     }
 
     get canConfirmImport() {
-        return Boolean(this.state.precheckResult?.can_confirm_import && this.state.precheckResult?.precheck_token);
+        return Boolean(this.state.precheckResult?.can_confirm_import && (this.state.precheckResult?.task_no || this.state.precheckResult?.import_batch_no));
     }
 
     get hasImportResult() {
         return Boolean(this.state.importResult);
     }
 
-    get currentImportBatchNo() {
-        return this.state.importResult?.import_batch_no || this.state.precheckResult?.import_batch_no || "";
+    get currentTaskNo() {
+        return (
+            this.state.importResult?.task_no ||
+            this.state.precheckResult?.task_no ||
+            this.state.importResult?.import_batch_no ||
+            this.state.precheckResult?.import_batch_no ||
+            ""
+        );
     }
 
     get availableTemplates() {
@@ -195,8 +201,8 @@ export class LogisticsImportCenterAction extends Component {
         try {
             const formData = new FormData();
             formData.append("file", this.state.selectedFile);
-            formData.append("template_code", this.state.templateMeta?.template_code || "TSL-IMPORT-WAYBILL-V2");
-            formData.append("template_version", this.state.templateMeta?.template_version || "v2");
+            formData.append("template_code", this.state.templateMeta?.template_code || "TSL-IMPORT-WAYBILL-V3");
+            formData.append("template_version", this.state.templateMeta?.template_version || "v3");
             const payload = await this.apiRequest("/api/admin/logistics/imports/waybill-standard/precheck", {
                 method: "POST",
                 body: formData,
@@ -225,12 +231,12 @@ export class LogisticsImportCenterAction extends Component {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    precheck_token: this.state.precheckResult.precheck_token,
+                    task_no: this.state.precheckResult.task_no || this.state.precheckResult.import_batch_no,
                     import_batch_no: this.state.precheckResult.import_batch_no,
                 }),
             });
             this.state.importResult = payload.data;
-            await this.openImportResultPage(payload.data?.import_batch_no);
+            await this.openImportResultPage(payload.data?.task_no || payload.data?.import_batch_no);
             this.notification.add("\u6b63\u5f0f\u5bfc\u5165\u5b8c\u6210\u3002", { type: "success" });
         } catch (error) {
             this.state.error = this.mapLoadError(error, this.ui.confirmFailed);
@@ -240,15 +246,19 @@ export class LogisticsImportCenterAction extends Component {
     }
 
     async refreshResult() {
-        const importBatchNo = this.currentImportBatchNo;
-        if (!importBatchNo) {
+        const taskNo = this.currentTaskNo;
+        if (!taskNo) {
             return;
         }
-        await this.loadImportResultByBatch(importBatchNo);
+        await this.loadImportResultByTask(taskNo);
     }
 
     downloadErrorReport() {
-        const url = this.state.importResult?.error_report_url || this.state.precheckResult?.error_report_url;
+        const url =
+            this.state.importResult?.error_report?.download_url ||
+            this.state.importResult?.error_report_url ||
+            this.state.precheckResult?.error_report?.download_url ||
+            this.state.precheckResult?.error_report_url;
         if (url) {
             window.open(url, "_blank", "noopener");
         }
@@ -258,8 +268,8 @@ export class LogisticsImportCenterAction extends Component {
         return this.actionService.doAction("logistics_dispatch.action_logistics_dispatch_waybill");
     }
 
-    async openImportResultPage(importBatchNo = this.currentImportBatchNo) {
-        if (!importBatchNo) {
+    async openImportResultPage(taskNo = this.currentTaskNo) {
+        if (!taskNo) {
             return;
         }
         return this.actionService.doAction({
@@ -267,21 +277,22 @@ export class LogisticsImportCenterAction extends Component {
             name: "\u5bfc\u5165\u7ed3\u679c",
             tag: "logistics_web.import_result",
             params: {
-                import_batch_no: importBatchNo,
+                task_no: taskNo,
+                import_batch_no: taskNo,
                 source_model: this.state.sourceModel,
             },
         });
     }
 
-    async loadImportResultByBatch(importBatchNo, { silent = false } = {}) {
-        if (!importBatchNo) {
+    async loadImportResultByTask(taskNo, { silent = false } = {}) {
+        if (!taskNo) {
             return;
         }
         this.state.refreshingResult = !silent;
         this.state.error = "";
         try {
             const payload = await this.apiRequest(
-                `/api/admin/logistics/imports/waybill-standard/result?import_batch_no=${encodeURIComponent(importBatchNo)}`
+                `/api/admin/logistics/imports/tasks/${encodeURIComponent(taskNo)}`
             );
             this.state.importResult = payload.data;
         } catch (error) {

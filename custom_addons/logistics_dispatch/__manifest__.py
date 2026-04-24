@@ -1,7 +1,8 @@
 {
     "name": "Logistics Dispatch",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.1.0",
     "summary": "Dispatch execution mainline for waves, batches, and waybills",
+    "author": "OpenAI",
     "license": "LGPL-3",
     "depends": [
         "logistics_base",

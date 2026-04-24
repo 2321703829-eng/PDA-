@@ -5,10 +5,12 @@ from dateutil.relativedelta import relativedelta
 
 from odoo import api, fields, models
 from odoo.exceptions import AccessError, ValidationError
+from odoo.addons.logistics_base.models.selection_options import DRIVER_DISPATCH_STATUS_SELECTION, SHIFT_TYPE_SELECTION
 
 
 DRIVER_MANAGEMENT_VIEW_GROUP = "logistics_web.group_logistics_driver_management_viewer"
 DRIVER_MANAGEMENT_ACCESS_ERROR = "当前账号暂无查看司机管理的权限。"
+BATCH_ACTIVE_STATES = ("draft", "ready", "loading", "in_transit")
 
 
 class HrEmployee(models.Model):
@@ -34,29 +36,24 @@ class LogisticsDispatchWaybill(models.Model):
         keyword = (params.get("keyword") or "").strip()
         status = (params.get("status") or "").strip()
         vehicle_id = int(params.get("vehicle_id") or 0)
-        has_own_vehicle = params.get("has_own_vehicle")
-        if isinstance(has_own_vehicle, str):
-            normalized = has_own_vehicle.strip().lower()
-            if normalized in ("true", "1", "yes"):
-                has_own_vehicle = True
-            elif normalized in ("false", "0", "no"):
-                has_own_vehicle = False
-            else:
-                has_own_vehicle = None
+        warehouse_id = int(params.get("warehouse_id") or 0)
 
-        drivers = self._search_driver_employees(keyword=keyword, status=status, has_own_vehicle=has_own_vehicle)
         snapshots = []
-        for driver in drivers:
+        for driver in self._search_driver_employees():
             snapshot = self._build_driver_snapshot(driver)
-            if vehicle_id and snapshot["current_vehicle_id"] != vehicle_id:
-                continue
-            snapshots.append(snapshot)
+            if self._match_driver_snapshot(
+                snapshot,
+                keyword=keyword,
+                status=status,
+                vehicle_id=vehicle_id,
+                warehouse_id=warehouse_id,
+            ):
+                snapshots.append(snapshot)
 
         snapshots = self._sort_driver_snapshots(snapshots, sort_by=sort_by, sort_order=sort_order)
         total = len(snapshots)
         start = (page - 1) * page_size
         end = start + page_size
-
         return {
             "items": snapshots[start:end],
             "total": total,
@@ -67,32 +64,39 @@ class LogisticsDispatchWaybill(models.Model):
     @api.model
     def getDriverFilterOptions(self):
         self._ensure_driver_management_access()
-        batch_model = self.env["logistics.dispatch.batch"].sudo()
-        vehicle_ids = batch_model.search([("vehicle_id", "!=", False)]).mapped("vehicle_id")
-        vehicle_options = [
-            {"value": str(vehicle.id), "label": self._get_vehicle_label(vehicle)}
-            for vehicle in vehicle_ids.sorted(lambda item: (item.license_plate or item.name or "", item.id))
-        ]
+        snapshots = [self._build_driver_snapshot(driver) for driver in self._search_driver_employees()]
+        vehicle_ids = [item["current_vehicle_id"] for item in snapshots if item.get("current_vehicle_id")]
+        warehouse_ids = [item["current_warehouse_id"] for item in snapshots if item.get("current_warehouse_id")]
+        vehicles = self.env["fleet.vehicle"].sudo().browse(list(set(vehicle_ids)))
+        warehouses = self.env["stock.warehouse"].sudo().browse(list(set(warehouse_ids)))
         return {
             "status_options": [
-                {"value": "active", "label": "在用"},
-                {"value": "inactive", "label": "停用"},
+                {"value": value, "label": label}
+                for value, label in DRIVER_DISPATCH_STATUS_SELECTION
             ],
-            "vehicle_options": vehicle_options,
-            "has_own_vehicle_options": [
-                {"value": "true", "label": "有自有车"},
-                {"value": "false", "label": "无自有车"},
+            "vehicle_options": [
+                {"value": str(vehicle.id), "label": self._get_vehicle_label(vehicle)}
+                for vehicle in vehicles.sorted(lambda item: (item.license_plate or item.name or "", item.id))
+            ],
+            "warehouse_options": [
+                {"value": str(warehouse.id), "label": warehouse.name or ""}
+                for warehouse in warehouses.sorted(lambda item: (item.name or "", item.id))
             ],
         }
 
     @api.model
     def get_driver_profile_overview_payload(self, driver_id):
         driver = self._get_driver_employee(driver_id)
+        profile = self._get_driver_profile(driver)
         all_waybills = self._get_driver_waybills(driver.id)
         recent_waybills = self._get_driver_waybills(driver.id, date_from=self._days_ago(30))
+        current_batch = self._get_current_batch_for_driver(driver.id)
         latest_batch = self._get_latest_batch(driver.id)
-        current_vehicle = latest_batch.vehicle_id if latest_batch else False
-        recent_vehicle = current_vehicle
+        current_vehicle = current_batch.vehicle_id if current_batch else False
+        current_warehouse = current_batch.warehouse_id if current_batch else False
+        current_status = self._get_driver_runtime_status(driver, current_batch)
+        shift_type = self._get_shift_type_from_batch(current_batch)
+        recent_vehicle = current_vehicle or (latest_batch.vehicle_id if latest_batch else False)
 
         top_regions = []
         top_stores = []
@@ -115,14 +119,22 @@ class LogisticsDispatchWaybill(models.Model):
 
         return {
             "driver_id": driver.id,
-            "driver_name": driver.name,
-            "mobile": self._mask_mobile(self._get_employee_mobile(driver)),
-            "status": driver.logistics_work_status or "inactive",
-            "status_label": self._get_employee_status_label(driver),
-            "has_own_vehicle": bool(driver.logistics_has_own_vehicle),
-            "remark": getattr(driver, "notes", False) or "",
+            "driver_name": profile.driver_name or driver.name,
+            "mobile": self._mask_mobile(profile.driver_phone or self._get_employee_mobile(driver)),
+            "status": current_status,
+            "status_label": self._get_dispatch_status_label(current_status),
+            "dispatch_enabled": bool(getattr(driver, "active", True)),
+            "allow_night_shift": bool(profile.allow_night_shift) if profile else False,
+            "shift_type": shift_type,
+            "shift_type_label": self._get_shift_type_label(shift_type),
+            "internal_driver_code": profile.internal_driver_code if profile else "",
+            "driver_license_level": profile.driver_license_level if profile else "",
+            "current_residence_region": profile.current_residence_region if profile else "",
+            "remark": getattr(driver, "notes", False) or getattr(driver, "note", False) or "",
             "latest_execution_at": self._get_driver_latest_execution_at(driver.id),
             "current_vehicle": self._serialize_vehicle(current_vehicle),
+            "current_warehouse": self._serialize_warehouse(current_warehouse),
+            "current_batch": self._serialize_batch(current_batch),
             "recent_vehicle": self._serialize_vehicle(recent_vehicle),
             "execution_summary": {
                 "batch_count": batch_count,
@@ -360,50 +372,64 @@ class LogisticsDispatchWaybill(models.Model):
         }
 
     @api.model
-    def _search_driver_employees(self, keyword=None, status=None, has_own_vehicle=None):
-        domain = [("logistics_role", "=", "driver")]
-        if status:
-            domain.append(("logistics_work_status", "=", status))
-        if has_own_vehicle in (True, False):
-            domain.append(("logistics_has_own_vehicle", "=", has_own_vehicle))
-        if keyword:
-            matched_driver_ids = self.env["logistics.dispatch.batch"].sudo().search(
-                [
-                    "|",
-                    "|",
-                    ("vehicle_id.license_plate", "ilike", keyword),
-                    ("vehicle_id.name", "ilike", keyword),
-                    ("vehicle_id.model_id.name", "ilike", keyword),
-                ]
-            ).mapped("driver_employee_id").ids
-            domain += [
-                "|",
-                "|",
-                "|",
-                ("name", "ilike", keyword),
-                ("mobile_phone", "ilike", keyword),
-                ("work_phone", "ilike", keyword),
-                ("id", "in", matched_driver_ids or [0]),
-            ]
-        return self.env["hr.employee"].sudo().search(domain)
+    def _search_driver_employees(self):
+        return self.env["hr.employee"].sudo().search([("logistics_role", "=", "driver")])
 
     @api.model
     def _build_driver_snapshot(self, driver):
+        profile = self._get_driver_profile(driver)
+        current_batch = self._get_current_batch_for_driver(driver.id)
         latest_batch = self._get_latest_batch(driver.id)
-        current_vehicle = latest_batch.vehicle_id if latest_batch else False
+        current_vehicle = current_batch.vehicle_id if current_batch else False
+        current_warehouse = current_batch.warehouse_id if current_batch else False
+        current_status = self._get_driver_runtime_status(driver, current_batch)
+        shift_type = self._get_shift_type_from_batch(current_batch)
         return {
             "driver_id": driver.id,
-            "driver_name": driver.name,
-            "mobile": self._mask_mobile(self._get_employee_mobile(driver)),
-            "status": driver.logistics_work_status or "inactive",
-            "status_label": self._get_employee_status_label(driver),
+            "driver_name": profile.driver_name or driver.name,
+            "internal_driver_code": profile.internal_driver_code if profile else "",
+            "mobile": self._mask_mobile(profile.driver_phone or self._get_employee_mobile(driver)),
+            "status": current_status,
+            "status_label": self._get_dispatch_status_label(current_status),
+            "dispatch_enabled": bool(getattr(driver, "active", True)),
+            "allow_night_shift": bool(profile.allow_night_shift) if profile else False,
+            "shift_type": shift_type,
+            "shift_type_label": self._get_shift_type_label(shift_type),
             "current_vehicle_id": current_vehicle.id if current_vehicle else False,
             "current_vehicle_label": self._get_vehicle_label(current_vehicle) if current_vehicle else "",
-            "has_own_vehicle": bool(driver.logistics_has_own_vehicle),
+            "current_warehouse_id": current_warehouse.id if current_warehouse else False,
+            "current_warehouse_label": current_warehouse.name if current_warehouse else "",
+            "current_batch_id": current_batch.id if current_batch else False,
+            "current_batch_no": current_batch.name if current_batch else "",
+            "recent_vehicle_label": self._get_vehicle_label(latest_batch.vehicle_id) if latest_batch and latest_batch.vehicle_id else "",
             "latest_execution_at": self._get_driver_latest_execution_at(driver.id),
             "waybill_count": len(self._get_driver_waybills(driver.id)),
             "month_avg_exception_rate": self._compute_average_month_exception_rate(driver.id),
         }
+
+    @api.model
+    def _match_driver_snapshot(self, snapshot, keyword=None, status=None, vehicle_id=0, warehouse_id=0):
+        if status and snapshot.get("status") != status:
+            return False
+        if vehicle_id and snapshot.get("current_vehicle_id") != vehicle_id:
+            return False
+        if warehouse_id and snapshot.get("current_warehouse_id") != warehouse_id:
+            return False
+        if keyword:
+            haystack = " ".join(
+                str(value or "")
+                for value in (
+                    snapshot.get("driver_name"),
+                    snapshot.get("internal_driver_code"),
+                    snapshot.get("mobile"),
+                    snapshot.get("current_vehicle_label"),
+                    snapshot.get("current_warehouse_label"),
+                    snapshot.get("current_batch_no"),
+                )
+            ).lower()
+            if keyword.lower() not in haystack:
+                return False
+        return True
 
     @api.model
     def _sort_driver_snapshots(self, items, sort_by="latest_execution_at", sort_order="desc"):
@@ -450,6 +476,14 @@ class LogisticsDispatchWaybill(models.Model):
         )
 
     @api.model
+    def _get_current_batch_for_driver(self, driver_id):
+        return self.env["logistics.dispatch.batch"].sudo().search(
+            [("driver_employee_id", "=", driver_id), ("state", "in", BATCH_ACTIVE_STATES)],
+            order="actual_depart_time desc, planned_depart_time desc, id desc",
+            limit=1,
+        )
+
+    @api.model
     def _get_driver_latest_execution_at(self, driver_id):
         latest_waybill = self._get_driver_waybills(driver_id, limit=1)
         if not latest_waybill:
@@ -460,6 +494,30 @@ class LogisticsDispatchWaybill(models.Model):
         if waybill.delivery_date:
             return f"{self._to_date_string(waybill.delivery_date)} 00:00:00"
         return False
+
+    @api.model
+    def _get_driver_profile(self, driver):
+        return self.env["logistics.driver.profile"].sudo().search([("employee_id", "=", driver.id)], limit=1)
+
+    @api.model
+    def _get_driver_runtime_status(self, driver, current_batch):
+        if not getattr(driver, "active", True):
+            return "disabled"
+        if current_batch:
+            return "assigned"
+        return "idle"
+
+    @api.model
+    def _get_shift_type_from_batch(self, batch):
+        if not batch:
+            return ""
+        depart_at = batch.actual_depart_time or batch.planned_depart_time
+        if not depart_at:
+            return ""
+        hour = depart_at.hour
+        if hour >= 18 or hour < 6:
+            return "night"
+        return "day"
 
     @api.model
     def _compute_average_month_exception_rate(self, driver_id):
@@ -557,6 +615,14 @@ class LogisticsDispatchWaybill(models.Model):
         )
 
     @api.model
+    def _get_dispatch_status_label(self, status):
+        return dict(DRIVER_DISPATCH_STATUS_SELECTION).get(status, status or "")
+
+    @api.model
+    def _get_shift_type_label(self, shift_type):
+        return dict(SHIFT_TYPE_SELECTION).get(shift_type, shift_type or "")
+
+    @api.model
     def _get_vehicle_label(self, vehicle):
         if not vehicle:
             return ""
@@ -572,6 +638,24 @@ class LogisticsDispatchWaybill(models.Model):
         return {
             "vehicle_id": vehicle.id,
             "vehicle_label": self._get_vehicle_label(vehicle),
+        }
+
+    @api.model
+    def _serialize_warehouse(self, warehouse):
+        if not warehouse:
+            return {"warehouse_id": False, "warehouse_label": ""}
+        return {
+            "warehouse_id": warehouse.id,
+            "warehouse_label": warehouse.name or "",
+        }
+
+    @api.model
+    def _serialize_batch(self, batch):
+        if not batch:
+            return {"batch_id": False, "batch_no": ""}
+        return {
+            "batch_id": batch.id,
+            "batch_no": batch.name or "",
         }
 
     @api.model

@@ -1,148 +1,160 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
     <t t-name="logistics_web.DashboardAction">
-        <div class="o_logistics_web_page">
-            <div class="o_logistics_web_page_header o_logistics_web_dashboard_header o_logistics_web_page_hero o_logistics_dashboard_page_hero">
-                <div class="o_logistics_web_page_hero_main">
-                    <span class="o_logistics_web_page_kicker">PHASE 3 WORKBENCH</span>
-                    <h1><t t-esc="this.ui.title"/></h1>
-                    <p><t t-esc="this.ui.subtitle"/></p>
-                </div>
-                <div class="o_logistics_web_page_hero_aside">
-                    <div class="o_logistics_web_dashboard_header_meta">
-                        <span class="o_logistics_web_status_tag"><t t-esc="this.ui.badgePrimary"/></span>
-                        <span class="o_logistics_web_status_tag"><t t-esc="this.ui.badgeSecondary"/></span>
+        <div class="o_action o_logistics_dashboard_action">
+            <Layout display="display">
+                <div class="o_logistics_web_page">
+                    <div class="o_logistics_web_page_header o_logistics_web_dashboard_header o_logistics_web_page_hero o_logistics_dashboard_page_hero">
+                        <div class="o_logistics_web_page_hero_main">
+                            <span class="o_logistics_web_page_kicker">物流工作台</span>
+                            <h1><t t-esc="this.ui.title"/></h1>
+                            <p><t t-esc="this.ui.subtitle"/></p>
+                        </div>
+                        <div class="o_logistics_web_page_hero_aside">
+                            <div class="o_logistics_web_dashboard_header_meta">
+                                <span class="o_logistics_web_status_tag"><t t-esc="this.ui.badgePrimary"/></span>
+                                <span class="o_logistics_web_status_tag"><t t-esc="this.ui.badgeSecondary"/></span>
+                            </div>
+                            <div class="o_logistics_web_page_note">
+                                <strong><t t-esc="this.ui.heroNoteTitle"/></strong>
+                                <span><t t-esc="this.ui.heroNoteBody"/></span>
+                            </div>
+                            <div class="o_logistics_dashboard_header_actions">
+                                <button type="button" class="btn btn-secondary" t-on-click="() => this.goToEnterpriseHome()">
+                                    <t t-esc="this.ui.backHome"/>
+                                </button>
+                                <button type="button" class="btn btn-primary" t-on-click="() => this.goToStatsCenter()">
+                                    <t t-esc="this.ui.openStatsCenter"/>
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="o_logistics_web_page_note">
-                        <strong><t t-esc="this.ui.heroNoteTitle"/></strong>
-                        <span><t t-esc="this.ui.heroNoteBody"/></span>
-                    </div>
-                </div>
-            </div>
 
-            <t t-if="state.loading">
-                <div class="o_logistics_web_placeholder_panel o_logistics_web_state_panel">
-                    <strong>正在加载物流工作台</strong>
-                    <p><t t-esc="this.ui.loading"/></p>
-                </div>
-            </t>
-            <t t-else="">
-                <t t-if="state.error">
-                    <div class="o_logistics_web_feedback_strip">
-                        <p><t t-esc="state.error"/></p>
-                    </div>
-                    <div class="o_logistics_web_state_panel">
-                        <strong><t t-esc="state.error"/></strong>
-                        <p>请先确认当前账号权限和接口状态，再刷新页面或稍后重试。</p>
-                    </div>
-                </t>
-
-                <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_dashboard_section o_logistics_dashboard_section_summary">
-                    <div class="o_logistics_web_section_heading">
-                        <h2><t t-esc="this.ui.sectionSummaryTitle"/></h2>
-                        <p><t t-esc="this.ui.sectionSummaryHint"/></p>
-                    </div>
-                    <div class="o_logistics_web_dashboard_cards o_logistics_dashboard_summary_band">
-                        <t t-foreach="state.summaryCards" t-as="card" t-key="card.key">
-                            <div
-                                class="o_logistics_web_summary_card o_logistics_web_clickable o_logistics_dashboard_summary_card"
-                                t-att-data-tone="card.tone or 'default'"
-                                t-on-click="() => this.onSummaryCardClick(card)">
-                                <span class="o_logistics_web_summary_card_label"><t t-esc="card.label"/></span>
-                                <strong class="o_logistics_web_summary_card_value"><t t-esc="card.value"/></strong>
-                                <span class="o_logistics_web_summary_card_meta"><t t-esc="card.caption"/></span>
+                    <t t-if="state.loading">
+                        <div class="o_logistics_web_placeholder_panel o_logistics_web_state_panel">
+                            <strong>正在加载物流工作台</strong>
+                            <p><t t-esc="this.ui.loading"/></p>
+                        </div>
+                    </t>
+                    <t t-else="">
+                        <t t-if="state.error">
+                            <div class="o_logistics_web_feedback_strip">
+                                <p><t t-esc="state.error"/></p>
+                            </div>
+                            <div class="o_logistics_web_state_panel">
+                                <strong><t t-esc="state.error"/></strong>
+                                <p>请先确认当前账号权限和接口状态，再刷新页面或稍后重试。</p>
                             </div>
                         </t>
-                    </div>
-                </section>
 
-                <div class="o_logistics_web_dashboard_grid o_logistics_dashboard_grid">
-                    <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_dashboard_section">
-                        <div class="o_logistics_web_section_heading">
-                            <h2><t t-esc="this.ui.sectionQueueTitle"/></h2>
-                            <p><t t-esc="this.ui.sectionQueueHint"/></p>
-                        </div>
-                        <div class="o_logistics_web_dashboard_stack">
-                            <t t-if="state.priorityItems.length">
-                                <t t-foreach="state.priorityItems" t-as="item" t-key="item.key">
-                                    <div class="o_logistics_web_dashboard_row_card o_logistics_web_clickable o_logistics_dashboard_row_card" t-on-click="() => this.onPriorityItemClick(item)">
-                                        <div class="o_logistics_web_dashboard_row_top">
-                                            <strong><t t-esc="item.code"/></strong>
-                                            <span class="o_logistics_web_status_tag" t-att-data-tone="item.status or 'default'">
-                                                <t t-esc="item.statusLabel or item.status"/>
-                                            </span>
-                                        </div>
-                                        <div class="o_logistics_web_dashboard_row_title">
-                                            <t t-esc="item.title"/>
-                                        </div>
-                                        <div class="o_logistics_web_dashboard_row_meta">
-                                            <span><t t-esc="this.ui.queueOwner"/>: <t t-esc="item.owner"/></span>
-                                        </div>
-                                        <div class="o_logistics_web_dashboard_row_hint">
-                                            <t t-esc="item.hint"/>
-                                        </div>
+                        <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_dashboard_section o_logistics_dashboard_section_summary">
+                            <div class="o_logistics_web_section_heading">
+                                <h2><t t-esc="this.ui.sectionSummaryTitle"/></h2>
+                                <p><t t-esc="this.ui.sectionSummaryHint"/></p>
+                            </div>
+                            <div class="o_logistics_web_dashboard_cards o_logistics_dashboard_summary_band">
+                                <t t-foreach="state.summaryCards" t-as="card" t-key="card.key">
+                                    <div
+                                        class="o_logistics_web_summary_card o_logistics_web_clickable o_logistics_dashboard_summary_card"
+                                        t-att-data-tone="card.tone or 'default'"
+                                        t-on-click="() => this.onSummaryCardClick(card)">
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="card.label"/></span>
+                                        <strong class="o_logistics_web_summary_card_value"><t t-esc="card.value"/></strong>
+                                        <span class="o_logistics_web_summary_card_meta"><t t-esc="card.caption"/></span>
                                     </div>
                                 </t>
-                            </t>
-                            <t t-else="">
-                                <div class="o_logistics_web_placeholder_panel o_logistics_web_state_panel">
-                                    <strong>当前没有优先处理对象</strong>
-                                    <p><t t-esc="this.ui.noPriority"/></p>
-                                </div>
-                            </t>
-                        </div>
-                    </section>
+                            </div>
+                        </section>
 
-                    <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_dashboard_section">
-                        <div class="o_logistics_web_section_heading">
-                            <h2><t t-esc="this.ui.sectionRecentTitle"/></h2>
-                            <p><t t-esc="this.ui.sectionRecentHint"/></p>
-                        </div>
-                        <div class="o_logistics_web_dashboard_stack">
-                            <t t-if="state.recentChanges.length">
-                                <t t-foreach="state.recentChanges" t-as="change" t-key="change.key">
-                                    <div class="o_logistics_web_dashboard_change_card o_logistics_dashboard_change_card">
-                                        <div class="o_logistics_web_dashboard_change_time">
-                                            <t t-esc="change.time"/>
-                                        </div>
-                                        <div class="o_logistics_web_dashboard_change_body">
-                                            <strong><t t-esc="change.title"/></strong>
-                                            <p><t t-esc="change.summary"/></p>
-                                        </div>
-                                    </div>
-                                </t>
-                            </t>
-                            <t t-else="">
-                                <div class="o_logistics_web_placeholder_panel o_logistics_web_state_panel">
-                                    <strong>今天还没有新的动态</strong>
-                                    <p><t t-esc="this.ui.noRecent"/></p>
+                        <div class="o_logistics_web_dashboard_grid o_logistics_dashboard_grid">
+                            <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_dashboard_section">
+                                <div class="o_logistics_web_section_heading">
+                                    <h2><t t-esc="this.ui.sectionQueueTitle"/></h2>
+                                    <p><t t-esc="this.ui.sectionQueueHint"/></p>
                                 </div>
-                            </t>
+                                <div class="o_logistics_web_dashboard_stack">
+                                    <t t-if="state.priorityItems.length">
+                                        <t t-foreach="state.priorityItems" t-as="item" t-key="item.key">
+                                            <div class="o_logistics_web_dashboard_row_card o_logistics_web_clickable o_logistics_dashboard_row_card" t-on-click="() => this.onPriorityItemClick(item)">
+                                                <div class="o_logistics_web_dashboard_row_top">
+                                                    <strong><t t-esc="item.code"/></strong>
+                                                    <span class="o_logistics_web_status_tag" t-att-data-tone="item.status or 'default'">
+                                                        <t t-esc="item.statusLabel or item.status"/>
+                                                    </span>
+                                                </div>
+                                                <div class="o_logistics_web_dashboard_row_title">
+                                                    <t t-esc="item.title"/>
+                                                </div>
+                                                <div class="o_logistics_web_dashboard_row_meta">
+                                                    <span><t t-esc="this.ui.queueOwner"/>: <t t-esc="item.owner"/></span>
+                                                </div>
+                                                <div class="o_logistics_web_dashboard_row_hint">
+                                                    <t t-esc="item.hint"/>
+                                                </div>
+                                            </div>
+                                        </t>
+                                    </t>
+                                    <t t-else="">
+                                        <div class="o_logistics_web_placeholder_panel o_logistics_web_state_panel">
+                                            <strong>当前没有优先处理对象</strong>
+                                            <p><t t-esc="this.ui.noPriority"/></p>
+                                        </div>
+                                    </t>
+                                </div>
+                            </section>
+
+                            <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_dashboard_section">
+                                <div class="o_logistics_web_section_heading">
+                                    <h2><t t-esc="this.ui.sectionRecentTitle"/></h2>
+                                    <p><t t-esc="this.ui.sectionRecentHint"/></p>
+                                </div>
+                                <div class="o_logistics_web_dashboard_stack">
+                                    <t t-if="state.recentChanges.length">
+                                        <t t-foreach="state.recentChanges" t-as="change" t-key="change.key">
+                                            <div class="o_logistics_web_dashboard_change_card o_logistics_dashboard_change_card">
+                                                <div class="o_logistics_web_dashboard_change_time">
+                                                    <t t-esc="change.time"/>
+                                                </div>
+                                                <div class="o_logistics_web_dashboard_change_body">
+                                                    <strong><t t-esc="change.title"/></strong>
+                                                    <p><t t-esc="change.summary"/></p>
+                                                </div>
+                                            </div>
+                                        </t>
+                                    </t>
+                                    <t t-else="">
+                                        <div class="o_logistics_web_placeholder_panel o_logistics_web_state_panel">
+                                            <strong>今天还没有新的动态</strong>
+                                            <p><t t-esc="this.ui.noRecent"/></p>
+                                        </div>
+                                    </t>
+                                </div>
+                            </section>
                         </div>
-                    </section>
+
+                        <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_dashboard_section o_logistics_dashboard_section_drilldown">
+                            <div class="o_logistics_web_section_heading">
+                                <h2><t t-esc="this.ui.sectionDrilldownTitle"/></h2>
+                                <p><t t-esc="this.ui.sectionDrilldownHint"/></p>
+                            </div>
+                            <div class="o_logistics_web_dashboard_targets o_logistics_dashboard_targets">
+                                <div class="o_logistics_web_placeholder_panel o_logistics_web_clickable o_logistics_dashboard_target_card" t-on-click="() => this.onDrilldownClick('waybill')">
+                                    <strong><t t-esc="this.ui.openWaybillTitle"/></strong>
+                                    <p><t t-esc="this.ui.openWaybillHint"/></p>
+                                </div>
+                                <div class="o_logistics_web_placeholder_panel o_logistics_web_clickable o_logistics_dashboard_target_card" t-on-click="() => this.onDrilldownClick('exception')">
+                                    <strong><t t-esc="this.ui.openExceptionTitle"/></strong>
+                                    <p><t t-esc="this.ui.openExceptionHint"/></p>
+                                </div>
+                                <div class="o_logistics_web_placeholder_panel o_logistics_web_clickable o_logistics_dashboard_target_card" t-on-click="() => this.onDrilldownClick('batch')">
+                                    <strong><t t-esc="this.ui.openBatchTitle"/></strong>
+                                    <p><t t-esc="this.ui.openBatchHint"/></p>
+                                </div>
+                            </div>
+                        </section>
+                    </t>
                 </div>
-
-                <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_dashboard_section o_logistics_dashboard_section_drilldown">
-                    <div class="o_logistics_web_section_heading">
-                        <h2><t t-esc="this.ui.sectionDrilldownTitle"/></h2>
-                        <p><t t-esc="this.ui.sectionDrilldownHint"/></p>
-                    </div>
-                    <div class="o_logistics_web_dashboard_targets o_logistics_dashboard_targets">
-                        <div class="o_logistics_web_placeholder_panel o_logistics_web_clickable o_logistics_dashboard_target_card" t-on-click="() => this.onDrilldownClick('waybill')">
-                            <strong><t t-esc="this.ui.openWaybillTitle"/></strong>
-                            <p><t t-esc="this.ui.openWaybillHint"/></p>
-                        </div>
-                        <div class="o_logistics_web_placeholder_panel o_logistics_web_clickable o_logistics_dashboard_target_card" t-on-click="() => this.onDrilldownClick('exception')">
-                            <strong><t t-esc="this.ui.openExceptionTitle"/></strong>
-                            <p><t t-esc="this.ui.openExceptionHint"/></p>
-                        </div>
-                        <div class="o_logistics_web_placeholder_panel o_logistics_web_clickable o_logistics_dashboard_target_card" t-on-click="() => this.onDrilldownClick('batch')">
-                            <strong><t t-esc="this.ui.openBatchTitle"/></strong>
-                            <p><t t-esc="this.ui.openBatchHint"/></p>
-                        </div>
-                    </div>
-                </section>
-            </t>
+            </Layout>
         </div>
     </t>
 </templates>

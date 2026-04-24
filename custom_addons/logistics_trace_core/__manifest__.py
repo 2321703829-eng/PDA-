@@ -2,6 +2,7 @@
     "name": "Logistics Trace Core",
     "version": "19.0.1.0.0",
     "summary": "Core trace event model for batches and waybills",
+    "author": "OpenAI",
     "license": "LGPL-3",
     "depends": [
         "mail",

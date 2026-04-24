@@ -9,9 +9,23 @@
 
     <record id="group_logistics_driver_management_manager" model="res.groups">
         <field name="name">司机管理管理</field>
-        <field name="comment">预留给司机管理后续编辑与调整动作，当前默认继承查看权限。</field>
+        <field name="comment">预留给司机管理后续编辑与调度调整动作，当前默认继承查看权限。</field>
         <field name="sequence">211</field>
         <field name="implied_ids" eval="[(4, ref('group_logistics_driver_management_viewer'))]"/>
+    </record>
+
+    <record id="group_logistics_vehicle_management_viewer" model="res.groups">
+        <field name="name">车辆管理查看</field>
+        <field name="comment">可查看车辆管理入口、列表、画像和下钻。</field>
+        <field name="sequence">212</field>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <record id="group_logistics_vehicle_management_manager" model="res.groups">
+        <field name="name">车辆管理管理</field>
+        <field name="comment">预留给车辆管理后续编辑与调度调整动作，当前默认继承查看权限。</field>
+        <field name="sequence">213</field>
+        <field name="implied_ids" eval="[(4, ref('group_logistics_vehicle_management_viewer'))]"/>
     </record>
 
     <record id="group_logistics_analysis_viewer" model="res.groups">

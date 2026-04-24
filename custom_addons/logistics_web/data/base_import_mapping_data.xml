@@ -147,6 +147,31 @@
         <field name="column_name">线路顺序</field>
         <field name="field_name">route_seq</field>
     </record>
+    <record id="base_import_mapping_waybill_group_no_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill</field>
+        <field name="column_name">运单分组号</field>
+        <field name="field_name">waybill_group_no</field>
+    </record>
+    <record id="base_import_mapping_waybill_org_snapshot_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill</field>
+        <field name="column_name">组织快照</field>
+        <field name="field_name">organization_name_snapshot</field>
+    </record>
+    <record id="base_import_mapping_waybill_warehouse_snapshot_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill</field>
+        <field name="column_name">仓库快照</field>
+        <field name="field_name">warehouse_name_snapshot</field>
+    </record>
+    <record id="base_import_mapping_waybill_route_snapshot_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill</field>
+        <field name="column_name">线路快照</field>
+        <field name="field_name">route_name_snapshot</field>
+    </record>
+    <record id="base_import_mapping_waybill_delivery_remark_snapshot_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill</field>
+        <field name="column_name">运单备注</field>
+        <field name="field_name">delivery_remark_snapshot</field>
+    </record>
     <record id="base_import_mapping_waybill_remark_cn" model="base_import.mapping">
         <field name="res_model">logistics.dispatch.waybill</field>
         <field name="column_name">备注</field>
@@ -183,6 +208,31 @@
         <field name="column_name">门店名称</field>
         <field name="field_name">store_name</field>
     </record>
+    <record id="base_import_mapping_customer_line_line_no_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill.customer.line</field>
+        <field name="column_name">门店节点编号</field>
+        <field name="field_name">customer_line_no</field>
+    </record>
+    <record id="base_import_mapping_customer_line_contact_name_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill.customer.line</field>
+        <field name="column_name">联系人</field>
+        <field name="field_name">contact_name_snapshot</field>
+    </record>
+    <record id="base_import_mapping_customer_line_contact_phone_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill.customer.line</field>
+        <field name="column_name">联系电话</field>
+        <field name="field_name">contact_phone_snapshot</field>
+    </record>
+    <record id="base_import_mapping_customer_line_address_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill.customer.line</field>
+        <field name="column_name">地址</field>
+        <field name="field_name">address_full_snapshot</field>
+    </record>
+    <record id="base_import_mapping_customer_line_stop_seq_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill.customer.line</field>
+        <field name="column_name">运单内顺序</field>
+        <field name="field_name">stop_seq_in_waybill</field>
+    </record>
     <record id="base_import_mapping_customer_line_delivery_note_cn" model="base_import.mapping">
         <field name="res_model">logistics.dispatch.waybill.customer.line</field>
         <field name="column_name">配送备注</field>
@@ -192,6 +242,16 @@
         <field name="res_model">logistics.dispatch.waybill.customer.line</field>
         <field name="column_name">签收要求</field>
         <field name="field_name">signoff_requirement</field>
+    </record>
+    <record id="base_import_mapping_customer_line_delivery_access_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill.customer.line</field>
+        <field name="column_name">配送可达性</field>
+        <field name="field_name">delivery_access_flags_snapshot</field>
+    </record>
+    <record id="base_import_mapping_customer_line_upstairs_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill.customer.line</field>
+        <field name="column_name">上楼层数</field>
+        <field name="field_name">upstairs_floor_count_snapshot</field>
     </record>
 
     <record id="base_import_mapping_goods_line_waybill_no_cn" model="base_import.mapping">
@@ -214,20 +274,40 @@
         <field name="column_name">货物编码</field>
         <field name="field_name">goods_code</field>
     </record>
+    <record id="base_import_mapping_goods_line_external_product_code_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill.customer.goods.line</field>
+        <field name="column_name">商品编码</field>
+        <field name="field_name">external_product_code_snapshot</field>
+    </record>
     <record id="base_import_mapping_goods_line_goods_name_cn" model="base_import.mapping">
         <field name="res_model">logistics.dispatch.waybill.customer.goods.line</field>
         <field name="column_name">货物名称</field>
         <field name="field_name">goods_name</field>
+    </record>
+    <record id="base_import_mapping_goods_line_product_name_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill.customer.goods.line</field>
+        <field name="column_name">商品名称</field>
+        <field name="field_name">product_name_snapshot</field>
     </record>
     <record id="base_import_mapping_goods_line_specification_cn" model="base_import.mapping">
         <field name="res_model">logistics.dispatch.waybill.customer.goods.line</field>
         <field name="column_name">规格</field>
         <field name="field_name">specification</field>
     </record>
+    <record id="base_import_mapping_goods_line_spec_snapshot_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill.customer.goods.line</field>
+        <field name="column_name">规格快照</field>
+        <field name="field_name">spec_snapshot</field>
+    </record>
     <record id="base_import_mapping_goods_line_quantity_cn" model="base_import.mapping">
         <field name="res_model">logistics.dispatch.waybill.customer.goods.line</field>
         <field name="column_name">数量</field>
         <field name="field_name">quantity</field>
+    </record>
+    <record id="base_import_mapping_goods_line_doc_qty_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill.customer.goods.line</field>
+        <field name="column_name">单据数量</field>
+        <field name="field_name">doc_qty</field>
     </record>
     <record id="base_import_mapping_goods_line_package_count_cn" model="base_import.mapping">
         <field name="res_model">logistics.dispatch.waybill.customer.goods.line</field>
@@ -248,6 +328,16 @@
         <field name="res_model">logistics.dispatch.waybill.customer.goods.line</field>
         <field name="column_name">体积</field>
         <field name="field_name">volume</field>
+    </record>
+    <record id="base_import_mapping_goods_line_amount_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill.customer.goods.line</field>
+        <field name="column_name">金额</field>
+        <field name="field_name">amount</field>
+    </record>
+    <record id="base_import_mapping_goods_line_unsettled_amount_cn" model="base_import.mapping">
+        <field name="res_model">logistics.dispatch.waybill.customer.goods.line</field>
+        <field name="column_name">未结算金额</field>
+        <field name="field_name">unsettled_amount</field>
     </record>
     <record id="base_import_mapping_goods_line_temperature_cn" model="base_import.mapping">
         <field name="res_model">logistics.dispatch.waybill.customer.goods.line</field>

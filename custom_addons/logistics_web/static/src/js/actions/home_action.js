@@ -14,6 +14,7 @@ export class LogisticsHomeAction extends Component {
     setup() {
         this.orm = useService("orm");
         this.actionService = useService("action");
+        this.menuService = useService("menu");
         this.display = {
             controlPanel: false,
             searchPanel: false,
@@ -38,14 +39,14 @@ export class LogisticsHomeAction extends Component {
 
     get ui() {
         return {
-            brandTitle: "天枢科技物流系统",
-            heroTitle: "先进入企业模块，再处理今天的物流工作",
-            heroSubtitle: "先确认物流、车队、员工、库存和统计入口，再往下看物流重点和数据摘要，减少在多个页面之间来回切换。",
-            badgePrimary: "Tianshu Logistics Console",
+            brandTitle: "天枢科技企业系统",
+            heroTitle: "先确认企业入口，再进入今天的工作模块",
+            heroSubtitle: "这里统一放置物流、车队、员工、库存和统计入口；先选模块，再继续处理今天的物流重点和数据摘要。",
+            badgePrimary: "Tianshu Enterprise Console",
             badgeSecondary: this.formatToday(new Date()),
-            loading: "正在加载天枢科技物流系统首页...",
+            loading: "正在加载天枢科技企业系统首页...",
             sectionModules: "系统模块",
-            sectionModulesHint: "先从企业模块结构理解系统，再进入对应模块继续工作。",
+            sectionModulesHint: "先从企业总入口选择模块，再进入对应模块继续工作。",
             sectionHeadline: "物流今日重点",
             sectionHeadlineHint: "把当天需要优先处理的对象先捞出来，避免异常和超时继续扩大。",
             sectionMetrics: "物流核心指标",
@@ -106,13 +107,14 @@ export class LogisticsHomeAction extends Component {
         const yesterdayStr = this.formatDate(yesterday);
 
         this.state.moduleCards = [
-            { key: "logistics", title: "物流", hint: "进入物流工作台、运单、批次和异常处理。", actionXmlid: "logistics_web.action_logistics_web_dashboard" },
-            { key: "fleet", title: "车队", hint: "查看车辆、车务记录和相关成本。", actionXmlid: "fleet.fleet_vehicle_action" },
-            { key: "employee", title: "员工", hint: "进入员工档案、岗位和组织信息。", actionXmlid: "hr.open_view_employee_list" },
-            { key: "inventory", title: "库存", hint: "查看库存作业、出入库单和履约流转。", actionXmlid: "stock.action_picking_tree_all" },
-            { key: "dashboard", title: "所有统计图表", hint: "进入统计图表中心，查看物流分析与排行分布。", actionXmlid: "logistics_web.action_logistics_web_stats_center" },
-            { key: "invoice", title: "发票", hint: "进入开票、发票列表和对账处理。", actionXmlid: "account.action_move_out_invoice_type" },
-            { key: "settings", title: "设置", hint: "进入系统设置和基础参数配置。", actionXmlid: "base_setup.action_general_configuration" },
+            { key: "customer", title: "客户", hint: "进入统一客户入口，查看客户资料、配送规则和交付要求。", actionXmlid: "logistics_base.action_logistics_partner_profile" },
+            { key: "logistics", title: "物流", hint: "进入物流工作台、运单、批次和异常处理。", menuLabels: ["物流"] },
+            { key: "fleet", title: "车队", hint: "进入车队应用，查看车辆、车务记录和相关成本。", menuLabels: ["车队", "Vehicles"] },
+            { key: "employee", title: "员工", hint: "进入员工应用，查看员工档案、岗位和组织信息。", menuLabels: ["员工", "Employees"] },
+            { key: "inventory", title: "库存", hint: "进入库存应用，查看库存作业、出入库单和履约流转。", menuLabels: ["库存", "Inventory"] },
+            { key: "dashboard", title: "所有统计图表", hint: "进入统计图表中心，查看物流分析与排行分布。", menuLabels: ["所有统计图表", "Statistics Center"] },
+            { key: "invoice", title: "发票", hint: "进入发票应用，查看开票、发票列表和对账处理。", menuLabels: ["发票", "Invoices"] },
+            { key: "settings", title: "设置", hint: "进入系统设置和基础参数配置。", menuLabels: ["设置", "Settings"] },
         ];
 
         try {
@@ -292,7 +294,7 @@ export class LogisticsHomeAction extends Component {
             this.state.quickLinks = [];
             this.state.guideCards = [];
             this.state.recentItems = [];
-            this.state.error = "天枢科技物流系统首页加载失败，请刷新页面或稍后再试。";
+            this.state.error = "天枢科技企业系统首页加载失败，请刷新页面或稍后再试。";
         } finally {
             this.state.loading = false;
         }
@@ -300,6 +302,12 @@ export class LogisticsHomeAction extends Component {
 
     async onModuleCardClick(item) {
         try {
+            if (item?.menuLabels?.length) {
+                const menu = this.findMenuByLabels(item.menuLabels);
+                if (menu) {
+                    return this.menuService.selectMenu(menu);
+                }
+            }
             if (item?.action) {
                 return this.actionService.doAction(item.action);
             }
@@ -309,6 +317,12 @@ export class LogisticsHomeAction extends Component {
         } catch {
             this.state.error = `${item?.title || "当前模块"}入口暂未启用，请刷新页面或稍后再试。`;
         }
+    }
+
+    findMenuByLabels(labels) {
+        const menus = this.menuService.getAll();
+        const normalized = new Set(labels);
+        return menus.find((menu) => normalized.has(menu.name) && menu.actionID);
     }
 
     async onHeadlineClick(card) {

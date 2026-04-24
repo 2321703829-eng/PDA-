@@ -56,6 +56,9 @@
     display: flex;
     align-items: center;
     gap: 10px;
+    position: relative;
+    z-index: 1200;
+    overflow: visible;
     padding-inline: 14px;
     background: linear-gradient(90deg, #123d70 0%, #1e5f98 52%, #2f76b8 100%);
     border-bottom: 1px solid rgba(255, 255, 255, 0.12);
@@ -205,6 +208,29 @@
 .o_web_client .dropdown-menu {
     border: 1px solid #d7e4ef;
     box-shadow: 0 16px 28px rgba(18, 61, 112, 0.14);
+}
+
+.o_web_client .o_main_navbar .o_menu_sections,
+.o_web_client .o_main_navbar .dropdown,
+.o_web_client .o_main_navbar .o-dropdown,
+.o_web_client .o_main_navbar .o_nav_entry {
+    position: relative;
+    overflow: visible;
+}
+
+.o_web_client .o_main_navbar .dropdown-menu,
+.o_web_client .o_main_navbar .o-dropdown--menu {
+    z-index: 1300 !important;
+    pointer-events: auto !important;
+}
+
+.o_web_client .o_main_navbar .dropdown-menu .dropdown-item,
+.o_web_client .o_main_navbar .o-dropdown--menu .dropdown-item,
+.o_web_client .o_main_navbar .dropdown-menu a,
+.o_web_client .o_main_navbar .o-dropdown--menu a {
+    position: relative;
+    z-index: 1;
+    pointer-events: auto !important;
 }
 
 .o_web_client .dropdown-menu .dropdown-item.active,

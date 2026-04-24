@@ -17,7 +17,7 @@
                             <span class="o_logistics_web_status_tag"><t t-esc="this.ui.badgeSecondary"/></span>
                             <div class="o_logistics_web_page_note o_logistics_web_home_hero_note">
                                 <strong>首页原则</strong>
-                                <span>先进入企业模块，再看物流重点，再决定进入哪个工作区继续处理。</span>
+                                <span>先从企业总入口确认模块，再进入对应工作区继续处理。</span>
                             </div>
                         </div>
                     </div>

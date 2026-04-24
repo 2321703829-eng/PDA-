@@ -5,5 +5,10 @@ access_logistics_dispatch_waybill_user,logistics.dispatch.waybill user,model_log
 access_logistics_dispatch_waybill_customer_line_user,logistics.dispatch.waybill.customer.line user,model_logistics_dispatch_waybill_customer_line,base.group_user,1,1,1,1
 access_logistics_dispatch_waybill_customer_goods_line_user,logistics.dispatch.waybill.customer.goods.line user,model_logistics_dispatch_waybill_customer_goods_line,base.group_user,1,1,1,1
 access_logistics_dispatch_waybill_order_line_user,logistics.dispatch.waybill.order.line user,model_logistics_dispatch_waybill_order_line,base.group_user,1,1,1,1
+access_logistics_import_source_file_user,logistics.import.source.file user,model_logistics_import_source_file,base.group_user,1,1,1,1
+access_logistics_import_task_user,logistics.import.task user,model_logistics_import_task,base.group_user,1,1,1,1
+access_logistics_import_task_line_user,logistics.import.task.line user,model_logistics_import_task_line,base.group_user,1,1,1,1
+access_logistics_import_error_line_user,logistics.import.error.line user,model_logistics_import_error_line,base.group_user,1,1,1,1
+access_logistics_master_data_change_log_user,logistics.master.data.change.log user,model_logistics_master_data_change_log,base.group_user,1,1,1,1
 access_logistics_import_batch_user,logistics.import.batch user,model_logistics_import_batch,base.group_user,1,1,1,1
 

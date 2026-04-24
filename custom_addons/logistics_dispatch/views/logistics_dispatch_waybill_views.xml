@@ -6,11 +6,13 @@
         <field name="arch" type="xml">
             <list string="运单">
                 <field name="name"/>
+                <field name="waybill_group_no"/>
                 <field name="state"/>
                 <field name="batch_id"/>
                 <field name="wave_id"/>
-                <field name="store_id"/>
+                <field name="partner_id"/>
                 <field name="driver_employee_id"/>
+                <field name="route_name_snapshot"/>
                 <field name="latest_trace_summary"/>
                 <field name="exception_status"/>
                 <field name="evidence_status"/>
@@ -45,7 +47,7 @@
                             type="object"
                             class="oe_stat_button"
                             icon="fa-building-o">
-                            <field name="customer_line_count" string="客户明细" widget="statinfo"/>
+                            <field name="customer_line_count" string="配送节点明细" widget="statinfo"/>
                         </button>
                         <button
                             name="action_open_goods_lines"
@@ -73,6 +75,7 @@
                     <group>
                         <group>
                             <field name="delivery_date"/>
+                            <field name="waybill_group_no"/>
                             <field name="state"/>
                             <field name="route_seq"/>
                         </group>
@@ -90,12 +93,16 @@
                             <field name="warehouse_id"/>
                             <field name="vehicle_id" readonly="1"/>
                             <field name="driver_employee_id" readonly="1"/>
+                            <field name="organization_name_snapshot"/>
+                            <field name="warehouse_name_snapshot"/>
+                            <field name="route_name_snapshot"/>
                         </group>
                         <group string="交付上下文">
-                            <field name="customer_id"/>
-                            <field name="store_id"/>
+                            <field name="partner_id"/>
+                            <field name="partner_no" readonly="1"/>
                             <field name="arrive_trace_status"/>
                             <field name="signoff_trace_status"/>
+                            <field name="delivery_remark_snapshot"/>
                         </group>
                     </group>
                     <group>
@@ -118,14 +125,16 @@
                         </group>
                     </group>
                     <notebook>
-                        <page string="客户明细">
+                        <page string="配送节点明细">
                             <field name="customer_line_ids">
                                 <list editable="bottom" open_form_view="1">
                                     <field name="sequence" widget="handle"/>
-                                    <field name="customer_no"/>
-                                    <field name="customer_id"/>
-                                    <field name="store_no"/>
-                                    <field name="store_id"/>
+                                    <field name="customer_line_no"/>
+                                    <field name="partner_no"/>
+                                    <field name="partner_id"/>
+                                    <field name="contact_name_snapshot"/>
+                                    <field name="contact_phone_snapshot"/>
+                                    <field name="stop_seq_in_waybill"/>
                                     <field name="delivery_note"/>
                                     <field name="signoff_requirement"/>
                                     <field name="goods_line_count" readonly="1"/>
@@ -141,7 +150,11 @@
                                 <list editable="bottom" open_form_view="1">
                                     <field name="sequence" widget="handle"/>
                                     <field name="customer_line_id"/>
+                                    <field name="order_line_id"/>
                                     <field name="customer_no" readonly="1"/>
+                                    <field name="customer_name" readonly="1"/>
+                                    <field name="external_product_code_snapshot"/>
+                                    <field name="product_name_snapshot"/>
                                     <field name="goods_code"/>
                                     <field name="goods_name"/>
                                     <field name="specification"/>
@@ -150,6 +163,8 @@
                                     <field name="uom_name"/>
                                     <field name="weight"/>
                                     <field name="volume"/>
+                                    <field name="amount"/>
+                                    <field name="unsettled_amount"/>
                                     <field name="temperature_zone"/>
                                     <field name="package_type"/>
                                     <field name="remark"/>
@@ -159,15 +174,21 @@
                         <page string="原始订单明细（兼容）">
                             <group string="使用说明">
                                 <div>
-                                    <span class="o_form_label">该区域保留原始订单行结构，主要用于兼容历史导入和问题核对。当前运单的主阅读路径请优先查看“客户明细”和“货物明细”。</span>
+                                    <span class="o_form_label">该区域保留原始订单行结构，主要用于兼容历史导入和问题核对。当前运单的主阅读路径请优先查看“配送节点明细”和“货物明细”。</span>
                                 </div>
                             </group>
                             <field name="order_line_ids">
                                 <list editable="bottom">
+                                    <field name="source_doc_no"/>
+                                    <field name="order_no"/>
+                                    <field name="sales_order_no"/>
                                     <field name="external_order_no"/>
+                                    <field name="doc_date"/>
                                     <field name="sale_order_id"/>
                                     <field name="stock_picking_id"/>
                                     <field name="store_id"/>
+                                    <field name="payment_status"/>
+                                    <field name="settlement_status"/>
                                     <field name="goods_summary"/>
                                     <field name="qty_summary"/>
                                     <field name="line_state"/>
@@ -191,7 +212,7 @@
                 <field name="name" string="运单号"/>
                 <field name="batch_id"/>
                 <field name="wave_id"/>
-                <field name="store_id"/>
+                <field name="partner_id"/>
                 <field name="driver_employee_id"/>
                 <field name="warehouse_id"/>
                 <separator/>
@@ -203,7 +224,7 @@
                 <group>
                     <filter string="按波次" name="group_wave" context="{'group_by': 'wave_id'}"/>
                     <filter string="按批次" name="group_batch" context="{'group_by': 'batch_id'}"/>
-                    <filter string="按门店" name="group_store" context="{'group_by': 'store_id'}"/>
+                    <filter string="按客户" name="group_partner" context="{'group_by': 'partner_id'}"/>
                     <filter string="按司机" name="group_driver" context="{'group_by': 'driver_employee_id'}"/>
                     <filter string="按状态" name="group_state" context="{'group_by': 'state'}"/>
                 </group>
@@ -222,12 +243,15 @@
         <field name="name">logistics.dispatch.waybill.customer.line.tree</field>
         <field name="model">logistics.dispatch.waybill.customer.line</field>
         <field name="arch" type="xml">
-            <list string="客户明细" default_order="waybill_id desc, sequence asc, id asc">
+            <list string="配送节点明细" default_order="waybill_id desc, sequence asc, id asc">
                 <field name="waybill_id"/>
-                <field name="customer_no"/>
-                <field name="customer_id"/>
-                <field name="store_no"/>
-                <field name="store_id"/>
+                <field name="customer_line_no"/>
+                <field name="partner_no"/>
+                <field name="partner_id"/>
+                <field name="customer_name_snapshot"/>
+                <field name="contact_name_snapshot"/>
+                <field name="contact_phone_snapshot"/>
+                <field name="stop_seq_in_waybill"/>
                 <field name="goods_line_count"/>
                 <field name="total_goods_qty"/>
                 <field name="total_package_count"/>
@@ -241,11 +265,11 @@
         <field name="name">logistics.dispatch.waybill.customer.line.form</field>
         <field name="model">logistics.dispatch.waybill.customer.line</field>
         <field name="arch" type="xml">
-            <form string="客户明细">
+            <form string="配送节点明细">
                 <sheet>
                     <div class="oe_title">
                         <h1>
-                            <field name="customer_name" placeholder="客户名称"/>
+                            <field name="customer_name_snapshot" placeholder="客户名称快照"/>
                         </h1>
                         <div class="text-muted">
                             <field name="waybill_id" readonly="1"/>
@@ -254,10 +278,18 @@
                     <group>
                         <group string="客户信息">
                             <field name="waybill_id"/>
-                            <field name="customer_no"/>
-                            <field name="customer_id"/>
-                            <field name="store_no"/>
-                            <field name="store_id"/>
+                            <field name="customer_line_no"/>
+                            <field name="partner_no"/>
+                            <field name="partner_id"/>
+                            <field name="internal_customer_code_snapshot"/>
+                            <field name="external_customer_code_snapshot"/>
+                            <field name="customer_name_snapshot"/>
+                            <field name="contact_name_snapshot"/>
+                            <field name="contact_phone_snapshot"/>
+                            <field name="address_full_snapshot"/>
+                            <field name="longitude_snapshot"/>
+                            <field name="latitude_snapshot"/>
+                            <field name="address_region_json_snapshot" widget="json"/>
                         </group>
                         <group string="汇总信息">
                             <field name="goods_line_count" readonly="1"/>
@@ -265,16 +297,25 @@
                             <field name="total_package_count" readonly="1"/>
                             <field name="total_weight" readonly="1"/>
                             <field name="total_volume" readonly="1"/>
+                            <field name="stop_seq_in_waybill"/>
+                            <field name="signoff_requirement_snapshot"/>
+                            <field name="delivery_access_flags_snapshot"/>
+                            <field name="upstairs_floor_count_snapshot"/>
+                            <field name="basement_height_limit_text_snapshot"/>
+                            <field name="customer_ref"/>
                         </group>
                     </group>
                     <group string="履约说明">
-                        <field name="delivery_note" placeholder="填写门店或客户的配送备注"/>
+                        <field name="delivery_note" placeholder="填写客户的配送备注"/>
                         <field name="signoff_requirement" placeholder="填写签收要求"/>
                     </group>
                     <group string="货物明细">
                         <field name="goods_line_ids">
                             <list editable="bottom" open_form_view="1">
                                 <field name="sequence" widget="handle"/>
+                                <field name="order_line_id"/>
+                                <field name="external_product_code_snapshot"/>
+                                <field name="product_name_snapshot"/>
                                 <field name="goods_code"/>
                                 <field name="goods_name"/>
                                 <field name="specification"/>
@@ -283,6 +324,7 @@
                                 <field name="uom_name"/>
                                 <field name="weight"/>
                                 <field name="volume"/>
+                                <field name="amount"/>
                                 <field name="temperature_zone"/>
                                 <field name="package_type"/>
                             </list>
@@ -297,23 +339,21 @@
         <field name="name">logistics.dispatch.waybill.customer.line.search</field>
         <field name="model">logistics.dispatch.waybill.customer.line</field>
         <field name="arch" type="xml">
-            <search string="客户明细">
+            <search string="配送节点明细">
                 <field name="waybill_id"/>
                 <field name="customer_no"/>
                 <field name="customer_name"/>
-                <field name="store_no"/>
-                <field name="store_name"/>
+                <field name="customer_name_snapshot"/>
                 <group>
                     <filter string="按运单" name="group_waybill" context="{'group_by': 'waybill_id'}"/>
-                    <filter string="按客户" name="group_customer" context="{'group_by': 'customer_id'}"/>
-                    <filter string="按门店" name="group_store" context="{'group_by': 'store_id'}"/>
+                    <filter string="按客户" name="group_partner" context="{'group_by': 'partner_id'}"/>
                 </group>
             </search>
         </field>
     </record>
 
     <record id="action_logistics_dispatch_waybill_customer_line" model="ir.actions.act_window">
-        <field name="name">客户明细</field>
+        <field name="name">配送节点明细</field>
         <field name="res_model">logistics.dispatch.waybill.customer.line</field>
         <field name="view_mode">list,form</field>
         <field name="search_view_id" ref="view_logistics_dispatch_waybill_customer_line_search"/>
@@ -326,7 +366,9 @@
             <list string="货物明细" default_order="waybill_id desc, sequence asc, id asc">
                 <field name="waybill_id"/>
                 <field name="customer_no"/>
-                <field name="customer_id"/>
+                <field name="customer_name"/>
+                <field name="external_product_code_snapshot"/>
+                <field name="product_name_snapshot"/>
                 <field name="goods_code"/>
                 <field name="goods_name"/>
                 <field name="specification"/>
@@ -335,6 +377,7 @@
                 <field name="uom_name"/>
                 <field name="weight"/>
                 <field name="volume"/>
+                <field name="amount"/>
                 <field name="temperature_zone"/>
             </list>
         </field>
@@ -357,11 +400,17 @@
                     <group>
                         <group string="关联信息">
                             <field name="customer_line_id"/>
+                            <field name="order_line_id"/>
                             <field name="waybill_id" readonly="1"/>
                             <field name="customer_id" readonly="1"/>
                             <field name="customer_no" readonly="1"/>
+                            <field name="customer_name" readonly="1"/>
                         </group>
                         <group string="货物信息">
+                            <field name="product_tmpl_id"/>
+                            <field name="product_unit_id"/>
+                            <field name="external_product_code_snapshot"/>
+                            <field name="product_name_snapshot"/>
                             <field name="goods_code"/>
                             <field name="specification"/>
                             <field name="uom_name"/>
@@ -374,6 +423,10 @@
                         <field name="package_count"/>
                         <field name="weight"/>
                         <field name="volume"/>
+                        <field name="amount"/>
+                        <field name="unsettled_amount"/>
+                        <field name="total_weight"/>
+                        <field name="total_volume"/>
                     </group>
                     <group string="备注">
                         <field name="remark" placeholder="填写货物备注"/>
@@ -390,6 +443,7 @@
             <search string="货物明细">
                 <field name="waybill_id"/>
                 <field name="customer_no"/>
+                <field name="customer_name"/>
                 <field name="goods_code"/>
                 <field name="goods_name"/>
                 <field name="temperature_zone"/>
@@ -429,7 +483,7 @@
         <field name="params" eval="{'source_model': 'logistics.dispatch.waybill'}"/>
     </record>
     <record id="action_logistics_dispatch_waybill_customer_line_import_center_direct" model="ir.actions.client">
-        <field name="name">客户明细导入</field>
+        <field name="name">配送节点明细导入</field>
         <field name="tag">logistics_web.import_center</field>
         <field name="target">current</field>
         <field name="params" eval="{'source_model': 'logistics.dispatch.waybill.customer.line'}"/>

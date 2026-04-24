@@ -1,32 +1,96 @@
-from odoo import fields, models
+from odoo import api, fields, models
+from odoo.exceptions import ValidationError
+
+from odoo.addons.logistics_dispatch.models.selection_options import (
+    AUDIT_STATUS_SELECTION,
+    DOC_STATUS_SELECTION,
+    LOGISTICS_STATUS_SELECTION,
+    PAYMENT_STATUS_SELECTION,
+    SETTLEMENT_STATUS_SELECTION,
+)
 
 
 class LogisticsDispatchWaybillOrderLine(models.Model):
     _name = "logistics.dispatch.waybill.order.line"
-    _description = "Waybill Order Line"
+    _description = "运单订单明细"
     _order = "id"
 
-    waybill_id = fields.Many2one(
-        "logistics.dispatch.waybill",
-        string="运单",
-        required=True,
+    _uniq_customer_line_source_doc_no = models.Constraint(
+        "unique(customer_line_id, source_doc_no)",
+        "同一配送节点下的来源单号必须唯一。",
+    )
+
+    waybill_id = fields.Many2one("logistics.dispatch.waybill", string="运单", required=True, ondelete="cascade", index=True)
+    customer_line_id = fields.Many2one(
+        "logistics.dispatch.waybill.customer.line",
+        string="配送节点",
         ondelete="cascade",
+        index=True,
     )
     sale_order_id = fields.Many2one("sale.order", string="销售订单", ondelete="set null")
     stock_picking_id = fields.Many2one("stock.picking", string="出库单", ondelete="set null")
-    external_order_no = fields.Char(string="外部单号", index=True)
-    store_id = fields.Many2one(
-        "res.partner",
-        string="门店",
-        domain="[('is_logistics_store', '=', True)]",
-    )
+    source_doc_no = fields.Char(string="来源单号", size=64, index=True)
+    order_no = fields.Char(string="订单号", size=64, index=True)
+    sales_order_no = fields.Char(string="销售单号", size=64, index=True)
+    source_ref_no = fields.Char(string="来源引用号", size=64, index=True)
+    third_party_doc_no = fields.Char(string="第三方单号", size=64, index=True)
+    external_order_no = fields.Char(string="外部单号", size=64, index=True)
+    doc_type = fields.Char(string="单据类型", size=32)
+    business_type = fields.Char(string="业务类型", size=32)
+    doc_source = fields.Char(string="单据来源", size=32)
+    doc_date = fields.Date(string="单据日期", index=True)
+    audited_at = fields.Date(string="审核日期")
+    department_name_snapshot = fields.Char(string="部门快照", size=64)
+    channel_name_snapshot = fields.Char(string="渠道快照", size=64)
+    salesperson_name_snapshot = fields.Char(string="业务员快照", size=64)
+    payment_status = fields.Selection(selection=PAYMENT_STATUS_SELECTION, string="支付状态", index=True)
+    audit_status = fields.Selection(selection=AUDIT_STATUS_SELECTION, string="审核状态", index=True)
+    settlement_status = fields.Selection(selection=SETTLEMENT_STATUS_SELECTION, string="结算状态", index=True)
+    doc_status = fields.Selection(selection=DOC_STATUS_SELECTION, string="单据状态", index=True)
+    logistics_status = fields.Selection(selection=LOGISTICS_STATUS_SELECTION, string="物流状态", index=True)
+    maker_name = fields.Char(string="制单人", size=64)
+    auditor_name = fields.Char(string="审核人", size=64)
+    made_at = fields.Datetime(string="制单时间")
+    order_remark = fields.Text(string="备注")
+    custom_field_1 = fields.Char(string="扩展字段1", size=128)
+
+    store_id = fields.Many2one("res.partner", string="客户", domain="[('is_logistics_partner', '=', True)]")
     goods_summary = fields.Char(string="货物摘要")
-    qty_summary = fields.Float(string="数量", digits="Product Unit of Measure")
-    weight_summary = fields.Float(string="重量")
-    volume_summary = fields.Float(string="体积")
+    qty_summary = fields.Float(string="数量", digits=(16, 4), default=0.0)
+    weight_summary = fields.Float(string="重量", digits=(16, 6), default=0.0)
+    volume_summary = fields.Float(string="体积", digits=(16, 6), default=0.0)
     line_state = fields.Selection(
         [("draft", "草稿"), ("ready", "待执行"), ("done", "已完成"), ("cancelled", "已取消")],
         string="明细状态",
         default="draft",
         required=True,
     )
+    goods_line_ids = fields.One2many("logistics.dispatch.waybill.customer.goods.line", "order_line_id", string="货物明细")
+
+    @api.constrains(
+        "source_doc_no",
+        "order_no",
+        "sales_order_no",
+        "source_ref_no",
+        "third_party_doc_no",
+        "external_order_no",
+    )
+    def _check_business_key_presence(self):
+        key_fields = (
+            "source_doc_no",
+            "order_no",
+            "sales_order_no",
+            "source_ref_no",
+            "third_party_doc_no",
+            "external_order_no",
+        )
+        for record in self:
+            if not any(record[field_name] for field_name in key_fields):
+                raise ValidationError("订单明细至少需要保留一个业务键字段。")
+
+    @api.onchange("customer_line_id")
+    def _onchange_customer_line_id(self):
+        for record in self:
+            if record.customer_line_id:
+                record.waybill_id = record.customer_line_id.waybill_id
+                record.store_id = record.customer_line_id.partner_id

@@ -7,24 +7,31 @@ class LogisticsDispatchBatch(models.Model):
     _description = "物流批次"
     _order = "planned_depart_time desc, id desc"
 
+    _uniq_batch_no = models.Constraint(
+        "unique(name)",
+        "批次号必须唯一。",
+    )
+
     name = fields.Char(string="批次号", required=True, copy=False, default="新建", index=True)
     batch_no = fields.Char(
         string="批次号（导入导出）",
         compute="_compute_batch_no",
         inverse="_inverse_batch_no",
     )
-    wave_id = fields.Many2one("logistics.dispatch.wave", string="波次", ondelete="set null")
+    wave_id = fields.Many2one("logistics.dispatch.wave", string="波次", ondelete="cascade", index=True)
     wave_no = fields.Char(
         string="波次号（导入导出）",
         compute="_compute_wave_no",
         inverse="_inverse_wave_no",
     )
     warehouse_id = fields.Many2one("stock.warehouse", string="仓库", required=True)
-    vehicle_id = fields.Many2one("fleet.vehicle", string="车辆")
+    vehicle_id = fields.Many2one("fleet.vehicle", string="本次执行车辆", ondelete="restrict", index=True)
     driver_employee_id = fields.Many2one(
         "hr.employee",
-        string="司机",
+        string="本次执行司机",
         domain="[('logistics_role', '=', 'driver')]",
+        ondelete="restrict",
+        index=True,
     )
     loading_position = fields.Char(string="装车口位")
     planned_depart_time = fields.Datetime(string="计划发车时间")
@@ -43,18 +50,14 @@ class LogisticsDispatchBatch(models.Model):
         required=True,
     )
     route_summary = fields.Char(string="路线摘要")
+    warehouse_name_snapshot = fields.Char(string="仓库快照", size=64)
+    route_name_snapshot = fields.Char(string="线路快照", size=64)
+    driver_name_snapshot = fields.Char(string="司机快照", size=64)
+    driver_phone_snapshot = fields.Char(string="司机电话快照", size=32)
     waybill_ids = fields.One2many("logistics.dispatch.waybill", "batch_id", string="运单")
     total_waybill_count = fields.Integer(string="运单数", compute="_compute_counts", store=True)
-    finished_waybill_count = fields.Integer(
-        string="已完成运单数",
-        compute="_compute_counts",
-        store=True,
-    )
-    exception_waybill_count = fields.Integer(
-        string="异常运单数",
-        compute="_compute_counts",
-        store=True,
-    )
+    finished_waybill_count = fields.Integer(string="已完成运单数", compute="_compute_counts", store=True)
+    exception_waybill_count = fields.Integer(string="异常运单数", compute="_compute_counts", store=True)
     remark = fields.Text(string="备注")
 
     @api.depends("name")
@@ -89,9 +92,9 @@ class LogisticsDispatchBatch(models.Model):
     def _compute_counts(self):
         for record in self:
             record.total_waybill_count = len(record.waybill_ids)
-            record.finished_waybill_count = len(record.waybill_ids.filtered(lambda w: w.state == "done"))
+            record.finished_waybill_count = len(record.waybill_ids.filtered(lambda waybill: waybill.state == "done"))
             record.exception_waybill_count = len(
-                record.waybill_ids.filtered(lambda w: w.exception_status in ("open", "processing"))
+                record.waybill_ids.filtered(lambda waybill: waybill.exception_status in ("open", "processing"))
             )
 
     @api.model_create_multi
@@ -116,4 +119,3 @@ class LogisticsDispatchBatch(models.Model):
             wave_no = (vals.pop("wave_no") or "").strip()
             vals["wave_id"] = self._resolve_wave_by_no(wave_no).id if wave_no else False
         return super().write(vals)
-
