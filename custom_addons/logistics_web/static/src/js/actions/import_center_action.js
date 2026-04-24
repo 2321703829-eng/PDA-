@@ -23,6 +23,33 @@ const SOURCE_MODEL_CONFIG = {
     },
 };
 
+const EXPORT_SHORTCUTS = [
+    {
+        key: "waybill",
+        title: "\u8fd0\u5355\u6807\u51c6\u5bfc\u51fa",
+        lead: "\u5148\u53bb\u8fd0\u5355\u5217\u8868\u52fe\u9009\u8fd0\u5355\uff0c\u518d\u53d1\u8d77\u5bfc\u51fa\u3002",
+        detail: "\u9002\u5408\u7ed3\u6784\u5316\u56de\u770b\u3001\u4fee\u8ba2\u540e\u518d\u5bfc\u5165\uff0c\u7ee7\u7eed\u6cbf\u7528\u73b0\u6709\u8fd0\u5355\u5217\u8868\u52fe\u9009\u94fe\u8def\u3002",
+        buttonLabel: "\u8fdb\u5165\u8fd0\u5355\u5217\u8868\u5bfc\u51fa",
+        actionXmlid: "logistics_dispatch.action_logistics_dispatch_waybill",
+    },
+    {
+        key: "customer_profile",
+        title: "\u5ba2\u6237\u753b\u50cf\u6807\u51c6\u5bfc\u51fa",
+        lead: "\u5148\u53bb\u5ba2\u6237\u753b\u50cf\u5217\u8868\u52fe\u9009\u9700\u8981\u6838\u5bf9\u7684\u5ba2\u6237\uff0c\u518d\u53d1\u8d77\u5bfc\u51fa\u3002",
+        detail: "\u9002\u5408\u5728\u5bfc\u5165\u5ba2\u6237\u660e\u7ec6\u524d\uff0c\u5148\u5bf9\u5ba2\u6237\u4e3b\u6863\u3001\u7b7e\u6536\u8981\u6c42\u548c\u914d\u9001\u753b\u50cf\u505a\u7ed3\u6784\u5316\u56de\u770b\u3002",
+        buttonLabel: "\u8fdb\u5165\u5ba2\u6237\u753b\u50cf\u5217\u8868\u5bfc\u51fa",
+        actionXmlid: "logistics_base.action_logistics_partner_profile",
+    },
+    {
+        key: "product_profile",
+        title: "\u8d27\u7269\u753b\u50cf\u6807\u51c6\u5bfc\u51fa",
+        lead: "\u5148\u53bb\u5546\u54c1\u89c4\u683c\u5217\u8868\u52fe\u9009\u9700\u8981\u6838\u5bf9\u7684\u89c4\u683c\uff0c\u518d\u53d1\u8d77\u5bfc\u51fa\u3002",
+        detail: "\u9002\u5408\u5728\u5bfc\u5165\u8d27\u7269\u660e\u7ec6\u524d\uff0c\u5148\u5bf9\u5546\u54c1\u4e3b\u6863\u3001SKU\u3001\u6761\u7801\u548c\u89c4\u683c\u5173\u7cfb\u505a\u7ed3\u6784\u5316\u56de\u770b\u3002",
+        buttonLabel: "\u8fdb\u5165\u5546\u54c1\u89c4\u683c\u5217\u8868\u5bfc\u51fa",
+        actionXmlid: "logistics_base.action_logistics_product_unit",
+    },
+];
+
 export class LogisticsImportCenterAction extends Component {
     static template = "logistics_web.ImportCenterAction";
     static components = { Layout };
@@ -32,6 +59,7 @@ export class LogisticsImportCenterAction extends Component {
         this.actionService = this.env.services.action;
         this.notification = this.env.services.notification;
         this.fileInputRef = useRef("fileInput");
+        this.routePlanningFileInputRef = useRef("routePlanningFileInput");
         this.display = {
             controlPanel: false,
             searchPanel: false,
@@ -40,17 +68,27 @@ export class LogisticsImportCenterAction extends Component {
             loading: true,
             error: "",
             templateMeta: null,
+            routePlanningTemplateMeta: null,
             selectedFile: null,
+            routePlanningSelectedFile: null,
             prechecking: false,
+            routePlanningPrechecking: false,
             confirming: false,
+            routePlanningConfirming: false,
             refreshingResult: false,
             precheckResult: null,
+            routePlanningPrecheckResult: null,
             importResult: null,
+            routePlanningImportResult: null,
             sourceModel: this.props.action?.params?.source_model || "logistics.dispatch.waybill",
+            driverExportDate: this.props.action?.params?.driver_export_delivery_date || "",
+            driverExportBatchNo: this.props.action?.params?.driver_export_batch_no || "",
+            driverExportHint: this.props.action?.params?.driver_export_hint || "",
+            driverExportDownloading: false,
         });
 
         onWillStart(async () => {
-            await this.loadTemplateMeta();
+            await Promise.all([this.loadTemplateMeta(), this.loadRoutePlanningTemplateMeta()]);
             const taskNo = this.props.action?.params?.task_no || this.props.action?.params?.import_batch_no;
             if (taskNo) {
                 await this.loadImportResultByTask(taskNo, { silent: true });
@@ -66,11 +104,42 @@ export class LogisticsImportCenterAction extends Component {
             badgeSecondary: "\u56db Sheet \u6b63\u5f0f\u6a21\u677f",
             heroNoteTitle: "\u5f53\u524d\u5de5\u4f5c\u65b9\u5411",
             heroNoteBody: "\u5148\u786e\u8ba4\u5165\u53e3\u548c\u6a21\u677f\uff0c\u518d\u5b8c\u6210\u9884\u6821\u9a8c\u3001\u6b63\u5f0f\u5bfc\u5165\u4e0e\u7ed3\u679c\u56de\u770b\uff0c\u907f\u514d\u628a\u6d41\u7a0b\u62c6\u6563\u5230\u591a\u4e2a\u9875\u9762\u91cc\u3002",
+            sectionRoutePlanningTemplateTitle: "\u6392\u7ebf\u6a21\u677f\u4e0b\u8f7d",
+            sectionRoutePlanningTemplateHint: "\u72ec\u7acb\u4e8e\u6b63\u5f0f\u56db Sheet \u4e3b\u94fe\u7684\u5355\u8868\u6392\u7ebf\u6a21\u677f\uff0c\u53ea\u56f4\u7ed5\u6279\u6b21\u3001\u8fd0\u5355\u3001\u505c\u9760\u70b9\u987a\u5e8f\u3001\u95e8\u5e97\u8054\u7cfb\u4fe1\u606f\u548c\u5730\u7406\u5750\u6807\u3002",
+            sectionRoutePlanningUploadTitle: "\u6392\u7ebf\u7528\u6570\u636e\u5bfc\u5165",
+            sectionRoutePlanningUploadHint: "\u4e0a\u4f20\u5355\u8868\u6392\u7ebf\u6587\u4ef6\u540e\uff0c\u5148\u505a\u6700\u5c0f\u6821\u9a8c\u548c\u4eba\u5de5\u590d\u67e5\u63d0\u9192\uff0c\u518d\u786e\u8ba4\u5199\u5165\u6392\u7ebf\u8349\u7a3f\u3002",
+            routePlanningChooseFile: "\u9009\u62e9\u6392\u7ebf\u6587\u4ef6",
+            routePlanningReplaceFile: "\u91cd\u65b0\u9009\u62e9\u6392\u7ebf\u6587\u4ef6",
+            routePlanningRunPrecheck: "\u5f00\u59cb\u6392\u7ebf\u9884\u6821\u9a8c",
+            routePlanningConfirmImport: "\u786e\u8ba4\u5199\u5165\u6392\u7ebf\u8349\u7a3f",
+            routePlanningPrecheckingText: "\u9884\u6821\u9a8c\u4e2d...",
+            routePlanningImportingText: "\u5199\u5165\u4e2d...",
+            routePlanningPrecheckEmptyHint: "\u5b8c\u6210\u6392\u7ebf\u6587\u4ef6\u4e0a\u4f20\u540e\uff0c\u9884\u6821\u9a8c\u7ed3\u679c\u4f1a\u663e\u793a\u5728\u8fd9\u91cc\u3002",
+            routePlanningResultEmptyHint: "\u786e\u8ba4\u5199\u5165\u540e\uff0c\u6392\u7ebf\u5bfc\u5165\u7ed3\u679c\u4f1a\u663e\u793a\u5728\u8fd9\u91cc\u3002",
+            routePlanningFailed: "\u6392\u7ebf\u9884\u6821\u9a8c\u5931\u8d25\uff0c\u8bf7\u7a0d\u540e\u518d\u8bd5\u3002",
+            routePlanningConfirmFailed: "\u6392\u7ebf\u5bfc\u5165\u5931\u8d25\uff0c\u8bf7\u5148\u5904\u7406\u9519\u8bef\u540e\u91cd\u8bd5\u3002",
+            routePlanningWarningsTitle: "\u4eba\u5de5\u590d\u67e5\u63d0\u9192",
+            routePlanningWarningsHint: "\u4e0d\u963b\u65ad\u5bfc\u5165\uff0c\u4f46\u5efa\u8bae\u5728\u518d\u6b21\u786e\u8ba4\u524d\u5148\u505a\u4eba\u5de5\u590d\u67e5\u3002",
+            warningCodeLabel: "\u63d0\u9192\u7f16\u7801",
+            warningMessageLabel: "\u63d0\u9192\u8bf4\u660e",
+            routePlanningStopCountLabel: "\u5199\u5165\u505c\u9760\u70b9",
+            routePlanningBatchCountLabel: "\u5199\u5165\u6392\u7ebf\u6279\u6b21",
+            routePlanningReviewLabel: "\u9700\u4eba\u5de5\u590d\u67e5",
             loading: "\u6b63\u5728\u52a0\u8f7d\u5bfc\u5165\u4e2d\u5fc3...",
             sectionTemplateTitle: "\u6807\u51c6\u6a21\u677f\u4e0b\u8f7d",
             sectionTemplateHint: "\u5f53\u524d\u9ed8\u8ba4\u4f7f\u7528 V3 \u56db Sheet \u6807\u51c6\u6a21\u677f\uff1b\u65e7\u5355\u8868\u4e0e\u65e7\u4e09\u5f20\u5de5\u4f5c\u8868\u53e3\u5f84\u4ec5\u4fdd\u7559\u517c\u5bb9\uff0c\u4e0d\u518d\u662f\u9ed8\u8ba4\u5165\u53e3\u3002",
             sectionUploadTitle: "\u4e0a\u4f20\u4e0e\u9884\u6821\u9a8c",
             sectionUploadHint: "\u4e0a\u4f20\u56db Sheet \u6807\u51c6\u6a21\u677f\u540e\uff0c\u5148\u505a\u53ef\u5efa\u6863\u9884\u6821\u9a8c\uff0c\u518d\u51b3\u5b9a\u662f\u5426\u6b63\u5f0f\u5bfc\u5165\u3002",
+            sectionDriverExportTitle: "\u53f8\u673a\u4fa7\u8def\u7ebf\u5bfc\u51fa",
+            sectionDriverExportHint: "\u6309\u914d\u9001\u65e5\u671f\u4e00\u6b21\u6027\u5bfc\u51fa\u5f53\u5929\u6240\u6709\u8def\u7ebf\uff0c\u751f\u6210\u5355\u8868 `\u53f8\u673a\u8def\u7ebf\u6e05\u5355`\uff0c\u4f9b\u8c03\u5ea6\u548c\u53f8\u673a\u4eba\u5de5\u590d\u6838\u540e\u4f7f\u7528\u3002",
+            driverExportDateLabel: "\u914d\u9001\u65e5\u671f",
+            driverExportDateHint: "\u8bf7\u9009\u62e9\u9700\u8981\u5bfc\u51fa\u7684\u5f53\u5929\u8def\u7ebf\u65e5\u671f\u3002",
+            driverExportButton: "\u5bfc\u51fa\u5f53\u5929\u8def\u7ebf",
+            driverExportDownloading: "\u5bfc\u51fa\u4e2d...",
+            driverExportFailed: "\u53f8\u673a\u8def\u7ebf\u5bfc\u51fa\u5931\u8d25\uff0c\u8bf7\u7a0d\u540e\u91cd\u8bd5\u3002",
+            driverExportDateRequired: "\u8bf7\u5148\u9009\u62e9\u914d\u9001\u65e5\u671f\uff0c\u518d\u5bfc\u51fa\u5f53\u5929\u8def\u7ebf\u3002",
+            driverExportSuccess: "\u53f8\u673a\u8def\u7ebf\u6e05\u5355\u5df2\u5f00\u59cb\u4e0b\u8f7d\u3002",
+            driverExportBatchContextLabel: "\u5f53\u524d\u6765\u81ea\u6279\u6b21",
             sectionPrecheckTitle: "\u9884\u6821\u9a8c\u7ed3\u679c",
             sectionPrecheckHint: "\u5148\u770b\u901a\u8fc7\u6570\u91cf\u548c\u9519\u8bef\u660e\u7ec6\uff0c\u518d\u51b3\u5b9a\u662f\u5426\u6267\u884c\u6b63\u5f0f\u5bfc\u5165\u3002",
             sectionResultTitle: "\u5bfc\u5165\u7ed3\u679c",
@@ -123,6 +192,10 @@ export class LogisticsImportCenterAction extends Component {
         return SOURCE_MODEL_CONFIG[this.state.sourceModel] || SOURCE_MODEL_CONFIG["logistics.dispatch.waybill"];
     }
 
+    get exportShortcuts() {
+        return EXPORT_SHORTCUTS;
+    }
+
     get hasSelectedFile() {
         return Boolean(this.state.selectedFile);
     }
@@ -153,12 +226,51 @@ export class LogisticsImportCenterAction extends Component {
         return this.state.templateMeta?.available_templates || [];
     }
 
+    get routePlanningTemplates() {
+        return this.state.routePlanningTemplateMeta?.available_templates || [];
+    }
+
     get visibleErrors() {
         return (this.state.precheckResult?.errors || []).slice(0, 20);
     }
 
+    get routePlanningVisibleErrors() {
+        return (this.state.routePlanningPrecheckResult?.errors || []).slice(0, 20);
+    }
+
+    get routePlanningVisibleWarnings() {
+        return (this.state.routePlanningPrecheckResult?.warnings || []).slice(0, 20);
+    }
+
     get fileLabel() {
         return this.state.selectedFile?.name || this.ui.noFile;
+    }
+
+    get routePlanningFileLabel() {
+        return this.state.routePlanningSelectedFile?.name || this.ui.noFile;
+    }
+
+    get hasRoutePlanningSelectedFile() {
+        return Boolean(this.state.routePlanningSelectedFile);
+    }
+
+    get hasRoutePlanningPrecheckResult() {
+        return Boolean(this.state.routePlanningPrecheckResult);
+    }
+
+    get canConfirmRoutePlanningImport() {
+        return Boolean(
+            this.state.routePlanningPrecheckResult?.can_confirm_import &&
+                (this.state.routePlanningPrecheckResult?.task_no || this.state.routePlanningPrecheckResult?.import_batch_no)
+        );
+    }
+
+    get hasRoutePlanningImportResult() {
+        return Boolean(this.state.routePlanningImportResult);
+    }
+
+    get hasDriverExportContext() {
+        return Boolean(this.state.driverExportBatchNo || this.state.driverExportHint);
     }
 
     async loadTemplateMeta() {
@@ -174,6 +286,16 @@ export class LogisticsImportCenterAction extends Component {
         }
     }
 
+    async loadRoutePlanningTemplateMeta() {
+        this.state.error = "";
+        try {
+            const payload = await this.apiRequest("/api/admin/logistics/imports/route-planning/template");
+            this.state.routePlanningTemplateMeta = payload.data;
+        } catch (error) {
+            this.state.error = this.mapLoadError(error, this.ui.loadFailed);
+        }
+    }
+
     triggerFileSelect() {
         if (this.fileInputRef.el) {
             this.fileInputRef.el.value = "";
@@ -186,6 +308,26 @@ export class LogisticsImportCenterAction extends Component {
         this.state.selectedFile = file || null;
         this.state.precheckResult = null;
         this.state.importResult = null;
+        this.state.error = "";
+    }
+
+    triggerRoutePlanningFileSelect() {
+        if (this.routePlanningFileInputRef.el) {
+            this.routePlanningFileInputRef.el.value = "";
+        }
+        this.routePlanningFileInputRef.el?.click();
+    }
+
+    onRoutePlanningFileChanged(ev) {
+        const file = ev.target.files?.[0];
+        this.state.routePlanningSelectedFile = file || null;
+        this.state.routePlanningPrecheckResult = null;
+        this.state.routePlanningImportResult = null;
+        this.state.error = "";
+    }
+
+    onDriverExportDateChanged(ev) {
+        this.state.driverExportDate = ev.target.value || "";
         this.state.error = "";
     }
 
@@ -220,6 +362,47 @@ export class LogisticsImportCenterAction extends Component {
         }
     }
 
+    async runRoutePlanningPrecheck() {
+        if (!this.state.routePlanningSelectedFile) {
+            this.state.error = this.ui.noFile;
+            return;
+        }
+        this.state.routePlanningPrechecking = true;
+        this.state.error = "";
+        this.state.routePlanningPrecheckResult = null;
+        this.state.routePlanningImportResult = null;
+        try {
+            const formData = new FormData();
+            formData.append("file", this.state.routePlanningSelectedFile);
+            formData.append(
+                "template_code",
+                this.state.routePlanningTemplateMeta?.template_code || "TSL-IMPORT-ROUTE-PLANNING-V1"
+            );
+            formData.append("template_version", this.state.routePlanningTemplateMeta?.template_version || "v1");
+            const payload = await this.apiRequest("/api/admin/logistics/imports/route-planning/precheck", {
+                method: "POST",
+                body: formData,
+            });
+            this.state.routePlanningPrecheckResult = payload.data;
+            if (payload.data?.can_confirm_import) {
+                this.notification.add(
+                    payload.data?.has_review_warning
+                        ? "\u6392\u7ebf\u9884\u6821\u9a8c\u901a\u8fc7\uff0c\u4f46\u5b58\u5728\u9700\u4eba\u5de5\u590d\u67e5\u7684\u63d0\u9192\u3002"
+                        : "\u6392\u7ebf\u9884\u6821\u9a8c\u901a\u8fc7\uff0c\u53ef\u4ee5\u7ee7\u7eed\u5199\u5165\u6392\u7ebf\u8349\u7a3f\u3002",
+                    { type: payload.data?.has_review_warning ? "warning" : "success" }
+                );
+            } else {
+                this.notification.add("\u6392\u7ebf\u9884\u6821\u9a8c\u5df2\u5b8c\u6210\uff0c\u8bf7\u5148\u5904\u7406\u9519\u8bef\u518d\u7ee7\u7eed\u3002", {
+                    type: "warning",
+                });
+            }
+        } catch (error) {
+            this.state.error = this.mapLoadError(error, this.ui.routePlanningFailed);
+        } finally {
+            this.state.routePlanningPrechecking = false;
+        }
+    }
+
     async confirmImport() {
         if (!this.canConfirmImport) {
             return;
@@ -245,6 +428,32 @@ export class LogisticsImportCenterAction extends Component {
         }
     }
 
+    async confirmRoutePlanningImport() {
+        if (!this.canConfirmRoutePlanningImport) {
+            return;
+        }
+        this.state.routePlanningConfirming = true;
+        this.state.error = "";
+        try {
+            const payload = await this.apiRequest("/api/admin/logistics/imports/route-planning/confirm", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    task_no:
+                        this.state.routePlanningPrecheckResult.task_no ||
+                        this.state.routePlanningPrecheckResult.import_batch_no,
+                    import_batch_no: this.state.routePlanningPrecheckResult.import_batch_no,
+                }),
+            });
+            this.state.routePlanningImportResult = payload.data;
+            this.notification.add("\u6392\u7ebf\u8349\u7a3f\u5199\u5165\u5b8c\u6210\u3002", { type: "success" });
+        } catch (error) {
+            this.state.error = this.mapLoadError(error, this.ui.routePlanningConfirmFailed);
+        } finally {
+            this.state.routePlanningConfirming = false;
+        }
+    }
+
     async refreshResult() {
         const taskNo = this.currentTaskNo;
         if (!taskNo) {
@@ -253,12 +462,41 @@ export class LogisticsImportCenterAction extends Component {
         await this.loadImportResultByTask(taskNo);
     }
 
+    async downloadDriverRouteExcel() {
+        if (!this.state.driverExportDate) {
+            this.state.error = this.ui.driverExportDateRequired;
+            return;
+        }
+        this.state.driverExportDownloading = true;
+        this.state.error = "";
+        try {
+            const { blob, fileName } = await this.binaryRequest("/api/admin/logistics/exports/driver-route-excel/direct-download", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    delivery_date: this.state.driverExportDate,
+                    file_locale: "zh_CN",
+                }),
+            });
+            this.triggerBrowserDownload(blob, fileName || `driver_route_${this.state.driverExportDate}.xlsx`);
+            this.notification.add(this.ui.driverExportSuccess, { type: "success" });
+        } catch (error) {
+            this.state.error = this.mapLoadError(error, this.ui.driverExportFailed);
+        } finally {
+            this.state.driverExportDownloading = false;
+        }
+    }
+
     downloadErrorReport() {
         const url =
             this.state.importResult?.error_report?.download_url ||
             this.state.importResult?.error_report_url ||
             this.state.precheckResult?.error_report?.download_url ||
-            this.state.precheckResult?.error_report_url;
+            this.state.precheckResult?.error_report_url ||
+            this.state.routePlanningImportResult?.error_report?.download_url ||
+            this.state.routePlanningImportResult?.error_report_url ||
+            this.state.routePlanningPrecheckResult?.error_report?.download_url ||
+            this.state.routePlanningPrecheckResult?.error_report_url;
         if (url) {
             window.open(url, "_blank", "noopener");
         }
@@ -266,6 +504,13 @@ export class LogisticsImportCenterAction extends Component {
 
     async openWaybillList() {
         return this.actionService.doAction("logistics_dispatch.action_logistics_dispatch_waybill");
+    }
+
+    async openExportEntry(actionXmlid) {
+        if (!actionXmlid) {
+            return;
+        }
+        return this.actionService.doAction(actionXmlid);
     }
 
     async openImportResultPage(taskNo = this.currentTaskNo) {
@@ -328,6 +573,47 @@ export class LogisticsImportCenterAction extends Component {
             throw new Error(errorMessage);
         }
         return payload;
+    }
+
+    async binaryRequest(url, options = {}) {
+        const response = await fetch(url, {
+            method: options.method || "GET",
+            headers: options.headers || {},
+            body: options.body,
+        });
+        const contentType = response.headers.get("content-type") || "";
+        if (!response.ok || contentType.includes("application/json")) {
+            const payload = await response.json().catch(() => null);
+            throw new Error(payload?.data?.errors?.[0]?.error_message || payload?.message || "Binary request failed.");
+        }
+        const blob = await response.blob();
+        return {
+            blob,
+            fileName: this.extractFileName(response.headers.get("content-disposition")),
+        };
+    }
+
+    extractFileName(contentDisposition) {
+        if (!contentDisposition) {
+            return "";
+        }
+        const utf8Match = contentDisposition.match(/filename\*=UTF-8''([^;]+)/i);
+        if (utf8Match?.[1]) {
+            return decodeURIComponent(utf8Match[1]);
+        }
+        const basicMatch = contentDisposition.match(/filename=\"?([^\";]+)\"?/i);
+        return basicMatch?.[1] || "";
+    }
+
+    triggerBrowserDownload(blob, fileName) {
+        const objectUrl = window.URL.createObjectURL(blob);
+        const anchor = document.createElement("a");
+        anchor.href = objectUrl;
+        anchor.download = fileName;
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+        window.URL.revokeObjectURL(objectUrl);
     }
 }
 

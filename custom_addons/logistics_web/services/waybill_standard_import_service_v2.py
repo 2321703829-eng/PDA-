@@ -176,7 +176,7 @@ class WaybillStandardImportService:
             "driver_phone",
             "delivery_remark",
         ],
-        "required_fields": {"warehouse_code", "delivery_date", "wave_no", "batch_no", "waybill_no"},
+        "required_fields": {"warehouse_code", "batch_no", "waybill_no"},
     }
     CUSTOMER_LINE_SHEET = {
         "key": "customer_line_rows",
@@ -338,7 +338,7 @@ class WaybillStandardImportService:
             "temperature_zone",
             "package_type",
         ],
-        "required_fields": {"warehouse_code", "delivery_date", "batch_no", "waybill_no", "goods_name", "qty"},
+        "required_fields": {"warehouse_code", "batch_no", "waybill_no", "goods_name", "qty"},
     }
     SHEETS = [WAYBILL_SHEET, CUSTOMER_LINE_SHEET, ORDER_LINE_SHEET, GOODS_LINE_SHEET]
     LEGACY_SHEETS = [
@@ -1052,20 +1052,21 @@ class WaybillStandardImportService:
                 warehouse = warehouse_map.get(row.get("warehouse_code"))
                 created_flags = []
 
-                wave = False
-                if row.get("wave_no"):
-                    wave = wave_record_map.get(row["wave_no"])
-                    if not wave:
-                        wave = wave_model.create(
-                            {
-                                "wave_no": row["wave_no"],
-                                "dispatch_date": row.get("delivery_date") or False,
-                                "warehouse_id": warehouse.id,
-                            }
-                        )
-                        wave_record_map[row["wave_no"]] = wave
-                        created_wave_count += 1
-                        created_flags.append("新建波次")
+                effective_delivery_date = cls._resolve_effective_delivery_date(row, task=task)
+                effective_wave_no = cls._resolve_effective_wave_no(row, task=task)
+
+                wave = wave_record_map.get(effective_wave_no)
+                if not wave:
+                    wave = wave_model.create(
+                        {
+                            "wave_no": effective_wave_no,
+                            "dispatch_date": effective_delivery_date or False,
+                            "warehouse_id": warehouse.id,
+                        }
+                    )
+                    wave_record_map[effective_wave_no] = wave
+                    created_wave_count += 1
+                    created_flags.append("新建波次")
 
                 batch = batch_record_map.get(row["batch_no"])
                 if not batch:
@@ -1087,7 +1088,7 @@ class WaybillStandardImportService:
                     waybill = waybill_model.create(
                         {
                             "waybill_no": row["waybill_no"],
-                            "delivery_date": row.get("delivery_date") or False,
+                            "delivery_date": effective_delivery_date or False,
                             "remark": row.get("remark") or False,
                             "batch_id": batch.id,
                             "warehouse_id": warehouse.id,
@@ -1945,7 +1946,7 @@ class WaybillStandardImportService:
         missing_fields = []
         required_fields = set(sheet_meta.get("required_fields", set()))
         for field_code in sheet_meta["fields"]:
-            aliases = cls.FIELD_ALIASES.get(field_code, [field_code, cls.FIELD_LABELS.get(field_code, field_code)])
+            aliases = cls._get_header_aliases(field_code)
             matched_index = None
             for alias in aliases:
                 alias_index = normalized_headers.get(cls._normalize_header(alias))
@@ -1969,6 +1970,18 @@ class WaybillStandardImportService:
                 )
             ]
         return header_map, []
+
+    @classmethod
+    def _get_header_aliases(cls, field_code):
+        aliases = []
+        seen = set()
+        for candidate in [field_code, cls.FIELD_LABELS.get(field_code, field_code), *cls.FIELD_ALIASES.get(field_code, [])]:
+            normalized = cls._normalize_header(candidate)
+            if not normalized or normalized in seen:
+                continue
+            aliases.append(candidate)
+            seen.add(normalized)
+        return aliases
 
     @classmethod
     def _validate_rows(cls, env, source_data):
@@ -2100,6 +2113,27 @@ class WaybillStandardImportService:
                 )
             )
         return errors
+
+    @classmethod
+    def _resolve_effective_delivery_date(cls, row, *, task=None):
+        explicit_date = (row.get("delivery_date") or "").strip()
+        if explicit_date:
+            return explicit_date
+        import_created_at = getattr(task, "create_date", False)
+        if import_created_at:
+            return fields.Date.to_string(fields.Datetime.context_timestamp(task, import_created_at).date())
+        fallback_date = fields.Date.context_today(task or cls)
+        return fields.Date.to_string(fallback_date) if fallback_date else ""
+
+    @classmethod
+    def _resolve_effective_wave_no(cls, row, *, task=None):
+        explicit_wave_no = (row.get("wave_no") or "").strip()
+        if explicit_wave_no:
+            return explicit_wave_no
+        effective_date = cls._resolve_effective_delivery_date(row, task=task)
+        if effective_date:
+            return f"AUTO-WV-{effective_date.replace('-', '')}-001"
+        return "AUTO-WV-UNKNOWN-001"
 
     @classmethod
     def _validate_main_row(cls, row, *, warehouses_by_code, existing_waybills, batches_by_no, waves_by_no):
@@ -2823,18 +2857,20 @@ class WaybillStandardImportService:
                 warehouse = warehouse_map.get(row.get("warehouse_code"))
                 if not warehouse:
                     raise ValidationError("仓库编码不存在。")
-                wave = wave_record_map.get(row.get("wave_no"))
+                effective_delivery_date = cls._resolve_effective_delivery_date(row, task=task)
+                effective_wave_no = cls._resolve_effective_wave_no(row, task=task)
+                wave = wave_record_map.get(effective_wave_no)
                 created_flags = []
                 if not wave:
                     wave = wave_model.create(
                         {
-                            "wave_no": row.get("wave_no"),
-                            "dispatch_date": row.get("delivery_date") or False,
+                            "wave_no": effective_wave_no,
+                            "dispatch_date": effective_delivery_date or False,
                             "warehouse_id": warehouse.id,
                             "organization_name_snapshot": row.get("organization_name") or False,
                         }
                     )
-                    wave_record_map[row.get("wave_no")] = wave
+                    wave_record_map[effective_wave_no] = wave
                     created_wave_count += 1
                     created_flags.append("新建波次")
                 batch = batch_record_map.get(row.get("batch_no"))
@@ -2868,7 +2904,12 @@ class WaybillStandardImportService:
                 if row.get("waybill_no") in existing_waybill_map:
                     raise ValidationError("运单号已存在，当前模式仅允许新建主链导入。")
                 waybill = waybill_model.create(
-                    cls._build_formal_waybill_create_vals(row, warehouse=warehouse, batch=batch)
+                    cls._build_formal_waybill_create_vals(
+                        row,
+                        warehouse=warehouse,
+                        batch=batch,
+                        effective_delivery_date=effective_delivery_date,
+                    )
                 )
                 existing_waybill_map[row.get("waybill_no")] = waybill
                 created_waybill_map[row.get("waybill_no")] = waybill
@@ -3033,10 +3074,10 @@ class WaybillStandardImportService:
         }
 
     @classmethod
-    def _build_formal_waybill_create_vals(cls, row, *, warehouse, batch):
+    def _build_formal_waybill_create_vals(cls, row, *, warehouse, batch, effective_delivery_date=None):
         return {
             "waybill_no": row.get("waybill_no"),
-            "delivery_date": row.get("delivery_date") or False,
+            "delivery_date": effective_delivery_date or row.get("delivery_date") or False,
             "batch_id": batch.id,
             "warehouse_id": warehouse.id,
             "organization_name_snapshot": row.get("organization_name") or False,

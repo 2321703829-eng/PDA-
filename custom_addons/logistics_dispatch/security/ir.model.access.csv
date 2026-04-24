@@ -9,6 +9,15 @@ access_logistics_import_source_file_user,logistics.import.source.file user,model
 access_logistics_import_task_user,logistics.import.task user,model_logistics_import_task,base.group_user,1,1,1,1
 access_logistics_import_task_line_user,logistics.import.task.line user,model_logistics_import_task_line,base.group_user,1,1,1,1
 access_logistics_import_error_line_user,logistics.import.error.line user,model_logistics_import_error_line,base.group_user,1,1,1,1
+access_logistics_route_planning_batch_user,logistics.route.planning.batch user,model_logistics_route_planning_batch,base.group_user,1,1,1,1
+access_logistics_route_planning_stop_line_user,logistics.route.planning.stop.line user,model_logistics_route_planning_stop_line,base.group_user,1,1,1,1
 access_logistics_master_data_change_log_user,logistics.master.data.change.log user,model_logistics_master_data_change_log,base.group_user,1,1,1,1
 access_logistics_import_batch_user,logistics.import.batch user,model_logistics_import_batch,base.group_user,1,1,1,1
-
+access_logistics_export_source_scope_user,logistics.export.source.scope user,model_logistics_export_source_scope,base.group_user,1,0,1,0
+access_logistics_export_source_scope_manager,logistics.export.source.scope manager,model_logistics_export_source_scope,group_logistics_export_manager,1,1,1,0
+access_logistics_export_task_user,logistics.export.task user,model_logistics_export_task,base.group_user,1,0,1,0
+access_logistics_export_task_manager,logistics.export.task manager,model_logistics_export_task,group_logistics_export_manager,1,1,1,0
+access_logistics_export_task_line_user,logistics.export.task.line user,model_logistics_export_task_line,base.group_user,1,0,0,0
+access_logistics_export_task_line_manager,logistics.export.task.line manager,model_logistics_export_task_line,group_logistics_export_manager,1,0,0,0
+access_logistics_export_error_line_user,logistics.export.error.line user,model_logistics_export_error_line,base.group_user,1,0,0,0
+access_logistics_export_error_line_manager,logistics.export.error.line manager,model_logistics_export_error_line,group_logistics_export_manager,1,0,0,0

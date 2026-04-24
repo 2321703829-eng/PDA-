@@ -11,6 +11,7 @@
         "sale",
     ],
     "data": [
+        "security/logistics_dispatch_security.xml",
         "security/ir.model.access.csv",
         "data/sequence_data.xml",
         "views/logistics_dispatch_wave_views.xml",
@@ -21,4 +22,3 @@
     "installable": True,
     "application": True,
 }
-

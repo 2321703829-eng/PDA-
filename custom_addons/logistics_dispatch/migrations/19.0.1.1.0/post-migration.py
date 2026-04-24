@@ -55,3 +55,39 @@ def migrate(cr, version):
         "import_error_line",
         "(task_id, source_row_no)",
     )
+    _create_index_if_missing(
+        cr,
+        "idx_export_task_scope_type_status",
+        "export_task",
+        "(source_scope_id, object_type, status)",
+    )
+    _create_index_if_missing(
+        cr,
+        "idx_export_task_entry_status",
+        "export_task",
+        "(entry_type, status, expires_at)",
+    )
+    _create_index_if_missing(
+        cr,
+        "idx_export_task_object_entry_status",
+        "export_task",
+        "(object_type, entry_type, status, expires_at)",
+    )
+    _create_index_if_missing(
+        cr,
+        "idx_export_task_line_task_status",
+        "export_task_line",
+        "(task_id, status, target_res_id)",
+    )
+    _create_index_if_missing(
+        cr,
+        "idx_export_task_line_target_object",
+        "export_task_line",
+        "(task_id, target_object_type, target_res_id)",
+    )
+    _create_index_if_missing(
+        cr,
+        "idx_export_error_task_stage",
+        "export_error_line",
+        "(task_id, error_stage, id)",
+    )

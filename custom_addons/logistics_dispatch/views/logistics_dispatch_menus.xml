@@ -6,7 +6,6 @@
         id="menu_logistics_dispatch"
         name="物流工作区"
         parent="menu_logistics_dispatch_root"
-        action="logistics_web.action_logistics_web_dashboard"
         sequence="10"/>
 
     <menuitem
@@ -89,10 +88,6 @@
         sequence="30"/>
 
     <record id="menu_logistics_dispatch_import_waybill" model="ir.ui.menu">
-        <field name="active" eval="False"/>
-    </record>
-
-    <record id="menu_logistics_dispatch_enterprise_home" model="ir.ui.menu">
         <field name="active" eval="False"/>
     </record>
 

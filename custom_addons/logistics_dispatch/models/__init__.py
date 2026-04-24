@@ -7,4 +7,6 @@ from . import logistics_dispatch_waybill_customer_goods_line_v2
 from . import logistics_dispatch_waybill_order_line
 from . import logistics_dispatch_import_support
 from . import logistics_import_log
+from . import logistics_export_log
 from . import logistics_import_batch
+from . import logistics_route_planning_draft

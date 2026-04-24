@@ -8,6 +8,14 @@
             <xpath expr="//form" position="attributes">
                 <attribute name="js_class">logistics_waybill_form</attribute>
             </xpath>
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button
+                    name="action_open_export_result"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-download"
+                    string="导出结果"/>
+            </xpath>
             <xpath expr="//notebook" position="inside">
                 <page string="留痕与证据">
                     <div class="o_logistics_waybill_enhanced_detail o_logistics_waybill_enhanced_detail_primary">

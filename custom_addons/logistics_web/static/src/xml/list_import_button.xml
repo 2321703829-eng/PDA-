@@ -10,6 +10,13 @@
                 t-on-click="onClickLogisticsImport">
                 导入
             </button>
+            <button
+                t-if="!editedRecord and showLogisticsExportButton"
+                type="button"
+                class="btn btn-secondary ms-2 o_logistics_export_button"
+                t-on-click="onClickLogisticsExport">
+                导出
+            </button>
         </xpath>
     </t>
 

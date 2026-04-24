@@ -9,7 +9,17 @@ class IrUiMenu(models.Model):
         return bool(self.env["res.lang"].sudo().search_count([("code", "=", lang_code)]))
 
     @api.model
-    def _sync_menu(self, xmlid, *, label=None, parent_xmlid=None, sequence=None, active=None, action_xmlid=None):
+    def _sync_menu(
+        self,
+        xmlid,
+        *,
+        label=None,
+        parent_xmlid=None,
+        sequence=None,
+        active=None,
+        action_xmlid=None,
+        group_xmlids=None,
+    ):
         menu = self.env.ref(xmlid, raise_if_not_found=False)
         if not menu:
             return None
@@ -35,6 +45,16 @@ class IrUiMenu(models.Model):
                     vals["action"] = f"{action._name},{action.id}"
             else:
                 vals["action"] = False
+        if group_xmlids is not None:
+            if group_xmlids:
+                groups = []
+                for group_xmlid in group_xmlids:
+                    group = self.env.ref(group_xmlid, raise_if_not_found=False)
+                    if group:
+                        groups.append(group.id)
+                vals["group_ids"] = [(6, 0, groups)]
+            else:
+                vals["group_ids"] = [(5, 0, 0)]
 
         if vals:
             menu.write(vals)
@@ -232,6 +252,7 @@ class IrUiMenu(models.Model):
                 sequence=spec.get("sequence"),
                 active=spec.get("active"),
                 action_xmlid=spec.get("action_xmlid"),
+                group_xmlids=spec.get("group_xmlids"),
             )
 
         for xmlid in (
@@ -277,6 +298,7 @@ class IrUiMenu(models.Model):
             "logistics_web.action_logistics_web_boss_trace": "管理看板",
             "logistics_web.action_logistics_web_import_center": "导入中心",
             "logistics_web.action_logistics_web_import_result": "导入结果",
+            "logistics_web.action_logistics_web_export_result": "导出结果",
             "logistics_web.action_logistics_web_driver_management": "司机管理",
             "logistics_web.action_logistics_web_vehicle_management": "车辆管理",
         }
