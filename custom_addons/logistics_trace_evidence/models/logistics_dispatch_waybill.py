@@ -23,10 +23,11 @@ class LogisticsDispatchWaybill(models.Model):
         readonly=True,
     )
 
-    @api.depends("trace_event_ids.evidence_ids")
+    @api.depends("trace_event_ids.evidence_ids", "trace_event_ids.state")
     def _compute_evidence_metrics(self):
         for record in self:
-            evidence_count = len(record.trace_event_ids.mapped("evidence_ids"))
+            valid_events = record.trace_event_ids.filtered(lambda event: event.state == "submitted")
+            evidence_count = len(valid_events.mapped("evidence_ids"))
             record.evidence_count = evidence_count
             if evidence_count <= 0:
                 record.evidence_status = "missing"

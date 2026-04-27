@@ -5,8 +5,8 @@
 - 当前系统从旧阶段模块命名过渡到新阶段模块体系时的设计参考
 
 优先基准：
-- `ai-code/Odoo19物流留痕系统运单主对象与留痕主流程设计.md`
-- `ai-code/Odoo19物流留痕系统五人分工与前端改造安排.md`
+- `ai-code/docs/context/Odoo19物流留痕系统运单主对象与留痕主流程设计.md`
+- `ai-code/docs/dev/project_coordination/Odoo19物流留痕系统五人分工与前端改造安排.md`
 - `ai-code/docs/architecture/ARCHITECTURE.md`
 
 ---
@@ -52,6 +52,10 @@
 custom_addons\
 ├─ logistics_base\
 ├─ logistics_dispatch\
+├─ logistics_trace_core\
+├─ logistics_trace_evidence\
+├─ logistics_trace_exception\
+├─ logistics_web\
 ├─ logistics_order\
 ├─ logistics_trace\
 └─ logistics_exception\
@@ -102,6 +106,42 @@ custom_addons\
 
 当前问题：
 - 与旧的 `logistics_order` 语义耦合较深
+
+### 3.6 logistics_trace_core
+
+状态：
+- 实际已有模块骨架
+
+当前价值：
+- 当前追溯事实层的真实承载入口之一
+- 说明 `trace_core` 已经从设计名进入仓库现实
+
+### 3.7 logistics_trace_evidence
+
+状态：
+- 实际已有模块骨架
+
+当前价值：
+- 当前证据层的真实承载入口之一
+- 说明证据层已经不再只是未来规划
+
+### 3.8 logistics_trace_exception
+
+状态：
+- 实际已有模块骨架
+
+当前价值：
+- 当前异常层的真实承载入口之一
+- 说明异常层已经按新主线命名进入目录现实
+
+### 3.9 logistics_web
+
+状态：
+- 实际已有模块骨架
+
+当前价值：
+- 当前物流后台页面、控制器和前后端交互承载层之一
+- 是执行主线和追溯主线在 Odoo Web 上的重要落点
 
 ---
 
@@ -247,12 +287,13 @@ logistics_trace_dashboard
 
 - `logistics_base`
 - `logistics_dispatch`
-
-### 已有正式设计稿但尚未进入真实模块骨架阶段的模块
-
 - `logistics_trace_core`
 - `logistics_trace_exception`
 - `logistics_trace_evidence`
+- `logistics_web`
+
+### 已有正式设计稿但当前仓库未见真实模块目录的模块
+
 - `logistics_trace_dashboard`
 
 ### 仅保留历史占位或桥接价值的目录
@@ -292,7 +333,13 @@ logistics_base + logistics_order + logistics_trace + logistics_exception
 
 ```text
 已存在现实：
-  logistics_base + logistics_dispatch + 旧占位目录
+  logistics_base
+  + logistics_dispatch
+  + logistics_trace_core
+  + logistics_trace_evidence
+  + logistics_trace_exception
+  + logistics_web
+  + 旧占位目录
 
 目标蓝图：
   logistics_base

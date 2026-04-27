@@ -5,10 +5,11 @@
 - 用于统一解释当前物流系统在 Odoo 侧的业务主线、模块边界、成熟度与设计优先级
 
 优先基准：
-- `ai-code/Odoo19物流留痕系统运单主对象与留痕主流程设计.md`
-- `ai-code/Odoo19物流留痕系统五人分工与前端改造安排.md`
+- `ai-code/docs/context/Odoo19物流留痕系统运单主对象与留痕主流程设计.md`
+- `ai-code/docs/dev/project_coordination/Odoo19物流留痕系统五人分工与前端改造安排.md`
 - `ai-code/docs/architecture/ARCHITECTURE.md`
-- `ai-code/前端相关设计/00_导航与总纲/Odoo物流后台前端总体设计总览.md`
+- `ai-code/专题设计/前端设计/四期前端优化设计/00_导航与总纲/2026-04-20_四期前端优化设计总纲.md`
+- `ai-code/专题设计/前端设计/四期前端优化设计/00_导航与总纲/2026-04-21_四期页面信息架构与阅读链方案.md`
 
 ---
 
@@ -24,17 +25,21 @@
 4. 后续阅读 `ai-code` 文档时，应该按什么顺序和口径理解
 
 如果以后其他文档和这份上下文文档冲突，应优先再对照：
-- `Odoo19物流留痕系统运单主对象与留痕主流程设计.md`
+- `docs/context/Odoo19物流留痕系统运单主对象与留痕主流程设计.md`
 - `ARCHITECTURE.md`
 
 ---
 
 ## 2. 当前系统主线
 
-当前项目已经明确的业务组织方式是：
+当前项目已经明确的业务组织方式应拆成两条互相配合的链：
 
 ```text
-波次记录 -> 批次 -> 运单号 -> 运单下订单列表 -> 留痕事件 -> 证据图片/备注
+执行与数据主链：
+波次记录 -> 批次 -> 运单号 -> 门店节点 customer_line -> 订单行 order_line -> 货物行 goods_line
+
+追溯主链：
+运单号 / 门店节点上下文 -> 留痕事件 -> 证据 -> 异常
 ```
 
 这条主线意味着：
@@ -42,18 +47,20 @@
 - `波次记录` 是调度组织层对象
 - `批次` 是执行组织层对象
 - `运单号` 是现场留痕主对象
-- `订单列表` 是运单下的履约明细
+- `customer_line` 是运单下的核心门店节点层
+- `order_line` 回到 `customer_line` 下作为业务明细层
+- `goods_line` 是最底层的货物事实层
 - `留痕事件` 是现场事实层
-- `证据图片/备注` 是留痕事件下的证据层
+- `证据` 是留痕事件下的正式证据层
 
 最关键的口径是：
 
-**留痕和证据围绕运单做闭环，不围绕单个订单做闭环。**
+**正式留痕和正式证据围绕运单 / 留痕事件做闭环，图片业务阅读优先围绕 `customer_line`。**
 
 订单仍然重要，但订单在当前系统里的职责已经收口为：
 - 提供业务明细
 - 提供数量、重量、体积等汇总基础
-- 支持从运单反查订单、从订单反查运单
+- 支持从 `customer_line` 和运单反查订单
 
 它不再承担：
 - 现场留痕主对象
@@ -71,7 +78,9 @@
 - 运单是现场留痕主对象
 - 批次是执行组织对象，不替代运单
 - 波次是更高一层的调度组织对象
-- 订单是运单下业务明细，不再是追溯主对象
+- `customer_line` 是运单下核心门店节点层
+- 订单是 `customer_line` 下业务明细，不再是追溯主对象
+- `goods_line` 是底层货物事实层
 
 ### 3.2 分层判断
 
@@ -89,11 +98,14 @@
 
 它至少包含两条核心阅读链：
 
-1. 执行主线  
-`波次 -> 批次 -> 运单`
+1. 页面主阅读链  
+`运单 -> customer_line -> order_line`
 
-2. 追溯主线  
-`运单 -> 留痕 -> 证据 -> 异常`
+2. 图片阅读链  
+`运单 -> customer_line -> 图片预览 / 留痕 / 证据`
+
+同时保留正式追溯主线：
+`运单 / customer_line 上下文 -> 留痕 -> 证据 -> 异常`
 
 ### 3.4 异常判断
 
@@ -113,6 +125,10 @@
 custom_addons/
   logistics_base/          # 已有基础扩展模块
   logistics_dispatch/      # 已开始承接真实执行主线代码
+  logistics_trace_core/    # 已进入真实模块目录
+  logistics_trace_evidence/ # 已进入真实模块目录
+  logistics_trace_exception/ # 已进入真实模块目录
+  logistics_web/           # 已进入真实后台承载目录
   logistics_order/         # 历史占位目录
   logistics_trace/         # 历史占位目录
   logistics_exception/     # 历史占位目录
@@ -129,6 +145,7 @@ custom_addons/
 也就是说：
 
 - `logistics_dispatch` 已经是当前真实实现起点之一
+- `trace_core / evidence / trace_exception / logistics_web` 也已经进入仓库真实目录现实
 - `logistics_order / logistics_trace / logistics_exception` 现在主要承担历史过渡作用
 
 ---
@@ -174,7 +191,7 @@ custom_addons/
 ### 6.1 优先继续深化的部分
 
 - 执行主线对象设计  
-波次、批次、运单、运单下订单明细
+波次、批次、运单、`customer_line`、`order_line`、`goods_line`
 
 - 追溯主线对象设计  
 留痕事件、证据对象、异常对象
@@ -208,26 +225,25 @@ custom_addons/
 
 优先看这些：
 
-1. `Odoo19物流留痕系统运单主对象与留痕主流程设计.md`
-2. `Odoo19物流留痕系统五人分工与前端改造安排.md`
+1. `docs/context/Odoo19物流留痕系统运单主对象与留痕主流程设计.md`
+2. `docs/dev/project_coordination/Odoo19物流留痕系统五人分工与前端改造安排.md`
 3. `docs/architecture/ARCHITECTURE.md`
 4. `docs/architecture/custom_addons_blueprint.md`
 5. `docs/architecture/logistics_dispatch_addon_design.md`
 6. `docs/architecture/logistics_trace_core_addon_design.md`
 7. `docs/architecture/logistics_trace_evidence_addon_design.md`
 8. `docs/architecture/logistics_trace_exception_addon_design.md`
-9. `前端相关设计/00_导航与总纲`
-10. `前端相关设计/01_模块设计`
-11. `前端相关设计/02_跨模块规范`
-12. `前端相关设计/03_落地与联调`
-13. `前端相关设计/02_跨模块规范/01_接口与数据/最终接口总表.md`
+9. `专题设计/前端设计/四期前端优化设计/00_导航与总纲`
+10. `专题设计/前端设计/四期前端优化设计/01_专题方案`
+11. `专题设计/前端设计/四期前端优化设计/02_跨模块规范`
+12. `专题设计/前端设计/四期前端优化设计/02_验收与联调`
 
 ### 7.2 桥接与参考层
 
 这些文档可以继续参考，但要带着“过渡理解”去看：
 
 - `docs/context/odoo_logistics_execution_trace_context.md`
-- `docs/architecture/logistics_order_mapping.md`
+- `docs/architecture/logistics_order_mapping_bridge.md`
 - `docs/context/odoo_logistics_feasibility.md`
 - 各类接口、聚合策略、技术分层桥接文档
 
@@ -238,7 +254,7 @@ custom_addons/
 - 旧的 `logistics_order / logistics_trace / logistics_exception` 历史桥接稿
 - `docs/change_notes/` 下历史变更记录
 - `odoo-reconstruct/` 下历史副本
-- `前端相关设计/04_来源资料与历史草图/`
+- `专题设计/前端设计/一期前端相关设计/04_来源资料与历史草图/`
 
 ---
 
@@ -253,8 +269,12 @@ custom_addons/
 它当前最稳定、最值得继续推进的部分，是：
 
 - `波次 -> 批次 -> 运单` 执行主线
-- `运单 -> 留痕 -> 证据 -> 异常` 追溯主线
+- `运单 -> customer_line -> order_line` 页面主阅读链
+- `运单 -> customer_line -> 图片预览 / 留痕 / 证据` 图片阅读链
+- `运单 / customer_line 上下文 -> 留痕 -> 证据 -> 异常` 追溯主线
 - 围绕这两条主线展开的后台前端设计与模块边界设计
 - `logistics_dispatch` 作为当前真实代码落点的起步模块
 
 而客户、门店、人员、仓库这些主数据扩展，当前仍然更接近“后续补强方向”，而不是“已收口完成的一期核心模块”。
+
+

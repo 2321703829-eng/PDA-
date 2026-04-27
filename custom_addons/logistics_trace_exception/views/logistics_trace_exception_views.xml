@@ -4,7 +4,7 @@
         <field name="name">logistics.trace.exception.tree</field>
         <field name="model">logistics.trace.exception</field>
         <field name="arch" type="xml">
-            <list string="异常队列" default_order="is_overdue desc, severity_level desc, report_time desc, id desc" decoration-danger="severity_level == 'critical' or is_overdue" decoration-warning="severity_level == 'high'" decoration-info="state == 'processing'">
+            <list string="Exceptions" default_order="is_overdue desc, severity_level desc, report_time desc, id desc" decoration-danger="severity_level == 'critical' or is_overdue" decoration-warning="severity_level == 'high'" decoration-info="state == 'processing'">
                 <field name="name"/>
                 <field name="exception_type"/>
                 <field name="severity_level"/>
@@ -24,46 +24,26 @@
         <field name="name">logistics.trace.exception.form</field>
         <field name="model">logistics.trace.exception</field>
         <field name="arch" type="xml">
-            <form string="异常详情">
+            <form string="Exception Detail">
                 <header>
-                    <button name="action_mark_processing" type="object" string="开始处理" class="btn-primary" invisible="state != 'open'"/>
-                    <button name="action_mark_resolved" type="object" string="标记已解决" class="btn-secondary" invisible="state not in ('open', 'processing')"/>
-                    <button name="action_mark_closed" type="object" string="关闭异常" class="btn-secondary" invisible="state not in ('resolved', 'processing')"/>
+                    <button name="action_mark_processing" type="object" string="Start Processing" class="btn-primary" groups="logistics_trace_evidence.group_logistics_trace_manager" invisible="state != 'open'"/>
+                    <button name="action_mark_resolved" type="object" string="Mark Resolved" class="btn-secondary" groups="logistics_trace_evidence.group_logistics_trace_manager" invisible="state not in ('open', 'processing')"/>
+                    <button name="action_mark_closed" type="object" string="Close Exception" class="btn-secondary" groups="logistics_trace_evidence.group_logistics_trace_manager" invisible="state not in ('resolved', 'processing')"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,open,processing,resolved,closed,cancelled"/>
                 </header>
                 <sheet>
                     <div name="button_box" class="oe_button_box">
-                        <button
-                            name="action_open_waybill"
-                            type="object"
-                            class="oe_stat_button"
-                            icon="fa-truck"
-                            invisible="not waybill_id">
-                            <span class="o_stat_text">查看运单</span>
+                        <button name="action_open_waybill" type="object" class="oe_stat_button" icon="fa-truck" invisible="not waybill_id">
+                            <span class="o_stat_text">Open Waybill</span>
                         </button>
-                        <button
-                            name="action_open_trace_event"
-                            type="object"
-                            class="oe_stat_button"
-                            icon="fa-stream"
-                            invisible="not trace_event_id">
-                            <span class="o_stat_text">查看留痕</span>
+                        <button name="action_open_trace_event" type="object" class="oe_stat_button" icon="fa-stream" invisible="not trace_event_id">
+                            <span class="o_stat_text">Open Trace</span>
                         </button>
-                        <button
-                            name="action_open_batch"
-                            type="object"
-                            class="oe_stat_button"
-                            icon="fa-layer-group"
-                            invisible="not batch_id">
-                            <span class="o_stat_text">查看批次</span>
+                        <button name="action_open_batch" type="object" class="oe_stat_button" icon="fa-layer-group" invisible="not batch_id">
+                            <span class="o_stat_text">Open Batch</span>
                         </button>
-                        <button
-                            name="action_open_evidence"
-                            type="object"
-                            class="oe_stat_button"
-                            icon="fa-image"
-                            invisible="not trace_event_id">
-                            <field name="evidence_count" string="查看证据" widget="statinfo"/>
+                        <button name="action_open_evidence" type="object" class="oe_stat_button" icon="fa-image" invisible="not trace_event_id">
+                            <field name="evidence_count" string="Open Evidence" widget="statinfo"/>
                         </button>
                     </div>
                     <div class="oe_title">
@@ -85,26 +65,26 @@
                         </group>
                     </group>
                     <group>
-                        <group string="关联上下文">
+                        <group string="Related Context">
                             <field name="waybill_id"/>
                             <field name="batch_id"/>
                             <field name="trace_event_id"/>
                         </group>
-                        <group string="摘要信息">
+                        <group string="Summary">
                             <field name="reporter_user_name" readonly="1"/>
                             <field name="process_owner_name" readonly="1"/>
                             <field name="evidence_count" readonly="1"/>
                             <field name="remark"/>
                         </group>
                     </group>
-                    <group string="异常说明">
-                        <field name="description" placeholder="填写异常现象、影响和当前业务问题"/>
+                    <group string="Description">
+                        <field name="description" placeholder="Describe the issue, impact, and current business problem."/>
                     </group>
-                    <group string="处理结论">
-                        <field name="close_summary" placeholder="填写最终处理结果后再关闭异常"/>
+                    <group string="Close Summary">
+                        <field name="close_summary" placeholder="Provide the final handling result before closing or cancelling."/>
                     </group>
                     <notebook>
-                        <page string="处理日志">
+                        <page string="Process Logs">
                             <field name="process_log_ids" readonly="1">
                                 <list>
                                     <field name="action_time"/>
@@ -133,7 +113,7 @@
         <field name="name">logistics.trace.exception.search</field>
         <field name="model">logistics.trace.exception</field>
         <field name="arch" type="xml">
-            <search string="异常队列">
+            <search string="Exceptions">
                 <field name="name"/>
                 <field name="exception_type"/>
                 <field name="severity_level"/>
@@ -142,45 +122,40 @@
                 <field name="batch_id"/>
                 <field name="trace_event_id"/>
                 <field name="process_owner_id"/>
-                <filter string="待处理" name="open" domain="[('state', '=', 'open')]"/>
-                <filter string="处理中" name="active" domain="[('state', 'in', ('open', 'processing'))]"/>
-                <filter string="处理中" name="processing" domain="[('state', '=', 'processing')]"/>
-                <filter string="已超时" name="overdue" domain="[('is_overdue', '=', True)]"/>
-                <filter string="高严重等级" name="high_severity" domain="[('severity_level', 'in', ('high', 'critical'))]"/>
-                <filter string="证据缺失" name="evidence_missing" domain="[('exception_type', '=', 'evidence_missing')]"/>
+                <filter string="Open" name="open" domain="[('state', '=', 'open')]"/>
+                <filter string="Active" name="active" domain="[('state', 'in', ('open', 'processing'))]"/>
+                <filter string="Processing" name="processing" domain="[('state', '=', 'processing')]"/>
+                <filter string="Overdue" name="overdue" domain="[('is_overdue', '=', True)]"/>
+                <filter string="High Severity" name="high_severity" domain="[('severity_level', 'in', ('high', 'critical'))]"/>
+                <filter string="Evidence Missing" name="evidence_missing" domain="[('exception_type', '=', 'evidence_missing')]"/>
                 <group>
-                    <filter string="按状态" name="group_state" context="{'group_by': 'state'}"/>
-                    <filter string="按严重等级" name="group_severity" context="{'group_by': 'severity_level'}"/>
-                    <filter string="按运单" name="group_waybill" context="{'group_by': 'waybill_id'}"/>
-                    <filter string="按批次" name="group_batch" context="{'group_by': 'batch_id'}"/>
-                    <filter string="按负责人" name="group_owner" context="{'group_by': 'process_owner_id'}"/>
+                    <filter string="By State" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="By Severity" name="group_severity" context="{'group_by': 'severity_level'}"/>
+                    <filter string="By Waybill" name="group_waybill" context="{'group_by': 'waybill_id'}"/>
+                    <filter string="By Batch" name="group_batch" context="{'group_by': 'batch_id'}"/>
+                    <filter string="By Owner" name="group_owner" context="{'group_by': 'process_owner_id'}"/>
                 </group>
             </search>
         </field>
     </record>
 
     <record id="action_logistics_trace_exception" model="ir.actions.act_window">
-        <field name="name">异常</field>
+        <field name="name">Exceptions</field>
         <field name="res_model">logistics.trace.exception</field>
         <field name="view_mode">list,form</field>
         <field name="search_view_id" ref="view_logistics_trace_exception_search"/>
         <field name="context">{'search_default_active': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
-                当前没有待处理的异常。
+                No active exceptions right now.
             </p>
             <p>
-                可以新建异常记录，或取消默认的<strong>处理中</strong>筛选后查看历史异常。
+                Create a new exception, or remove the default <strong>Active</strong> filter to review history.
             </p>
         </field>
     </record>
 
-    <menuitem
-        id="menu_logistics_trace_exception"
-        name="异常"
-        parent="logistics_dispatch.menu_logistics_dispatch"
-        action="action_logistics_trace_exception"
-        sequence="60"/>
+    <menuitem id="menu_logistics_trace_exception" name="Exceptions" parent="logistics_dispatch.menu_logistics_dispatch" action="action_logistics_trace_exception" sequence="60"/>
 
     <record id="view_logistics_dispatch_waybill_form_inherit_trace_exception" model="ir.ui.view">
         <field name="name">logistics.dispatch.waybill.form.trace.exception</field>
@@ -188,12 +163,8 @@
         <field name="inherit_id" ref="logistics_dispatch.view_logistics_dispatch_waybill_form"/>
         <field name="arch" type="xml">
             <xpath expr="//div[@name='button_box']/button[last()]" position="after">
-                <button
-                    name="action_open_exceptions"
-                    type="object"
-                    class="oe_stat_button"
-                    icon="fa-exclamation-triangle">
-                    <field name="open_exception_count" string="异常数" widget="statinfo"/>
+                <button name="action_open_exceptions" type="object" class="oe_stat_button" icon="fa-exclamation-triangle">
+                    <field name="open_exception_count" string="Open Exceptions" widget="statinfo"/>
                 </button>
             </xpath>
         </field>

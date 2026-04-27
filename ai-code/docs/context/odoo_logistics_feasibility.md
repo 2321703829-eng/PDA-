@@ -5,7 +5,7 @@
 - 用于说明当前物流项目在 Odoo 中哪些能力可以复用原生模块，哪些能力需要通过自定义 addon 承接
 
 优先基准：
-- `ai-code/Odoo19物流留痕系统运单主对象与留痕主流程设计.md`
+- `ai-code/docs/context/Odoo19物流留痕系统运单主对象与留痕主流程设计.md`
 - `ai-code/docs/context/odoo_logistics_context.md`
 - `ai-code/docs/architecture/ARCHITECTURE.md`
 - `ai-code/docs/architecture/custom_addons_blueprint.md`
@@ -43,7 +43,7 @@
 
 ### 2.2 必须通过自定义 addon 承接的能力
 
-- 波次 / 批次 / 运单执行主线
+- 波次 / 批次 / 运单 / 门店节点 / 订单 / 货物执行与数据主链
 - 批次级 / 运单级留痕事件
 - 证据层对象与证据阅读口径
 - 异常对象、异常状态流转、处理记录
@@ -87,7 +87,7 @@ d:\Desktop\Odoo\
 
 ## 4. 按主线拆看的可实现性判断
 
-## 4.1 执行主线：波次 / 批次 / 运单
+## 4.1 执行主线：波次 / 批次 / 运单 / 门店节点 / 订单 / 货物
 
 ### 是否可实现
 
@@ -104,10 +104,10 @@ d:\Desktop\Odoo\
 但这些对象无法直接、清晰地表达：
 
 ```text
-波次记录 -> 批次 -> 运单号 -> 运单下订单列表
+波次记录 -> 批次 -> 运单号 -> 门店节点 customer_line -> 订单行 order_line -> 货物行 goods_line
 ```
 
-尤其是“运单是现场留痕主对象”这一点，原生对象并没有直接对应。
+尤其是“运单是现场留痕主对象、`customer_line` 是门店节点主阅读层”这两个点，原生对象并没有直接对应。
 
 ### 推荐实现方式
 
@@ -118,7 +118,9 @@ d:\Desktop\Odoo\
 - `logistics.dispatch.wave`
 - `logistics.dispatch.batch`
 - `logistics.dispatch.waybill`
+- `logistics.dispatch.waybill.customer.line`
 - `logistics.dispatch.waybill.order.line`
+- `logistics.dispatch.waybill.customer.goods.line`
 
 ### 可复用的原生底座
 
@@ -198,6 +200,11 @@ d:\Desktop\Odoo\
 ```text
 trace_event 1 -> n evidence
 ```
+
+同时要补一句：
+
+- 图片业务主阅读与图片导入命中优先围绕 `customer_line`
+- 正式证据对象仍围绕 `trace_event`
 
 ---
 

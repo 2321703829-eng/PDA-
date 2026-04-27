@@ -114,12 +114,12 @@ class LogisticsWebDriverController(http.Controller):
                 },
                 status=403,
             )
-        except ValidationError as exc:
+        except (ValidationError, ValueError, TypeError) as exc:
             return self._json_response(
                 {
-                    "code": 1,
-                    "message": "request_failed",
-                    "data": {"errors": [{"error_code": "DRIVER_REQUEST_FAILED", "error_message": str(exc)}]},
+                    "code": 4001,
+                    "message": "bad_request",
+                    "data": {"errors": [{"error_code": "DRIVER_BAD_REQUEST", "error_message": str(exc)}]},
                     "request_id": self._build_request_id(request_prefix),
                 },
                 status=400,

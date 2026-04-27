@@ -32,7 +32,7 @@
         <field name="name">物流分析中心查看</field>
         <field name="comment">可查看统计图表中心、物流工作台和管理看板。</field>
         <field name="sequence">220</field>
-        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user')), (4, ref('group_logistics_driver_management_viewer'))]"/>
     </record>
 
     <record id="group_logistics_analysis_manager" model="res.groups">

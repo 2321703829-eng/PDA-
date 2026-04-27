@@ -1,6 +1,11 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_logistics_customer_profile_user,logistics.customer.profile user,model_logistics_customer_profile,base.group_user,1,1,1,1
-access_logistics_store_profile_user,logistics.store.profile user,model_logistics_store_profile,base.group_user,1,1,1,1
-access_logistics_product_unit_user,logistics.product.unit user,model_logistics_product_unit,base.group_user,1,1,1,1
-access_logistics_driver_profile_user,logistics.driver.profile user,model_logistics_driver_profile,base.group_user,1,1,1,1
-access_logistics_vehicle_profile_user,logistics.vehicle.profile user,model_logistics_vehicle_profile,base.group_user,1,1,1,1
+access_logistics_customer_profile_user,logistics.customer.profile user,model_logistics_customer_profile,base.group_user,1,0,0,0
+access_logistics_store_profile_user,logistics.store.profile user,model_logistics_store_profile,base.group_user,1,0,0,0
+access_logistics_product_unit_user,logistics.product.unit user,model_logistics_product_unit,base.group_user,1,0,0,0
+access_logistics_driver_profile_user,logistics.driver.profile user,model_logistics_driver_profile,base.group_user,1,0,0,0
+access_logistics_vehicle_profile_user,logistics.vehicle.profile user,model_logistics_vehicle_profile,base.group_user,1,0,0,0
+access_logistics_customer_profile_manager,logistics.customer.profile manager,model_logistics_customer_profile,group_logistics_profile_manager,1,1,1,0
+access_logistics_store_profile_manager,logistics.store.profile manager,model_logistics_store_profile,group_logistics_profile_manager,1,1,1,0
+access_logistics_product_unit_manager,logistics.product.unit manager,model_logistics_product_unit,group_logistics_profile_manager,1,1,1,0
+access_logistics_driver_profile_manager,logistics.driver.profile manager,model_logistics_driver_profile,group_logistics_profile_manager,1,1,1,0
+access_logistics_vehicle_profile_manager,logistics.vehicle.profile manager,model_logistics_vehicle_profile,group_logistics_profile_manager,1,1,1,0

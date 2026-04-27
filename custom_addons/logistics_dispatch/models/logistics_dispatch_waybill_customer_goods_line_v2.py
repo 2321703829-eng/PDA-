@@ -172,18 +172,21 @@ class LogisticsDispatchWaybillCustomerGoodsLine(models.Model):
 
     @api.model
     def _resolve_customer_line(self, waybill_no, *, customer_no=None, customer_name=None):
+        customer_line_model = self.env["logistics.dispatch.waybill.customer.line"]
         domain = [("waybill_id.name", "=", waybill_no)]
         if customer_no:
-            domain.append(("partner_no", "=", customer_no))
+            partner = customer_line_model._resolve_partner_by_code(customer_no)
+            domain.append(("partner_id", "=", partner.id))
             label = "运单号 + 客户号"
             value = f"{waybill_no} / {customer_no}"
         elif customer_name:
-            domain.append(("partner_name", "=", customer_name))
+            partner = customer_line_model._resolve_partner_by_name(customer_name)
+            domain.append(("partner_id", "=", partner.id))
             label = "运单号 + 客户名称"
             value = f"{waybill_no} / {customer_name}"
         else:
             raise ValidationError("货物导入至少需要提供运单号与客户号或客户名称。")
-        customer_lines = self.env["logistics.dispatch.waybill.customer.line"].search(domain, limit=2)
+        customer_lines = customer_line_model.search(domain, limit=2)
         return self._ensure_unique_record(customer_lines, label, value)
 
     @api.model_create_multi
@@ -218,6 +221,16 @@ class LogisticsDispatchWaybillCustomerGoodsLine(models.Model):
                     customer_name=customer_name,
                 ).id
         return super().write(normalized_vals)
+
+    @api.constrains("customer_line_id", "order_line_id")
+    def _check_order_line_consistency(self):
+        for record in self:
+            if not record.order_line_id:
+                continue
+            if record.order_line_id.waybill_id != record.customer_line_id.waybill_id:
+                raise ValidationError("Goods line order_line and customer_line must belong to the same waybill.")
+            if record.order_line_id.customer_line_id and record.order_line_id.customer_line_id != record.customer_line_id:
+                raise ValidationError("Goods line order_line and customer_line must point to the same customer node.")
 
     @api.constrains(
         "quantity",

@@ -4,7 +4,7 @@
         <field name="name">logistics.trace.event.tree</field>
         <field name="model">logistics.trace.event</field>
         <field name="arch" type="xml">
-            <list string="留痕事件">
+            <list string="Trace Events">
                 <field name="trace_time"/>
                 <field name="event_type"/>
                 <field name="object_type"/>
@@ -22,7 +22,7 @@
         <field name="name">logistics.trace.event.form</field>
         <field name="model">logistics.trace.event</field>
         <field name="arch" type="xml">
-            <form string="留痕事件">
+            <form string="Trace Event">
                 <sheet>
                     <div class="oe_title">
                         <h1>
@@ -44,21 +44,21 @@
                         </group>
                     </group>
                     <group>
-                        <group string="留痕上下文">
+                        <group string="Trace Context">
                             <field name="waybill_id" invisible="object_type != 'waybill'"/>
                             <field name="batch_id"/>
                             <field name="location_text"/>
                             <field name="source_channel"/>
                             <field name="source_record_id"/>
                         </group>
-                        <group string="执行上下文">
+                        <group string="Execution Context">
                             <field name="plate_no"/>
                             <field name="driver_name"/>
                             <field name="submit_user_name" readonly="1"/>
                         </group>
                     </group>
-                    <group string="备注">
-                        <field name="remark" placeholder="填写本次留痕记录到的现场事实"/>
+                    <group string="Remark">
+                        <field name="remark" placeholder="Describe the on-site fact captured by this trace event."/>
                     </group>
                     <field name="message_follower_ids" invisible="1"/>
                     <field name="activity_ids" invisible="1"/>
@@ -76,27 +76,27 @@
         <field name="name">logistics.trace.event.search</field>
         <field name="model">logistics.trace.event</field>
         <field name="arch" type="xml">
-            <search string="留痕事件">
+            <search string="Trace Events">
                 <field name="name"/>
                 <field name="event_type"/>
                 <field name="waybill_id"/>
                 <field name="batch_id"/>
                 <field name="submit_user_id"/>
-                <filter string="运单留痕" name="waybill_events" domain="[('object_type', '=', 'waybill')]"/>
-                <filter string="批次留痕" name="batch_events" domain="[('object_type', '=', 'batch')]"/>
-                <filter string="异常留痕" name="exception_events" domain="[('is_exception', '=', True)]"/>
+                <filter string="Waybill Events" name="waybill_events" domain="[('object_type', '=', 'waybill')]"/>
+                <filter string="Batch Events" name="batch_events" domain="[('object_type', '=', 'batch')]"/>
+                <filter string="Exception Events" name="exception_events" domain="[('is_exception', '=', True)]"/>
                 <group>
-                    <filter string="按留痕类型" name="group_event_type" context="{'group_by': 'event_type'}"/>
-                    <filter string="按运单" name="group_waybill" context="{'group_by': 'waybill_id'}"/>
-                    <filter string="按批次" name="group_batch" context="{'group_by': 'batch_id'}"/>
-                    <filter string="按提交人" name="group_submitter" context="{'group_by': 'submit_user_id'}"/>
+                    <filter string="By Event Type" name="group_event_type" context="{'group_by': 'event_type'}"/>
+                    <filter string="By Waybill" name="group_waybill" context="{'group_by': 'waybill_id'}"/>
+                    <filter string="By Batch" name="group_batch" context="{'group_by': 'batch_id'}"/>
+                    <filter string="By Submit User" name="group_submitter" context="{'group_by': 'submit_user_id'}"/>
                 </group>
             </search>
         </field>
     </record>
 
     <record id="action_logistics_trace_event" model="ir.actions.act_window">
-        <field name="name">留痕</field>
+        <field name="name">Trace</field>
         <field name="res_model">logistics.trace.event</field>
         <field name="view_mode">list,form</field>
         <field name="search_view_id" ref="view_logistics_trace_event_search"/>
@@ -104,9 +104,10 @@
 
     <menuitem
         id="menu_logistics_trace_event"
-        name="留痕"
+        name="Trace"
         parent="logistics_dispatch.menu_logistics_dispatch"
         action="action_logistics_trace_event"
+        groups="logistics_trace_core.group_logistics_trace_event_manager"
         sequence="40"/>
 
     <record id="view_logistics_dispatch_waybill_form_inherit_trace_core" model="ir.ui.view">
@@ -120,7 +121,7 @@
                     type="object"
                     class="oe_stat_button"
                     icon="fa-stream">
-                    <field name="trace_count" string="留痕事件" widget="statinfo"/>
+                    <field name="trace_count" string="Trace Events" widget="statinfo"/>
                 </button>
             </xpath>
         </field>

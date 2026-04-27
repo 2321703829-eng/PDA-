@@ -265,20 +265,6 @@ class IrUiMenu(models.Model):
         ):
             self._sync_menu(xmlid, active=False)
 
-        # Restore original Odoo app roots. Strategy:
-        # - enterprise home keeps only enterprise-owned pages
-        # - modules without custom replacement stay on native Odoo roots
-        # - logistics stays as an independent business app
-        for xmlid in (
-            "contacts.menu_contacts",
-            "hr.menu_hr_root",
-            "fleet.menu_root",
-            "stock.menu_stock_root",
-            "account.menu_finance",
-            "base.menu_administration",
-        ):
-            self._sync_menu(xmlid, parent_xmlid=False, active=True)
-
         action_specs = {
             "logistics_dispatch.action_logistics_dispatch_waybill": "运单",
             "logistics_dispatch.action_logistics_dispatch_batch": "批次",
@@ -304,16 +290,4 @@ class IrUiMenu(models.Model):
         }
         for xmlid, label in action_specs.items():
             self._sync_action(xmlid, label)
-
-        for xmlid in (
-            "mail.menu_root_discuss",
-            "utm.menu_link_tracker_root",
-            "spreadsheet_dashboard.spreadsheet_dashboard_menu_root",
-            "base.menu_tests",
-            "utm.marketing_utm",
-            "base.menu_management",
-        ):
-            self._sync_menu(xmlid, active=False)
-
-        self.env["ir.attachment"].sudo().regenerate_assets_bundles()
         return True

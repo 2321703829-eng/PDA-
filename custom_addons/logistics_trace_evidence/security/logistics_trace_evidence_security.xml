@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="group_logistics_trace_manager" model="res.groups">
+        <field name="name">Logistics Trace Manager</field>
+        <field name="comment">Can review and process all logistics trace evidence and exceptions.</field>
+        <field name="sequence">232</field>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <record id="rule_logistics_trace_evidence_own_read" model="ir.rule">
+        <field name="name">logistics.trace.evidence own read</field>
+        <field name="model_id" ref="model_logistics_trace_evidence"/>
+        <field name="domain_force">[('uploader_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_logistics_trace_evidence_manager_read" model="ir.rule">
+        <field name="name">logistics.trace.evidence manager read</field>
+        <field name="model_id" ref="model_logistics_trace_evidence"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_logistics_trace_manager'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+</odoo>

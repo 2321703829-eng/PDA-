@@ -1,7 +1,3 @@
-import hashlib
-from datetime import timedelta
-from pathlib import Path
-
 from odoo import fields
 
 from .dispatch_main_export_service import DispatchMainExportService, ExportServiceError
@@ -16,7 +12,6 @@ class ProductProfileExportService(DispatchMainExportService):
     SOURCE_PAGE_DEFAULT = "product_profile_list"
     TARGET_OBJECT_TYPE = "product"
     PRODUCT_UNIT_MODEL = "logistics.product.unit"
-    EXPORT_ROOT_DIR = Path(__file__).resolve().parents[3] / ".odoo_data" / "export_tasks"
     SHEETS = [
         {
             "key": "product_profile_rows",
@@ -200,144 +195,151 @@ class ProductProfileExportService(DispatchMainExportService):
                 "package_metrics_json": {},
             }
         )
+        try:
+            product_profile_rows = []
+            product_unit_rows = []
+            error_vals_list = []
+            success_count = 0
+            fail_count = 0
+            skipped_count = 0
+            product_count = 0
+            product_unit_count = 0
 
-        product_profile_rows = []
-        product_unit_rows = []
-        error_vals_list = []
-        success_count = 0
-        fail_count = 0
-        skipped_count = 0
-        product_count = 0
-        product_unit_count = 0
-
-        for task_line in task.sudo().task_line_ids.sorted(key=lambda rec: (rec.line_no, rec.id)):
-            try:
-                package = cls._collect_product_profile_package(env, task_line)
-                task_line.sudo().write(
-                    {
-                        "status": "success",
-                        "message": cls._build_task_line_message(package),
-                        "line_metrics_json": package["line_metrics_json"],
-                        "exported_waybill_count": 0,
-                        "exported_customer_line_count": 0,
-                        "exported_order_line_count": 0,
-                        "exported_goods_line_count": 0,
-                    }
-                )
-                product_profile_rows.extend(package["product_profile_rows"])
-                product_unit_rows.extend(package["product_unit_rows"])
-                success_count += 1
-                product_count += package["product_count"]
-                product_unit_count += package["product_unit_count"]
-            except ExportServiceError as error:
-                task_line.sudo().write(
-                    {
-                        "status": "failed",
-                        "message": str(error),
-                        "line_metrics_json": {},
-                        "exported_waybill_count": 0,
-                        "exported_customer_line_count": 0,
-                        "exported_order_line_count": 0,
-                        "exported_goods_line_count": 0,
-                    }
-                )
-                fail_count += 1
-                error_vals_list.append(
-                    cls._build_error_line_vals(
-                        task=task,
-                        task_line=task_line,
-                        error_code=error.error_code,
-                        error_message=str(error),
-                        error_stage=cls._error_stage_for_code(error.error_code),
-                        field_name="product_tmpl_id",
-                        raw_value=task_line.business_key,
+            for task_line in task.sudo().task_line_ids.sorted(key=lambda rec: (rec.line_no, rec.id)):
+                try:
+                    package = cls._collect_product_profile_package(env, task_line)
+                    task_line.sudo().write(
+                        {
+                            "status": "success",
+                            "message": cls._build_task_line_message(package),
+                            "line_metrics_json": package["line_metrics_json"],
+                            "exported_waybill_count": 0,
+                            "exported_customer_line_count": 0,
+                            "exported_order_line_count": 0,
+                            "exported_goods_line_count": 0,
+                        }
                     )
-                )
-            except Exception as error:
-                message = f"Unexpected export error: {error}"
-                task_line.sudo().write(
-                    {
-                        "status": "failed",
-                        "message": message,
-                        "line_metrics_json": {},
-                        "exported_waybill_count": 0,
-                        "exported_customer_line_count": 0,
-                        "exported_order_line_count": 0,
-                        "exported_goods_line_count": 0,
-                    }
-                )
-                fail_count += 1
-                error_vals_list.append(
-                    cls._build_error_line_vals(
-                        task=task,
-                        task_line=task_line,
-                        error_code="EXPORT_WORKBOOK_BUILD_FAILED",
-                        error_message=message,
-                        error_stage="workbook_build",
-                        field_name="product_tmpl_id",
-                        raw_value=task_line.business_key,
+                    product_profile_rows.extend(package["product_profile_rows"])
+                    product_unit_rows.extend(package["product_unit_rows"])
+                    success_count += 1
+                    product_count += package["product_count"]
+                    product_unit_count += package["product_unit_count"]
+                except ExportServiceError as error:
+                    task_line.sudo().write(
+                        {
+                            "status": "failed",
+                            "message": str(error),
+                            "line_metrics_json": {},
+                            "exported_waybill_count": 0,
+                            "exported_customer_line_count": 0,
+                            "exported_order_line_count": 0,
+                            "exported_goods_line_count": 0,
+                        }
                     )
-                )
-
-        task_level_error_code = False
-        task_level_error_message = False
-        output_file_vals = {}
-        if success_count:
-            try:
-                workbook_bytes = cls._build_workbook_bytes(
-                    {
-                        "product_profile_rows": product_profile_rows,
-                        "product_unit_rows": product_unit_rows,
-                    }
-                )
-                output_file_vals = cls._store_output_file(task, workbook_bytes)
-            except ExportServiceError as error:
-                task_level_error_code = error.error_code
-                task_level_error_message = str(error)
-                error_vals_list.append(
-                    cls._build_error_line_vals(
-                        task=task,
-                        task_line=False,
-                        error_code=error.error_code,
-                        error_message=str(error),
-                        error_stage=cls._error_stage_for_code(error.error_code),
-                        field_name="output_file",
-                        raw_value=task.task_no,
+                    fail_count += 1
+                    error_vals_list.append(
+                        cls._build_error_line_vals(
+                            task=task,
+                            task_line=task_line,
+                            error_code=error.error_code,
+                            error_message=str(error),
+                            error_stage=cls._error_stage_for_code(error.error_code),
+                            field_name="product_tmpl_id",
+                            raw_value=task_line.business_key,
+                        )
                     )
-                )
+                except Exception as error:
+                    message = f"Unexpected export error: {error}"
+                    task_line.sudo().write(
+                        {
+                            "status": "failed",
+                            "message": message,
+                            "line_metrics_json": {},
+                            "exported_waybill_count": 0,
+                            "exported_customer_line_count": 0,
+                            "exported_order_line_count": 0,
+                            "exported_goods_line_count": 0,
+                        }
+                    )
+                    fail_count += 1
+                    error_vals_list.append(
+                        cls._build_error_line_vals(
+                            task=task,
+                            task_line=task_line,
+                            error_code="EXPORT_WORKBOOK_BUILD_FAILED",
+                            error_message=message,
+                            error_stage="workbook_build",
+                            field_name="product_tmpl_id",
+                            raw_value=task_line.business_key,
+                        )
+                    )
 
-        if error_vals_list:
-            env["logistics.export.error.line"].sudo().create(error_vals_list)
+            task_level_error_code = False
+            task_level_error_message = False
+            output_file_vals = {}
+            if success_count:
+                try:
+                    workbook_bytes = cls._build_workbook_bytes(
+                        {
+                            "product_profile_rows": product_profile_rows,
+                            "product_unit_rows": product_unit_rows,
+                        }
+                    )
+                    output_file_vals = cls._store_output_file(task, workbook_bytes)
+                except ExportServiceError as error:
+                    task_level_error_code = error.error_code
+                    task_level_error_message = str(error)
+                    error_vals_list.append(
+                        cls._build_error_line_vals(
+                            task=task,
+                            task_line=False,
+                            error_code=error.error_code,
+                            error_message=str(error),
+                            error_stage=cls._error_stage_for_code(error.error_code),
+                            field_name="output_file",
+                            raw_value=task.task_no,
+                        )
+                    )
 
-        final_status = cls._compute_task_status(
-            success_count=success_count,
-            fail_count=fail_count,
-            skipped_count=skipped_count,
-            task_level_error_code=task_level_error_code,
-        )
-        now = fields.Datetime.now()
-        task_write_vals = {
-            "status": final_status,
-            "success_count": success_count,
-            "fail_count": fail_count,
-            "skipped_count": skipped_count,
-            "package_metrics_json": {
-                "product_count": product_count,
-                "product_unit_count": product_unit_count,
-            },
-            "finished_at": now,
-            "summary_message": cls._build_summary_message(
+            if error_vals_list:
+                env["logistics.export.error.line"].sudo().create(error_vals_list)
+
+            final_status = cls._compute_task_status(
                 success_count=success_count,
                 fail_count=fail_count,
                 skipped_count=skipped_count,
-                task_level_error_message=task_level_error_message,
-            ),
-            "failure_error_code": task_level_error_code or False,
-            "failure_reason": task_level_error_message or False,
-        }
-        task_write_vals.update(output_file_vals)
-        task.sudo().write(task_write_vals)
-        return cls._build_task_result_payload(task.sudo())
+                task_level_error_code=task_level_error_code,
+            )
+            now = fields.Datetime.now()
+            task_write_vals = {
+                "status": final_status,
+                "success_count": success_count,
+                "fail_count": fail_count,
+                "skipped_count": skipped_count,
+                "package_metrics_json": {
+                    "product_count": product_count,
+                    "product_unit_count": product_unit_count,
+                },
+                "finished_at": now,
+                "summary_message": cls._build_summary_message(
+                    success_count=success_count,
+                    fail_count=fail_count,
+                    skipped_count=skipped_count,
+                    task_level_error_message=task_level_error_message,
+                ),
+                "failure_error_code": task_level_error_code or False,
+                "failure_reason": task_level_error_message or False,
+            }
+            task_write_vals.update(output_file_vals)
+            task.sudo().write(task_write_vals)
+            return cls._build_task_result_payload(task.sudo())
+        except Exception as error:
+            error_code = error.error_code if isinstance(error, ExportServiceError) else "EXPORT_TASK_RUN_ABORTED"
+            error_message = str(error)
+            cls._mark_task_failed_if_running(task, error_code=error_code, error_message=error_message)
+            if isinstance(error, ExportServiceError):
+                raise
+            raise ExportServiceError(error_code, error_message) from error
 
     @classmethod
     def get_export_task_result(cls, env, *, task_no):
@@ -559,25 +561,8 @@ class ProductProfileExportService(DispatchMainExportService):
     def _store_output_file(cls, task, workbook_bytes):
         task.ensure_one()
         timestamp = fields.Datetime.now()
-        folder = cls.EXPORT_ROOT_DIR / timestamp.strftime("%Y") / timestamp.strftime("%m") / timestamp.strftime("%d") / task.task_no
         file_name = f"TSL-EXPORT-PRODUCT-PROFILE-{timestamp.strftime('%Y%m%d-%H%M%S')}.xlsx"
-        file_path = folder / file_name
-        try:
-            folder.mkdir(parents=True, exist_ok=True)
-            file_path.write_bytes(workbook_bytes or b"")
-        except OSError as error:
-            raise ExportServiceError("EXPORT_FILE_WRITE_FAILED", f"Failed to store export file: {error}") from error
-        download_ready_at = fields.Datetime.now()
-        expires_at = download_ready_at + timedelta(days=cls.DOWNLOAD_EXPIRE_DAYS)
-        return {
-            "download_ready_at": download_ready_at,
-            "expires_at": expires_at,
-            "output_file_name": file_name,
-            "output_file_ext": "xlsx",
-            "output_storage_path": str(file_path),
-            "output_file_sha256": hashlib.sha256(workbook_bytes or b"").hexdigest(),
-            "output_file_size": len(workbook_bytes or b""),
-        }
+        return cls._store_output_file_bytes(task, workbook_bytes, file_name=file_name)
 
     @classmethod
     def _build_summary_message(cls, *, success_count, fail_count, skipped_count, task_level_error_message):

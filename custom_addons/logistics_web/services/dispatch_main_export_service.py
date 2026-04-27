@@ -9,7 +9,7 @@ from openpyxl import Workbook
 from openpyxl.styles import Font
 
 from odoo import fields
-from odoo.exceptions import ValidationError
+from odoo.exceptions import AccessError, ValidationError
 
 from .waybill_standard_import_service_v2 import WaybillStandardImportService
 
@@ -129,155 +129,162 @@ class DispatchMainExportService:
                 "failure_reason": False,
             }
         )
+        try:
+            waybill_rows = []
+            customer_rows = []
+            order_rows = []
+            goods_rows = []
+            error_vals_list = []
+            success_count = 0
+            fail_count = 0
+            skipped_count = 0
+            exported_waybill_count = 0
+            exported_customer_line_count = 0
+            exported_order_line_count = 0
+            exported_goods_line_count = 0
 
-        waybill_rows = []
-        customer_rows = []
-        order_rows = []
-        goods_rows = []
-        error_vals_list = []
-        success_count = 0
-        fail_count = 0
-        skipped_count = 0
-        exported_waybill_count = 0
-        exported_customer_line_count = 0
-        exported_order_line_count = 0
-        exported_goods_line_count = 0
-
-        for task_line in task.sudo().task_line_ids.sorted(key=lambda rec: (rec.line_no, rec.id)):
-            try:
-                package = cls._collect_waybill_package(env, task_line)
-                task_line.sudo().write(
-                    {
-                        "status": "success",
-                        "message": cls._build_task_line_message(package),
-                        "exported_waybill_count": package["exported_waybill_count"],
-                        "exported_customer_line_count": package["exported_customer_line_count"],
-                        "exported_order_line_count": package["exported_order_line_count"],
-                        "exported_goods_line_count": package["exported_goods_line_count"],
-                    }
-                )
-                waybill_rows.extend(package["waybill_rows"])
-                customer_rows.extend(package["customer_rows"])
-                order_rows.extend(package["order_rows"])
-                goods_rows.extend(package["goods_rows"])
-                success_count += 1
-                exported_waybill_count += package["exported_waybill_count"]
-                exported_customer_line_count += package["exported_customer_line_count"]
-                exported_order_line_count += package["exported_order_line_count"]
-                exported_goods_line_count += package["exported_goods_line_count"]
-            except ExportServiceError as error:
-                is_skipped = error.error_code == "EXPORT_TARGET_NO_DOWNSTREAM_DATA"
-                task_line.sudo().write(
-                    {
-                        "status": "skipped" if is_skipped else "failed",
-                        "message": str(error),
-                        "exported_waybill_count": 0,
-                        "exported_customer_line_count": 0,
-                        "exported_order_line_count": 0,
-                        "exported_goods_line_count": 0,
-                    }
-                )
-                if is_skipped:
-                    skipped_count += 1
-                else:
+            for task_line in task.sudo().task_line_ids.sorted(key=lambda rec: (rec.line_no, rec.id)):
+                try:
+                    package = cls._collect_waybill_package(env, task_line)
+                    task_line.sudo().write(
+                        {
+                            "status": "success",
+                            "message": cls._build_task_line_message(package),
+                            "exported_waybill_count": package["exported_waybill_count"],
+                            "exported_customer_line_count": package["exported_customer_line_count"],
+                            "exported_order_line_count": package["exported_order_line_count"],
+                            "exported_goods_line_count": package["exported_goods_line_count"],
+                        }
+                    )
+                    waybill_rows.extend(package["waybill_rows"])
+                    customer_rows.extend(package["customer_rows"])
+                    order_rows.extend(package["order_rows"])
+                    goods_rows.extend(package["goods_rows"])
+                    success_count += 1
+                    exported_waybill_count += package["exported_waybill_count"]
+                    exported_customer_line_count += package["exported_customer_line_count"]
+                    exported_order_line_count += package["exported_order_line_count"]
+                    exported_goods_line_count += package["exported_goods_line_count"]
+                except ExportServiceError as error:
+                    is_skipped = error.error_code == "EXPORT_TARGET_NO_DOWNSTREAM_DATA"
+                    task_line.sudo().write(
+                        {
+                            "status": "skipped" if is_skipped else "failed",
+                            "message": str(error),
+                            "exported_waybill_count": 0,
+                            "exported_customer_line_count": 0,
+                            "exported_order_line_count": 0,
+                            "exported_goods_line_count": 0,
+                        }
+                    )
+                    if is_skipped:
+                        skipped_count += 1
+                    else:
+                        fail_count += 1
+                    error_vals_list.append(
+                        cls._build_error_line_vals(
+                            task=task,
+                            task_line=task_line,
+                            error_code=error.error_code,
+                            error_message=str(error),
+                            error_stage=cls._error_stage_for_code(error.error_code),
+                            field_name="selected_ids",
+                            raw_value=task_line.business_key,
+                        )
+                    )
+                except Exception as error:
+                    message = f"Unexpected export error: {error}"
+                    task_line.sudo().write(
+                        {
+                            "status": "failed",
+                            "message": message,
+                            "exported_waybill_count": 0,
+                            "exported_customer_line_count": 0,
+                            "exported_order_line_count": 0,
+                            "exported_goods_line_count": 0,
+                        }
+                    )
                     fail_count += 1
-                error_vals_list.append(
-                    cls._build_error_line_vals(
-                        task=task,
-                        task_line=task_line,
-                        error_code=error.error_code,
-                        error_message=str(error),
-                        error_stage=cls._error_stage_for_code(error.error_code),
-                        field_name="selected_ids",
-                        raw_value=task_line.business_key,
+                    error_vals_list.append(
+                        cls._build_error_line_vals(
+                            task=task,
+                            task_line=task_line,
+                            error_code="EXPORT_WORKBOOK_BUILD_FAILED",
+                            error_message=message,
+                            error_stage="workbook_build",
+                            field_name="selected_ids",
+                            raw_value=task_line.business_key,
+                        )
                     )
-                )
-            except Exception as error:
-                message = f"Unexpected export error: {error}"
-                task_line.sudo().write(
-                    {
-                        "status": "failed",
-                        "message": message,
-                        "exported_waybill_count": 0,
-                        "exported_customer_line_count": 0,
-                        "exported_order_line_count": 0,
-                        "exported_goods_line_count": 0,
-                    }
-                )
-                fail_count += 1
-                error_vals_list.append(
-                    cls._build_error_line_vals(
-                        task=task,
-                        task_line=task_line,
-                        error_code="EXPORT_WORKBOOK_BUILD_FAILED",
-                        error_message=message,
-                        error_stage="workbook_build",
-                        field_name="selected_ids",
-                        raw_value=task_line.business_key,
+
+            task_level_error_code = False
+            task_level_error_message = False
+            output_file_vals = {}
+            if success_count:
+                try:
+                    workbook_bytes = cls._build_workbook_bytes(
+                        {
+                            "waybill_rows": waybill_rows,
+                            "customer_line_rows": customer_rows,
+                            "order_line_rows": order_rows,
+                            "goods_line_rows": goods_rows,
+                        }
                     )
-                )
-
-        task_level_error_code = False
-        task_level_error_message = False
-        output_file_vals = {}
-        if success_count:
-            try:
-                workbook_bytes = cls._build_workbook_bytes(
-                    {
-                        "waybill_rows": waybill_rows,
-                        "customer_line_rows": customer_rows,
-                        "order_line_rows": order_rows,
-                        "goods_line_rows": goods_rows,
-                    }
-                )
-                output_file_vals = cls._store_output_file(task, workbook_bytes)
-            except ExportServiceError as error:
-                task_level_error_code = error.error_code
-                task_level_error_message = str(error)
-                error_vals_list.append(
-                    cls._build_error_line_vals(
-                        task=task,
-                        task_line=False,
-                        error_code=error.error_code,
-                        error_message=str(error),
-                        error_stage=cls._error_stage_for_code(error.error_code),
-                        field_name="output_file",
-                        raw_value=task.task_no,
+                    output_file_vals = cls._store_output_file(task, workbook_bytes)
+                except ExportServiceError as error:
+                    task_level_error_code = error.error_code
+                    task_level_error_message = str(error)
+                    error_vals_list.append(
+                        cls._build_error_line_vals(
+                            task=task,
+                            task_line=False,
+                            error_code=error.error_code,
+                            error_message=str(error),
+                            error_stage=cls._error_stage_for_code(error.error_code),
+                            field_name="output_file",
+                            raw_value=task.task_no,
+                        )
                     )
-                )
 
-        if error_vals_list:
-            env["logistics.export.error.line"].sudo().create(error_vals_list)
+            if error_vals_list:
+                env["logistics.export.error.line"].sudo().create(error_vals_list)
 
-        final_status = cls._compute_task_status(
-            success_count=success_count,
-            fail_count=fail_count,
-            skipped_count=skipped_count,
-            task_level_error_code=task_level_error_code,
-        )
-        now = fields.Datetime.now()
-        task_write_vals = {
-            "status": final_status,
-            "success_count": success_count,
-            "fail_count": fail_count,
-            "skipped_count": skipped_count,
-            "exported_waybill_count": exported_waybill_count,
-            "exported_customer_line_count": exported_customer_line_count,
-            "exported_order_line_count": exported_order_line_count,
-            "exported_goods_line_count": exported_goods_line_count,
-            "finished_at": now,
-            "summary_message": cls._build_summary_message(
+            final_status = cls._compute_task_status(
                 success_count=success_count,
                 fail_count=fail_count,
                 skipped_count=skipped_count,
-                task_level_error_message=task_level_error_message,
-            ),
-            "failure_error_code": task_level_error_code or False,
-            "failure_reason": task_level_error_message or False,
-        }
-        task_write_vals.update(output_file_vals)
-        task.sudo().write(task_write_vals)
-        return cls._build_task_result_payload(task.sudo())
+                task_level_error_code=task_level_error_code,
+            )
+            now = fields.Datetime.now()
+            task_write_vals = {
+                "status": final_status,
+                "success_count": success_count,
+                "fail_count": fail_count,
+                "skipped_count": skipped_count,
+                "exported_waybill_count": exported_waybill_count,
+                "exported_customer_line_count": exported_customer_line_count,
+                "exported_order_line_count": exported_order_line_count,
+                "exported_goods_line_count": exported_goods_line_count,
+                "finished_at": now,
+                "summary_message": cls._build_summary_message(
+                    success_count=success_count,
+                    fail_count=fail_count,
+                    skipped_count=skipped_count,
+                    task_level_error_message=task_level_error_message,
+                ),
+                "failure_error_code": task_level_error_code or False,
+                "failure_reason": task_level_error_message or False,
+            }
+            task_write_vals.update(output_file_vals)
+            task.sudo().write(task_write_vals)
+            return cls._build_task_result_payload(task.sudo())
+        except Exception as error:
+            error_code = error.error_code if isinstance(error, ExportServiceError) else "EXPORT_TASK_RUN_ABORTED"
+            error_message = str(error)
+            cls._mark_task_failed_if_running(task, error_code=error_code, error_message=error_message)
+            if isinstance(error, ExportServiceError):
+                raise
+            raise ExportServiceError(error_code, error_message) from error
 
     @classmethod
     def get_export_task_result(cls, env, *, task_no):
@@ -393,7 +400,7 @@ class DispatchMainExportService:
         storage_path = (task.output_storage_path or "").strip()
         if not storage_path:
             raise ExportServiceError("EXPORT_OUTPUT_FILE_NOT_READY", f"Task {task.task_no} has no output file.")
-        file_path = Path(storage_path)
+        file_path = cls._resolve_output_storage_path(storage_path)
         if not file_path.exists():
             raise ExportServiceError("EXPORT_OUTPUT_FILE_MISSING", f"Output file for task {task.task_no} is missing.")
         try:
@@ -408,8 +415,24 @@ class DispatchMainExportService:
 
     @classmethod
     def _check_export_model_access(cls, env, *, mode):
-        env["logistics.export.source.scope"].check_access_rights(mode)
-        env["logistics.export.task"].check_access_rights(mode)
+        cls._ensure_export_operator_access(env)
+        try:
+            env["logistics.export.source.scope"].check_access_rights(mode)
+            env["logistics.export.task"].check_access_rights(mode)
+        except AccessError as error:
+            raise ExportServiceError(
+                "EXPORT_PERMISSION_DENIED",
+                "You do not have permission to create or manage logistics export tasks.",
+            ) from error
+
+    @classmethod
+    def _ensure_export_operator_access(cls, env):
+        if env.user.has_group("logistics_dispatch.group_logistics_export_user"):
+            return
+        raise ExportServiceError(
+            "EXPORT_PERMISSION_DENIED",
+            "You do not have permission to start this logistics export.",
+        )
 
     @classmethod
     def _validate_create_contract(cls, *, object_type, entry_type, export_mode, package_structure, source_model):
@@ -512,6 +535,25 @@ class DispatchMainExportService:
             )
 
     @classmethod
+    def _mark_task_failed_if_running(cls, task, *, error_code, error_message):
+        if not task or not task.exists():
+            return
+        if task.status != "running":
+            return
+        try:
+            task.sudo().write(
+                {
+                    "status": "failed",
+                    "finished_at": fields.Datetime.now(),
+                    "summary_message": error_message,
+                    "failure_error_code": error_code or False,
+                    "failure_reason": error_message or False,
+                }
+            )
+        except Exception:
+            return
+
+    @classmethod
     def _collect_waybill_package(cls, env, task_line):
         waybill = env[cls.SOURCE_MODEL].browse(task_line.target_res_id).exists()
         if not waybill:
@@ -587,8 +629,8 @@ class DispatchMainExportService:
                 "waybill_no": waybill.name or "",
                 "organization_name": waybill.organization_name_snapshot or "",
                 "route_name": waybill.route_name_snapshot or "",
-                "driver_name": waybill.driver_employee_id.name or "",
-                "driver_phone": cls._employee_phone(waybill.driver_employee_id),
+                "driver_name": cls._driver_name(waybill),
+                "driver_phone": cls._driver_phone(waybill),
                 "delivery_remark": waybill.delivery_remark_snapshot or waybill.remark or "",
             },
         )
@@ -762,8 +804,14 @@ class DispatchMainExportService:
     def _store_output_file(cls, task, workbook_bytes):
         task.ensure_one()
         timestamp = fields.Datetime.now()
-        folder = cls.EXPORT_ROOT_DIR / timestamp.strftime("%Y") / timestamp.strftime("%m") / timestamp.strftime("%d") / task.task_no
         file_name = f"TSL-EXPORT-FROM-WAYBILL-{timestamp.strftime('%Y%m%d-%H%M%S')}.xlsx"
+        return cls._store_output_file_bytes(task, workbook_bytes, file_name=file_name)
+
+    @classmethod
+    def _store_output_file_bytes(cls, task, workbook_bytes, *, file_name):
+        task.ensure_one()
+        timestamp = fields.Datetime.now()
+        folder = cls.EXPORT_ROOT_DIR / timestamp.strftime("%Y") / timestamp.strftime("%m") / timestamp.strftime("%d") / task.task_no
         file_path = folder / file_name
         try:
             folder.mkdir(parents=True, exist_ok=True)
@@ -772,15 +820,38 @@ class DispatchMainExportService:
             raise ExportServiceError("EXPORT_FILE_WRITE_FAILED", f"Failed to store export file: {error}") from error
         download_ready_at = fields.Datetime.now()
         expires_at = download_ready_at + timedelta(days=cls.DOWNLOAD_EXPIRE_DAYS)
+        relative_path = file_path.relative_to(cls.EXPORT_ROOT_DIR).as_posix()
         return {
             "download_ready_at": download_ready_at,
             "expires_at": expires_at,
             "output_file_name": file_name,
             "output_file_ext": "xlsx",
-            "output_storage_path": str(file_path),
+            "output_storage_path": relative_path,
             "output_file_sha256": hashlib.sha256(workbook_bytes or b"").hexdigest(),
             "output_file_size": len(workbook_bytes or b""),
         }
+
+    @classmethod
+    def _resolve_output_storage_path(cls, storage_path):
+        raw_path = (storage_path or "").strip()
+        if not raw_path:
+            raise ExportServiceError("EXPORT_OUTPUT_FILE_NOT_READY", "output_storage_path is empty.")
+        export_root = cls.EXPORT_ROOT_DIR.resolve()
+        candidate = Path(raw_path)
+        if not candidate.is_absolute():
+            candidate = export_root / candidate
+        try:
+            resolved_path = candidate.resolve(strict=False)
+        except OSError as error:
+            raise ExportServiceError("EXPORT_OUTPUT_FILE_INVALID", f"Invalid output storage path: {error}") from error
+        try:
+            resolved_path.relative_to(export_root)
+        except ValueError as error:
+            raise ExportServiceError(
+                "EXPORT_OUTPUT_FILE_INVALID",
+                f"Output file path is outside export root: {raw_path}",
+            ) from error
+        return resolved_path
 
     @classmethod
     def _compute_task_status(cls, *, success_count, fail_count, skipped_count, task_level_error_code):
@@ -1025,6 +1096,22 @@ class DispatchMainExportService:
     def _warehouse_code(cls, waybill):
         warehouse = waybill.warehouse_id
         return getattr(warehouse, "code", False) or waybill.warehouse_name_snapshot or ""
+
+    @classmethod
+    def _driver_name(cls, waybill):
+        batch = getattr(waybill, "batch_id", False)
+        if batch and batch.driver_name_snapshot:
+            return batch.driver_name_snapshot
+        employee = getattr(waybill.sudo(), "driver_employee_id", False)
+        return getattr(employee, "name", False) or ""
+
+    @classmethod
+    def _driver_phone(cls, waybill):
+        batch = getattr(waybill, "batch_id", False)
+        if batch and batch.driver_phone_snapshot:
+            return batch.driver_phone_snapshot
+        employee = getattr(waybill.sudo(), "driver_employee_id", False)
+        return cls._employee_phone(employee)
 
     @classmethod
     def _employee_phone(cls, employee):

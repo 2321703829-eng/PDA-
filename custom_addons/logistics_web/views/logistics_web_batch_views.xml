@@ -12,6 +12,7 @@
                         type="object"
                         class="oe_stat_button"
                         icon="fa-road"
+                        groups="logistics_dispatch.group_logistics_export_user"
                         string="司机路线导出"/>
                 </div>
             </xpath>

@@ -43,6 +43,16 @@ class LogisticsRoutePlanningStopLine(models.Model):
     _description = "排线停靠点"
     _order = "stop_seq asc, id asc"
 
+    _uniq_route_planning_stop_seq = models.Constraint(
+        "unique(batch_id, stop_seq)",
+        "Route planning stop sequence must be unique within a batch.",
+    )
+
+    _uniq_route_planning_stop_waybill = models.Constraint(
+        "unique(batch_id, waybill_no)",
+        "Waybill number must be unique within the same route planning batch.",
+    )
+
     batch_id = fields.Many2one("logistics.route.planning.batch", string="排线批次", required=True, ondelete="cascade", index=True)
     import_task_id = fields.Many2one("logistics.import.task", string="导入任务", ondelete="set null", index=True)
     import_task_line_id = fields.Many2one("logistics.import.task.line", string="导入任务行", ondelete="set null", index=True)

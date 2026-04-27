@@ -5,9 +5,9 @@
 - `ai-code` 文档体系中的系统级结构、模块分层、目录约定、依赖边界
 
 优先基准：
-- `ai-code/Odoo19物流留痕系统运单主对象与留痕主流程设计.md`
-- `ai-code/Odoo19物流留痕系统五人分工与前端改造安排.md`
-- `ai-code/前端相关设计/00_导航与总纲/Odoo物流后台前端总体设计总览.md`
+- `ai-code/docs/context/Odoo19物流留痕系统运单主对象与留痕主流程设计.md`
+- `ai-code/docs/dev/project_coordination/Odoo19物流留痕系统五人分工与前端改造安排.md`
+- `ai-code/专题设计/前端设计/一期前端相关设计/00_导航与总纲/前端总体设计总览.md`
 
 ---
 
@@ -47,17 +47,21 @@
 
 ### 2.2 仓库现实
 
-当前仓库中既有历史命名的占位目录，也已经开始出现按新主线落地的真实模块，例如：
+当前仓库中既有历史命名的占位目录，也已经存在按新主线落地的真实模块，例如：
 
 - `custom_addons/logistics_base`
 - `custom_addons/logistics_dispatch`
+- `custom_addons/logistics_trace_core`
+- `custom_addons/logistics_trace_evidence`
+- `custom_addons/logistics_trace_exception`
+- `custom_addons/logistics_web`
 - `custom_addons/logistics_order`
 - `custom_addons/logistics_trace`
 - `custom_addons/logistics_exception`
 
 其中：
 
-- `logistics_dispatch` 已经开始承接当前执行主线的真实代码
+- `logistics_base / logistics_dispatch / logistics_trace_core / logistics_trace_evidence / logistics_trace_exception / logistics_web` 已经进入真实目录现实
 - `logistics_order / logistics_trace / logistics_exception` 主要保留历史过渡意义
 
 因此，后续设计与实现都应遵守一个原则：
@@ -118,6 +122,10 @@ d:\Desktop\Odoo\
 custom_addons\
 ├─ logistics_base\
 ├─ logistics_dispatch\
+├─ logistics_trace_core\
+├─ logistics_trace_evidence\
+├─ logistics_trace_exception\
+├─ logistics_web\
 ├─ logistics_order\
 ├─ logistics_trace\
 └─ logistics_exception\
@@ -127,8 +135,10 @@ custom_addons\
 
 1. `logistics_base` 是实际可用的基础扩展模块
 2. `logistics_dispatch` 是当前已经开始承接真实代码的执行主线模块
-3. `logistics_order / logistics_trace / logistics_exception` 这组名称代表较早阶段的拆分思路
-4. 这组旧命名不能再直接代表当前最终业务边界
+3. `logistics_trace_core / logistics_trace_evidence / logistics_trace_exception` 已经不只是设计稿命名，而是当前仓库中的真实模块目录
+4. `logistics_web` 是当前物流后台页面与接口承载层之一
+5. `logistics_order / logistics_trace / logistics_exception` 这组名称代表较早阶段的拆分思路
+6. 这组旧命名不能再直接代表当前最终业务边界
 
 也就是说，当前仓库的目录现状是“历史技术现实 + 新主线已开始落地”，不是“只有旧占位目录”。
 
@@ -231,12 +241,13 @@ custom_addons\
 
 - `logistics_base`
 - `logistics_dispatch`
-
-### 已有正式设计稿但尚未进入真实模块骨架阶段
-
 - `logistics_trace_core`
 - `logistics_trace_evidence`
 - `logistics_trace_exception`
+- `logistics_web`
+
+### 已有正式设计稿但当前仓库未见真实模块目录
+
 - `logistics_trace_dashboard`
 
 ### 主要保留历史过渡意义
@@ -259,7 +270,13 @@ logistics_base + logistics_order + logistics_trace + logistics_exception
 
 ```text
 当前仓库现实：
-  logistics_base + logistics_dispatch + 旧占位目录
+  logistics_base
+  + logistics_dispatch
+  + logistics_trace_core
+  + logistics_trace_evidence
+  + logistics_trace_exception
+  + logistics_web
+  + 旧占位目录
 
 目标系统架构：
   logistics_base
@@ -279,3 +296,4 @@ logistics_base + logistics_order + logistics_trace + logistics_exception
 - 真实模块实现
 
 三者的状态同步。
+

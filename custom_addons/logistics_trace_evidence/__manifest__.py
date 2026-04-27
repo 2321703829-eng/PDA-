@@ -8,6 +8,7 @@
         "logistics_trace_core",
     ],
     "data": [
+        "security/logistics_trace_evidence_security.xml",
         "security/ir.model.access.csv",
         "views/logistics_trace_evidence_views.xml",
     ],

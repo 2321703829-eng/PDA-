@@ -61,6 +61,14 @@ class LogisticsDispatchWave(models.Model):
             record.total_waybill_count = sum(record.batch_ids.mapped("total_waybill_count"))
             record.total_order_count = sum(len(batch.waybill_ids.mapped("order_line_ids")) for batch in record.batch_ids)
 
+    @api.model
+    def _build_snapshot_vals(self, vals):
+        warehouse = self.env["stock.warehouse"].browse(vals["warehouse_id"]) if vals.get("warehouse_id") else False
+        return {
+            "organization_name_snapshot": warehouse.company_id.name or False,
+            "warehouse_name_snapshot": warehouse.name or False,
+        }
+
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
@@ -68,7 +76,9 @@ class LogisticsDispatchWave(models.Model):
                 vals["name"] = (vals.pop("wave_no") or "").strip() or vals.get("name") or "新建"
             if vals.get("name", "新建") in ("New", "新建"):
                 vals["name"] = self.env["ir.sequence"].next_by_code("logistics.dispatch.wave") or "新建"
-            vals.setdefault("warehouse_name_snapshot", vals.get("warehouse_name_snapshot"))
+            if vals.get("warehouse_id"):
+                for field_name, field_value in self._build_snapshot_vals(vals).items():
+                    vals.setdefault(field_name, field_value)
         return super().create(vals_list)
 
     def write(self, vals):
@@ -77,4 +87,7 @@ class LogisticsDispatchWave(models.Model):
             wave_no = (vals.pop("wave_no") or "").strip()
             if wave_no:
                 vals["name"] = wave_no
+        if "warehouse_id" in vals and vals.get("warehouse_id"):
+            for field_name, field_value in self._build_snapshot_vals(vals).items():
+                vals.setdefault(field_name, field_value)
         return super().write(vals)

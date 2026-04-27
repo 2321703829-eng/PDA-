@@ -1,4 +1,4 @@
-from datetime import datetime, time
+from datetime import datetime, time, timezone
 
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessError
@@ -12,12 +12,20 @@ class LogisticsTraceException(models.Model):
     _inherit = "logistics.trace.exception"
 
     @api.model
+    def _get_today_utc_window(self):
+        now_utc = fields.Datetime.now()
+        now_local = fields.Datetime.context_timestamp(self, now_utc)
+        local_start = datetime.combine(now_local.date(), time.min).replace(tzinfo=now_local.tzinfo)
+        local_end = datetime.combine(now_local.date(), time.max).replace(tzinfo=now_local.tzinfo)
+        utc_start = local_start.astimezone(timezone.utc).replace(tzinfo=None)
+        utc_end = local_end.astimezone(timezone.utc).replace(tzinfo=None)
+        return utc_start, utc_end
+
+    @api.model
     def get_dashboard_summary_payload(self):
         self._ensure_logistics_analysis_access()
         exception_model = self.sudo()
-        now = fields.Datetime.context_timestamp(self, fields.Datetime.now())
-        today_start = datetime.combine(now.date(), time.min)
-        today_end = datetime.combine(now.date(), time.max)
+        today_start, today_end = self._get_today_utc_window()
         open_domain = [("state", "in", ["open", "processing"])]
         exception_domain = [("state", "in", ["open", "processing", "resolved"])]
         pending_exceptions = exception_model.search(open_domain, order="report_time desc, id desc")
@@ -105,9 +113,7 @@ class LogisticsTraceException(models.Model):
     def get_boss_trace_summary_payload(self):
         self._ensure_logistics_analysis_access()
         exception_model = self.sudo()
-        now = fields.Datetime.context_timestamp(self, fields.Datetime.now())
-        today_start = datetime.combine(now.date(), time.min)
-        today_end = datetime.combine(now.date(), time.max)
+        today_start, today_end = self._get_today_utc_window()
         open_domain = [("state", "in", ["open", "processing"])]
 
         open_disputes = exception_model.search_count(open_domain)

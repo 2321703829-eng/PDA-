@@ -9,6 +9,7 @@
         "logistics_dispatch",
     ],
     "data": [
+        "security/logistics_trace_core_security.xml",
         "security/ir.model.access.csv",
         "views/logistics_trace_event_views.xml",
     ],

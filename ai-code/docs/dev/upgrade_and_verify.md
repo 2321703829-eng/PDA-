@@ -106,9 +106,23 @@ python .\odoo-bin -c .\odoo_local.conf -d odoo_logistics_dev -u logistics_dispat
 - `docs/context`
 - `ARCHITECTURE.md`
 - `doc_sync.md`
+- `docs/versioning/version_tag_governance.md`
+- `document_directory_governance.md`
 - `change_notes`
 
 需要检查是否同步更新。
+
+### 改版本基线或准备打 tag
+
+- 是否已经明确本轮目标属于 `baseline / milestone / release` 哪一层
+- 是否已补本轮 `change_notes`
+- 是否已检查正式入口文档没有继续描述过期目录现实
+- 是否已完成最小安装、升级或静态验证
+
+相关规范：
+
+- [version_tag_governance.md](/d:/Desktop/Odoo/ai-code/docs/versioning/version_tag_governance.md:1)
+- [document_directory_governance.md](/d:/Desktop/Odoo/ai-code/docs/review/document_directory_governance.md:1)
 
 ## 8. 失败处理规则
 

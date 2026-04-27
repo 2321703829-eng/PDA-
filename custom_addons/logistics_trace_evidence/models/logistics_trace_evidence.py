@@ -74,10 +74,10 @@ class LogisticsTraceEvidence(models.Model):
         for record in self:
             record.uploader_name = record.uploader_id.name or ""
 
-    @api.depends("trace_event_id.is_exception")
+    @api.depends("trace_event_id.event_type")
     def _compute_exception_flags(self):
         for record in self:
-            record.is_exception_related = bool(record.trace_event_id.is_exception)
+            record.is_exception_related = record.trace_event_id.event_type == "exception_report"
 
     @api.model_create_multi
     def create(self, vals_list):

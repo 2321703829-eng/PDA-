@@ -9,10 +9,11 @@ from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Font
 
 from odoo import fields
-from odoo.exceptions import ValidationError
+from odoo.exceptions import AccessError, ValidationError
 
 
 class WaybillStandardImportService:
+    IMPORT_MANAGER_GROUP = "logistics_dispatch.group_logistics_import_manager"
     TEMPLATE_CODE = "TSL-IMPORT-WAYBILL-V3"
     TEMPLATE_VERSION = "v3"
     LEGACY_TEMPLATE_CODES = {"TSL-IMPORT-WAYBILL-V2"}
@@ -750,7 +751,7 @@ class WaybillStandardImportService:
         page_size = min(max(int(page_size or 20), 1), 200)
         line_status = (status or "").strip()
         domain = [("task_id", "=", task.id)]
-        task_line_model = env["logistics.import.task.line"].sudo()
+        task_line_model = env["logistics.import.task.line"]
         valid_statuses = {value for value, _label in task_line_model._fields["status"].selection}
         if line_status:
             if line_status not in valid_statuses:
@@ -804,7 +805,7 @@ class WaybillStandardImportService:
         page = max(int(page or 1), 1)
         page_size = min(max(int(page_size or 50), 1), 200)
         domain = [("task_id", "=", task.id)]
-        error_line_model = env["logistics.import.error.line"].sudo()
+        error_line_model = env["logistics.import.error.line"]
         total = error_line_model.search_count(domain)
         total_pages = max((total + page_size - 1) // page_size, 1)
         page = min(page, total_pages)
@@ -3748,7 +3749,11 @@ class WaybillStandardImportService:
         task_ref = (task_no or "").strip()
         if not task_ref:
             return False
-        return env["logistics.import.task"].sudo().search([("task_no", "=", task_ref)], limit=1)
+        task = env["logistics.import.task"].sudo().search([("task_no", "=", task_ref)], limit=1)
+        if not task:
+            return False
+        cls._ensure_import_task_access(env, task)
+        return task
 
     @classmethod
     def _build_task_error_report_url(cls, task):
@@ -3758,11 +3763,11 @@ class WaybillStandardImportService:
     @classmethod
     def _write_source_file_bytes(cls, *, source_file_no, file_name, raw_bytes):
         suffix = f".{cls._guess_file_ext(file_name) or 'xlsx'}"
-        storage_dir = Path(tempfile.gettempdir()) / "odoo_logistics_imports"
-        storage_dir.mkdir(parents=True, exist_ok=True)
-        storage_path = storage_dir / f"{source_file_no}{suffix}"
+        storage_dir = cls._get_import_storage_dir()
+        storage_key = f"{source_file_no}{suffix}"
+        storage_path = storage_dir / storage_key
         storage_path.write_bytes(raw_bytes or b"")
-        return str(storage_path)
+        return storage_key
 
     @classmethod
     def _load_source_file_bytes(cls, source_file):
@@ -3770,10 +3775,45 @@ class WaybillStandardImportService:
         storage_path = (source_file.storage_path or "").strip()
         if not storage_path:
             raise ValidationError("当前任务未找到源文件存储路径。")
-        file_path = Path(storage_path)
+        file_path = cls._resolve_source_storage_path(storage_path)
         if not file_path.exists():
             raise ValidationError("当前任务源文件不存在，请重新上传。")
         return file_path.read_bytes()
+
+    @classmethod
+    def _get_import_storage_dir(cls):
+        storage_dir = Path(tempfile.gettempdir()) / "odoo_logistics_imports"
+        storage_dir.mkdir(parents=True, exist_ok=True)
+        return storage_dir
+
+    @classmethod
+    def _resolve_source_storage_path(cls, storage_path):
+        storage_root = cls._get_import_storage_dir().resolve()
+        candidate = Path(storage_path)
+        if not candidate.is_absolute():
+            candidate = storage_root / candidate
+        try:
+            resolved_path = candidate.resolve()
+        except FileNotFoundError:
+            resolved_path = candidate.resolve(strict=False)
+        try:
+            resolved_path.relative_to(storage_root)
+        except ValueError as exc:
+            raise ValidationError("褰撳墠浠诲姟婧愭枃浠跺瓨鍌ㄨ矾寰勪笉鍚堟硶銆?") from exc
+        return resolved_path
+
+    @classmethod
+    def _ensure_import_task_access(cls, env, task):
+        if cls._can_manage_imports(env):
+            return True
+        if task.operator_id and task.operator_id.id == env.user.id:
+            return True
+        raise AccessError("当前账号无权查看该导入任务。")
+
+    @classmethod
+    def _can_manage_imports(cls, env):
+        user = env.user
+        return user.has_group("base.group_system") or user.has_group(cls.IMPORT_MANAGER_GROUP)
 
     @classmethod
     def _iter_source_rows(cls, source_data):

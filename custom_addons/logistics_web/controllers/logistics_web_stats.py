@@ -2,7 +2,7 @@ import json
 import uuid
 
 from odoo import http
-from odoo.exceptions import AccessError
+from odoo.exceptions import AccessError, ValidationError
 from odoo.http import Response, request
 
 
@@ -73,6 +73,16 @@ class LogisticsWebStatsController(http.Controller):
                     "request_id": self._build_request_id(request_prefix),
                 },
                 status=403,
+            )
+        except (ValidationError, ValueError, TypeError) as exc:
+            return self._json_response(
+                {
+                    "code": 4001,
+                    "message": "bad_request",
+                    "data": {"errors": [{"error_code": "ANALYSIS_BAD_REQUEST", "error_message": str(exc)}]},
+                    "request_id": self._build_request_id(request_prefix),
+                },
+                status=400,
             )
         return self._json_response(
             {

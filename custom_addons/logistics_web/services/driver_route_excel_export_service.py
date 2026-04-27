@@ -57,6 +57,7 @@ class DriverRouteExcelExportService:
     @classmethod
     def export_by_delivery_date(cls, env, *, delivery_date="", file_locale="zh_CN"):
         del file_locale
+        cls._ensure_driver_route_export_access(env)
         normalized_date = cls._normalize_delivery_date(delivery_date)
         waybills = cls._get_waybills(env, normalized_date)
         if not waybills:
@@ -73,6 +74,15 @@ class DriverRouteExcelExportService:
             "content_type": cls.DOWNLOAD_CONTENT_TYPE,
             "file_bytes": workbook_bytes,
         }
+
+    @classmethod
+    def _ensure_driver_route_export_access(cls, env):
+        if env.user.has_group("logistics_dispatch.group_logistics_export_user"):
+            return
+        raise DriverRouteExcelExportError(
+            "EXPORT_PERMISSION_DENIED",
+            "You do not have permission to export the driver route workbook.",
+        )
 
     @classmethod
     def _normalize_delivery_date(cls, delivery_date):

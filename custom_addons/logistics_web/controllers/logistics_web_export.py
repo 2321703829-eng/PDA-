@@ -17,6 +17,13 @@ class LogisticsWebExportController(http.Controller):
         CustomerProfileExportService.OBJECT_TYPE: CustomerProfileExportService,
         ProductProfileExportService.OBJECT_TYPE: ProductProfileExportService,
     }
+    TOP_LEVEL_HTTP_STATUS = {
+        4001: 400,
+        4003: 403,
+        4004: 404,
+        4090: 409,
+        5000: 500,
+    }
 
     @http.route(
         "/api/admin/logistics/exports/driver-route-excel/direct-download",
@@ -308,18 +315,33 @@ class LogisticsWebExportController(http.Controller):
         return []
 
     def _error_response(self, *, message, error_code, error_message, request_id_prefix, status=400):
+        top_level_code = self._resolve_top_level_code(error_code)
         return self._json_response(
             {
-                "code": 1,
+                "code": top_level_code,
                 "message": message,
                 "data": {"errors": [{"error_code": error_code, "error_message": error_message}]},
                 "request_id": self._build_request_id(request_id_prefix),
             },
-            status=status,
+            status=self.TOP_LEVEL_HTTP_STATUS.get(top_level_code, status),
         )
 
     def _resolve_error_code(self, exc, default_code):
         return getattr(exc, "error_code", default_code)
+
+    def _resolve_top_level_code(self, error_code):
+        code = (error_code or "").strip().upper()
+        if not code:
+            return 5000
+        if code in {"EXPORT_PERMISSION_DENIED", "EXPORT_OUTPUT_FILE_INVALID"} or "PERMISSION" in code:
+            return 4003
+        if any(fragment in code for fragment in ("STATE", "STATUS", "EXPIRED", "NOT_READY", "NOT_FINISHED")):
+            return 4090
+        if any(fragment in code for fragment in ("NOT_FOUND", "MISSING")):
+            return 4004
+        if any(fragment in code for fragment in ("INVALID", "EMPTY")):
+            return 4001
+        return 5000
 
     def _build_export_success_message(self, data):
         status = (data or {}).get("status")

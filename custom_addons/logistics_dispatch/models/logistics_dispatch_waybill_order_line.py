@@ -88,6 +88,46 @@ class LogisticsDispatchWaybillOrderLine(models.Model):
             if not any(record[field_name] for field_name in key_fields):
                 raise ValidationError("订单明细至少需要保留一个业务键字段。")
 
+    @api.constrains("waybill_id", "customer_line_id")
+    def _check_customer_line_belongs_to_waybill(self):
+        for record in self:
+            if record.customer_line_id and record.customer_line_id.waybill_id != record.waybill_id:
+                raise ValidationError("Order line customer_line must belong to the same waybill.")
+
+    @api.model
+    def _build_snapshot_vals(self, normalized_vals):
+        customer_line = (
+            self.env["logistics.dispatch.waybill.customer.line"].browse(normalized_vals["customer_line_id"])
+            if normalized_vals.get("customer_line_id")
+            else False
+        )
+        partner = customer_line.partner_id if customer_line else False
+        return {
+            "waybill_id": customer_line.waybill_id.id if customer_line and not normalized_vals.get("waybill_id") else normalized_vals.get("waybill_id"),
+            "store_id": partner.id if partner and not normalized_vals.get("store_id") else normalized_vals.get("store_id"),
+            "department_name_snapshot": partner.department_name or False,
+            "channel_name_snapshot": partner.channel_name or False,
+            "salesperson_name_snapshot": partner.salesperson_name or False,
+        }
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        normalized_vals_list = []
+        for vals in vals_list:
+            normalized_vals = dict(vals)
+            if normalized_vals.get("customer_line_id"):
+                for field_name, field_value in self._build_snapshot_vals(normalized_vals).items():
+                    normalized_vals.setdefault(field_name, field_value)
+            normalized_vals_list.append(normalized_vals)
+        return super().create(normalized_vals_list)
+
+    def write(self, vals):
+        normalized_vals = dict(vals)
+        if normalized_vals.get("customer_line_id"):
+            for field_name, field_value in self._build_snapshot_vals(normalized_vals).items():
+                normalized_vals.setdefault(field_name, field_value)
+        return super().write(normalized_vals)
+
     @api.onchange("customer_line_id")
     def _onchange_customer_line_id(self):
         for record in self:

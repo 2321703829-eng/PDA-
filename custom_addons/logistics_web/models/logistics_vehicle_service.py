@@ -86,22 +86,26 @@ class LogisticsDispatchWaybill(models.Model):
 
         top_regions = []
         top_stores = []
+        recent_store_ids = set()
+        recent_regions = set()
         if recent_waybills:
-            region_counter = Counter(self._get_store_region(waybill.store_id) for waybill in recent_waybills if waybill.store_id)
-            store_counter = Counter(waybill.store_id.name for waybill in recent_waybills if waybill.store_id)
+            region_counter = Counter()
+            store_counter = Counter()
+            for waybill in recent_waybills:
+                stores = self._get_waybill_store_partners(waybill)
+                recent_store_ids.update(stores.ids)
+                store_names = [store.name for store in stores if store.name]
+                store_regions = [self._get_store_region(store) for store in stores if self._get_store_region(store)]
+                store_counter.update(store_names)
+                region_counter.update(store_regions)
+                recent_regions.update(store_regions)
             top_regions = [item for item, _count in region_counter.most_common(3) if item]
             top_stores = [item for item, _count in store_counter.most_common(3) if item]
 
         batch_count = len(set(all_waybills.mapped("batch_id").ids))
         recent_batch_count = len(set(recent_waybills.mapped("batch_id").ids))
-        recent_store_count = len(set(recent_waybills.mapped("store_id").ids))
-        recent_region_count = len(
-            {
-                region
-                for region in (self._get_store_region(waybill.store_id) for waybill in recent_waybills if waybill.store_id)
-                if region
-            }
-        )
+        recent_store_count = len(recent_store_ids)
+        recent_region_count = len(recent_regions)
 
         return {
             "vehicle_id": vehicle.id,
@@ -247,8 +251,8 @@ class LogisticsDispatchWaybill(models.Model):
                 {
                     "waybill_id": waybill.id,
                     "waybill_no": waybill.name,
-                    "store_name": waybill.store_id.name or "",
-                    "store_region": self._get_store_region(waybill.store_id),
+                    "store_name": self._format_waybill_store_names(waybill),
+                    "store_region": self._format_waybill_store_regions(waybill),
                     "status": waybill.state,
                     "status_label": self._get_selection_label(waybill, "state"),
                     "delivery_date": self._to_date_string(waybill.delivery_date),

@@ -61,6 +61,7 @@ class LogisticsDriverProfile(models.Model):
     health_status_text = fields.Text(string="健康情况")
     violation_record_text = fields.Text(string="违法记录")
     credit_status_text = fields.Text(string="征信状况")
+    driver_remark = fields.Text(string="备注")
     current_address = fields.Text(string="详细住址")
     allow_night_shift = fields.Boolean(string="适合夜班", default=False)
     current_residence_region = fields.Char(string="现居住地行政区", size=128)

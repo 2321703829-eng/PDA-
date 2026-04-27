@@ -7,6 +7,19 @@ from odoo.addons.logistics_base.models.selection_options import CUSTOMER_STATUS_
 class ResPartner(models.Model):
     _inherit = "res.partner"
 
+    _uniq_logistics_customer_code = models.Constraint(
+        "unique(logistics_customer_code)",
+        "Unique logistics customer code is required.",
+    )
+    _uniq_logistics_store_code = models.Constraint(
+        "unique(logistics_store_code)",
+        "Unique logistics store code is required.",
+    )
+    _uniq_internal_customer_code = models.Constraint(
+        "unique(internal_customer_code)",
+        "Unique internal customer code is required.",
+    )
+
     _uniq_external_customer_code = models.Constraint(
         "unique(external_customer_code)",
         "外联客户编号必须唯一。",
@@ -166,10 +179,24 @@ class ResPartner(models.Model):
             normalized_vals["is_logistics_customer"] = partner_flag
             normalized_vals["is_logistics_store"] = partner_flag
 
-        unified_code = (normalized_vals.get("logistics_customer_code") or normalized_vals.get("logistics_store_code") or "").strip()
+        for field_name in (
+            "logistics_customer_code",
+            "logistics_store_code",
+            "internal_customer_code",
+            "external_customer_code",
+        ):
+            if field_name in normalized_vals:
+                normalized_vals[field_name] = (normalized_vals.get(field_name) or "").strip() or False
+
+        customer_code = normalized_vals.get("logistics_customer_code")
+        store_code = normalized_vals.get("logistics_store_code")
+        if customer_code and store_code and customer_code != store_code:
+            raise ValidationError(_("logistics_customer_code and logistics_store_code must stay consistent under the unified partner model."))
+
+        unified_code = customer_code or store_code or False
         if unified_code:
-            normalized_vals.setdefault("logistics_customer_code", unified_code)
-            normalized_vals.setdefault("logistics_store_code", unified_code)
+            normalized_vals["logistics_customer_code"] = unified_code
+            normalized_vals["logistics_store_code"] = unified_code
 
         return normalized_vals
 

@@ -51,7 +51,7 @@
 
                         <group string="留痕记录（原始）" col="1">
                             <field name="trace_event_ids" readonly="1">
-                                <list create="0" delete="0" open_form_view="1">
+                                <list create="0" delete="0" open_form_view="0">
                                     <field name="trace_time"/>
                                     <field name="event_type"/>
                                     <field name="submit_user_name"/>

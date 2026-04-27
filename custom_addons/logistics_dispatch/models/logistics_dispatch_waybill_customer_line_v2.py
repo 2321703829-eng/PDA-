@@ -98,10 +98,15 @@ class LogisticsDispatchWaybillCustomerLine(models.Model):
         for record in self:
             record.waybill_no = record.waybill_id.name or ""
 
-    @api.depends("customer_id.external_customer_code", "customer_id.logistics_customer_code")
+    @api.depends("customer_id.external_customer_code", "customer_id.logistics_customer_code", "customer_id.logistics_store_code")
     def _compute_customer_no(self):
         for record in self:
-            record.customer_no = record.customer_id.external_customer_code or record.customer_id.logistics_customer_code or ""
+            record.customer_no = (
+                record.customer_id.external_customer_code
+                or record.customer_id.logistics_customer_code
+                or record.customer_id.logistics_store_code
+                or ""
+            )
 
     @api.depends("customer_id.name")
     def _compute_customer_name(self):
@@ -129,7 +134,13 @@ class LogisticsDispatchWaybillCustomerLine(models.Model):
     def _compute_partner_fields(self):
         for record in self:
             partner = record.partner_id or record.customer_id
-            record.partner_no = partner.external_customer_code or partner.internal_customer_code or partner.logistics_customer_code or ""
+            record.partner_no = (
+                partner.external_customer_code
+                or partner.internal_customer_code
+                or partner.logistics_customer_code
+                or partner.logistics_store_code
+                or ""
+            )
             record.partner_name = partner.name or ""
 
     @api.depends("goods_line_ids", "goods_line_ids.quantity", "goods_line_ids.package_count", "goods_line_ids.weight", "goods_line_ids.volume")
@@ -202,9 +213,11 @@ class LogisticsDispatchWaybillCustomerLine(models.Model):
                 ("is_logistics_partner", "=", True),
                 "|",
                 "|",
+                "|",
                 ("external_customer_code", "=", code),
                 ("internal_customer_code", "=", code),
                 ("logistics_customer_code", "=", code),
+                ("logistics_store_code", "=", code),
             ],
             limit=2,
         )
@@ -230,9 +243,39 @@ class LogisticsDispatchWaybillCustomerLine(models.Model):
         return f"{prefix}-CL-{line_no:03d}"
 
     @api.model
+    def _build_partner_snapshot_vals(self, normalized_vals):
+        partner = self.env["res.partner"].browse(normalized_vals.get("partner_id"))
+        return {
+            "internal_customer_code_snapshot": partner.internal_customer_code or False,
+            "external_customer_code_snapshot": partner.external_customer_code or False,
+            "customer_name_snapshot": partner.name or False,
+            "contact_name_snapshot": partner.contact_name or False,
+            "contact_phone_snapshot": partner.contact_phone or False,
+            "address_full_snapshot": partner.address_full or False,
+            "longitude_snapshot": partner.partner_longitude or False,
+            "latitude_snapshot": partner.partner_latitude or False,
+            "address_region_json_snapshot": partner.address_region_json or False,
+            "signoff_requirement_snapshot": partner.default_signoff_requirement or False,
+            "delivery_access_flags_snapshot": partner.delivery_access_flags or False,
+            "upstairs_floor_count_snapshot": partner.upstairs_floor_count or 0,
+            "basement_height_limit_text_snapshot": partner.basement_height_limit_text or False,
+        }
+
+    @api.model
     def _normalize_partner_vals(self, vals):
         normalized_vals = dict(vals)
         partner = False
+        partner_fields = {
+            "partner_id",
+            "customer_id",
+            "partner_no",
+            "customer_no",
+            "store_no",
+            "partner_name",
+            "customer_name",
+            "store_name",
+        }
+        partner_supplied = any(field_name in normalized_vals for field_name in partner_fields)
 
         if "partner_id" in normalized_vals:
             partner = self.env["res.partner"].browse(normalized_vals["partner_id"]) if normalized_vals["partner_id"] else False
@@ -261,14 +304,17 @@ class LogisticsDispatchWaybillCustomerLine(models.Model):
             waybill_no = (normalized_vals.pop("waybill_no") or "").strip()
             normalized_vals["waybill_id"] = self._resolve_waybill_by_no(waybill_no).id if waybill_no else False
 
-        if partner:
-            normalized_vals["partner_id"] = partner.id
-            normalized_vals["customer_id"] = partner.id
+        if partner_supplied:
+            partner_id = partner.id if partner else False
+            normalized_vals["partner_id"] = partner_id
+            normalized_vals["customer_id"] = partner_id
 
         if not normalized_vals.get("customer_line_no") and normalized_vals.get("waybill_id"):
             normalized_vals["customer_line_no"] = self._generate_customer_line_no(normalized_vals["waybill_id"])
 
-        normalized_vals.setdefault("customer_name_snapshot", normalized_vals.get("partner_name") or normalized_vals.get("customer_name") or normalized_vals.get("store_name"))
+        if partner_supplied:
+            for field_name, field_value in self._build_partner_snapshot_vals(normalized_vals).items():
+                normalized_vals.setdefault(field_name, field_value)
         return normalized_vals
 
     @api.model_create_multi

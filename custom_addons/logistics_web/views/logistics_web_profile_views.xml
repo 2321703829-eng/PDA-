@@ -12,6 +12,7 @@
                         type="object"
                         class="oe_stat_button"
                         icon="fa-download"
+                        groups="logistics_dispatch.group_logistics_export_user"
                         string="导出结果"/>
                 </div>
             </xpath>
@@ -30,6 +31,7 @@
                         type="object"
                         class="oe_stat_button"
                         icon="fa-download"
+                        groups="logistics_dispatch.group_logistics_export_user"
                         string="导出结果"/>
                 </div>
             </xpath>
@@ -47,6 +49,7 @@
                     type="object"
                     class="oe_stat_button"
                     icon="fa-download"
+                    groups="logistics_dispatch.group_logistics_export_user"
                     string="导出结果"/>
             </xpath>
         </field>

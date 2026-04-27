@@ -1,16 +1,206 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <record id="group_logistics_dispatch_manager" model="res.groups">
+        <field name="name">调度主链管理</field>
+        <field name="comment">允许维护波次、批次和运单主链对象，并作为执行态状态修改入口。</field>
+        <field name="sequence">228</field>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <record id="group_logistics_import_manager" model="res.groups">
+        <field name="name">标准导入管理</field>
+        <field name="comment">允许查看全部标准导入任务、源文件和错误结果。</field>
+        <field name="sequence">229</field>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
     <record id="group_logistics_export_user" model="res.groups">
         <field name="name">标准导出执行</field>
-        <field name="comment">允许发起标准主链导出并查看本人导出任务结果。</field>
+        <field name="comment">允许发起标准主链导出，并查看本人导出任务结果。</field>
         <field name="sequence">230</field>
         <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
     </record>
 
     <record id="group_logistics_export_manager" model="res.groups">
         <field name="name">标准导出管理</field>
-        <field name="comment">允许查看全部标准导出任务并保留后续管理动作入口。</field>
+        <field name="comment">允许查看全部标准导出任务，并保留后续管理动作入口。</field>
         <field name="sequence">231</field>
         <field name="implied_ids" eval="[(4, ref('group_logistics_export_user'))]"/>
+    </record>
+
+    <record id="rule_logistics_import_source_file_own_read" model="ir.rule">
+        <field name="name">logistics.import.source.file own read</field>
+        <field name="model_id" ref="model_logistics_import_source_file"/>
+        <field name="domain_force">[('uploader_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_logistics_import_task_own_read" model="ir.rule">
+        <field name="name">logistics.import.task own read</field>
+        <field name="model_id" ref="model_logistics_import_task"/>
+        <field name="domain_force">[('operator_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_logistics_import_task_line_own_read" model="ir.rule">
+        <field name="name">logistics.import.task.line own read</field>
+        <field name="model_id" ref="model_logistics_import_task_line"/>
+        <field name="domain_force">[('task_id.operator_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_logistics_import_error_line_own_read" model="ir.rule">
+        <field name="name">logistics.import.error.line own read</field>
+        <field name="model_id" ref="model_logistics_import_error_line"/>
+        <field name="domain_force">[('task_id.operator_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_logistics_import_source_file_manager_read" model="ir.rule">
+        <field name="name">logistics.import.source.file manager read</field>
+        <field name="model_id" ref="model_logistics_import_source_file"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_logistics_import_manager'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_logistics_import_task_manager_read" model="ir.rule">
+        <field name="name">logistics.import.task manager read</field>
+        <field name="model_id" ref="model_logistics_import_task"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_logistics_import_manager'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_logistics_import_task_line_manager_read" model="ir.rule">
+        <field name="name">logistics.import.task.line manager read</field>
+        <field name="model_id" ref="model_logistics_import_task_line"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_logistics_import_manager'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_logistics_import_error_line_manager_read" model="ir.rule">
+        <field name="name">logistics.import.error.line manager read</field>
+        <field name="model_id" ref="model_logistics_import_error_line"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_logistics_import_manager'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_logistics_export_source_scope_own_read" model="ir.rule">
+        <field name="name">logistics.export.source.scope own read</field>
+        <field name="model_id" ref="model_logistics_export_source_scope"/>
+        <field name="domain_force">[('operator_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_logistics_export_task_own_read" model="ir.rule">
+        <field name="name">logistics.export.task own read</field>
+        <field name="model_id" ref="model_logistics_export_task"/>
+        <field name="domain_force">[('operator_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_logistics_export_task_line_own_read" model="ir.rule">
+        <field name="name">logistics.export.task.line own read</field>
+        <field name="model_id" ref="model_logistics_export_task_line"/>
+        <field name="domain_force">[('task_id.operator_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_logistics_export_error_line_own_read" model="ir.rule">
+        <field name="name">logistics.export.error.line own read</field>
+        <field name="model_id" ref="model_logistics_export_error_line"/>
+        <field name="domain_force">[('task_id.operator_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_logistics_export_source_scope_manager_read" model="ir.rule">
+        <field name="name">logistics.export.source.scope manager read</field>
+        <field name="model_id" ref="model_logistics_export_source_scope"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_logistics_export_manager'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_logistics_export_task_manager_read" model="ir.rule">
+        <field name="name">logistics.export.task manager read</field>
+        <field name="model_id" ref="model_logistics_export_task"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_logistics_export_manager'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_logistics_export_task_line_manager_read" model="ir.rule">
+        <field name="name">logistics.export.task.line manager read</field>
+        <field name="model_id" ref="model_logistics_export_task_line"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_logistics_export_manager'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_logistics_export_error_line_manager_read" model="ir.rule">
+        <field name="name">logistics.export.error.line manager read</field>
+        <field name="model_id" ref="model_logistics_export_error_line"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_logistics_export_manager'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
     </record>
 </odoo>

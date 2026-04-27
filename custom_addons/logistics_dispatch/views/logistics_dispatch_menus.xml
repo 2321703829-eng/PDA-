@@ -12,6 +12,7 @@
         id="menu_logistics_dispatch_scheduling"
         name="调度"
         parent="menu_logistics_dispatch_root"
+        groups="logistics_dispatch.group_logistics_dispatch_manager"
         sequence="20"/>
 
     <menuitem
@@ -19,6 +20,7 @@
         name="批次"
         parent="menu_logistics_dispatch_scheduling"
         action="action_logistics_dispatch_batch"
+        groups="logistics_dispatch.group_logistics_dispatch_manager"
         sequence="10"/>
 
     <menuitem
@@ -26,6 +28,7 @@
         name="波次"
         parent="menu_logistics_dispatch_scheduling"
         action="action_logistics_dispatch_wave"
+        groups="logistics_dispatch.group_logistics_dispatch_manager"
         sequence="20"/>
 
     <menuitem

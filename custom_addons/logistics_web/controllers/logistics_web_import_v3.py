@@ -3,7 +3,7 @@ import json
 import uuid
 
 from odoo import http
-from odoo.exceptions import ValidationError
+from odoo.exceptions import AccessError, ValidationError
 from odoo.http import Response, content_disposition, request
 
 from ..services.route_planning_import_service import RoutePlanningImportService
@@ -14,6 +14,14 @@ class LogisticsWebImportController(http.Controller):
     IMPORT_SERVICE_BY_OBJECT_TYPE = {
         RoutePlanningImportService.OBJECT_TYPE: RoutePlanningImportService,
     }
+    TOP_LEVEL_HTTP_STATUS = {
+        4001: 400,
+        4003: 403,
+        4004: 404,
+        4090: 409,
+        5000: 500,
+    }
+
     @http.route("/api/admin/logistics/imports/waybill-standard/template", type="http", auth="user", methods=["GET"])
     def download_waybill_standard_template_meta(self, **kwargs):
         payload = self._merged_payload()
@@ -29,23 +37,20 @@ class LogisticsWebImportController(http.Controller):
                 f"&template_locale={template_locale}"
             )
         except ValidationError as exc:
-            return self._json_response(
-                {
-                    "code": 1,
-                    "message": "模板语言不正确",
-                    "data": {"errors": [{"error_code": "TEMPLATE_LOCALE_INVALID", "error_message": str(exc)}]},
-                    "request_id": self._build_request_id("req_import_template"),
-                },
-                status=400,
+            return self._error_response(
+                message="模板查询失败",
+                error_code="TEMPLATE_LOCALE_INVALID",
+                error_message=str(exc),
+                request_id_prefix="req_import_template",
             )
-        return self._json_response(
-            {
-                "code": 0,
-                "message": "成功",
-                "data": data,
-                "request_id": self._build_request_id("req_import_template"),
-            }
-        )
+        except Exception as exc:
+            return self._error_response(
+                message="模板查询失败",
+                error_code="IMPORT_INTERNAL_ERROR",
+                error_message=str(exc),
+                request_id_prefix="req_import_template",
+            )
+        return self._success_response(data=data, request_id_prefix="req_import_template")
 
     @http.route(
         "/api/admin/logistics/imports/waybill-standard/template/download",
@@ -55,39 +60,39 @@ class LogisticsWebImportController(http.Controller):
     )
     def download_waybill_standard_template_file(self, template_code=None, template_version=None, template_locale=None, **kwargs):
         if template_code and template_code != WaybillStandardImportService.TEMPLATE_CODE:
-            return self._json_response(
-                {
-                    "code": 1,
-                    "message": "模板编码不正确",
-                    "data": {"errors": [{"error_code": "TEMPLATE_CODE_INVALID", "error_message": f"请使用标准模板 {WaybillStandardImportService.TEMPLATE_CODE}。"}]},
-                    "request_id": self._build_request_id("req_import_template"),
-                },
-                status=400,
+            return self._error_response(
+                message="模板下载失败",
+                error_code="TEMPLATE_CODE_INVALID",
+                error_message=f"请使用标准模板 {WaybillStandardImportService.TEMPLATE_CODE}。",
+                request_id_prefix="req_import_template",
             )
         if template_version and template_version.lower() != WaybillStandardImportService.TEMPLATE_VERSION:
-            return self._json_response(
-                {
-                    "code": 1,
-                    "message": "模板版本不正确",
-                    "data": {"errors": [{"error_code": "TEMPLATE_VERSION_INVALID", "error_message": f"请使用模板版本 {WaybillStandardImportService.TEMPLATE_VERSION}。"}]},
-                    "request_id": self._build_request_id("req_import_template"),
-                },
-                status=400,
+            return self._error_response(
+                message="模板下载失败",
+                error_code="TEMPLATE_VERSION_INVALID",
+                error_message=f"请使用模板版本 {WaybillStandardImportService.TEMPLATE_VERSION}。",
+                request_id_prefix="req_import_template",
             )
         try:
             template_variant = WaybillStandardImportService.get_template_variant(template_locale)
+            file_bytes = WaybillStandardImportService.load_template_bytes(
+                template_locale=template_variant["template_locale"]
+            )
         except ValidationError as exc:
-            return self._json_response(
-                {
-                    "code": 1,
-                    "message": "模板语言不正确",
-                    "data": {"errors": [{"error_code": "TEMPLATE_LOCALE_INVALID", "error_message": str(exc)}]},
-                    "request_id": self._build_request_id("req_import_template"),
-                },
-                status=400,
+            return self._error_response(
+                message="模板下载失败",
+                error_code="TEMPLATE_LOCALE_INVALID",
+                error_message=str(exc),
+                request_id_prefix="req_import_template",
+            )
+        except Exception as exc:
+            return self._error_response(
+                message="模板下载失败",
+                error_code="IMPORT_INTERNAL_ERROR",
+                error_message=str(exc),
+                request_id_prefix="req_import_template",
             )
 
-        file_bytes = WaybillStandardImportService.load_template_bytes(template_locale=template_variant["template_locale"])
         headers = [
             ("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"),
             ("Content-Disposition", content_disposition(template_variant["file_name"])),
@@ -109,23 +114,20 @@ class LogisticsWebImportController(http.Controller):
                 f"&template_locale={template_locale}"
             )
         except ValidationError as exc:
-            return self._json_response(
-                {
-                    "code": 1,
-                    "message": "模板语言不正确",
-                    "data": {"errors": [{"error_code": "TEMPLATE_LOCALE_INVALID", "error_message": str(exc)}]},
-                    "request_id": self._build_request_id("req_route_planning_template"),
-                },
-                status=400,
+            return self._error_response(
+                message="模板查询失败",
+                error_code="TEMPLATE_LOCALE_INVALID",
+                error_message=str(exc),
+                request_id_prefix="req_route_planning_template",
             )
-        return self._json_response(
-            {
-                "code": 0,
-                "message": "成功",
-                "data": data,
-                "request_id": self._build_request_id("req_route_planning_template"),
-            }
-        )
+        except Exception as exc:
+            return self._error_response(
+                message="模板查询失败",
+                error_code="IMPORT_INTERNAL_ERROR",
+                error_message=str(exc),
+                request_id_prefix="req_route_planning_template",
+            )
+        return self._success_response(data=data, request_id_prefix="req_route_planning_template")
 
     @http.route(
         "/api/admin/logistics/imports/route-planning/template/download",
@@ -135,53 +137,39 @@ class LogisticsWebImportController(http.Controller):
     )
     def download_route_planning_template_file(self, template_code=None, template_version=None, template_locale=None, **kwargs):
         if template_code and template_code != RoutePlanningImportService.TEMPLATE_CODE:
-            return self._json_response(
-                {
-                    "code": 1,
-                    "message": "模板编码不正确",
-                    "data": {
-                        "errors": [
-                            {
-                                "error_code": "TEMPLATE_CODE_INVALID",
-                                "error_message": f"请使用标准模板 {RoutePlanningImportService.TEMPLATE_CODE}。",
-                            }
-                        ]
-                    },
-                    "request_id": self._build_request_id("req_route_planning_template"),
-                },
-                status=400,
+            return self._error_response(
+                message="模板下载失败",
+                error_code="TEMPLATE_CODE_INVALID",
+                error_message=f"请使用标准模板 {RoutePlanningImportService.TEMPLATE_CODE}。",
+                request_id_prefix="req_route_planning_template",
             )
         if template_version and template_version.lower() != RoutePlanningImportService.TEMPLATE_VERSION:
-            return self._json_response(
-                {
-                    "code": 1,
-                    "message": "模板版本不正确",
-                    "data": {
-                        "errors": [
-                            {
-                                "error_code": "TEMPLATE_VERSION_INVALID",
-                                "error_message": f"请使用模板版本 {RoutePlanningImportService.TEMPLATE_VERSION}。",
-                            }
-                        ]
-                    },
-                    "request_id": self._build_request_id("req_route_planning_template"),
-                },
-                status=400,
+            return self._error_response(
+                message="模板下载失败",
+                error_code="TEMPLATE_VERSION_INVALID",
+                error_message=f"请使用模板版本 {RoutePlanningImportService.TEMPLATE_VERSION}。",
+                request_id_prefix="req_route_planning_template",
             )
         try:
             template_variant = RoutePlanningImportService.get_template_variant(template_locale)
+            file_bytes = RoutePlanningImportService.load_template_bytes(
+                template_locale=template_variant["template_locale"]
+            )
         except ValidationError as exc:
-            return self._json_response(
-                {
-                    "code": 1,
-                    "message": "模板语言不正确",
-                    "data": {"errors": [{"error_code": "TEMPLATE_LOCALE_INVALID", "error_message": str(exc)}]},
-                    "request_id": self._build_request_id("req_route_planning_template"),
-                },
-                status=400,
+            return self._error_response(
+                message="模板下载失败",
+                error_code="TEMPLATE_LOCALE_INVALID",
+                error_message=str(exc),
+                request_id_prefix="req_route_planning_template",
+            )
+        except Exception as exc:
+            return self._error_response(
+                message="模板下载失败",
+                error_code="IMPORT_INTERNAL_ERROR",
+                error_message=str(exc),
+                request_id_prefix="req_route_planning_template",
             )
 
-        file_bytes = RoutePlanningImportService.load_template_bytes(template_locale=template_variant["template_locale"])
         headers = [
             ("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"),
             ("Content-Disposition", content_disposition(template_variant["file_name"])),
@@ -195,43 +183,43 @@ class LogisticsWebImportController(http.Controller):
         filename = upload_file.filename if upload_file else payload.get("file_name", "")
         raw_bytes = upload_file.read() if upload_file else self._decode_base64_file(payload.get("file_base64"))
         if raw_bytes is None:
-            return self._json_response(
-                {
-                    "code": 1,
-                    "message": "预校验失败",
-                    "data": {
-                        "template_code": WaybillStandardImportService.TEMPLATE_CODE,
-                        "template_version": WaybillStandardImportService.TEMPLATE_VERSION,
-                        "task_no": False,
-                        "import_batch_no": False,
-                        "precheck_token": False,
-                        "error_report_url": False,
-                        "total_row_count": 0,
-                        "passed_row_count": 0,
-                        "failed_row_count": 0,
-                        "can_confirm_import": False,
-                        "errors": [{"sheet_name": "模板文件", "row_no": 0, "field_code": "template_file", "field_label": "模板文件", "error_code": "PRECHECK_PARSE_FAILED", "error_message": "文件内容不是有效的 Base64 编码。"}],
-                    },
-                    "request_id": self._build_request_id("req_import_precheck"),
-                },
-                status=400,
+            return self._error_response(
+                message="预校验失败",
+                error_code="PRECHECK_PARSE_FAILED",
+                error_message="文件内容不是有效的 Base64 编码。",
+                request_id_prefix="req_import_precheck",
             )
-
-        data = WaybillStandardImportService.precheck(
-            request.env,
-            raw_bytes,
-            filename=filename,
-            template_code=payload.get("template_code"),
-            template_version=payload.get("template_version"),
-        )
-        return self._json_response(
-            {
-                "code": 0,
-                "message": "预校验完成" if data["errors"] else "预校验通过",
-                "data": data,
-                "request_id": self._build_request_id("req_import_precheck"),
-            }
-        )
+        try:
+            data = WaybillStandardImportService.precheck(
+                request.env,
+                raw_bytes,
+                filename=filename,
+                template_code=payload.get("template_code"),
+                template_version=payload.get("template_version"),
+            )
+        except ValidationError as exc:
+            return self._error_response(
+                message="预校验失败",
+                error_code="IMPORT_PRECHECK_INVALID",
+                error_message=str(exc),
+                request_id_prefix="req_import_precheck",
+            )
+        except AccessError as exc:
+            return self._error_response(
+                message="预校验失败",
+                error_code="IMPORT_PERMISSION_DENIED",
+                error_message=str(exc),
+                request_id_prefix="req_import_precheck",
+            )
+        except Exception as exc:
+            return self._error_response(
+                message="预校验失败",
+                error_code="IMPORT_INTERNAL_ERROR",
+                error_message=str(exc),
+                request_id_prefix="req_import_precheck",
+            )
+        message = "预校验通过" if not data.get("errors") else "预校验完成"
+        return self._success_response(data=data, request_id_prefix="req_import_precheck", message=message)
 
     @http.route("/api/admin/logistics/imports/route-planning/precheck", type="http", auth="user", methods=["POST"], csrf=False)
     def precheck_route_planning_import(self, **kwargs):
@@ -240,57 +228,48 @@ class LogisticsWebImportController(http.Controller):
         filename = upload_file.filename if upload_file else payload.get("file_name", "")
         raw_bytes = upload_file.read() if upload_file else self._decode_base64_file(payload.get("file_base64"))
         if raw_bytes is None:
-            return self._json_response(
-                {
-                    "code": 1,
-                    "message": "预校验失败",
-                    "data": {
-                        "template_code": RoutePlanningImportService.TEMPLATE_CODE,
-                        "template_version": RoutePlanningImportService.TEMPLATE_VERSION,
-                        "task_no": False,
-                        "import_batch_no": False,
-                        "precheck_token": False,
-                        "error_report_url": False,
-                        "total_row_count": 0,
-                        "passed_row_count": 0,
-                        "failed_row_count": 0,
-                        "can_confirm_import": False,
-                        "errors": [
-                            {
-                                "sheet_name": "模板文件",
-                                "row_no": 0,
-                                "field_code": "template_file",
-                                "field_label": "模板文件",
-                                "error_code": "PRECHECK_PARSE_FAILED",
-                                "error_message": "文件内容不是有效的 Base64 编码。",
-                            }
-                        ],
-                    },
-                    "request_id": self._build_request_id("req_route_planning_precheck"),
-                },
-                status=400,
+            return self._error_response(
+                message="预校验失败",
+                error_code="PRECHECK_PARSE_FAILED",
+                error_message="文件内容不是有效的 Base64 编码。",
+                request_id_prefix="req_route_planning_precheck",
+            )
+        try:
+            data = RoutePlanningImportService.precheck(
+                request.env,
+                raw_bytes,
+                filename=filename,
+                template_code=payload.get("template_code"),
+                template_version=payload.get("template_version"),
+            )
+        except ValidationError as exc:
+            return self._error_response(
+                message="预校验失败",
+                error_code="IMPORT_PRECHECK_INVALID",
+                error_message=str(exc),
+                request_id_prefix="req_route_planning_precheck",
+            )
+        except AccessError as exc:
+            return self._error_response(
+                message="预校验失败",
+                error_code="IMPORT_PERMISSION_DENIED",
+                error_message=str(exc),
+                request_id_prefix="req_route_planning_precheck",
+            )
+        except Exception as exc:
+            return self._error_response(
+                message="预校验失败",
+                error_code="IMPORT_INTERNAL_ERROR",
+                error_message=str(exc),
+                request_id_prefix="req_route_planning_precheck",
             )
 
-        data = RoutePlanningImportService.precheck(
-            request.env,
-            raw_bytes,
-            filename=filename,
-            template_code=payload.get("template_code"),
-            template_version=payload.get("template_version"),
-        )
         message = "预校验通过"
         if data.get("errors"):
             message = "预校验完成"
         elif data.get("has_review_warning"):
             message = "预校验通过，但存在人工复查提醒"
-        return self._json_response(
-            {
-                "code": 0,
-                "message": message,
-                "data": data,
-                "request_id": self._build_request_id("req_route_planning_precheck"),
-            }
-        )
+        return self._success_response(data=data, request_id_prefix="req_route_planning_precheck", message=message)
 
     @http.route("/api/admin/logistics/imports/waybill-standard/confirm", type="http", auth="user", methods=["POST"], csrf=False)
     def confirm_waybill_standard_import(self, **kwargs):
@@ -302,25 +281,28 @@ class LogisticsWebImportController(http.Controller):
                 import_batch_no=payload.get("import_batch_no", ""),
                 task_no=payload.get("task_no", ""),
             )
-        except ValidationError as exc:
-            return self._json_response(
-                {
-                    "code": 1,
-                    "message": "正式导入失败",
-                    "data": {"errors": [{"error_code": "IMPORT_CONFIRM_FAILED", "error_message": str(exc)}]},
-                    "request_id": self._build_request_id("req_import_confirm"),
-                },
-                status=400,
+        except AccessError as exc:
+            return self._error_response(
+                message="正式导入失败",
+                error_code="IMPORT_PERMISSION_DENIED",
+                error_message=str(exc),
+                request_id_prefix="req_import_confirm",
             )
-
-        return self._json_response(
-            {
-                "code": 0,
-                "message": "正式导入完成",
-                "data": data,
-                "request_id": self._build_request_id("req_import_confirm"),
-            }
-        )
+        except ValidationError as exc:
+            return self._error_response(
+                message="正式导入失败",
+                error_code=self._resolve_import_confirm_error_code(str(exc)),
+                error_message=str(exc),
+                request_id_prefix="req_import_confirm",
+            )
+        except Exception as exc:
+            return self._error_response(
+                message="正式导入失败",
+                error_code="IMPORT_INTERNAL_ERROR",
+                error_message=str(exc),
+                request_id_prefix="req_import_confirm",
+            )
+        return self._success_response(data=data, request_id_prefix="req_import_confirm", message="正式导入完成")
 
     @http.route("/api/admin/logistics/imports/route-planning/confirm", type="http", auth="user", methods=["POST"], csrf=False)
     def confirm_route_planning_import(self, **kwargs):
@@ -332,24 +314,31 @@ class LogisticsWebImportController(http.Controller):
                 import_batch_no=payload.get("import_batch_no", ""),
                 task_no=payload.get("task_no", ""),
             )
-        except ValidationError as exc:
-            return self._json_response(
-                {
-                    "code": 1,
-                    "message": "正式导入失败",
-                    "data": {"errors": [{"error_code": "IMPORT_CONFIRM_FAILED", "error_message": str(exc)}]},
-                    "request_id": self._build_request_id("req_route_planning_confirm"),
-                },
-                status=400,
+        except AccessError as exc:
+            return self._error_response(
+                message="正式导入失败",
+                error_code="IMPORT_PERMISSION_DENIED",
+                error_message=str(exc),
+                request_id_prefix="req_route_planning_confirm",
             )
-
-        return self._json_response(
-            {
-                "code": 0,
-                "message": "正式导入完成",
-                "data": data,
-                "request_id": self._build_request_id("req_route_planning_confirm"),
-            }
+        except ValidationError as exc:
+            return self._error_response(
+                message="正式导入失败",
+                error_code=self._resolve_import_confirm_error_code(str(exc)),
+                error_message=str(exc),
+                request_id_prefix="req_route_planning_confirm",
+            )
+        except Exception as exc:
+            return self._error_response(
+                message="正式导入失败",
+                error_code="IMPORT_INTERNAL_ERROR",
+                error_message=str(exc),
+                request_id_prefix="req_route_planning_confirm",
+            )
+        return self._success_response(
+            data=data,
+            request_id_prefix="req_route_planning_confirm",
+            message="正式导入完成",
         )
 
     @http.route("/api/admin/logistics/imports/tasks/<string:task_no>", type="http", auth="user", methods=["GET"])
@@ -372,85 +361,102 @@ class LogisticsWebImportController(http.Controller):
         try:
             task_ref = task_no or import_batch_no or ""
             service = self._get_import_service_by_task_ref(task_ref)
-            data = service.get_import_task_result(request.env, task_no=task_no or "", import_batch_no=import_batch_no or "")
-        except ValidationError as exc:
-            return self._json_response(
-                {
-                    "code": 1,
-                    "message": "查询导入结果失败",
-                    "data": {"errors": [{"error_code": "IMPORT_RESULT_NOT_FOUND", "error_message": str(exc)}]},
-                    "request_id": self._build_request_id("req_import_task_result"),
-                },
-                status=400,
+            data = service.get_import_task_result(
+                request.env,
+                task_no=task_no or "",
+                import_batch_no=import_batch_no or "",
             )
-
-        return self._json_response(
-            {
-                "code": 0,
-                "message": "成功",
-                "data": data,
-                "request_id": self._build_request_id("req_import_task_result"),
-            }
-        )
+        except AccessError as exc:
+            return self._error_response(
+                message="查询导入结果失败",
+                error_code="IMPORT_PERMISSION_DENIED",
+                error_message=str(exc),
+                request_id_prefix="req_import_task_result",
+            )
+        except ValidationError as exc:
+            return self._error_response(
+                message="查询导入结果失败",
+                error_code="IMPORT_RESULT_NOT_FOUND",
+                error_message=str(exc),
+                request_id_prefix="req_import_task_result",
+            )
+        except Exception as exc:
+            return self._error_response(
+                message="查询导入结果失败",
+                error_code="IMPORT_INTERNAL_ERROR",
+                error_message=str(exc),
+                request_id_prefix="req_import_task_result",
+            )
+        return self._success_response(data=data, request_id_prefix="req_import_task_result")
 
     @http.route("/api/admin/logistics/imports/tasks/<string:task_no>/lines", type="http", auth="user", methods=["GET"])
     def get_import_task_lines(self, task_no=None, **kwargs):
         payload = self._merged_payload()
         try:
-            data = WaybillStandardImportService.get_import_task_lines(
+            service = self._get_import_service_by_task_ref(task_no or payload.get("task_no") or "")
+            data = service.get_import_task_lines(
                 request.env,
                 task_no=task_no or payload.get("task_no"),
                 page=payload.get("page", 1),
                 page_size=payload.get("page_size", 20),
                 status=payload.get("status", ""),
             )
-        except ValidationError as exc:
-            return self._json_response(
-                {
-                    "code": 1,
-                    "message": "查询导入行结果失败",
-                    "data": {"errors": [{"error_code": "IMPORT_TASK_LINE_NOT_FOUND", "error_message": str(exc)}]},
-                    "request_id": self._build_request_id("req_import_task_lines"),
-                },
-                status=400,
+        except AccessError as exc:
+            return self._error_response(
+                message="查询导入行结果失败",
+                error_code="IMPORT_PERMISSION_DENIED",
+                error_message=str(exc),
+                request_id_prefix="req_import_task_lines",
             )
-        return self._json_response(
-            {
-                "code": 0,
-                "message": "成功",
-                "data": data,
-                "request_id": self._build_request_id("req_import_task_lines"),
-            }
-        )
+        except ValidationError as exc:
+            return self._error_response(
+                message="查询导入行结果失败",
+                error_code="IMPORT_TASK_LINE_NOT_FOUND",
+                error_message=str(exc),
+                request_id_prefix="req_import_task_lines",
+            )
+        except Exception as exc:
+            return self._error_response(
+                message="查询导入行结果失败",
+                error_code="IMPORT_INTERNAL_ERROR",
+                error_message=str(exc),
+                request_id_prefix="req_import_task_lines",
+            )
+        return self._success_response(data=data, request_id_prefix="req_import_task_lines")
 
     @http.route("/api/admin/logistics/imports/tasks/<string:task_no>/errors", type="http", auth="user", methods=["GET"])
     def get_import_task_errors(self, task_no=None, **kwargs):
         payload = self._merged_payload()
         try:
-            data = WaybillStandardImportService.get_import_task_errors(
+            service = self._get_import_service_by_task_ref(task_no or payload.get("task_no") or "")
+            data = service.get_import_task_errors(
                 request.env,
                 task_no=task_no or payload.get("task_no"),
                 page=payload.get("page", 1),
                 page_size=payload.get("page_size", 50),
             )
-        except ValidationError as exc:
-            return self._json_response(
-                {
-                    "code": 1,
-                    "message": "查询导入错误明细失败",
-                    "data": {"errors": [{"error_code": "IMPORT_TASK_ERROR_NOT_FOUND", "error_message": str(exc)}]},
-                    "request_id": self._build_request_id("req_import_task_errors"),
-                },
-                status=400,
+        except AccessError as exc:
+            return self._error_response(
+                message="查询导入错误明细失败",
+                error_code="IMPORT_PERMISSION_DENIED",
+                error_message=str(exc),
+                request_id_prefix="req_import_task_errors",
             )
-        return self._json_response(
-            {
-                "code": 0,
-                "message": "成功",
-                "data": data,
-                "request_id": self._build_request_id("req_import_task_errors"),
-            }
-        )
+        except ValidationError as exc:
+            return self._error_response(
+                message="查询导入错误明细失败",
+                error_code="IMPORT_TASK_ERROR_NOT_FOUND",
+                error_message=str(exc),
+                request_id_prefix="req_import_task_errors",
+            )
+        except Exception as exc:
+            return self._error_response(
+                message="查询导入错误明细失败",
+                error_code="IMPORT_INTERNAL_ERROR",
+                error_message=str(exc),
+                request_id_prefix="req_import_task_errors",
+            )
+        return self._success_response(data=data, request_id_prefix="req_import_task_errors")
 
     @http.route("/api/admin/logistics/imports/tasks/<string:task_no>/error-report", type="http", auth="user", methods=["GET"])
     def download_import_task_error_report(self, task_no=None, **kwargs):
@@ -472,21 +478,34 @@ class LogisticsWebImportController(http.Controller):
 
     def _download_import_error_report_response(self, *, task_no=None, import_batch_no="", precheck_token=""):
         try:
-            report = WaybillStandardImportService.build_import_task_error_report(
+            task_ref = task_no or import_batch_no or ""
+            service = self._get_import_service_by_task_ref(task_ref)
+            report = service.build_import_task_error_report(
                 request.env,
                 task_no=task_no or "",
                 import_batch_no=import_batch_no,
                 precheck_token=precheck_token,
             )
+        except AccessError as exc:
+            return self._error_response(
+                message="下载错误报告失败",
+                error_code="IMPORT_PERMISSION_DENIED",
+                error_message=str(exc),
+                request_id_prefix="req_import_task_error_report",
+            )
         except ValidationError as exc:
-            return self._json_response(
-                {
-                    "code": 1,
-                    "message": "下载错误报告失败",
-                    "data": {"errors": [{"error_code": "ERROR_REPORT_NOT_FOUND", "error_message": str(exc)}]},
-                    "request_id": self._build_request_id("req_import_task_error_report"),
-                },
-                status=400,
+            return self._error_response(
+                message="下载错误报告失败",
+                error_code="ERROR_REPORT_NOT_FOUND",
+                error_message=str(exc),
+                request_id_prefix="req_import_task_error_report",
+            )
+        except Exception as exc:
+            return self._error_response(
+                message="下载错误报告失败",
+                error_code="IMPORT_INTERNAL_ERROR",
+                error_message=str(exc),
+                request_id_prefix="req_import_task_error_report",
             )
 
         headers = [
@@ -494,6 +513,61 @@ class LogisticsWebImportController(http.Controller):
             ("Content-Disposition", content_disposition(report["file_name"])),
         ]
         return request.make_response(report["file_bytes"], headers=headers)
+
+    def _success_response(self, *, data, request_id_prefix, message="成功", status=200):
+        return self._json_response(
+            {
+                "code": 0,
+                "message": message,
+                "data": data,
+                "request_id": self._build_request_id(request_id_prefix),
+            },
+            status=status,
+        )
+
+    def _error_response(self, *, message, error_code, error_message, request_id_prefix, status=400):
+        top_level_code = self._resolve_top_level_code(error_code, error_message)
+        return self._json_response(
+            {
+                "code": top_level_code,
+                "message": message,
+                "data": {"errors": [{"error_code": error_code, "error_message": error_message}]},
+                "request_id": self._build_request_id(request_id_prefix),
+            },
+            status=self.TOP_LEVEL_HTTP_STATUS.get(top_level_code, status),
+        )
+
+    def _resolve_top_level_code(self, error_code, error_message=""):
+        code = (error_code or "").strip().upper()
+        message = (error_message or "").strip()
+        if code in {"IMPORT_PERMISSION_DENIED"} or "PERMISSION" in code or "FORBIDDEN" in code:
+            return 4003
+        if any(fragment in code for fragment in ("STATE", "STATUS", "EXPIRED", "NOT_READY", "NOT_FINISHED", "CONFLICT")):
+            return 4090
+        if any(fragment in code for fragment in ("NOT_FOUND", "REPORT_NOT_FOUND")):
+            return 4004
+        if any(fragment in code for fragment in ("INVALID", "EMPTY", "PARSE_FAILED", "TEMPLATE")):
+            return 4001
+
+        if any(fragment in message for fragment in ("无权", "禁止", "forbidden")):
+            return 4003
+        if any(fragment in message for fragment in ("失效", "不允许", "未通过", "正在执行", "已存在", "稍后刷新")):
+            return 4090
+        if any(fragment in message for fragment in ("未找到", "不存在")):
+            return 4004
+        if any(fragment in message for fragment in ("请提供", "非法", "无效", "模板", "Base64")):
+            return 4001
+        return 5000
+
+    def _resolve_import_confirm_error_code(self, error_message):
+        message = (error_message or "").strip()
+        if any(fragment in message for fragment in ("失效", "不允许", "未通过", "正在执行", "已存在")):
+            return "IMPORT_CONFIRM_STATUS_INVALID"
+        if any(fragment in message for fragment in ("未找到", "不存在")):
+            return "IMPORT_CONFIRM_NOT_FOUND"
+        if any(fragment in message for fragment in ("请提供", "非法", "无效")):
+            return "IMPORT_CONFIRM_INVALID"
+        return "IMPORT_CONFIRM_FAILED"
 
     def _merged_payload(self):
         payload = dict(request.params)

@@ -186,6 +186,7 @@
                             <field name="health_status_text"/>
                             <field name="violation_record_text"/>
                             <field name="credit_status_text"/>
+                            <field name="driver_remark"/>
                         </group>
                     </group>
                 </sheet>

@@ -11,6 +11,7 @@
         "logistics_trace_evidence",
     ],
     "data": [
+        "security/logistics_trace_exception_security.xml",
         "security/ir.model.access.csv",
         "views/logistics_trace_exception_views.xml",
     ],

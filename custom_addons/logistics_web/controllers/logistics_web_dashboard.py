@@ -1,9 +1,12 @@
 import json
+import logging
 import uuid
 
 from odoo import http
 from odoo.exceptions import AccessError
 from odoo.http import Response, request
+
+_logger = logging.getLogger(__name__)
 
 
 class LogisticsWebDashboardController(http.Controller):
@@ -46,6 +49,24 @@ class LogisticsWebDashboardController(http.Controller):
                     "request_id": self._build_request_id(request_prefix),
                 },
                 status=403,
+            )
+        except Exception as exc:  # pragma: no cover - exercised via Odoo shell smoke
+            _logger.exception("Dashboard payload build failed for %s", request_prefix)
+            return self._json_response(
+                {
+                    "code": 5000,
+                    "message": "internal_error",
+                    "data": {
+                        "errors": [
+                            {
+                                "error_code": "ANALYSIS_INTERNAL_ERROR",
+                                "error_message": str(exc),
+                            }
+                        ]
+                    },
+                    "request_id": self._build_request_id(request_prefix),
+                },
+                status=500,
             )
         return self._json_response(
             {

@@ -34,10 +34,7 @@ class LogisticsDispatchWaybill(models.Model):
     partner_id = fields.Many2one(
         "res.partner",
         string="客户",
-        compute="_compute_partner_fields",
-        inverse="_inverse_partner_id",
         store=True,
-        readonly=False,
         domain="[('is_logistics_partner', '=', True)]",
         ondelete="set null",
     )
@@ -148,10 +145,15 @@ class LogisticsDispatchWaybill(models.Model):
         for record in self:
             record.batch_no = record.batch_id.name or ""
 
-    @api.depends("customer_id.logistics_customer_code", "customer_id.external_customer_code")
+    @api.depends("customer_id.logistics_customer_code", "customer_id.logistics_store_code", "customer_id.external_customer_code")
     def _compute_customer_no(self):
         for record in self:
-            record.customer_no = record.customer_id.external_customer_code or record.customer_id.logistics_customer_code or ""
+            record.customer_no = (
+                record.customer_id.external_customer_code
+                or record.customer_id.logistics_customer_code
+                or record.customer_id.logistics_store_code
+                or ""
+            )
 
     @api.depends("customer_id.name")
     def _compute_customer_name(self):
@@ -179,9 +181,14 @@ class LogisticsDispatchWaybill(models.Model):
     )
     def _compute_partner_fields(self):
         for record in self:
-            partner = record.customer_id or record.store_id
-            record.partner_id = partner
-            record.partner_no = partner.external_customer_code or partner.internal_customer_code or partner.logistics_customer_code or ""
+            partner = record.partner_id or record.customer_id or record.store_id
+            record.partner_no = (
+                partner.external_customer_code
+                or partner.internal_customer_code
+                or partner.logistics_customer_code
+                or partner.logistics_store_code
+                or ""
+            )
             record.partner_name = partner.name or ""
 
     def _inverse_waybill_no(self):
@@ -234,9 +241,18 @@ class LogisticsDispatchWaybill(models.Model):
             record._apply_partner_link(partner)
 
     def _apply_partner_link(self, partner):
+        link_vals = self._prepare_partner_link_vals(partner)
         for record in self:
-            record.customer_id = partner or False
-            record.store_id = partner or False
+            record.update(link_vals)
+
+    @api.model
+    def _prepare_partner_link_vals(self, partner):
+        partner_id = partner.id if partner else False
+        return {
+            "partner_id": partner_id,
+            "customer_id": partner_id,
+            "store_id": partner_id,
+        }
 
     @api.model
     def _ensure_unique_record(self, records, field_label, value):
@@ -258,9 +274,11 @@ class LogisticsDispatchWaybill(models.Model):
                 ("is_logistics_partner", "=", True),
                 "|",
                 "|",
+                "|",
                 ("external_customer_code", "=", code),
                 ("internal_customer_code", "=", code),
                 ("logistics_customer_code", "=", code),
+                ("logistics_store_code", "=", code),
             ],
             limit=2,
         )
@@ -275,9 +293,33 @@ class LogisticsDispatchWaybill(models.Model):
         return self._ensure_unique_record(partners, "客户名称", name)
 
     @api.model
+    def _build_snapshot_vals(self, normalized_vals):
+        batch = self.env["logistics.dispatch.batch"].browse(normalized_vals.get("batch_id"))
+        warehouse = self.env["stock.warehouse"].browse(normalized_vals.get("warehouse_id")) or batch.warehouse_id
+        partner = self.env["res.partner"].browse(normalized_vals.get("partner_id"))
+        return {
+            "organization_name_snapshot": partner.organization_name or batch.wave_id.organization_name_snapshot or warehouse.company_id.name or False,
+            "warehouse_name_snapshot": warehouse.name or False,
+            "route_name_snapshot": batch.route_name_snapshot or batch.route_summary or False,
+            "delivery_remark_snapshot": normalized_vals.get("delivery_remark_snapshot") or normalized_vals.get("remark") or False,
+        }
+
+    @api.model
     def _normalize_partner_vals(self, vals):
         normalized_vals = dict(vals)
         partner = False
+        partner_fields = {
+            "partner_id",
+            "customer_id",
+            "store_id",
+            "partner_no",
+            "customer_no",
+            "store_no",
+            "partner_name",
+            "customer_name",
+            "store_name",
+        }
+        partner_supplied = any(field_name in normalized_vals for field_name in partner_fields)
 
         if "partner_id" in normalized_vals:
             partner = self.env["res.partner"].browse(normalized_vals["partner_id"]) if normalized_vals["partner_id"] else False
@@ -310,12 +352,43 @@ class LogisticsDispatchWaybill(models.Model):
             batch_no = (normalized_vals.pop("batch_no") or "").strip()
             normalized_vals["batch_id"] = self._resolve_batch_by_no(batch_no).id if batch_no else False
 
-        if partner:
-            normalized_vals["partner_id"] = partner.id
-            normalized_vals["customer_id"] = partner.id
-            normalized_vals["store_id"] = partner.id
+        batch_id = normalized_vals.get("batch_id")
+        if batch_id and not normalized_vals.get("warehouse_id"):
+            batch = self.env["logistics.dispatch.batch"].browse(batch_id)
+            normalized_vals["warehouse_id"] = batch.warehouse_id.id
+
+        if partner_supplied:
+            normalized_vals.update(self._prepare_partner_link_vals(partner))
+
+        refresh_snapshot = not self.env.context.get("skip_waybill_snapshot_sync") and (
+            self.env.context.get("waybill_snapshot_force")
+            or any(
+                field_name in normalized_vals
+                for field_name in (
+                    "batch_id",
+                    "warehouse_id",
+                    "partner_id",
+                    "customer_id",
+                    "store_id",
+                    "remark",
+                )
+            )
+        )
+        if refresh_snapshot:
+            snapshot_vals = self._build_snapshot_vals(normalized_vals)
+            for field_name, field_value in snapshot_vals.items():
+                if field_name not in normalized_vals:
+                    normalized_vals[field_name] = field_value
 
         return normalized_vals
+
+    @api.constrains("batch_id", "warehouse_id")
+    def _check_batch_warehouse_consistency(self):
+        for record in self:
+            if record.batch_id and not record.warehouse_id:
+                raise ValidationError("Waybill warehouse is required when batch_id is set.")
+            if record.batch_id and record.warehouse_id and record.batch_id.warehouse_id != record.warehouse_id:
+                raise ValidationError("Waybill warehouse must match its batch warehouse.")
 
     @api.depends("order_line_ids")
     def _compute_order_line_count(self):
@@ -347,14 +420,14 @@ class LogisticsDispatchWaybill(models.Model):
     @api.onchange("batch_id")
     def _onchange_batch_id(self):
         for record in self:
-            if record.batch_id and not record.warehouse_id:
+            if record.batch_id:
                 record.warehouse_id = record.batch_id.warehouse_id
 
     @api.model_create_multi
     def create(self, vals_list):
         normalized_vals_list = []
         for vals in vals_list:
-            normalized_vals = self._normalize_partner_vals(vals)
+            normalized_vals = self.with_context(waybill_snapshot_force=True)._normalize_partner_vals(vals)
             if normalized_vals.get("name", "新建") in ("New", "新建"):
                 normalized_vals["name"] = self.env["ir.sequence"].next_by_code("logistics.dispatch.waybill") or "新建"
             normalized_vals_list.append(normalized_vals)

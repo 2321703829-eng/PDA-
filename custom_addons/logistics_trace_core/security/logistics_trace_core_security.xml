@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="group_logistics_trace_event_manager" model="res.groups">
+        <field name="name">Logistics Trace Manager</field>
+        <field name="comment">Can review and maintain all logistics trace events.</field>
+        <field name="sequence">228</field>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+</odoo>

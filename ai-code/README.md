@@ -1,62 +1,34 @@
-# ai-code
+﻿# ai-code
 
-This folder is the AI collaboration hub for the Odoo 19.0 logistics project.
+`ai-code/` 是本仓库的 AI 协作文档区，用来承接上下文、架构、治理、专题设计和变更留痕。
 
-It does not store business implementation code. It stores:
+这里不放业务实现代码，主要放：
 
-- AI entry constraints
-- collaboration rules
-- project context
-- architecture constraints
-- verification rules
-- document sync rules
-- change-note templates
-- reusable skill instructions
+- AI / Codex 入口约束
+- 项目上下文与可行性说明
+- 架构与模块设计
+- 实施、验证与治理文档
+- 专题设计包
+- 变更记录与回调留痕
 
-## Structure
+## 主要入口
 
-- `AGENTS.md`: first entry for AI and Codex
-- `docs/ai/`: collaboration and guardrail rules
-- `docs/context/`: business scope and feasibility context
-- `docs/architecture/`: system structure and addon layering
-- `docs/dev/`: upgrade and verification workflow
-- `docs/review/`: documentation sync review rules
-- `docs/change_notes/`: change-note template and future records
-- `.agents/skills/`: reusable skill instructions for repeated actions
+- `AGENTS.md`：AI 与 Codex 的首要入口
+- [docs/README.md](./docs/README.md)：`docs/` 主文档体系总入口
+- [专题包导航总表.md](./专题包导航总表.md)：仓库级专题包总表
+- [专题设计/README.md](./专题设计/README.md)：专题设计统一根入口
+- [docs/dev/topic_design_legacy_root_retirement_plan.md](./docs/dev/topic_design_legacy_root_retirement_plan.md)：旧专题根目录退场方案
+- [docs/dev/topic_design_repo_wide_trace_notice.md](./docs/dev/topic_design_repo_wide_trace_notice.md)：专题目录归并全仓留痕说明
 
-## Scope
+## 目录结构
 
-Phase 1 focuses on:
+- `docs/ai/`：提示词、技能路由和治理规则
+- `docs/context/`：业务基线、上下文和可行性判断
+- `docs/architecture/`：系统结构、模块边界和设计说明
+- `docs/dev/`：实施、升级、验证和执行方案
+- `docs/review/`：治理清单、评审结论和示例
+- `docs/change_notes/`：变更记录与执行留痕
+- `scripts/`：辅助验证和治理脚本
+- `templates/`：脚手架和模板目录
+- `专题设计/`：前端、仓管、企业隔离、高并发等专题设计包
 
-- customer
-- store
-- order
-- staff
-- warehouse
-- trace
-- exception
-
-Phase 2 reserves:
-
-- vehicle
-- dispatch
-- deeper transport resource management
-
-## Current Source Basis
-
-- `Odoo_物流系统模块设计文件.docx`
-- `Odoo_物流系统模块设计文件_可实现性评估.md`
-- `ai-code_文件夹设计文档_Odoo物流项目_v2.docx`
-
-## WMS Design Baseline
-
-- `仓管模块设计/00_导航与总纲/00_当前已拆专题文件总览与v0.1基线清单.md`
-- `仓管模块设计/00_导航与总纲/01_当前设计工作进度总结.md`
-- `仓管模块设计/00_导航与总纲/02_v0.1专题总一致性校对结果.md`
-- `仓管模块设计/00_导航与总纲/03_专题_模块_实现对象总关系表.md`
-- `仓管模块设计/00_导航与总纲/04_当前未完成设计任务清单.md`
-- `仓管模块设计/02_跨模块规范/01_对象与编码/00_对象与编码统一规范草稿.md`
-- `仓管模块设计/02_跨模块规范/02_状态与流程/00_状态与流程统一规范草稿.md`
-- `仓管模块设计/02_跨模块规范/04_接口与数据/01_数据库设计规范草稿.md`
-- `仓管模块设计/02_跨模块规范/04_接口与数据/02_数据库ER关系图图形版草稿.md`
-- `仓管模块设计/02_跨模块规范/04_接口与数据/03_日志与操作记录规范草稿.md`

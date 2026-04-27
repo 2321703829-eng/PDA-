@@ -41,7 +41,7 @@ class LogisticsDispatchBatch(models.Model):
             ("draft", "草稿"),
             ("ready", "待执行"),
             ("loading", "装车中"),
-            ("in_transit", "在途"),
+            ("in_transit", "运输中"),
             ("done", "已完成"),
             ("cancelled", "已取消"),
         ],
@@ -51,7 +51,7 @@ class LogisticsDispatchBatch(models.Model):
     )
     route_summary = fields.Char(string="路线摘要")
     warehouse_name_snapshot = fields.Char(string="仓库快照", size=64)
-    route_name_snapshot = fields.Char(string="线路快照", size=64)
+    route_name_snapshot = fields.Char(string="路线快照", size=64)
     driver_name_snapshot = fields.Char(string="司机快照", size=64)
     driver_phone_snapshot = fields.Char(string="司机电话快照", size=32)
     waybill_ids = fields.One2many("logistics.dispatch.waybill", "batch_id", string="运单")
@@ -88,6 +88,36 @@ class LogisticsDispatchBatch(models.Model):
             raise ValidationError(f"波次号“{wave_no}”匹配到多条波次记录，请先去重。")
         return waves
 
+    @api.model
+    def _normalize_wave_vals(self, vals):
+        normalized_vals = dict(vals)
+        if "wave_no" in normalized_vals and not normalized_vals.get("wave_id"):
+            wave_no = (normalized_vals.pop("wave_no") or "").strip()
+            normalized_vals["wave_id"] = self._resolve_wave_by_no(wave_no).id if wave_no else False
+
+        wave_id = normalized_vals.get("wave_id")
+        if wave_id and not normalized_vals.get("warehouse_id"):
+            wave = self.env["logistics.dispatch.wave"].browse(wave_id)
+            normalized_vals["warehouse_id"] = wave.warehouse_id.id
+        return normalized_vals
+
+    @api.model
+    def _build_snapshot_vals(self, normalized_vals):
+        warehouse = self.env["stock.warehouse"].browse(normalized_vals.get("warehouse_id"))
+        driver = self.env["hr.employee"].browse(normalized_vals.get("driver_employee_id")).sudo()
+        return {
+            "warehouse_name_snapshot": warehouse.name or False,
+            "route_name_snapshot": normalized_vals.get("route_name_snapshot") or normalized_vals.get("route_summary") or False,
+            "driver_name_snapshot": driver.name or False,
+            "driver_phone_snapshot": driver.work_phone or driver.mobile_phone or False,
+        }
+
+    @api.constrains("wave_id", "warehouse_id")
+    def _check_wave_warehouse_consistency(self):
+        for record in self:
+            if record.wave_id and record.warehouse_id and record.wave_id.warehouse_id != record.warehouse_id:
+                raise ValidationError("批次仓库必须与所属波次仓库一致。")
+
     @api.depends("waybill_ids", "waybill_ids.state", "waybill_ids.exception_status")
     def _compute_counts(self):
         for record in self:
@@ -99,23 +129,27 @@ class LogisticsDispatchBatch(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
+        normalized_vals_list = []
         for vals in vals_list:
-            if "batch_no" in vals:
-                vals["name"] = (vals.pop("batch_no") or "").strip() or vals.get("name") or "新建"
-            if "wave_no" in vals and not vals.get("wave_id"):
-                wave_no = (vals.pop("wave_no") or "").strip()
-                vals["wave_id"] = self._resolve_wave_by_no(wave_no).id if wave_no else False
-            if vals.get("name", "新建") in ("New", "新建"):
-                vals["name"] = self.env["ir.sequence"].next_by_code("logistics.dispatch.batch") or "新建"
-        return super().create(vals_list)
+            normalized_vals = self._normalize_wave_vals(vals)
+            if "batch_no" in normalized_vals:
+                normalized_vals["name"] = (
+                    (normalized_vals.pop("batch_no") or "").strip() or normalized_vals.get("name") or "新建"
+                )
+            if normalized_vals.get("name", "新建") in ("New", "新建"):
+                normalized_vals["name"] = self.env["ir.sequence"].next_by_code("logistics.dispatch.batch") or "新建"
+            for field_name, field_value in self._build_snapshot_vals(normalized_vals).items():
+                normalized_vals.setdefault(field_name, field_value)
+            normalized_vals_list.append(normalized_vals)
+        return super().create(normalized_vals_list)
 
     def write(self, vals):
-        vals = dict(vals)
-        if "batch_no" in vals:
-            batch_no = (vals.pop("batch_no") or "").strip()
+        normalized_vals = self._normalize_wave_vals(vals)
+        if "batch_no" in normalized_vals:
+            batch_no = (normalized_vals.pop("batch_no") or "").strip()
             if batch_no:
-                vals["name"] = batch_no
-        if "wave_no" in vals and "wave_id" not in vals:
-            wave_no = (vals.pop("wave_no") or "").strip()
-            vals["wave_id"] = self._resolve_wave_by_no(wave_no).id if wave_no else False
-        return super().write(vals)
+                normalized_vals["name"] = batch_no
+        if any(field_name in normalized_vals for field_name in ("wave_id", "warehouse_id", "driver_employee_id", "route_summary")):
+            for field_name, field_value in self._build_snapshot_vals(normalized_vals).items():
+                normalized_vals.setdefault(field_name, field_value)
+        return super().write(normalized_vals)
