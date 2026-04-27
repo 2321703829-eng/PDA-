@@ -254,6 +254,7 @@ export class LogisticsEvidenceViewerField extends LogisticsWaybillBasePanel {
                 onTraceClick.bind="onTraceClick"
                 onExceptionClick.bind="onExceptionClick"
                 onOpenFullImage.bind="onOpenFullImage"
+                onDownloadImage.bind="onDownloadImage"
             />
         </div>
     `;
@@ -355,6 +356,18 @@ export class LogisticsEvidenceViewerField extends LogisticsWaybillBasePanel {
             return;
         }
         this.notifyPending(`暂时还不能打开“${item?.name || item?.label || "当前证据"}”的原图。`);
+    }
+
+    onDownloadImage(item) {
+        const sourceUrl = this.normalizeImageUrl(item?.fullUrl || item?.previewUrl || "");
+        if (!sourceUrl) {
+            this.notifyPending("暂时还不能下载当前证据图片。");
+            return;
+        }
+        const downloadUrl = sourceUrl.includes("?")
+            ? `${sourceUrl}&download=1`
+            : `${sourceUrl}?download=1`;
+        window.open(downloadUrl, "_blank", "noopener");
     }
 }
 

@@ -15,6 +15,7 @@ export class EvidenceViewerWidget extends Component {
         onTraceClick: { type: Function, optional: true },
         onExceptionClick: { type: Function, optional: true },
         onOpenFullImage: { type: Function, optional: true },
+        onDownloadImage: { type: Function, optional: true },
     };
 
     setup() {
@@ -206,6 +207,12 @@ export class EvidenceViewerWidget extends Component {
     onOpenFullImage() {
         if (this.activeItem && this.props.onOpenFullImage) {
             this.props.onOpenFullImage(this.activeItem);
+        }
+    }
+
+    onDownloadImage() {
+        if (this.activeItem && this.props.onDownloadImage) {
+            this.props.onDownloadImage(this.activeItem);
         }
     }
 }

@@ -214,6 +214,13 @@
                             t-on-click="onOpenFullImage">
                             打开原图
                         </button>
+                        <button
+                            type="button"
+                            class="btn btn-link btn-sm"
+                            t-att-disabled="!activeOpenUrl"
+                            t-on-click="onDownloadImage">
+                            下载图片
+                        </button>
                     </div>
                 </div>
 
