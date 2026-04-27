@@ -417,8 +417,8 @@ class DispatchMainExportService:
     def _check_export_model_access(cls, env, *, mode):
         cls._ensure_export_operator_access(env)
         try:
-            env["logistics.export.source.scope"].check_access_rights(mode)
-            env["logistics.export.task"].check_access_rights(mode)
+            env["logistics.export.source.scope"].check_access(mode)
+            env["logistics.export.task"].check_access(mode)
         except AccessError as error:
             raise ExportServiceError(
                 "EXPORT_PERMISSION_DENIED",
@@ -466,9 +466,9 @@ class DispatchMainExportService:
     @classmethod
     def _get_waybills_for_scope(cls, env, selected_ids):
         model = env[cls.SOURCE_MODEL]
-        model.check_access_rights("read")
+        model.check_access("read")
         records = model.browse(selected_ids)
-        records.check_access_rule("read")
+        records.check_access("read")
         existing = {record.id: record for record in records.exists()}
         ordered_records = []
         missing_ids = []

@@ -28,4 +28,26 @@
         <field name="perm_create" eval="False"/>
         <field name="perm_unlink" eval="False"/>
     </record>
+
+    <record id="rule_logistics_trace_evidence_image_own_read" model="ir.rule">
+        <field name="name">logistics.trace.evidence.image own read</field>
+        <field name="model_id" ref="model_logistics_trace_evidence_image"/>
+        <field name="domain_force">[('evidence_id.uploader_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_logistics_trace_evidence_image_manager_read" model="ir.rule">
+        <field name="name">logistics.trace.evidence.image manager read</field>
+        <field name="model_id" ref="model_logistics_trace_evidence_image"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_logistics_trace_manager'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
 </odoo>

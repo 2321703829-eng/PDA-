@@ -8,6 +8,7 @@ from odoo.http import Response, content_disposition, request
 from ..services.customer_profile_export_service import CustomerProfileExportService
 from ..services.dispatch_main_export_service import DispatchMainExportService, ExportServiceError
 from ..services.driver_route_excel_export_service import DriverRouteExcelExportService
+from ..services.evidence_image_export_service import EvidenceImageExportService
 from ..services.product_profile_export_service import ProductProfileExportService
 
 
@@ -16,6 +17,7 @@ class LogisticsWebExportController(http.Controller):
         DispatchMainExportService.OBJECT_TYPE: DispatchMainExportService,
         CustomerProfileExportService.OBJECT_TYPE: CustomerProfileExportService,
         ProductProfileExportService.OBJECT_TYPE: ProductProfileExportService,
+        EvidenceImageExportService.OBJECT_TYPE: EvidenceImageExportService,
     }
     TOP_LEVEL_HTTP_STATUS = {
         4001: 400,
@@ -84,6 +86,40 @@ class LogisticsWebExportController(http.Controller):
                 "message": self._build_export_success_message(data),
                 "data": data,
                 "request_id": self._build_request_id("req_export_waybill"),
+            }
+        )
+
+    @http.route("/api/admin/logistics/exports/evidence-images", type="http", auth="user", methods=["POST"], csrf=False)
+    def export_evidence_images(self, **kwargs):
+        payload = self._merged_payload()
+        selected_ids = self._load_list_payload(payload.get("selected_ids"))
+        scope_snapshot = self._load_json_value(payload.get("scope_snapshot"))
+        try:
+            created = EvidenceImageExportService.create_waybill_export_task(
+                request.env,
+                selected_ids=selected_ids,
+                source_page=payload.get("from_page") or payload.get("source_page") or "",
+                scope_snapshot=scope_snapshot,
+                request_payload=payload,
+                object_type=payload.get("object_type") or EvidenceImageExportService.OBJECT_TYPE,
+                entry_type=payload.get("entry_type") or EvidenceImageExportService.ENTRY_TYPE,
+                export_mode=payload.get("export_mode") or EvidenceImageExportService.EXPORT_MODE,
+                package_structure=payload.get("package_structure") or EvidenceImageExportService.PACKAGE_STRUCTURE,
+            )
+            data = EvidenceImageExportService.run_waybill_export_task(request.env, task_no=created["task_no"])
+        except ValidationError as exc:
+            return self._error_response(
+                message="Evidence image export failed",
+                error_code=self._resolve_error_code(exc, "EXPORT_TASK_CREATE_FAILED"),
+                error_message=str(exc),
+                request_id_prefix="req_export_evidence_images",
+            )
+        return self._json_response(
+            {
+                "code": 0,
+                "message": self._build_export_success_message(data),
+                "data": data,
+                "request_id": self._build_request_id("req_export_evidence_images"),
             }
         )
 

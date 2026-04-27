@@ -4,12 +4,13 @@
         <field name="name">logistics.trace.evidence.tree</field>
         <field name="model">logistics.trace.evidence</field>
         <field name="arch" type="xml">
-            <list string="留痕证据">
+            <list string="Trace Evidence">
                 <field name="uploaded_at"/>
                 <field name="name"/>
                 <field name="trace_event_id"/>
                 <field name="waybill_id"/>
                 <field name="uploader_id"/>
+                <field name="image_count"/>
                 <field name="image_access_key"/>
                 <field name="is_exception_related"/>
                 <field name="state"/>
@@ -21,7 +22,7 @@
         <field name="name">logistics.trace.evidence.form</field>
         <field name="model">logistics.trace.evidence</field>
         <field name="arch" type="xml">
-            <form string="留痕证据">
+            <form string="Trace Evidence">
                 <sheet>
                     <div class="oe_title">
                         <h1>
@@ -40,18 +41,32 @@
                             <field name="uploader_name" readonly="1"/>
                             <field name="sequence"/>
                             <field name="state"/>
+                            <field name="image_count" readonly="1"/>
                         </group>
                     </group>
                     <group>
-                        <group string="图片访问">
+                        <group string="Cover Image Compatibility">
                             <field name="image_access_key"/>
                             <field name="preview_url"/>
                             <field name="full_url"/>
                         </group>
-                        <group string="证据上下文">
+                        <group string="Evidence Context">
                             <field name="is_exception_related" readonly="1"/>
                             <field name="remark"/>
                         </group>
+                    </group>
+                    <group string="Images" col="1">
+                        <field name="image_ids" readonly="1">
+                            <list create="0" delete="0">
+                                <field name="sequence"/>
+                                <field name="image_access_key"/>
+                                <field name="source_filename"/>
+                                <field name="storage_provider"/>
+                                <field name="storage_status"/>
+                                <field name="preview_url" widget="url"/>
+                                <field name="download_url" widget="url"/>
+                            </list>
+                        </field>
                     </group>
                 </sheet>
             </form>
@@ -62,23 +77,23 @@
         <field name="name">logistics.trace.evidence.search</field>
         <field name="model">logistics.trace.evidence</field>
         <field name="arch" type="xml">
-            <search string="留痕证据">
+            <search string="Trace Evidence">
                 <field name="name"/>
                 <field name="trace_event_id"/>
                 <field name="waybill_id"/>
                 <field name="image_access_key"/>
-                <filter string="异常相关" name="exception_related" domain="[('is_exception_related', '=', True)]"/>
+                <filter string="Exception Related" name="exception_related" domain="[('is_exception_related', '=', True)]"/>
                 <group>
-                    <filter string="按运单" name="group_waybill" context="{'group_by': 'waybill_id'}"/>
-                    <filter string="按留痕事件" name="group_trace" context="{'group_by': 'trace_event_id'}"/>
-                    <filter string="按上传人" name="group_uploader" context="{'group_by': 'uploader_id'}"/>
+                    <filter string="By Waybill" name="group_waybill" context="{'group_by': 'waybill_id'}"/>
+                    <filter string="By Trace Event" name="group_trace" context="{'group_by': 'trace_event_id'}"/>
+                    <filter string="By Uploader" name="group_uploader" context="{'group_by': 'uploader_id'}"/>
                 </group>
             </search>
         </field>
     </record>
 
     <record id="action_logistics_trace_evidence" model="ir.actions.act_window">
-        <field name="name">证据</field>
+        <field name="name">Evidence</field>
         <field name="res_model">logistics.trace.evidence</field>
         <field name="view_mode">list,form</field>
         <field name="search_view_id" ref="view_logistics_trace_evidence_search"/>
@@ -86,7 +101,7 @@
 
     <menuitem
         id="menu_logistics_trace_evidence"
-        name="证据"
+        name="Evidence"
         parent="logistics_dispatch.menu_logistics_dispatch"
         action="action_logistics_trace_evidence"
         sequence="50"/>

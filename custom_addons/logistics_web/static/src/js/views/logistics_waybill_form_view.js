@@ -98,11 +98,10 @@ export class LogisticsWaybillFormRenderer extends FormRenderer {
     get fallbackTimelineItems() {
         const data = this.recordData;
         const latestTraceType = data.latest_trace_type || _t("留痕");
-        const latestTraceSummary =
-            data.latest_trace_summary || _t("最近留痕摘要会显示在这里。");
+        const latestTraceSummary = data.latest_trace_summary || _t("最近留痕摘要会显示在这里。");
         const latestTraceTime = data.latest_trace_time || "--:--";
-        const arriveStatus = data.arrive_trace_status || _t("待补充");
-        const signoffStatus = data.signoff_trace_status || _t("待补充");
+        const arriveStatus = data.arrive_trace_status || _t("待补全");
+        const signoffStatus = data.signoff_trace_status || _t("待补全");
         const openExceptionCount = data.open_exception_count || 0;
         const evidenceCount = data.evidence_count || 0;
         const waybillNo = data.name || _t("运单");
@@ -188,6 +187,8 @@ export class LogisticsWaybillFormRenderer extends FormRenderer {
                     "image_access_key",
                     "preview_url",
                     "full_url",
+                    "image_items_json",
+                    "image_count",
                     "sequence",
                 ],
                 {
@@ -195,7 +196,7 @@ export class LogisticsWaybillFormRenderer extends FormRenderer {
                     limit: 30,
                 }
             );
-            return records.map((record) => this.mapEvidenceRecord(record));
+            return records.flatMap((record) => this.mapEvidenceRecord(record));
         } catch {
             return [];
         }
@@ -278,13 +279,9 @@ export class LogisticsWaybillFormRenderer extends FormRenderer {
 
     mapEvidenceRecord(record) {
         const traceRef = this.getRelationalRef(record.trace_event_id);
-        const imageAccessKey = this.cleanImageValue(record.image_access_key);
-        const previewUrl = this.cleanImageValue(record.preview_url);
-        const fullUrl = this.cleanImageValue(record.full_url);
-        return {
-            id: record.id,
-            label: record.name || `${_t("证据")} ${record.id}`,
-            name: record.name || `${_t("证据")} ${record.id}`,
+        const baseItem = {
+            evidenceId: record.id,
+            evidenceLabel: record.name || `${_t("证据")} ${record.id}`,
             traceEventId: traceRef.id,
             traceLabel: traceRef.label || _t("留痕事件"),
             uploadedAt: record.uploaded_at || "--",
@@ -293,11 +290,40 @@ export class LogisticsWaybillFormRenderer extends FormRenderer {
             isExceptionEvidence: !!record.is_exception_related,
             hasRelatedException: !!record.is_exception_related,
             previewText: record.name || _t("证据预览"),
-            imageAccessKey,
-            previewUrl,
-            fullUrl,
             sequence: record.sequence || 10,
         };
+        const imageItems = Array.isArray(record.image_items_json) ? record.image_items_json : [];
+        if (imageItems.length) {
+            return imageItems.map((imageItem, index) => ({
+                ...baseItem,
+                ...imageItem,
+                id: imageItem.imageId || `${record.id}_${index + 1}`,
+                key: imageItem.key || `${record.id}_${index + 1}`,
+                label: imageItem.label || `${baseItem.evidenceLabel} #${index + 1}`,
+                name: imageItem.name || imageItem.label || `${baseItem.evidenceLabel} #${index + 1}`,
+                imageAccessKey: this.cleanImageValue(imageItem.imageAccessKey),
+                previewUrl: this.cleanImageValue(imageItem.previewUrl),
+                fullUrl: this.cleanImageValue(imageItem.fullUrl),
+                downloadUrl: this.cleanImageValue(imageItem.downloadUrl),
+                imageIndex: imageItem.imageIndex || index + 1,
+                imageCountInEvidence: imageItem.imageCountInEvidence || imageItems.length,
+            }));
+        }
+        return [
+            {
+                ...baseItem,
+                id: record.id,
+                key: `legacy_${record.id}`,
+                label: record.name || `${_t("证据")} ${record.id}`,
+                name: record.name || `${_t("证据")} ${record.id}`,
+                imageAccessKey: this.cleanImageValue(record.image_access_key),
+                previewUrl: this.cleanImageValue(record.preview_url),
+                fullUrl: this.cleanImageValue(record.full_url),
+                downloadUrl: this.cleanImageValue(record.full_url || record.preview_url),
+                imageIndex: 1,
+                imageCountInEvidence: record.image_count || 1,
+            },
+        ];
     }
 
     formatTraceTime(value) {
@@ -326,7 +352,7 @@ export class LogisticsWaybillFormRenderer extends FormRenderer {
 
     async onTraceClick(item) {
         if (!item?.id || typeof item.id !== "number") {
-            return this.notifyPending(_t('暂时还不能打开“%s”的留痕详情。').replace("%s", item.title));
+            return this.notifyPending(_t("暂时还不能打开当前留痕详情。"));
         }
         return this.actionService.doAction({
             type: "ir.actions.act_window",
@@ -339,7 +365,7 @@ export class LogisticsWaybillFormRenderer extends FormRenderer {
 
     async onTraceEvidenceClick(item) {
         if (!item?.id || typeof item.id !== "number") {
-            return this.notifyPending(_t('暂时还不能打开“%s”的证据列表。').replace("%s", item.title));
+            return this.notifyPending(_t("暂时还不能打开当前证据列表。"));
         }
         return this.actionService.doAction({
             type: "ir.actions.act_window",
@@ -357,7 +383,7 @@ export class LogisticsWaybillFormRenderer extends FormRenderer {
         if (item?.id && typeof item.id === "number") {
             return this.actionService.doAction({
                 type: "ir.actions.act_window",
-                name: `查看异常 - ${item.title || "留痕事件"}`,
+                name: `${_t("查看异常")} - ${item.title || _t("留痕事件")}`,
                 res_model: "logistics.trace.exception",
                 views: [
                     [false, "list"],
@@ -408,13 +434,13 @@ export class LogisticsWaybillFormRenderer extends FormRenderer {
     }
 
     onOpenFullImage(item) {
-        const openUrl = this.normalizeImageUrl(item?.fullUrl || item?.previewUrl || item?.imageAccessKey);
+        const openUrl = this.normalizeImageUrl(item?.downloadUrl || item?.fullUrl || item?.previewUrl || item?.imageAccessKey);
         if (openUrl) {
             window.open(openUrl, "_blank", "noopener");
             return;
         }
         this.notifyPending(
-            _t('暂时还不能打开“%s”的原图。').replace("%s", item.name || item.label)
+            _t("暂时还不能打开当前证据原图。")
         );
     }
 

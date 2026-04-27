@@ -5,118 +5,121 @@ from odoo.addons.logistics_base.models.selection_options import (
 )
 
 PAYMENT_STATUS_SELECTION = [
-    ("unpaid", "未付款"),
-    ("partial_paid", "部分付款"),
-    ("paid", "已付款"),
+    ("unpaid", "Unpaid"),
+    ("partial_paid", "Partial Paid"),
+    ("paid", "Paid"),
 ]
 
 AUDIT_STATUS_SELECTION = [
-    ("unaudited", "未审核"),
-    ("audited", "已审核"),
-    ("rejected", "审核驳回"),
+    ("unaudited", "Unaudited"),
+    ("audited", "Audited"),
+    ("rejected", "Rejected"),
 ]
 
 SETTLEMENT_STATUS_SELECTION = [
-    ("unsettled", "未结算"),
-    ("partial_settled", "部分结算"),
-    ("settled", "已结算"),
+    ("unsettled", "Unsettled"),
+    ("partial_settled", "Partial Settled"),
+    ("settled", "Settled"),
 ]
 
 DOC_STATUS_SELECTION = [
-    ("draft", "草稿"),
-    ("confirmed", "已确认"),
-    ("cancelled", "已取消"),
+    ("draft", "Draft"),
+    ("confirmed", "Confirmed"),
+    ("cancelled", "Cancelled"),
 ]
 
 LOGISTICS_STATUS_SELECTION = [
-    ("pending_outbound", "待出库"),
-    ("outbounded", "已出库"),
-    ("delivering", "配送中"),
-    ("signed", "已签收"),
-    ("abnormal", "异常"),
+    ("pending_outbound", "Pending Outbound"),
+    ("outbounded", "Outbounded"),
+    ("delivering", "Delivering"),
+    ("signed", "Signed"),
+    ("abnormal", "Abnormal"),
 ]
 
 IMPORT_TASK_STATUS_SELECTION = [
-    ("pending", "待执行"),
-    ("running", "执行中"),
-    ("success", "全部成功"),
-    ("partial_failed", "部分失败"),
-    ("failed", "全部失败"),
-    ("cancelled", "已取消"),
+    ("pending", "Pending"),
+    ("running", "Running"),
+    ("success", "Success"),
+    ("partial_failed", "Partial Failed"),
+    ("failed", "Failed"),
+    ("cancelled", "Cancelled"),
 ]
 
 IMPORT_TASK_LINE_STATUS_SELECTION = [
-    ("pending", "待处理"),
-    ("success", "成功"),
-    ("failed", "失败"),
-    ("skipped", "跳过"),
+    ("pending", "Pending"),
+    ("success", "Success"),
+    ("failed", "Failed"),
+    ("skipped", "Skipped"),
 ]
 
 IMPORT_OBJECT_TYPE_SELECTION = [
-    ("customer_profile", "客户经营画像"),
-    ("store_profile", "门店配送画像"),
-    ("driver_profile", "司机主数据"),
-    ("vehicle_profile", "车辆主数据"),
-    ("dispatch_main", "波次/批次/运单主链"),
-    ("route_planning", "排线用数据导入"),
-    ("image_package", "图片包导入"),
+    ("customer_profile", "Customer Profile"),
+    ("store_profile", "Store Profile"),
+    ("driver_profile", "Driver Profile"),
+    ("vehicle_profile", "Vehicle Profile"),
+    ("dispatch_main", "Dispatch Main"),
+    ("route_planning", "Route Planning"),
+    ("image_package", "Image Package"),
 ]
 
 EXPORT_OBJECT_TYPE_SELECTION = [
-    ("dispatch_main", "标准主链导出"),
-    ("customer_profile", "统一客户画像导出"),
-    ("product_profile", "货物画像导出"),
+    ("dispatch_main", "Dispatch Main Export"),
+    ("customer_profile", "Customer Profile Export"),
+    ("product_profile", "Product Profile Export"),
+    ("evidence_image_bundle", "Evidence Image Bundle Export"),
 ]
 
 EXPORT_ENTRY_TYPE_SELECTION = [
-    ("from_batch", "从批次导出"),
-    ("from_waybill", "从运单导出"),
-    ("from_customer", "从客户导出"),
-    ("from_product", "从商品导出"),
+    ("from_batch", "From Batch"),
+    ("from_waybill", "From Waybill"),
+    ("from_customer", "From Customer"),
+    ("from_product", "From Product"),
 ]
 
 EXPORT_MODE_SELECTION = [
-    ("standard_xlsx", "标准四Sheet导出"),
+    ("standard_xlsx", "Standard XLSX"),
+    ("zip_package", "ZIP Package"),
 ]
 
 EXPORT_PACKAGE_STRUCTURE_SELECTION = [
-    ("dispatch_main_four_sheet", "标准主链四Sheet"),
-    ("customer_profile_bundle_v1", "客户画像单Sheet"),
-    ("customer_profile_bundle_v2", "客户画像加客户商品关系"),
-    ("product_profile_bundle_v1", "货物画像与商品规格"),
-    ("product_profile_bundle_v2", "货物画像、商品规格加客户商品关系"),
+    ("dispatch_main_four_sheet", "Dispatch Main Four Sheet"),
+    ("customer_profile_bundle_v1", "Customer Profile Bundle V1"),
+    ("customer_profile_bundle_v2", "Customer Profile Bundle V2"),
+    ("product_profile_bundle_v1", "Product Profile Bundle V1"),
+    ("product_profile_bundle_v2", "Product Profile Bundle V2"),
+    ("evidence_image_bundle_v1", "Evidence Image Bundle V1"),
 ]
 
 EXPORT_TARGET_OBJECT_TYPE_SELECTION = [
-    ("batch", "批次"),
-    ("waybill", "运单"),
-    ("customer", "客户"),
-    ("partner", "客户画像"),
-    ("product", "货物画像"),
+    ("batch", "Batch"),
+    ("waybill", "Waybill"),
+    ("customer", "Customer"),
+    ("partner", "Partner"),
+    ("product", "Product"),
 ]
 
 EXPORT_TASK_STATUS_SELECTION = [
-    ("pending", "待执行"),
-    ("running", "执行中"),
-    ("success", "全部成功"),
-    ("partial_failed", "部分失败"),
-    ("failed", "全部失败"),
-    ("expired", "已过期"),
-    ("cancelled", "已取消"),
+    ("pending", "Pending"),
+    ("running", "Running"),
+    ("success", "Success"),
+    ("partial_failed", "Partial Failed"),
+    ("failed", "Failed"),
+    ("expired", "Expired"),
+    ("cancelled", "Cancelled"),
 ]
 
 EXPORT_TASK_LINE_STATUS_SELECTION = [
-    ("pending", "待处理"),
-    ("success", "成功"),
-    ("failed", "失败"),
-    ("skipped", "跳过"),
+    ("pending", "Pending"),
+    ("success", "Success"),
+    ("failed", "Failed"),
+    ("skipped", "Skipped"),
 ]
 
 EXPORT_ERROR_STAGE_SELECTION = [
-    ("scope_validate", "范围校验"),
-    ("target_resolve", "对象命中"),
-    ("data_collect", "数据收集"),
-    ("workbook_build", "工作簿构建"),
-    ("file_store", "文件落盘"),
-    ("download_prepare", "下载准备"),
+    ("scope_validate", "Scope Validate"),
+    ("target_resolve", "Target Resolve"),
+    ("data_collect", "Data Collect"),
+    ("workbook_build", "Workbook Build"),
+    ("file_store", "File Store"),
+    ("download_prepare", "Download Prepare"),
 ]

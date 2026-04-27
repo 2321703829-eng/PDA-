@@ -34,6 +34,12 @@ const EXPORT_OBJECT_CONFIG = {
         listActionXmlid: "stock.product_template_action_product",
         successNoun: "货物画像导出",
     },
+    evidence_image_bundle: {
+        objectLabel: "图片批量导出",
+        listLabel: "运单列表",
+        listActionXmlid: "logistics_dispatch.action_logistics_dispatch_waybill",
+        successNoun: "图片批量导出",
+    },
 };
 
 export class LogisticsExportResultAction extends Component {
@@ -263,6 +269,30 @@ export class LogisticsExportResultAction extends Component {
                     label: "导出规格",
                     value: this.formatCount(metrics.product_unit_count),
                     caption: "写入 ProductUnit Sheet 的规格数",
+                },
+            ];
+        }
+
+        if (result.object_type === "evidence_image_bundle") {
+            return [
+                ...baseCards,
+                {
+                    key: "image_waybill",
+                    label: "导出运单",
+                    value: this.formatCount(metrics.waybill_count),
+                    caption: "写入 ZIP 包的运单数",
+                },
+                {
+                    key: "image_evidence",
+                    label: "导出证据",
+                    value: this.formatCount(metrics.evidence_count),
+                    caption: "包含图片的证据数",
+                },
+                {
+                    key: "image_total",
+                    label: "导出图片",
+                    value: this.formatCount(metrics.image_count),
+                    caption: "实际打包的图片数",
                 },
             ];
         }

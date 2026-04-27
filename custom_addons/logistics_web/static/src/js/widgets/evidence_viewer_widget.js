@@ -44,6 +44,15 @@ export class EvidenceViewerWidget extends Component {
         return this.allItems.length;
     }
 
+    get uniqueEvidenceCount() {
+        const evidenceIds = new Set(
+            this.allItems
+                .map((item) => item.evidenceId || item.evidence_id || false)
+                .filter((value) => value)
+        );
+        return evidenceIds.size || this.totalItemCount;
+    }
+
     get exceptionEvidenceCount() {
         return this.allItems.filter((item) => item.isExceptionEvidence).length;
     }
@@ -57,9 +66,7 @@ export class EvidenceViewerWidget extends Component {
         if (!items.length || !this.props.activeEvidenceId) {
             return 0;
         }
-        const matchedIndex = items.findIndex(
-            (item) => item.id === this.props.activeEvidenceId
-        );
+        const matchedIndex = items.findIndex((item) => item.evidenceId === this.props.activeEvidenceId || item.id === this.props.activeEvidenceId);
         return matchedIndex >= 0 ? matchedIndex : 0;
     }
 
@@ -96,9 +103,12 @@ export class EvidenceViewerWidget extends Component {
             return "当前还没有可查看的证据。";
         }
         const parts = [
-            `当前查看第 ${this.state.activeIndex + 1} / ${this.totalItemCount} 份证据`,
+            `当前查看第 ${this.state.activeIndex + 1} / ${this.totalItemCount} 张图片`,
             `关联留痕 ${item.traceLabel || item.trace_label || "--"}`,
         ];
+        if (item.imageIndex && item.imageCountInEvidence) {
+            parts.push(`该证据内第 ${item.imageIndex} / ${item.imageCountInEvidence} 张`);
+        }
         if (item.uploadedAt || item.uploaded_at) {
             parts.push(`上传时间 ${item.uploadedAt || item.uploaded_at}`);
         }
@@ -108,7 +118,7 @@ export class EvidenceViewerWidget extends Component {
         if (!this.hasActiveOpenUrl) {
             parts.push("当前仅支持预览");
         }
-        return parts.join("，") + "。";
+        return `${parts.join("，")}。`;
     }
 
     normalizeUrl(url) {
@@ -142,7 +152,7 @@ export class EvidenceViewerWidget extends Component {
     }
 
     getPreviewKey(item) {
-        return item?.id || item?.imageAccessKey || item?.name || item?.label || "";
+        return item?.key || item?.imageId || item?.id || item?.imageAccessKey || item?.name || item?.label || "";
     }
 
     hasPreviewFailed(item) {
@@ -166,7 +176,7 @@ export class EvidenceViewerWidget extends Component {
     }
 
     getItemOpenUrl(item) {
-        return this.normalizeUrl(item?.fullUrl || item?.previewUrl || item?.imageAccessKey || "");
+        return this.normalizeUrl(item?.downloadUrl || item?.fullUrl || item?.previewUrl || item?.imageAccessKey || "");
     }
 
     onStageImageError() {

@@ -114,6 +114,7 @@ export class LogisticsTraceTimelineField extends LogisticsWaybillBasePanel {
             />
         </div>
     `;
+
     static components = { TraceTimelineWidget };
 
     async loadItems(props = this.props) {
@@ -257,6 +258,7 @@ export class LogisticsEvidenceViewerField extends LogisticsWaybillBasePanel {
             />
         </div>
     `;
+
     static components = { EvidenceViewerWidget };
 
     async loadItems(props = this.props) {
@@ -282,6 +284,8 @@ export class LogisticsEvidenceViewerField extends LogisticsWaybillBasePanel {
                     "image_access_key",
                     "preview_url",
                     "full_url",
+                    "image_items_json",
+                    "image_count",
                     "sequence",
                 ],
                 {
@@ -289,34 +293,61 @@ export class LogisticsEvidenceViewerField extends LogisticsWaybillBasePanel {
                     limit: 30,
                 }
             );
-            this.state.items = records.map((record) => {
-                const traceRef = this.getRelationalRef(record.trace_event_id);
-                const imageAccessKey = this.cleanImageValue(record.image_access_key);
-                const previewUrl = this.cleanImageValue(record.preview_url);
-                const fullUrl = this.cleanImageValue(record.full_url);
-                return {
-                    id: record.id,
-                    label: record.name || `证据 ${record.id}`,
-                    name: record.name || `证据 ${record.id}`,
-                    traceEventId: traceRef.id,
-                    traceLabel: traceRef.label || "留痕事件",
-                    uploadedAt: record.uploaded_at || "--",
-                    uploader: record.uploader_name || "未知",
-                    remark: record.remark || "",
-                    isExceptionEvidence: !!record.is_exception_related,
-                    hasRelatedException: !!record.is_exception_related,
-                    previewText: record.name || "证据预览",
-                    imageAccessKey,
-                    previewUrl,
-                    fullUrl,
-                    sequence: record.sequence || 10,
-                };
-            });
+            this.state.items = records.flatMap((record) => this.mapEvidenceRecord(record));
         } catch {
             this.state.items = [];
         } finally {
             this.state.loading = false;
         }
+    }
+
+    mapEvidenceRecord(record) {
+        const traceRef = this.getRelationalRef(record.trace_event_id);
+        const baseItem = {
+            evidenceId: record.id,
+            evidenceLabel: record.name || `证据 ${record.id}`,
+            traceEventId: traceRef.id,
+            traceLabel: traceRef.label || "留痕事件",
+            uploadedAt: record.uploaded_at || "--",
+            uploader: record.uploader_name || "未知",
+            remark: record.remark || "",
+            isExceptionEvidence: !!record.is_exception_related,
+            hasRelatedException: !!record.is_exception_related,
+            previewText: record.name || "证据预览",
+            sequence: record.sequence || 10,
+        };
+        const imageItems = Array.isArray(record.image_items_json) ? record.image_items_json : [];
+        if (imageItems.length) {
+            return imageItems.map((imageItem, index) => ({
+                ...baseItem,
+                ...imageItem,
+                id: imageItem.imageId || `${record.id}_${index + 1}`,
+                key: imageItem.key || `${record.id}_${index + 1}`,
+                label: imageItem.label || `${baseItem.evidenceLabel} #${index + 1}`,
+                name: imageItem.name || imageItem.label || `${baseItem.evidenceLabel} #${index + 1}`,
+                imageAccessKey: this.cleanImageValue(imageItem.imageAccessKey),
+                previewUrl: this.cleanImageValue(imageItem.previewUrl),
+                fullUrl: this.cleanImageValue(imageItem.fullUrl),
+                downloadUrl: this.cleanImageValue(imageItem.downloadUrl),
+                imageIndex: imageItem.imageIndex || index + 1,
+                imageCountInEvidence: imageItem.imageCountInEvidence || imageItems.length,
+            }));
+        }
+        return [
+            {
+                ...baseItem,
+                id: record.id,
+                key: `legacy_${record.id}`,
+                label: record.name || `证据 ${record.id}`,
+                name: record.name || `证据 ${record.id}`,
+                imageAccessKey: this.cleanImageValue(record.image_access_key),
+                previewUrl: this.cleanImageValue(record.preview_url),
+                fullUrl: this.cleanImageValue(record.full_url),
+                downloadUrl: this.cleanImageValue(record.full_url || record.preview_url),
+                imageIndex: 1,
+                imageCountInEvidence: record.image_count || 1,
+            },
+        ];
     }
 
     async onTraceClick(item) {
@@ -349,7 +380,7 @@ export class LogisticsEvidenceViewerField extends LogisticsWaybillBasePanel {
     }
 
     onOpenFullImage(item) {
-        const openUrl = this.normalizeImageUrl(item?.fullUrl || item?.previewUrl || item?.imageAccessKey);
+        const openUrl = this.normalizeImageUrl(item?.downloadUrl || item?.fullUrl || item?.previewUrl || item?.imageAccessKey);
         if (openUrl) {
             window.open(openUrl, "_blank", "noopener");
             return;

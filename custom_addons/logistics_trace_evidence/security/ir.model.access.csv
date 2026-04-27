@@ -1,3 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_logistics_trace_evidence_user,logistics.trace.evidence user,model_logistics_trace_evidence,base.group_user,1,0,1,0
 access_logistics_trace_evidence_manager,logistics.trace.evidence manager,model_logistics_trace_evidence,logistics_trace_evidence.group_logistics_trace_manager,1,1,1,0
+access_logistics_trace_evidence_image_user,logistics.trace.evidence.image user,model_logistics_trace_evidence_image,base.group_user,1,0,0,0
+access_logistics_trace_evidence_image_manager,logistics.trace.evidence.image manager,model_logistics_trace_evidence_image,logistics_trace_evidence.group_logistics_trace_manager,1,1,1,0

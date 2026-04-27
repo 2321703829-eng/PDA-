@@ -15,6 +15,12 @@
                     class="oe_stat_button"
                     icon="fa-download"
                     string="导出结果"/>
+                <button
+                    name="action_open_evidence_image_export_result"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-picture-o"
+                    string="图片导出"/>
             </xpath>
             <xpath expr="//notebook" position="inside">
                 <page string="留痕与证据">
@@ -26,7 +32,7 @@
                             </div>
                             <div class="o_logistics_waybill_guide_item">
                                 <strong>再看证据图片</strong>
-                                <span>结合留痕上下文判断证据是否足够。</span>
+                                <span>结合留痕上下文判断证据是否充分。</span>
                             </div>
                             <div class="o_logistics_waybill_guide_item">
                                 <strong>最后核对异常</strong>
@@ -69,6 +75,7 @@
                                     <field name="uploaded_at"/>
                                     <field name="uploader_name"/>
                                     <field name="is_exception_related"/>
+                                    <field name="image_count"/>
                                     <field name="sequence"/>
                                 </list>
                             </field>
