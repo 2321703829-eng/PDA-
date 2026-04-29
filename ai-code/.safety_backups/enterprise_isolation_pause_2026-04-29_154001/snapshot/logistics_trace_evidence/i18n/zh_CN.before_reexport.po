@@ -1,0 +1,92 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* logistics_trace_evidence
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-04-14 10:30+0000\n"
+"PO-Revision-Date: 2026-04-14 10:30+0000\n"
+"Last-Translator: Codex\n"
+"Language-Team: zh_CN\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "Logistics Trace Evidence"
+msgstr "物流留痕证据"
+
+msgid "Evidence model attached to logistics trace events"
+msgstr "挂载在物流留痕事件上的证据模型"
+
+msgid "Trace Evidence"
+msgstr "留痕证据"
+
+msgid "Evidence"
+msgstr "证据"
+
+msgid "Trace Event"
+msgstr "留痕事件"
+
+msgid "Waybill"
+msgstr "运单"
+
+msgid "Batch"
+msgstr "批次"
+
+msgid "Uploader"
+msgstr "上传人"
+
+msgid "Image Access"
+msgstr "图片访问"
+
+msgid "Evidence Context"
+msgstr "证据上下文"
+
+msgid "Image Access Key"
+msgstr "图片访问 Key"
+
+msgid "Preview URL"
+msgstr "预览地址"
+
+msgid "Full URL"
+msgstr "原图地址"
+
+msgid "Uploaded At"
+msgstr "上传时间"
+
+msgid "Uploader"
+msgstr "上传人"
+
+msgid "Uploader Name"
+msgstr "上传人姓名"
+
+msgid "Remark"
+msgstr "备注"
+
+msgid "Exception Related"
+msgstr "异常相关"
+
+msgid "Sequence"
+msgstr "顺序"
+
+msgid "State"
+msgstr "状态"
+
+msgid "Available"
+msgstr "可用"
+
+msgid "Missing"
+msgstr "缺失"
+
+msgid "Complete"
+msgstr "完整"
+
+msgid "Evidence Status"
+msgstr "证据状态"
+
+msgid "State"
+msgstr "状态"

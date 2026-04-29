@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_logistics_web_home" model="ir.actions.client">
+        <field name="name">企业首页</field>
+        <field name="tag">logistics_web.home</field>
+    </record>
+
+    <record id="action_logistics_web_dashboard" model="ir.actions.client">
+        <field name="name">物流工作台</field>
+        <field name="tag">logistics_web.dashboard</field>
+    </record>
+
+    <record id="action_logistics_web_stats_center" model="ir.actions.client">
+        <field name="name">统计图表中心</field>
+        <field name="tag">logistics_web.stats_center</field>
+    </record>
+
+    <record id="action_logistics_web_boss_trace" model="ir.actions.client">
+        <field name="name">管理看板</field>
+        <field name="tag">logistics_web.boss_trace</field>
+    </record>
+
+    <record id="action_logistics_web_import_center" model="ir.actions.client">
+        <field name="name">导入中心</field>
+        <field name="tag">logistics_web.import_center</field>
+        <field name="params" eval="{'source_model': 'logistics.dispatch.waybill'}"/>
+    </record>
+
+    <record id="action_logistics_web_import_result" model="ir.actions.client">
+        <field name="name">导入结果</field>
+        <field name="tag">logistics_web.import_result</field>
+    </record>
+
+    <record id="action_logistics_web_export_result" model="ir.actions.client">
+        <field name="name">导出结果</field>
+        <field name="tag">logistics_web.export_result</field>
+    </record>
+
+    <record id="action_logistics_web_driver_management" model="ir.actions.client">
+        <field name="name">司机管理</field>
+        <field name="tag">logistics_web.driver_management</field>
+    </record>
+
+    <record id="action_logistics_web_vehicle_management" model="ir.actions.client">
+        <field name="name">车辆管理</field>
+        <field name="tag">logistics_web.vehicle_management</field>
+    </record>
+</odoo>

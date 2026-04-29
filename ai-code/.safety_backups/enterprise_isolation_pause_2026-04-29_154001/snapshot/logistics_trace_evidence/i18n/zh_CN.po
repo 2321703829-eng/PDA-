@@ -1,0 +1,196 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* logistics_trace_evidence
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-04-14 03:32+0000\n"
+"PO-Revision-Date: 2026-04-14 03:32+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: logistics_trace_evidence
+#: model:ir.model.fields.selection,name:logistics_trace_evidence.selection__logistics_trace_evidence__state__available
+msgid "Available"
+msgstr "可用"
+
+#. module: logistics_trace_evidence
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_trace_evidence__batch_id
+msgid "Batch"
+msgstr "批次"
+
+#. module: logistics_trace_evidence
+#: model:ir.model.fields.selection,name:logistics_trace_evidence.selection__logistics_dispatch_waybill__evidence_status__complete
+msgid "Complete"
+msgstr "完整"
+
+#. module: logistics_trace_evidence
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_trace_evidence__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: logistics_trace_evidence
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_trace_evidence__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: logistics_trace_evidence
+#: model:ir.model,name:logistics_trace_evidence.model_logistics_dispatch_waybill
+msgid "Dispatch Waybill"
+msgstr ""
+
+#. module: logistics_trace_evidence
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_dispatch_waybill__display_name
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_trace_event__display_name
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_trace_evidence__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: logistics_trace_evidence
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_trace_evidence__name
+msgid "Evidence"
+msgstr "证据"
+
+#. module: logistics_trace_evidence
+#: model_terms:ir.ui.view,arch_db:logistics_trace_evidence.view_logistics_trace_evidence_form
+msgid "Evidence Context"
+msgstr "证据上下文"
+
+#. module: logistics_trace_evidence
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_dispatch_waybill__evidence_count
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_trace_event__evidence_count
+msgid "Evidence Count"
+msgstr ""
+
+#. module: logistics_trace_evidence
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_dispatch_waybill__evidence_ids
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_trace_event__evidence_ids
+msgid "Evidence Items"
+msgstr ""
+
+#. module: logistics_trace_evidence
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_dispatch_waybill__evidence_status
+msgid "Evidence Status"
+msgstr "证据状态"
+
+#. module: logistics_trace_evidence
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_trace_evidence__is_exception_related
+#: model_terms:ir.ui.view,arch_db:logistics_trace_evidence.view_logistics_trace_evidence_search
+msgid "Exception Related"
+msgstr "异常相关"
+
+#. module: logistics_trace_evidence
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_trace_evidence__full_url
+msgid "Full URL"
+msgstr "原图地址"
+
+#. module: logistics_trace_evidence
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_dispatch_waybill__id
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_trace_event__id
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_trace_evidence__id
+msgid "ID"
+msgstr ""
+
+#. module: logistics_trace_evidence
+#: model_terms:ir.ui.view,arch_db:logistics_trace_evidence.view_logistics_trace_evidence_form
+msgid "Image Access"
+msgstr "图片访问"
+
+#. module: logistics_trace_evidence
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_trace_evidence__image_access_key
+msgid "Image Access Key"
+msgstr "图片访问 Key"
+
+#. module: logistics_trace_evidence
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_trace_evidence__write_uid
+msgid "Last Updated by"
+msgstr "更新人"
+
+#. module: logistics_trace_evidence
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_trace_evidence__write_date
+msgid "Last Updated on"
+msgstr "更新时间"
+
+#. module: logistics_trace_evidence
+#: model:ir.model,name:logistics_trace_evidence.model_logistics_trace_event
+msgid "Logistics Trace Event"
+msgstr ""
+
+#. module: logistics_trace_evidence
+#: model:ir.model,name:logistics_trace_evidence.model_logistics_trace_evidence
+msgid "Logistics Trace Evidence"
+msgstr "物流留痕证据"
+
+#. module: logistics_trace_evidence
+#: model:ir.model.fields.selection,name:logistics_trace_evidence.selection__logistics_dispatch_waybill__evidence_status__missing
+#: model:ir.model.fields.selection,name:logistics_trace_evidence.selection__logistics_trace_evidence__state__missing
+msgid "Missing"
+msgstr "缺失"
+
+#. module: logistics_trace_evidence
+#: model:ir.model.fields.selection,name:logistics_trace_evidence.selection__logistics_dispatch_waybill__evidence_status__partial
+msgid "Partial"
+msgstr ""
+
+#. module: logistics_trace_evidence
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_trace_evidence__preview_url
+msgid "Preview URL"
+msgstr "预览地址"
+
+#. module: logistics_trace_evidence
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_trace_evidence__remark
+msgid "Remark"
+msgstr "备注"
+
+#. module: logistics_trace_evidence
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_trace_evidence__sequence
+msgid "Sequence"
+msgstr "顺序"
+
+#. module: logistics_trace_evidence
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_trace_evidence__state
+msgid "State"
+msgstr "状态"
+
+#. module: logistics_trace_evidence
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_trace_evidence__trace_event_id
+#: model_terms:ir.ui.view,arch_db:logistics_trace_evidence.view_logistics_trace_evidence_search
+msgid "Trace Event"
+msgstr "留痕事件"
+
+#. module: logistics_trace_evidence
+#: model:ir.actions.act_window,name:logistics_trace_evidence.action_logistics_trace_evidence
+#: model:ir.ui.menu,name:logistics_trace_evidence.menu_logistics_trace_evidence
+#: model_terms:ir.ui.view,arch_db:logistics_trace_evidence.view_logistics_trace_evidence_form
+#: model_terms:ir.ui.view,arch_db:logistics_trace_evidence.view_logistics_trace_evidence_search
+#: model_terms:ir.ui.view,arch_db:logistics_trace_evidence.view_logistics_trace_evidence_tree
+msgid "Trace Evidence"
+msgstr "留痕证据"
+
+#. module: logistics_trace_evidence
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_trace_evidence__uploaded_at
+msgid "Uploaded At"
+msgstr "上传时间"
+
+#. module: logistics_trace_evidence
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_trace_evidence__uploader_id
+#: model_terms:ir.ui.view,arch_db:logistics_trace_evidence.view_logistics_trace_evidence_search
+msgid "Uploader"
+msgstr "上传人"
+
+#. module: logistics_trace_evidence
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_trace_evidence__uploader_name
+msgid "Uploader Name"
+msgstr "上传人姓名"
+
+#. module: logistics_trace_evidence
+#: model:ir.model.fields,field_description:logistics_trace_evidence.field_logistics_trace_evidence__waybill_id
+#: model_terms:ir.ui.view,arch_db:logistics_trace_evidence.view_logistics_trace_evidence_search
+msgid "Waybill"
+msgstr "运单"

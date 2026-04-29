@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="logistics_web.DriverManagementActionV2">
+        <div class="o_action o_logistics_driver_management_action">
+            <Layout display="display">
+                <div class="o_logistics_web_page o_logistics_driver_page">
+                    <div class="o_logistics_web_page_header o_logistics_web_dashboard_header o_logistics_web_page_hero o_logistics_driver_page_hero">
+                        <div class="o_logistics_web_page_hero_main">
+                            <span class="o_logistics_web_page_kicker">四期司机驾驶舱</span>
+                            <h1><t t-esc="state.mode === 'list' ? '司机运营驾驶舱' : currentProfileDriverName"/></h1>
+                            <p>
+                                <t t-if="state.mode === 'list'">这里承接司机运营观察和排线判断，不承担员工主档编辑；如需维护基础档案，请从详情页跳转到员工主档或司机画像。</t>
+                                <t t-else="">当前页聚合司机画像、执行状态和风险指标，方便运营查看后再跳转到员工主档或司机画像处理档案信息。</t>
+                            </p>
+                        </div>
+                    </div>
+
+                    <t t-if="state.mode === 'list'">
+                        <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_driver_section o_logistics_driver_list_shell">
+                            <div class="o_logistics_web_section_heading">
+                                <h2>司机运营列表</h2>
+                                <p>按调度状态、待命仓和协同车辆筛选司机，先做运营判断，再从详情头部跳转到主档或画像。</p>
+                            </div>
+
+                            <div class="o_logistics_driver_toolbar_shell">
+                                <div class="o_logistics_driver_toolbar">
+                                    <div class="o_logistics_driver_toolbar_main">
+                                        <label class="o_logistics_driver_filter_item o_logistics_driver_filter_item_search">
+                                            <span>关键词</span>
+                                            <input type="text" class="form-control" t-att-value="state.keyword" placeholder="搜索司机姓名、编号、手机号、车辆或仓库" t-on-input="(ev) => this.onKeywordInput(ev)" t-on-keydown="(ev) => this.onKeywordKeydown(ev)"/>
+                                        </label>
+                                        <div class="o_logistics_driver_toolbar_actions">
+                                            <button type="button" class="btn btn-primary" t-on-click="() => this.onSearch()">搜索</button>
+                                            <button type="button" class="btn btn-secondary" t-on-click="() => this.onReset()">重置</button>
+                                        </div>
+                                    </div>
+                                    <div class="o_logistics_driver_toolbar_filters">
+                                        <label class="o_logistics_driver_filter_item">
+                                            <span>调度状态</span>
+                                            <select class="form-select" t-on-change="(ev) => this.onStatusChange(ev)">
+                                                <option value="">全部状态</option>
+                                                <t t-foreach="state.filterOptions.status_options" t-as="option" t-key="option.value">
+                                                    <option t-att-value="option.value" t-att-selected="state.filters.status === option.value"><t t-esc="option.label"/></option>
+                                                </t>
+                                            </select>
+                                        </label>
+                                        <label class="o_logistics_driver_filter_item">
+                                            <span>当前待命仓</span>
+                                            <select class="form-select" t-on-change="(ev) => this.onWarehouseChange(ev)">
+                                                <option value="">全部仓库</option>
+                                                <t t-foreach="state.filterOptions.warehouse_options" t-as="option" t-key="option.value">
+                                                    <option t-att-value="option.value" t-att-selected="state.filters.warehouseId === option.value"><t t-esc="option.label"/></option>
+                                                </t>
+                                            </select>
+                                        </label>
+                                        <label class="o_logistics_driver_filter_item">
+                                            <span>当前协同车辆</span>
+                                            <select class="form-select" t-on-change="(ev) => this.onVehicleChange(ev)">
+                                                <option value="">全部车辆</option>
+                                                <t t-foreach="state.filterOptions.vehicle_options" t-as="option" t-key="option.value">
+                                                    <option t-att-value="option.value" t-att-selected="state.filters.vehicleId === option.value"><t t-esc="option.label"/></option>
+                                                </t>
+                                            </select>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="o_logistics_driver_sort_row o_logistics_driver_sort_row_shell">
+                                    <span class="o_logistics_driver_sort_label">排序方式</span>
+                                    <t t-foreach="sortItems" t-as="item" t-key="item.key">
+                                        <button type="button" class="btn btn-secondary btn-sm" t-att-class="state.sortBy === item.key ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm'" t-on-click="() => this.onSortChange(item.key)">
+                                            <t t-esc="item.label"/>
+                                            <t t-if="state.sortBy === item.key">
+                                                <span><t t-esc="state.sortOrder === 'desc' ? ' 降序' : ' 升序'"/></span>
+                                            </t>
+                                        </button>
+                                    </t>
+                                </div>
+                            </div>
+
+                            <t t-if="state.loading">
+                                <div class="o_logistics_web_state_panel">
+                                    <strong>正在加载司机列表</strong>
+                                </div>
+                            </t>
+                            <t t-elif="state.error">
+                                <div class="o_logistics_web_feedback_strip"><p><t t-esc="state.error"/></p></div>
+                            </t>
+                            <t t-elif="!state.items.length">
+                                <div class="o_logistics_web_state_panel">
+                                    <strong>当前没有符合条件的司机</strong>
+                                </div>
+                            </t>
+                            <t t-else="">
+                                <div class="o_logistics_driver_table_shell">
+                                    <div class="o_logistics_driver_table_wrap">
+                                        <table class="table table-hover o_logistics_driver_table">
+                                            <thead>
+                                                <tr>
+                                                    <th>司机</th>
+                                                    <th>手机号</th>
+                                                    <th>当前待命仓</th>
+                                                    <th>当前协同车辆</th>
+                                                    <th>调度状态</th>
+                                                    <th>当前批次</th>
+                                                    <th>夜班意愿</th>
+                                                    <th>最近执行</th>
+                                                    <th>运单数</th>
+                                                    <th>月均异常率</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <t t-foreach="state.items" t-as="item" t-key="item.driver_id">
+                                                    <tr class="o_logistics_driver_table_row" t-on-click="() => this.openProfile(item.driver_id)">
+                                                        <td>
+                                                            <div class="o_logistics_driver_table_primary">
+                                                                <button type="button" class="btn btn-link p-0 o_logistics_driver_name_button" t-on-click.stop="() => this.openProfile(item.driver_id)">
+                                                                    <t t-esc="item.driver_name"/>
+                                                                </button>
+                                                                <span class="o_logistics_driver_table_subtle"><t t-esc="item.internal_driver_code or '未配置司机编号'"/></span>
+                                                            </div>
+                                                        </td>
+                                                        <td><t t-esc="item.mobile or '-'"/></td>
+                                                        <td><t t-esc="item.current_warehouse_label or '-'"/></td>
+                                                        <td><t t-esc="item.current_vehicle_label or '-'"/></td>
+                                                        <td><span class="o_logistics_web_status_tag"><t t-esc="item.status_label or '-'"/></span></td>
+                                                        <td><t t-esc="item.current_batch_no or '-'"/></td>
+                                                        <td><t t-esc="item.allow_night_shift ? '可上夜班' : '暂不排夜班'"/></td>
+                                                        <td>
+                                                            <div class="o_logistics_driver_table_meta_cell">
+                                                                <span><t t-esc="formatDateTime(item.latest_execution_at)"/></span>
+                                                                <span t-if="isStaleExecution(item.latest_execution_at)" class="o_logistics_driver_inline_note">近 7 天无执行</span>
+                                                            </div>
+                                                        </td>
+                                                        <td><t t-esc="item.waybill_count"/></td>
+                                                        <td>
+                                                            <div class="o_logistics_driver_rate_cell">
+                                                                <span><t t-esc="formatPercent(item.month_avg_exception_rate)"/></span>
+                                                                <span class="o_logistics_driver_risk_tag" t-att-data-tone="getRateRiskTone(item.month_avg_exception_rate)"><t t-esc="getRateRiskLabel(item.month_avg_exception_rate)"/></span>
+                                                            </div>
+                                                        </td>
+                                                        <td><button type="button" class="btn btn-secondary btn-sm o_logistics_driver_table_action" t-on-click.stop="() => this.openProfile(item.driver_id)">进入驾驶舱</button></td>
+                                                    </tr>
+                                                </t>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <div class="o_logistics_driver_pager">
+                                        <button type="button" class="btn btn-secondary btn-sm" t-att-disabled="!hasPrevPage" t-on-click="() => this.onPageChange('prev')">上一页</button>
+                                        <span>第 <t t-esc="state.page"/> / <t t-esc="totalPages"/> 页</span>
+                                        <button type="button" class="btn btn-secondary btn-sm" t-att-disabled="!hasNextPage" t-on-click="() => this.onPageChange('next')">下一页</button>
+                                    </div>
+                                </div>
+                            </t>
+                        </section>
+                    </t>
+
+                    <t t-else="">
+                        <t t-if="state.profileLoading">
+                            <div class="o_logistics_web_state_panel">
+                                <strong>正在加载司机画像</strong>
+                            </div>
+                        </t>
+                        <t t-elif="state.profileError">
+                            <div class="o_logistics_web_feedback_strip"><p><t t-esc="state.profileError"/></p></div>
+                            <button type="button" class="btn btn-secondary" t-on-click="() => this.backToList()">返回列表</button>
+                        </t>
+                        <t t-else="">
+                            <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_driver_section o_logistics_driver_profile_header">
+                                <div class="o_logistics_driver_profile_top">
+                                    <div class="o_logistics_driver_profile_identity">
+                                        <span class="o_logistics_web_page_kicker o_logistics_driver_profile_kicker">司机运营驾驶舱</span>
+                                        <h2><t t-esc="state.profile.overview.driver_name"/></h2>
+                                        <span class="o_logistics_driver_profile_badge">运营视图</span>
+                                        <div class="o_logistics_driver_profile_meta">
+                                            <span><t t-esc="state.profile.overview.internal_driver_code or '-'"/></span>
+                                            <span><t t-esc="state.profile.overview.mobile or '-'"/></span>
+                                            <span>调度状态: <t t-esc="state.profile.overview.status_label or '-'"/></span>
+                                            <span>当前待命仓: <t t-esc="state.profile.overview.current_warehouse.warehouse_label or '-'"/></span>
+                                            <span>当前协同车辆: <t t-esc="state.profile.overview.current_vehicle.vehicle_label or '-'"/></span>
+                                            <span>当前批次: <t t-esc="state.profile.overview.current_batch.batch_no or '-'"/></span>
+                                            <span>夜班意愿: <t t-esc="state.profile.overview.allow_night_shift ? '可上夜班' : '暂不排夜班'"/></span>
+                                            <span>驾驶证等级: <t t-esc="state.profile.overview.driver_license_level or '-'"/></span>
+                                            <span>居住区域: <t t-esc="state.profile.overview.current_residence_region or '-'"/></span>
+                                            <span>最近执行: <t t-esc="formatDateTime(state.profile.overview.latest_execution_at)"/></span>
+                                        </div>
+                                    </div>
+                                    <div class="o_logistics_driver_profile_side">
+                                        <div class="o_logistics_driver_profile_actions">
+                                            <button type="button" class="btn btn-secondary" t-on-click="() => this.backToList()">返回列表</button>
+                                            <button type="button" class="btn btn-secondary" t-on-click="() => this.openDriverMasterRecord()">打开员工主档</button>
+                                            <button type="button" class="btn btn-secondary" t-on-click="() => this.openDriverProfileRecord()">打开司机画像</button>
+                                            <button type="button" class="btn btn-primary" t-on-click="() => this.openDriverWaybillList()">查看关联运单</button>
+                                            <button type="button" class="btn btn-secondary" t-on-click="() => this.openDriverExceptionList()">查看关联异常</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_driver_section">
+                                <div class="o_logistics_web_section_heading">
+                                    <h2>核心指标</h2>
+                                    <p>这部分继续沿用执行与风险指标，但头部身份口径已经切换到新司机/车辆模型。</p>
+                                </div>
+                                <div class="o_logistics_web_dashboard_cards o_logistics_driver_kpi_band">
+                                    <div class="o_logistics_web_summary_card"><span class="o_logistics_web_summary_card_label">本月运单数</span><strong class="o_logistics_web_summary_card_value"><t t-esc="state.profile.kpis.month_waybill_count"/></strong></div>
+                                    <div class="o_logistics_web_summary_card"><span class="o_logistics_web_summary_card_label">月均异常率</span><strong class="o_logistics_web_summary_card_value"><t t-esc="formatPercent(state.profile.kpis.month_avg_exception_rate)"/></strong></div>
+                                    <div class="o_logistics_web_summary_card"><span class="o_logistics_web_summary_card_label">签收率</span><strong class="o_logistics_web_summary_card_value"><t t-esc="formatPercent(state.profile.kpis.current_month_signed_rate)"/></strong></div>
+                                    <div class="o_logistics_web_summary_card"><span class="o_logistics_web_summary_card_label">超时率</span><strong class="o_logistics_web_summary_card_value"><t t-esc="formatPercent(state.profile.kpis.current_month_timeout_rate)"/></strong></div>
+                                    <div class="o_logistics_web_summary_card"><span class="o_logistics_web_summary_card_label">缺证率</span><strong class="o_logistics_web_summary_card_value"><t t-esc="formatPercent(state.profile.kpis.missing_evidence_rate)"/></strong></div>
+                                    <div class="o_logistics_web_summary_card"><span class="o_logistics_web_summary_card_label">异常数</span><strong class="o_logistics_web_summary_card_value"><t t-esc="state.profile.kpis.exception_count"/></strong></div>
+                                </div>
+                            </section>
+
+                            <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_driver_section">
+                                <div class="o_logistics_web_section_heading">
+                                    <h2>执行概览</h2>
+                                </div>
+                                <div class="o_logistics_web_dashboard_cards">
+                                    <div class="o_logistics_web_placeholder_panel o_logistics_driver_stat_card"><strong>累计批次数</strong><span><t t-esc="state.profile.overview.execution_summary.batch_count"/></span></div>
+                                    <div class="o_logistics_web_placeholder_panel o_logistics_driver_stat_card"><strong>累计运单数</strong><span><t t-esc="state.profile.overview.execution_summary.waybill_count"/></span></div>
+                                    <div class="o_logistics_web_placeholder_panel o_logistics_driver_stat_card"><strong>近 30 天运单数</strong><span><t t-esc="state.profile.overview.execution_summary.recent_30d_waybill_count"/></span></div>
+                                    <div class="o_logistics_web_placeholder_panel o_logistics_driver_stat_card"><strong>近 30 天门店数</strong><span><t t-esc="state.profile.overview.execution_summary.recent_store_count"/></span></div>
+                                    <div class="o_logistics_web_placeholder_panel o_logistics_driver_stat_card"><strong>近 30 天区域数</strong><span><t t-esc="state.profile.overview.execution_summary.recent_region_count"/></span></div>
+                                    <div class="o_logistics_web_placeholder_panel o_logistics_driver_stat_card"><strong>最近协同车辆</strong><span><t t-esc="state.profile.overview.recent_vehicle.vehicle_label or '-'"/></span></div>
+                                </div>
+                            </section>
+
+                            <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_driver_section">
+                                <div class="o_logistics_web_section_heading">
+                                    <h2>趋势</h2>
+                                    <p>这里先保留文本化趋势，后面如果你要我再恢复成图表版也可以。</p>
+                                </div>
+                                <div class="o_logistics_web_dashboard_cards">
+                                    <t t-foreach="state.profile.trends" t-as="trend" t-key="trend.metric_code">
+                                        <div class="o_logistics_web_placeholder_panel o_logistics_driver_stat_card">
+                                            <strong><t t-esc="trend.metric_label"/></strong>
+                                            <span><t t-esc="formatTrendPoints(trend.points, ['exception_rate', 'signed_rate', 'timeout_rate'].includes(trend.metric_code))"/></span>
+                                        </div>
+                                    </t>
+                                </div>
+                            </section>
+
+                            <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_driver_section">
+                                <div class="o_logistics_web_section_heading">
+                                    <h2>风险与异常</h2>
+                                </div>
+                                <div class="o_logistics_web_dashboard_cards">
+                                    <div class="o_logistics_web_placeholder_panel o_logistics_driver_stat_card"><strong>异常运单数</strong><span><t t-esc="state.profile.risk.exception_waybill_count"/></span></div>
+                                    <div class="o_logistics_web_placeholder_panel o_logistics_driver_stat_card"><strong>严重异常数</strong><span><t t-esc="state.profile.risk.severe_exception_count"/></span></div>
+                                    <div class="o_logistics_web_placeholder_panel o_logistics_driver_stat_card"><strong>超时运单数</strong><span><t t-esc="state.profile.risk.timeout_waybill_count"/></span></div>
+                                    <div class="o_logistics_web_placeholder_panel o_logistics_driver_stat_card"><strong>缺证运单数</strong><span><t t-esc="state.profile.risk.missing_evidence_waybill_count"/></span></div>
+                                </div>
+                                <div class="o_logistics_driver_chip_sections">
+                                    <div class="o_logistics_web_placeholder_panel o_logistics_driver_chip_panel">
+                                        <strong>高频异常类型</strong>
+                                        <div class="o_logistics_driver_chip_row">
+                                            <t t-foreach="state.profile.risk.top_exception_types" t-as="item" t-key="item.key">
+                                                <span class="o_logistics_web_status_tag"><t t-esc="`${item.label} (${item.value})`"/></span>
+                                            </t>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_driver_section">
+                                <div class="o_logistics_web_section_heading">
+                                    <h2>最近运单</h2>
+                                </div>
+                                <div class="o_logistics_driver_table_wrap">
+                                    <table class="table table-hover o_logistics_driver_table">
+                                        <thead>
+                                            <tr>
+                                                <th>运单号</th>
+                                                <th>门店</th>
+                                                <th>区域</th>
+                                                <th>状态</th>
+                                                <th>配送日期</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-foreach="state.profile.recentWaybills" t-as="item" t-key="item.waybill_id">
+                                                <tr>
+                                                    <td><t t-esc="item.waybill_no"/></td>
+                                                    <td><t t-esc="item.store_name or '-'"/></td>
+                                                    <td><t t-esc="item.store_region or '-'"/></td>
+                                                    <td><t t-esc="item.status_label or '-'"/></td>
+                                                    <td><t t-esc="item.delivery_date or '-'"/></td>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </section>
+
+                            <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_driver_section">
+                                <div class="o_logistics_web_section_heading">
+                                    <h2>最近异常</h2>
+                                </div>
+                                <div class="o_logistics_driver_table_wrap">
+                                    <table class="table table-hover o_logistics_driver_table">
+                                        <thead>
+                                            <tr>
+                                                <th>异常号</th>
+                                                <th>运单号</th>
+                                                <th>异常类型</th>
+                                                <th>状态</th>
+                                                <th>上报时间</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-foreach="state.profile.recentExceptions" t-as="item" t-key="item.exception_id">
+                                                <tr>
+                                                    <td><t t-esc="item.exception_no"/></td>
+                                                    <td><t t-esc="item.waybill_no or '-'"/></td>
+                                                    <td><t t-esc="item.exception_type_label or '-'"/></td>
+                                                    <td><t t-esc="item.status_label or '-'"/></td>
+                                                    <td><t t-esc="formatDateTime(item.report_time)"/></td>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </section>
+                        </t>
+                    </t>
+                </div>
+            </Layout>
+        </div>
+    </t>
+</templates>

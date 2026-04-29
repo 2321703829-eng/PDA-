@@ -1,0 +1,227 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* logistics_trace_exception
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-04-14 10:30+0000\n"
+"PO-Revision-Date: 2026-04-14 10:30+0000\n"
+"Last-Translator: Codex\n"
+"Language-Team: zh_CN\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "Logistics Trace Exception"
+msgstr "物流留痕异常"
+
+msgid "Exception and dispute handling for logistics trace records"
+msgstr "物流留痕记录的异常与争议处理"
+
+msgid "Trace Exceptions"
+msgstr "留痕异常"
+
+msgid "Trace Exception"
+msgstr "留痕异常"
+
+msgid "Exception Queue"
+msgstr "异常队列"
+
+msgid "Exception No"
+msgstr "异常单号"
+
+msgid "Exception Type"
+msgstr "异常类型"
+
+msgid "Severity"
+msgstr "严重程度"
+
+msgid "State"
+msgstr "状态"
+
+msgid "Waybill"
+msgstr "运单"
+
+msgid "Batch"
+msgstr "批次"
+
+msgid "Trace Event"
+msgstr "留痕事件"
+
+msgid "Report Time"
+msgstr "上报时间"
+
+msgid "Reported By"
+msgstr "上报人"
+
+msgid "Reporter Name"
+msgstr "上报人姓名"
+
+msgid "Process Owner"
+msgstr "处理负责人"
+
+msgid "Process Owner Name"
+msgstr "处理负责人姓名"
+
+msgid "Description"
+msgstr "异常描述"
+
+msgid "Close Summary"
+msgstr "关闭说明"
+
+msgid "Closed Time"
+msgstr "关闭时间"
+
+msgid "Overdue"
+msgstr "已逾期"
+
+msgid "Remark"
+msgstr "备注"
+
+msgid "Process Logs"
+msgstr "处理记录"
+
+msgid "Evidence Count"
+msgstr "证据数"
+
+msgid "Action Type"
+msgstr "动作类型"
+
+msgid "Action Time"
+msgstr "动作时间"
+
+msgid "From State"
+msgstr "原状态"
+
+msgid "To State"
+msgstr "目标状态"
+
+msgid "Note"
+msgstr "备注"
+
+msgid "Create"
+msgstr "创建"
+
+msgid "State Change"
+msgstr "状态变更"
+
+msgid "Draft"
+msgstr "草稿"
+
+msgid "Open"
+msgstr "打开"
+
+msgid "Processing"
+msgstr "处理中"
+
+msgid "Resolved"
+msgstr "已解决"
+
+msgid "Closed"
+msgstr "已关闭"
+
+msgid "Cancelled"
+msgstr "已取消"
+
+msgid "Low"
+msgstr "低"
+
+msgid "Medium"
+msgstr "中"
+
+msgid "High"
+msgstr "高"
+
+msgid "Critical"
+msgstr "严重"
+
+msgid "Delay"
+msgstr "延迟"
+
+msgid "Damage"
+msgstr "破损"
+
+msgid "Missing"
+msgstr "缺失"
+
+msgid "Rejected"
+msgstr "拒收"
+
+msgid "Store Closed"
+msgstr "门店关闭"
+
+msgid "Signoff Problem"
+msgstr "签收问题"
+
+msgid "Evidence Missing"
+msgstr "证据缺失"
+
+msgid "Other"
+msgstr "其他"
+
+msgid "Exception Event"
+msgstr "异常事件"
+
+msgid "Exceptions"
+msgstr "异常"
+
+msgid "Exception Status"
+msgstr "异常状态"
+
+msgid "No Exception"
+msgstr "无异常"
+
+msgid "Open Exception Count"
+msgstr "未关闭异常数"
+
+msgid "High Severity"
+msgstr "高严重度"
+
+msgid "Owner"
+msgstr "负责人"
+
+msgid "Related Context"
+msgstr "关联上下文"
+
+msgid "Summaries"
+msgstr "摘要"
+
+msgid "Close"
+msgstr "关闭"
+
+msgid "Resolve"
+msgstr "解决"
+
+msgid "Mark Processing"
+msgstr "标记处理中"
+
+msgid "Open Batch"
+msgstr "打开批次"
+
+msgid "Open Evidence"
+msgstr "打开证据"
+
+msgid "Open Trace"
+msgstr "打开留痕"
+
+msgid "Active"
+msgstr "活动中"
+
+msgid "Risk Level"
+msgstr "风险等级"
+
+msgid "No active exceptions are waiting in the queue."
+msgstr "当前没有等待处理的活动异常。"
+
+msgid "Create a trace exception or clear the default Active filter to review historical records."
+msgstr "你可以新建留痕异常，或取消默认的“活动中”筛选来查看历史记录。"
+
+msgid "Describe the business problem and current impact"
+msgstr "请描述业务问题及当前影响"
+
+msgid "Record the final handling result before closing"
+msgstr "请在关闭前记录最终处理结果"

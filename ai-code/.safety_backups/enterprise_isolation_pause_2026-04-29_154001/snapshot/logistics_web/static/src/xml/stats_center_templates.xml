@@ -1,0 +1,477 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="logistics_web.StatsCenterAction">
+        <div class="o_action o_logistics_stats_center_action">
+            <Layout display="display">
+                <div class="o_logistics_web_page o_logistics_stats_page">
+                    <div class="o_logistics_web_page_header o_logistics_web_dashboard_header o_logistics_web_page_hero o_logistics_stats_page_hero">
+                        <div class="o_logistics_web_page_hero_main">
+                            <span class="o_logistics_web_page_kicker">统计图表</span>
+                            <h1><t t-esc="ui.title"/></h1>
+                            <p><t t-esc="ui.subtitle"/></p>
+                        </div>
+                        <div class="o_logistics_web_page_hero_aside">
+                            <div class="o_logistics_web_dashboard_header_meta">
+                                <span class="o_logistics_web_status_tag"><t t-esc="ui.badgePrimary"/></span>
+                                <span class="o_logistics_web_status_tag"><t t-esc="ui.badgeSecondary"/></span>
+                            </div>
+                            <div class="o_logistics_web_page_note">
+                                <strong>当前工作方向</strong>
+                                <span>先统一视觉变量和通用骨架，再把统计图表打磨成三期的样板页。</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_stats_section o_logistics_stats_section_filters">
+                        <div class="o_logistics_web_section_heading">
+                            <h2><t t-esc="ui.filtersTitle"/></h2>
+                            <p>统一控制当前页面所有图表的数据范围与粒度。</p>
+                        </div>
+                        <div class="o_logistics_stats_filters">
+                            <label class="o_logistics_stats_filter_item">
+                                <span><t t-esc="ui.dateFrom"/></span>
+                                <input type="date" class="form-control" t-att-value="state.filters.dateFrom" t-on-change="(ev) => this.onDateChange('dateFrom', ev)"/>
+                            </label>
+                            <label class="o_logistics_stats_filter_item">
+                                <span><t t-esc="ui.dateTo"/></span>
+                                <input type="date" class="form-control" t-att-value="state.filters.dateTo" t-on-change="(ev) => this.onDateChange('dateTo', ev)"/>
+                            </label>
+                            <label class="o_logistics_stats_filter_item">
+                                <span><t t-esc="ui.granularity"/></span>
+                                <select class="form-select" t-on-change="(ev) => this.onGranularityChange(ev)">
+                                    <t t-foreach="granularityOptions" t-as="item" t-key="item.value">
+                                        <option t-att-value="item.value" t-att-selected="state.filters.granularity === item.value"><t t-esc="item.label"/></option>
+                                    </t>
+                                </select>
+                            </label>
+                            <div class="o_logistics_stats_filter_actions">
+                                <button type="button" class="btn btn-primary" t-on-click="() => this.onRefresh()"><t t-esc="ui.refresh"/></button>
+                                <button type="button" class="btn btn-secondary" t-on-click="() => this.onResetFilters()"><t t-esc="ui.reset"/></button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <t t-if="state.loading">
+                        <div class="o_logistics_web_placeholder_panel o_logistics_web_state_panel">
+                            <strong>正在加载统计图表</strong>
+                            <p><t t-esc="ui.loading"/></p>
+                        </div>
+                    </t>
+                    <t t-elif="state.pageError">
+                        <div class="o_logistics_web_feedback_strip">
+                            <p><t t-esc="state.pageError"/></p>
+                        </div>
+                        <div class="o_logistics_web_state_panel">
+                            <strong><t t-esc="state.pageError"/></strong>
+                            <p>请先确认筛选条件和权限状态，再刷新页面或稍后重试。</p>
+                        </div>
+                    </t>
+                    <t t-else="">
+                        <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_stats_section o_logistics_stats_section_summary">
+                            <div class="o_logistics_web_section_heading">
+                                <h2>首屏摘要</h2>
+                                <p>优先看运单量、签收率、超时率和异常总量，快速判断当前窗口的总体状态。</p>
+                            </div>
+                            <div class="o_logistics_web_dashboard_cards o_logistics_stats_summary_band">
+                                <t t-foreach="summaryCards" t-as="card" t-key="card.key">
+                                    <div class="o_logistics_web_summary_card o_logistics_web_clickable o_logistics_stats_summary_card" t-att-data-tone="card.tone" t-on-click="() => this.onSummaryCardClick(card.key)">
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="card.label"/></span>
+                                        <strong class="o_logistics_web_summary_card_value"><t t-esc="formatMetricValue(card.value, card.percent)"/></strong>
+                                        <span class="o_logistics_web_summary_card_meta"><t t-esc="card.caption"/></span>
+                                    </div>
+                                </t>
+                            </div>
+                        </section>
+
+                        <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_stats_section o_logistics_stats_section_execution">
+                            <div class="o_logistics_web_section_heading">
+                                <h2><t t-esc="ui.executionTitle"/></h2>
+                                <p><t t-esc="ui.executionHint"/></p>
+                            </div>
+                            <t t-if="state.sectionErrors.trends">
+                                <div class="o_logistics_web_feedback_strip">
+                                    <p><t t-esc="state.sectionErrors.trends"/></p>
+                                </div>
+                            </t>
+                            <t t-if="executionHasData">
+                                <div class="o_logistics_stats_grid o_logistics_stats_grid_two">
+                                    <div class="o_logistics_stats_chart_card">
+                                        <div class="o_logistics_stats_chart_header">
+                                            <strong><t t-esc="ui.waybillTrendTitle"/></strong>
+                                            <span><t t-esc="ui.waybillTrendHint"/></span>
+                                        </div>
+                                        <t t-if="waybillTrendSeries and waybillTrendSeries.points.length">
+                                            <div class="o_logistics_stats_bar_chart" t-att-class="isCompactTrendSeries(waybillTrendSeries) ? 'o_logistics_stats_bar_chart_compact' : ''">
+                                                <t t-foreach="waybillTrendSeries.points" t-as="point" t-key="point.bucket">
+                                                    <button type="button" class="o_logistics_stats_bar_item" t-on-click="() => this.onTrendPointClick('waybill_count', point.bucket)">
+                                                        <span class="o_logistics_stats_bar_label"><t t-esc="point.label"/></span>
+                                                        <span class="o_logistics_stats_bar_track">
+                                                            <span class="o_logistics_stats_bar_fill" t-att-style="`height:${getTrendBarHeight(waybillTrendSeries, point)}%`"/>
+                                                        </span>
+                                                        <span class="o_logistics_stats_bar_value"><t t-esc="formatNumber(point.value)"/></span>
+                                                    </button>
+                                                </t>
+                                            </div>
+                                        </t>
+                                        <t t-else="">
+                                            <div class="o_logistics_web_placeholder_panel">
+                                                <p><t t-esc="ui.noTrendData"/></p>
+                                            </div>
+                                        </t>
+                                    </div>
+
+                                    <div class="o_logistics_stats_chart_card" t-att-class="isCompactTrendSeries(signedRateSeries) ? 'o_logistics_stats_chart_card_compact' : ''">
+                                        <div class="o_logistics_stats_chart_header">
+                                            <strong><t t-esc="ui.signTimeoutTitle"/></strong>
+                                            <span><t t-esc="ui.signTimeoutHint"/></span>
+                                        </div>
+                                        <t t-if="signedRateSeries and timeoutRateSeries and signedRateSeries.points.length">
+                                            <div class="o_logistics_stats_bar_chart" t-att-class="isCompactTrendSeries(signedRateSeries) ? 'o_logistics_stats_bar_chart_compact' : ''">
+                                                <t t-foreach="signedRateSeries.points" t-as="point" t-key="point.bucket">
+                                                    <div class="o_logistics_stats_bar_item o_logistics_stats_bar_item_dual">
+                                                        <span class="o_logistics_stats_bar_label"><t t-esc="point.label"/></span>
+                                                        <span class="o_logistics_stats_bar_track o_logistics_stats_bar_track_dual">
+                                                            <button type="button" class="o_logistics_stats_dual_button" t-att-title="`签收率 ${formatPercent(point.value)}`" t-on-click="() => this.onTrendPointClick('signed_rate', point.bucket)">
+                                                                <span class="o_logistics_stats_bar_fill o_logistics_stats_bar_fill_primary" t-att-style="`height:${getDualTrendBarHeight([signedRateSeries, timeoutRateSeries], point, 0)}%`"/>
+                                                            </button>
+                                                            <button type="button" class="o_logistics_stats_dual_button" t-att-title="`超时率 ${formatPercent(timeoutRateSeries.points.find((item) => item.bucket === point.bucket)?.value || 0)}`" t-on-click="() => this.onTrendPointClick('timeout_rate', point.bucket)">
+                                                                <span class="o_logistics_stats_bar_fill o_logistics_stats_bar_fill_warning" t-att-style="`height:${getDualTrendBarHeight([signedRateSeries, timeoutRateSeries], point, 1)}%`"/>
+                                                            </button>
+                                                        </span>
+                                                        <span class="o_logistics_stats_dual_values">
+                                                            <span>签收率 <t t-esc="formatPercent(point.value)"/></span>
+                                                            <span>超时率 <t t-esc="formatPercent(timeoutRateSeries.points.find((item) => item.bucket === point.bucket)?.value || 0)"/></span>
+                                                        </span>
+                                                    </div>
+                                                </t>
+                                            </div>
+                                            <div class="o_logistics_stats_legend">
+                                                <span><i class="o_logistics_stats_legend_dot o_logistics_stats_legend_dot_primary"/>签收率</span>
+                                                <span><i class="o_logistics_stats_legend_dot o_logistics_stats_legend_dot_warning"/>超时率</span>
+                                            </div>
+                                        </t>
+                                        <t t-else="">
+                                            <div class="o_logistics_web_placeholder_panel">
+                                                <p><t t-esc="ui.noTrendData"/></p>
+                                            </div>
+                                        </t>
+                                    </div>
+                                </div>
+                            </t>
+                            <t t-else="">
+                                <div class="o_logistics_web_placeholder_panel">
+                                    <p><t t-esc="ui.executionEmpty"/></p>
+                                </div>
+                            </t>
+                        </section>
+
+                        <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_stats_section o_logistics_stats_section_risk">
+                            <div class="o_logistics_web_section_heading">
+                                <h2><t t-esc="ui.riskTitle"/></h2>
+                                <p><t t-esc="ui.riskHint"/></p>
+                            </div>
+                            <t t-if="state.sectionErrors.trends or state.sectionErrors.distributions or state.sectionErrors.rankings">
+                                <div class="o_logistics_web_feedback_strip">
+                                    <p><t t-esc="state.sectionErrors.trends or state.sectionErrors.distributions or state.sectionErrors.rankings"/></p>
+                                </div>
+                            </t>
+                            <t t-if="riskHasData">
+                                <div class="o_logistics_stats_grid o_logistics_stats_grid_three">
+                                    <div class="o_logistics_stats_chart_card" t-att-class="isCompactTrendSeries(exceptionTrendSeries) ? 'o_logistics_stats_chart_card_compact' : ''">
+                                        <div class="o_logistics_stats_chart_header">
+                                            <strong><t t-esc="ui.exceptionTrendTitle"/></strong>
+                                            <span><t t-esc="ui.exceptionTrendHint"/></span>
+                                        </div>
+                                        <t t-if="exceptionTrendSeries and exceptionTrendSeries.points.length">
+                                            <div class="o_logistics_stats_bar_chart" t-att-class="isCompactTrendSeries(exceptionTrendSeries) ? 'o_logistics_stats_bar_chart_compact' : ''">
+                                                <t t-foreach="exceptionTrendSeries.points" t-as="point" t-key="point.bucket">
+                                                    <button type="button" class="o_logistics_stats_bar_item" t-on-click="() => this.onTrendPointClick('exception_count', point.bucket)">
+                                                        <span class="o_logistics_stats_bar_label"><t t-esc="point.label"/></span>
+                                                        <span class="o_logistics_stats_bar_track">
+                                                            <span class="o_logistics_stats_bar_fill o_logistics_stats_bar_fill_danger" t-att-style="`height:${getTrendBarHeight(exceptionTrendSeries, point)}%`"/>
+                                                        </span>
+                                                        <span class="o_logistics_stats_bar_value"><t t-esc="formatNumber(point.value)"/></span>
+                                                    </button>
+                                                </t>
+                                            </div>
+                                        </t>
+                                        <t t-else="">
+                                            <div class="o_logistics_web_placeholder_panel">
+                                                <p><t t-esc="ui.noTrendData"/></p>
+                                            </div>
+                                        </t>
+                                    </div>
+
+                                    <div class="o_logistics_stats_chart_card" t-att-class="isCompactDataset(exceptionTypeDataset) ? 'o_logistics_stats_chart_card_compact' : ''">
+                                        <div class="o_logistics_stats_chart_header">
+                                            <strong><t t-esc="ui.exceptionTypeTitle"/></strong>
+                                            <span><t t-esc="ui.exceptionTypeHint"/></span>
+                                        </div>
+                                        <t t-if="exceptionTypeDataset.items.length">
+                                            <div class="o_logistics_stats_list_chart" t-att-class="isCompactDataset(exceptionTypeDataset) ? 'o_logistics_stats_list_chart_compact' : ''">
+                                                <t t-foreach="exceptionTypeDataset.items" t-as="item" t-key="item.key">
+                                                    <button type="button" class="o_logistics_stats_list_item" t-on-click="() => this.onDistributionItemClick('exception_type_distribution', item)">
+                                                        <div class="o_logistics_stats_list_item_top">
+                                                            <strong><t t-esc="item.label"/></strong>
+                                                            <span><t t-esc="formatNumber(item.value)"/></span>
+                                                        </div>
+                                                        <span class="o_logistics_stats_list_track">
+                                                            <span class="o_logistics_stats_list_fill o_logistics_stats_list_fill_danger" t-att-style="`width:${getDistributionWidth(item, exceptionTypeDataset)}%`"/>
+                                                        </span>
+                                                    </button>
+                                                </t>
+                                            </div>
+                                        </t>
+                                        <t t-else="">
+                                            <div class="o_logistics_web_placeholder_panel">
+                                                <p><t t-esc="ui.noDistributionData"/></p>
+                                            </div>
+                                        </t>
+                                    </div>
+
+                                    <div class="o_logistics_stats_chart_card" t-att-class="isCompactDataset(highRiskBatchDataset) ? 'o_logistics_stats_chart_card_compact' : ''">
+                                        <div class="o_logistics_stats_chart_header">
+                                            <strong><t t-esc="ui.batchRankingTitle"/></strong>
+                                            <span><t t-esc="ui.batchRankingHint"/></span>
+                                        </div>
+                                        <t t-if="highRiskBatchDataset.items.length">
+                                            <div class="o_logistics_stats_list_chart" t-att-class="isCompactDataset(highRiskBatchDataset) ? 'o_logistics_stats_list_chart_compact' : ''">
+                                                <t t-foreach="highRiskBatchDataset.items" t-as="item" t-key="item.entity_id">
+                                                    <button type="button" class="o_logistics_stats_list_item" t-on-click="() => this.onRankingItemClick('high_risk_batch_ranking', item)">
+                                                        <div class="o_logistics_stats_list_item_top">
+                                                            <strong><t t-esc="item.label"/></strong>
+                                                            <span><t t-esc="formatPercent(item.primary_value)"/></span>
+                                                        </div>
+                                                        <div class="o_logistics_stats_list_item_meta">
+                                                            <span>严重异常 <t t-esc="item.secondary_value"/></span>
+                                                            <span>超时运单 <t t-esc="item.tertiary_value"/></span>
+                                                        </div>
+                                                        <span class="o_logistics_stats_list_track">
+                                                            <span class="o_logistics_stats_list_fill o_logistics_stats_list_fill_danger" t-att-style="`width:${getRankingWidth(item, highRiskBatchDataset)}%`"/>
+                                                        </span>
+                                                    </button>
+                                                </t>
+                                            </div>
+                                        </t>
+                                        <t t-else="">
+                                            <div class="o_logistics_web_placeholder_panel">
+                                                <p><t t-esc="ui.noRankingData"/></p>
+                                            </div>
+                                        </t>
+                                    </div>
+                                </div>
+                            </t>
+                            <t t-else="">
+                                <div class="o_logistics_web_placeholder_panel">
+                                    <p><t t-esc="ui.riskEmpty"/></p>
+                                </div>
+                            </t>
+                        </section>
+
+                        <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_stats_section o_logistics_stats_section_driver">
+                            <div class="o_logistics_web_section_heading">
+                                <h2><t t-esc="ui.driverTitle"/></h2>
+                                <p><t t-esc="ui.driverHint"/></p>
+                            </div>
+                            <t t-if="state.sectionErrors.rankings">
+                                <div class="o_logistics_web_feedback_strip">
+                                    <p><t t-esc="state.sectionErrors.rankings"/></p>
+                                </div>
+                            </t>
+                            <t t-if="driverHasData">
+                                <div class="o_logistics_stats_chart_card" t-att-class="isCompactDataset(driverRankingDataset) ? 'o_logistics_stats_chart_card_compact' : ''">
+                                    <div class="o_logistics_stats_chart_header">
+                                        <strong><t t-esc="ui.driverRankingTitle"/></strong>
+                                        <span><t t-esc="ui.driverRankingHint"/></span>
+                                    </div>
+                                    <t t-if="driverRankingDataset.items.length">
+                                        <div class="o_logistics_stats_list_chart" t-att-class="isCompactDataset(driverRankingDataset) ? 'o_logistics_stats_list_chart_compact' : ''">
+                                            <t t-foreach="driverRankingDataset.items" t-as="item" t-key="item.entity_id">
+                                                <button type="button" class="o_logistics_stats_list_item" t-on-click="() => this.onRankingItemClick('driver_month_avg_exception_rate_ranking', item)">
+                                                    <div class="o_logistics_stats_list_item_top">
+                                                        <strong><t t-esc="item.label"/></strong>
+                                                        <span><t t-esc="formatPercent(item.primary_value)"/></span>
+                                                    </div>
+                                                    <div class="o_logistics_stats_list_item_meta">
+                                                        <span>当前窗口运单数 <t t-esc="item.secondary_value"/></span>
+                                                        <span>点击进入司机画像</span>
+                                                    </div>
+                                                    <span class="o_logistics_stats_list_track">
+                                                        <span class="o_logistics_stats_list_fill" t-att-style="`width:${getRankingWidth(item, driverRankingDataset)}%`"/>
+                                                    </span>
+                                                </button>
+                                            </t>
+                                        </div>
+                                    </t>
+                                    <t t-else="">
+                                        <div class="o_logistics_web_placeholder_panel">
+                                            <p><t t-esc="ui.noRankingData"/></p>
+                                        </div>
+                                    </t>
+                                </div>
+                            </t>
+                            <t t-else="">
+                                <div class="o_logistics_web_placeholder_panel">
+                                    <p><t t-esc="ui.driverEmpty"/></p>
+                                </div>
+                            </t>
+                        </section>
+
+                        <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_stats_section o_logistics_stats_section_region">
+                            <div class="o_logistics_web_section_heading">
+                                <h2><t t-esc="ui.regionTitle"/></h2>
+                                <p><t t-esc="ui.regionHint"/></p>
+                            </div>
+                            <t t-if="state.sectionErrors.trends or state.sectionErrors.distributions or state.sectionErrors.rankings">
+                                <div class="o_logistics_web_feedback_strip">
+                                    <p><t t-esc="state.sectionErrors.trends or state.sectionErrors.distributions or state.sectionErrors.rankings"/></p>
+                                </div>
+                            </t>
+                            <t t-if="regionHasData">
+                                <div class="o_logistics_stats_grid o_logistics_stats_grid_two">
+                                    <div class="o_logistics_stats_chart_card" t-att-class="isCompactDataset(regionWaybillDataset) ? 'o_logistics_stats_chart_card_compact' : ''">
+                                        <div class="o_logistics_stats_chart_header">
+                                            <strong><t t-esc="ui.regionWaybillTitle"/></strong>
+                                            <span><t t-esc="ui.regionWaybillHint"/></span>
+                                        </div>
+                                        <t t-if="regionWaybillDataset.items.length">
+                                            <div class="o_logistics_stats_list_chart" t-att-class="isCompactDataset(regionWaybillDataset) ? 'o_logistics_stats_list_chart_compact' : ''">
+                                                <t t-foreach="regionWaybillDataset.items" t-as="item" t-key="item.key">
+                                                    <button type="button" class="o_logistics_stats_list_item" t-on-click="() => this.onDistributionItemClick('region_waybill_distribution', item)">
+                                                        <div class="o_logistics_stats_list_item_top">
+                                                            <strong><t t-esc="item.label"/></strong>
+                                                            <span><t t-esc="formatNumber(item.value)"/></span>
+                                                        </div>
+                                                        <span class="o_logistics_stats_list_track">
+                                                            <span class="o_logistics_stats_list_fill" t-att-style="`width:${getDistributionWidth(item, regionWaybillDataset)}%`"/>
+                                                        </span>
+                                                    </button>
+                                                </t>
+                                            </div>
+                                        </t>
+                                        <t t-else="">
+                                            <div class="o_logistics_web_placeholder_panel">
+                                                <p><t t-esc="ui.noDistributionData"/></p>
+                                            </div>
+                                        </t>
+                                    </div>
+
+                                    <div class="o_logistics_stats_chart_card" t-att-class="isCompactDataset(regionExceptionDataset) ? 'o_logistics_stats_chart_card_compact' : ''">
+                                        <div class="o_logistics_stats_chart_header">
+                                            <strong><t t-esc="ui.regionExceptionTitle"/></strong>
+                                            <span><t t-esc="ui.regionExceptionHint"/></span>
+                                        </div>
+                                        <t t-if="regionExceptionDataset.items.length">
+                                            <div class="o_logistics_stats_list_chart" t-att-class="isCompactDataset(regionExceptionDataset) ? 'o_logistics_stats_list_chart_compact' : ''">
+                                                <t t-foreach="regionExceptionDataset.items" t-as="item" t-key="item.entity_id">
+                                                    <button type="button" class="o_logistics_stats_list_item" t-on-click="() => this.onRankingItemClick('region_exception_rate_ranking', item)">
+                                                        <div class="o_logistics_stats_list_item_top">
+                                                            <strong><t t-esc="item.label"/></strong>
+                                                            <span><t t-esc="formatPercent(item.primary_value)"/></span>
+                                                        </div>
+                                                        <div class="o_logistics_stats_list_item_meta">
+                                                            <span>区域运单数 <t t-esc="item.secondary_value"/></span>
+                                                            <span>点击查看异常运单</span>
+                                                        </div>
+                                                        <span class="o_logistics_stats_list_track">
+                                                            <span class="o_logistics_stats_list_fill o_logistics_stats_list_fill_danger" t-att-style="`width:${getRankingWidth(item, regionExceptionDataset)}%`"/>
+                                                        </span>
+                                                    </button>
+                                                </t>
+                                            </div>
+                                        </t>
+                                        <t t-else="">
+                                            <div class="o_logistics_web_placeholder_panel">
+                                                <p><t t-esc="ui.noRankingData"/></p>
+                                            </div>
+                                        </t>
+                                    </div>
+
+                                    <div class="o_logistics_stats_chart_card" t-att-class="isCompactDataset(regionSignedDataset) ? 'o_logistics_stats_chart_card_compact' : ''">
+                                        <div class="o_logistics_stats_chart_header">
+                                            <strong><t t-esc="ui.regionSignedTitle"/></strong>
+                                            <span><t t-esc="ui.regionSignedHint"/></span>
+                                        </div>
+                                        <t t-if="regionSignedDataset.items.length">
+                                            <div class="o_logistics_stats_list_chart" t-att-class="isCompactDataset(regionSignedDataset) ? 'o_logistics_stats_list_chart_compact' : ''">
+                                                <t t-foreach="regionSignedDataset.items" t-as="item" t-key="item.entity_id">
+                                                    <button type="button" class="o_logistics_stats_list_item" t-on-click="() => this.onRankingItemClick('region_signed_rate_ranking', item)">
+                                                        <div class="o_logistics_stats_list_item_top">
+                                                            <strong><t t-esc="item.label"/></strong>
+                                                            <span><t t-esc="formatPercent(item.primary_value)"/></span>
+                                                        </div>
+                                                        <div class="o_logistics_stats_list_item_meta">
+                                                            <span>区域运单数 <t t-esc="item.secondary_value"/></span>
+                                                            <span>点击查看签收运单</span>
+                                                        </div>
+                                                        <span class="o_logistics_stats_list_track">
+                                                            <span class="o_logistics_stats_list_fill o_logistics_stats_list_fill_primary" t-att-style="`width:${getRankingWidth(item, regionSignedDataset)}%`"/>
+                                                        </span>
+                                                    </button>
+                                                </t>
+                                            </div>
+                                        </t>
+                                        <t t-else="">
+                                            <div class="o_logistics_web_placeholder_panel">
+                                                <p><t t-esc="ui.noRankingData"/></p>
+                                            </div>
+                                        </t>
+                                    </div>
+
+                                    <div class="o_logistics_stats_chart_card" t-att-class="isCompactTrendSeries(missingEvidenceRateSeries) ? 'o_logistics_stats_chart_card_compact' : ''">
+                                        <div class="o_logistics_stats_chart_header">
+                                            <strong><t t-esc="ui.missingEvidenceTitle"/></strong>
+                                            <span><t t-esc="ui.missingEvidenceHint"/></span>
+                                        </div>
+                                        <t t-if="missingEvidenceRateSeries and missingEvidenceCountSeries and missingEvidenceRateSeries.points.length">
+                                            <div class="o_logistics_stats_signal_chart" t-att-class="isCompactTrendSeries(missingEvidenceRateSeries) ? 'o_logistics_stats_signal_chart_compact' : ''">
+                                                <t t-foreach="missingEvidenceRateSeries.points" t-as="point" t-key="point.bucket">
+                                                    <button type="button" class="o_logistics_stats_signal_item" t-on-click="() => this.onTrendPointClick('missing_evidence_waybill_count', point.bucket)">
+                                                        <div class="o_logistics_stats_signal_item_head">
+                                                            <strong><t t-esc="point.label"/></strong>
+                                                            <span>点击查看缺凭证运单</span>
+                                                        </div>
+                                                        <div class="o_logistics_stats_signal_metrics">
+                                                            <div class="o_logistics_stats_signal_metric">
+                                                                <span class="o_logistics_stats_signal_metric_label">缺凭证率</span>
+                                                                <strong class="o_logistics_stats_signal_metric_value"><t t-esc="formatPercent(point.value)"/></strong>
+                                                                <span class="o_logistics_stats_signal_track">
+                                                                    <span class="o_logistics_stats_signal_fill o_logistics_stats_signal_fill_warning" t-att-style="`width:${getSeriesPointWidth(missingEvidenceRateSeries, point.bucket)}%`"/>
+                                                                </span>
+                                                            </div>
+                                                            <div class="o_logistics_stats_signal_metric">
+                                                                <span class="o_logistics_stats_signal_metric_label">缺凭证运单数</span>
+                                                                <strong class="o_logistics_stats_signal_metric_value"><t t-esc="formatNumber(getSeriesPointValue(missingEvidenceCountSeries, point.bucket))"/></strong>
+                                                                <span class="o_logistics_stats_signal_track">
+                                                                    <span class="o_logistics_stats_signal_fill o_logistics_stats_signal_fill_danger" t-att-style="`width:${getSeriesPointWidth(missingEvidenceCountSeries, point.bucket)}%`"/>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </button>
+                                                </t>
+                                            </div>
+                                            <div class="o_logistics_stats_legend">
+                                                <span><i class="o_logistics_stats_legend_dot o_logistics_stats_legend_dot_warning"/>缺凭证率</span>
+                                                <span><i class="o_logistics_stats_legend_dot o_logistics_stats_legend_dot_danger"/>缺凭证运单数</span>
+                                            </div>
+                                        </t>
+                                        <t t-else="">
+                                            <div class="o_logistics_web_placeholder_panel">
+                                                <p><t t-esc="ui.noTrendData"/></p>
+                                            </div>
+                                        </t>
+                                    </div>
+                                </div>
+                            </t>
+                            <t t-else="">
+                                <div class="o_logistics_web_placeholder_panel">
+                                    <p><t t-esc="ui.regionEmpty"/></p>
+                                </div>
+                            </t>
+                        </section>
+                    </t>
+                </div>
+            </Layout>
+        </div>
+    </t>
+</templates>

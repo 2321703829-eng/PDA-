@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_logistics_trace_image_package_import_wizard_form" model="ir.ui.view">
+        <field name="name">logistics.trace.image.package.import.wizard.form</field>
+        <field name="model">logistics.trace.image.package.import.wizard</field>
+        <field name="arch" type="xml">
+            <form string="图片包导入">
+                <sheet>
+                    <group>
+                        <field name="package_file_name"/>
+                        <field name="package_file" filename="package_file_name"/>
+                    </group>
+                    <group>
+                        <field name="note" readonly="1" nolabel="1"/>
+                    </group>
+                    <footer>
+                        <button name="action_import_image_package" type="object" string="开始导入" class="btn-primary"/>
+                        <button string="取消" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_logistics_trace_image_package_import_wizard" model="ir.actions.act_window">
+        <field name="name">图片包导入</field>
+        <field name="res_model">logistics.trace.image.package.import.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_logistics_trace_image_package_import_wizard_form"/>
+        <field name="target">new</field>
+    </record>
+
+    <record id="view_logistics_import_task_image_package_tree" model="ir.ui.view">
+        <field name="name">logistics.import.task.image.package.tree</field>
+        <field name="model">logistics.import.task</field>
+        <field name="arch" type="xml">
+            <list string="图片包任务" default_order="create_date desc, id desc" create="0">
+                <field name="task_no"/>
+                <field name="status"/>
+                <field name="source_file_id"/>
+                <field name="operator_id"/>
+                <field name="total_count"/>
+                <field name="success_count"/>
+                <field name="fail_count"/>
+                <field name="matched_count"/>
+                <field name="manual_review_count"/>
+                <field name="linked_count"/>
+                <field name="started_at"/>
+                <field name="finished_at"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_logistics_import_task_image_package_form" model="ir.ui.view">
+        <field name="name">logistics.import.task.image.package.form</field>
+        <field name="model">logistics.import.task</field>
+        <field name="arch" type="xml">
+            <form string="图片包任务" create="0">
+                <header>
+                    <button
+                        name="action_retry_image_package_lines"
+                        type="object"
+                        string="重试失败行"
+                        class="btn-primary"
+                        groups="base.group_system,logistics_dispatch.group_logistics_dispatch_manager,logistics_dispatch.group_logistics_import_manager,logistics_trace_evidence.group_logistics_image_auditor"
+                        invisible="object_type != 'image_package'"/>
+                    <button
+                        name="action_open_linked_evidences"
+                        type="object"
+                        string="查看已补链证据"
+                        class="btn-secondary"
+                        invisible="object_type != 'image_package'"/>
+                    <field name="status" widget="statusbar" statusbar_visible="pending,running,success,partial_failed,failed"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="task_no" readonly="1"/>
+                        </h1>
+                        <div class="text-muted">
+                            <field name="summary_message" readonly="1" nolabel="1"/>
+                        </div>
+                    </div>
+                    <group>
+                        <group string="任务信息">
+                            <field name="object_type" readonly="1"/>
+                            <field name="source_file_id" readonly="1"/>
+                            <field name="operator_id" readonly="1"/>
+                            <field name="started_at" readonly="1"/>
+                            <field name="finished_at" readonly="1"/>
+                        </group>
+                        <group string="命中与补链汇总">
+                            <field name="total_count" readonly="1"/>
+                            <field name="success_count" readonly="1"/>
+                            <field name="fail_count" readonly="1"/>
+                            <field name="matched_count" readonly="1"/>
+                            <field name="unmatched_count" readonly="1"/>
+                            <field name="ambiguous_count" readonly="1"/>
+                            <field name="linked_count" readonly="1"/>
+                            <field name="link_failed_count" readonly="1"/>
+                            <field name="manual_review_count" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="导入行">
+                            <field name="task_line_ids" domain="[('object_type', '=', 'image_package')]">
+                                <list create="0" delete="0">
+                                    <field name="line_no"/>
+                                    <field name="status"/>
+                                    <field name="source_filename"/>
+                                    <field name="scene_code"/>
+                                    <field name="waybill_no"/>
+                                    <field name="matched_waybill_id"/>
+                                    <field name="matched_customer_line_id"/>
+                                    <field name="match_status"/>
+                                    <field name="match_method"/>
+                                    <field name="selected_trace_event_id"/>
+                                    <field name="link_status"/>
+                                    <field name="linked_evidence_id"/>
+                                    <field name="retry_count"/>
+                                    <button
+                                        name="action_retry_image_package_line"
+                                        type="object"
+                                        string="重试"
+                                        groups="base.group_system,logistics_dispatch.group_logistics_dispatch_manager,logistics_dispatch.group_logistics_import_manager,logistics_trace_evidence.group_logistics_image_auditor"/>
+                                    <button name="action_open_linked_evidence" type="object" string="查看证据"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="错误行">
+                            <field name="error_line_ids" domain="[('task_id.object_type', '=', 'image_package')]">
+                                <list create="0" delete="0">
+                                    <field name="source_row_no"/>
+                                    <field name="field_name"/>
+                                    <field name="raw_value"/>
+                                    <field name="mapped_value"/>
+                                    <field name="error_code"/>
+                                    <field name="error_message"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_logistics_import_task_image_package_search" model="ir.ui.view">
+        <field name="name">logistics.import.task.image.package.search</field>
+        <field name="model">logistics.import.task</field>
+        <field name="arch" type="xml">
+            <search string="图片包任务">
+                <field name="task_no"/>
+                <field name="operator_id"/>
+                <field name="source_file_id"/>
+                <filter string="待处理" name="pending" domain="[('status', '=', 'pending')]"/>
+                <filter string="执行中" name="running" domain="[('status', '=', 'running')]"/>
+                <filter string="部分失败" name="partial_failed" domain="[('status', '=', 'partial_failed')]"/>
+                <filter string="失败" name="failed" domain="[('status', '=', 'failed')]"/>
+                <filter string="待人工复核" name="manual_review" domain="[('manual_review_count', '&gt;', 0)]"/>
+                <group>
+                    <filter string="按状态" name="group_status" context="{'group_by': 'status'}"/>
+                    <filter string="按操作人" name="group_operator" context="{'group_by': 'operator_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_logistics_import_task_image_package" model="ir.actions.act_window">
+        <field name="name">图片包任务</field>
+        <field name="res_model">logistics.import.task</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('object_type', '=', 'image_package')]</field>
+        <field name="context">{'search_default_group_status': 1}</field>
+        <field name="search_view_id" ref="view_logistics_import_task_image_package_search"/>
+    </record>
+
+    <menuitem
+        id="menu_logistics_trace_image_package_import"
+        name="图片包导入"
+        parent="logistics_dispatch.menu_logistics_dispatch_import_center"
+        action="action_logistics_trace_image_package_import_wizard"
+        groups="base.group_system,logistics_dispatch.group_logistics_dispatch_manager,logistics_dispatch.group_logistics_import_manager,logistics_trace_core.group_logistics_image_field_operator"
+        sequence="40"/>
+
+    <menuitem
+        id="menu_logistics_trace_image_package_tasks"
+        name="图片包任务"
+        parent="logistics_dispatch.menu_logistics_dispatch_import_center"
+        action="action_logistics_import_task_image_package"
+        groups="base.group_system,logistics_dispatch.group_logistics_dispatch_manager,logistics_dispatch.group_logistics_import_manager,logistics_trace_core.group_logistics_image_field_operator,logistics_trace_evidence.group_logistics_image_auditor"
+        sequence="50"/>
+    <record id="menu_logistics_trace_image_package_import" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+
+    <record id="menu_logistics_trace_image_package_tasks" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+</odoo>

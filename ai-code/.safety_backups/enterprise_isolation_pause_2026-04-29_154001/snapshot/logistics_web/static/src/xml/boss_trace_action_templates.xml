@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="logistics_web.BossTraceAction">
+        <div class="o_logistics_web_page o_logistics_boss_page">
+            <div class="o_logistics_web_page_header o_logistics_web_dashboard_header o_logistics_web_page_hero o_logistics_boss_page_hero">
+                <div class="o_logistics_web_page_hero_main">
+                    <span class="o_logistics_web_page_kicker">管理看板</span>
+                    <h1><t t-esc="this.ui.title"/></h1>
+                    <p><t t-esc="this.ui.subtitle"/></p>
+                </div>
+                <div class="o_logistics_web_page_hero_aside">
+                    <div class="o_logistics_web_dashboard_header_meta">
+                        <span class="o_logistics_web_status_tag"><t t-esc="this.ui.badgePrimary"/></span>
+                        <span class="o_logistics_web_status_tag"><t t-esc="this.ui.badgeSecondary"/></span>
+                    </div>
+                    <div class="o_logistics_web_page_note">
+                        <strong><t t-esc="this.ui.heroNoteTitle"/></strong>
+                        <span><t t-esc="this.ui.heroNoteBody"/></span>
+                    </div>
+                </div>
+            </div>
+
+            <t t-if="state.loading">
+                <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_boss_section">
+                    <div class="o_logistics_boss_state_panel">
+                        <strong><t t-esc="this.ui.loading"/></strong>
+                    </div>
+                </section>
+            </t>
+            <t t-else="">
+                <t t-if="state.error">
+                    <div class="o_logistics_web_feedback_strip">
+                        <p><t t-esc="state.error"/></p>
+                    </div>
+                    <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_boss_section">
+                        <div class="o_logistics_boss_state_panel">
+                            <strong><t t-esc="this.ui.loadFailed"/></strong>
+                            <p><t t-esc="state.error"/></p>
+                            <button type="button" class="btn btn-secondary" t-on-click="retryLoad">
+                                <t t-esc="this.ui.retry"/>
+                            </button>
+                        </div>
+                    </section>
+                </t>
+                <t t-elif="isEmpty">
+                    <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_boss_section">
+                        <div class="o_logistics_boss_state_panel">
+                            <strong><t t-esc="this.ui.emptyTitle"/></strong>
+                            <p><t t-esc="this.ui.emptyHint"/></p>
+                            <button type="button" class="btn btn-secondary" t-on-click="retryLoad">
+                                <t t-esc="this.ui.retry"/>
+                            </button>
+                        </div>
+                    </section>
+                </t>
+                <t t-else="">
+                    <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_boss_section">
+                        <div class="o_logistics_web_section_heading">
+                            <h2><t t-esc="this.ui.headlineTitle"/></h2>
+                            <p><t t-esc="this.ui.headlineHint"/></p>
+                        </div>
+                        <div class="o_logistics_web_dashboard_cards o_logistics_boss_summary_band">
+                            <t t-foreach="headlineCardsDecorated" t-as="card" t-key="card.key">
+                                <div
+                                    class="o_logistics_web_summary_card o_logistics_boss_summary_card o_logistics_web_clickable"
+                                    t-att-data-tone="card.tone or 'default'"
+                                    t-on-click="() => this.onHeadlineCardClick(card)">
+                                    <span class="o_logistics_web_summary_card_label"><t t-esc="card.label"/></span>
+                                    <strong class="o_logistics_web_summary_card_value"><t t-esc="card.value"/></strong>
+                                    <span class="o_logistics_web_summary_card_meta"><t t-esc="card.caption"/></span>
+                                </div>
+                            </t>
+                        </div>
+                    </section>
+
+                    <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_boss_section">
+                        <div class="o_logistics_boss_overview_grid">
+                            <div class="o_logistics_boss_column">
+                                <div class="o_logistics_web_section_heading">
+                                    <h2><t t-esc="this.ui.priorityTitle"/></h2>
+                                    <p><t t-esc="this.ui.priorityHint"/></p>
+                                </div>
+                                <div class="o_logistics_boss_priority_stack">
+                                    <t t-if="urgentFocusObjects.length">
+                                        <t t-foreach="urgentFocusObjects" t-as="item" t-key="item.key">
+                                            <div class="o_logistics_web_dashboard_row_card o_logistics_boss_focus_card o_logistics_web_clickable" t-on-click="() => this.onFocusObjectClick(item)">
+                                                <div class="o_logistics_web_dashboard_row_top">
+                                                    <strong><t t-esc="item.code"/></strong>
+                                                    <div class="o_logistics_web_dashboard_row_tags">
+                                                        <span class="o_logistics_web_status_tag" t-att-data-tone="item.severity or 'default'">
+                                                            <t t-esc="item.severityLabel or item.severity"/>
+                                                        </span>
+                                                        <span class="o_logistics_web_status_tag" t-att-data-tone="item.state or 'default'">
+                                                            <t t-esc="item.stateLabel or item.state"/>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div class="o_logistics_web_dashboard_row_title">
+                                                    <t t-esc="item.title"/>
+                                                </div>
+                                                <div class="o_logistics_web_dashboard_row_meta">
+                                                    <span><t t-esc="this.ui.waybillLabel"/>：<t t-esc="item.waybill or '-'"/></span>
+                                                    <span><t t-esc="this.ui.batchLabel"/>：<t t-esc="item.batch or '-'"/></span>
+                                                    <span><t t-esc="this.ui.ownerLabel"/>：<t t-esc="item.owner"/></span>
+                                                </div>
+                                                <div class="o_logistics_web_dashboard_row_hint">
+                                                    <t t-esc="item.hint"/>
+                                                </div>
+                                                <div class="o_logistics_web_dashboard_row_actions">
+                                                    <button type="button" class="btn btn-secondary btn-sm" t-on-click="(ev) => this.onFocusExceptionClick(ev, item)">
+                                                        <t t-esc="this.ui.openException"/>
+                                                    </button>
+                                                    <button type="button" class="btn btn-secondary btn-sm" t-att-disabled="!item.waybill_id" t-on-click="(ev) => this.onFocusWaybillClick(ev, item)">
+                                                        <t t-esc="this.ui.openWaybill"/>
+                                                    </button>
+                                                    <button type="button" class="btn btn-secondary btn-sm" t-att-disabled="!item.batch_id" t-on-click="(ev) => this.onFocusBatchClick(ev, item)">
+                                                        <t t-esc="this.ui.openBatch"/>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </t>
+                                    </t>
+                                    <t t-else="">
+                                        <div class="o_logistics_web_placeholder_panel o_logistics_web_state_panel o_logistics_boss_placeholder">
+                                            <strong><t t-esc="this.ui.noFocus"/></strong>
+                                            <p><t t-esc="this.ui.noFocusHint"/></p>
+                                        </div>
+                                    </t>
+                                </div>
+                            </div>
+
+                            <div class="o_logistics_boss_column">
+                                <div class="o_logistics_web_section_heading">
+                                    <h2><t t-esc="this.ui.entryTitle"/></h2>
+                                    <p><t t-esc="this.ui.entryHint"/></p>
+                                </div>
+                                <div class="o_logistics_boss_entry_grid">
+                                    <t t-foreach="entryGroups" t-as="group" t-key="group.key">
+                                        <div class="o_logistics_boss_entry_card" t-att-data-tone="group.tone">
+                                            <strong><t t-esc="group.title"/></strong>
+                                            <p><t t-esc="group.hint"/></p>
+                                            <button type="button" class="btn btn-secondary" t-on-click="() => this.onEntryGroupClick(group)">
+                                                <t t-esc="group.actionLabel"/>
+                                            </button>
+                                        </div>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_boss_section">
+                        <div class="o_logistics_web_section_heading">
+                            <h2><t t-esc="this.ui.analysisTitle"/></h2>
+                            <p><t t-esc="this.ui.analysisHint"/></p>
+                        </div>
+                        <div class="o_logistics_boss_analysis_grid">
+                            <div class="o_logistics_boss_analysis_panel">
+                                <div class="o_logistics_web_section_heading">
+                                    <h2>经营判断</h2>
+                                    <p>只保留管理层需要快速判断的几个核心信号，不铺满趋势图。</p>
+                                </div>
+                                <div class="o_logistics_boss_signal_grid">
+                                    <t t-foreach="managementSignals" t-as="signal" t-key="signal.key">
+                                        <div class="o_logistics_boss_signal_card" t-att-data-tone="signal.tone">
+                                            <span class="o_logistics_web_summary_card_label"><t t-esc="signal.title"/></span>
+                                            <strong class="o_logistics_web_summary_card_value"><t t-esc="signal.value"/></strong>
+                                            <span class="o_logistics_web_summary_card_meta"><t t-esc="signal.hint"/></span>
+                                        </div>
+                                    </t>
+                                </div>
+                            </div>
+
+                            <div class="o_logistics_boss_analysis_panel">
+                                <div class="o_logistics_web_section_heading">
+                                    <h2><t t-esc="this.ui.watchTitle"/></h2>
+                                    <p><t t-esc="this.ui.watchHint"/></p>
+                                </div>
+                                <div class="o_logistics_boss_watch_stack">
+                                    <div class="o_logistics_boss_severity_row">
+                                        <t t-foreach="severityGroups" t-as="group" t-key="group.key">
+                                            <span class="o_logistics_web_status_tag" t-att-data-tone="group.tone">
+                                                <t t-esc="group.label"/>：<t t-esc="group.count"/>
+                                            </span>
+                                        </t>
+                                    </div>
+                                    <div class="o_logistics_boss_owner_panel">
+                                        <strong><t t-esc="this.ui.ownerFocusTitle"/></strong>
+                                        <t t-if="ownerFocusGroups.length">
+                                            <div class="o_logistics_boss_owner_list">
+                                                <t t-foreach="ownerFocusGroups" t-as="owner" t-key="owner.owner">
+                                                    <div class="o_logistics_boss_owner_item">
+                                                        <div class="o_logistics_boss_owner_main">
+                                                            <strong><t t-esc="owner.owner"/></strong>
+                                                            <span>关注对象 <t t-esc="owner.count"/> 个</span>
+                                                        </div>
+                                                        <div class="o_logistics_boss_owner_meta">
+                                                            <span class="o_logistics_web_status_tag" data-tone="warning">待处理 <t t-esc="owner.urgentCount"/></span>
+                                                            <span class="o_logistics_web_status_tag" data-tone="danger">严重 <t t-esc="owner.criticalCount"/></span>
+                                                        </div>
+                                                    </div>
+                                                </t>
+                                            </div>
+                                        </t>
+                                        <t t-else="">
+                                            <div class="o_logistics_web_placeholder_panel o_logistics_web_state_panel o_logistics_boss_placeholder">
+                                                <p><t t-esc="this.ui.ownerFocusEmpty"/></p>
+                                            </div>
+                                        </t>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </t>
+            </t>
+        </div>
+    </t>
+</templates>
