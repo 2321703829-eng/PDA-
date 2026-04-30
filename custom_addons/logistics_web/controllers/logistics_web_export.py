@@ -9,6 +9,7 @@ from ..services.customer_profile_export_service import CustomerProfileExportServ
 from ..services.dispatch_main_export_service import DispatchMainExportService, ExportServiceError
 from ..services.driver_route_excel_export_service import DriverRouteExcelExportService
 from ..services.evidence_image_export_service import EvidenceImageExportService
+from ..services.phase5_0429_export_service import Phase5ExportError, Phase5ExportService
 from ..services.product_profile_export_service import ProductProfileExportService
 
 
@@ -48,6 +49,36 @@ class LogisticsWebExportController(http.Controller):
                 error_code=self._resolve_error_code(exc, "DRIVER_ROUTE_EXPORT_FAILED"),
                 error_message=str(exc),
                 request_id_prefix="req_driver_route_excel_export",
+            )
+        headers = [
+            ("Content-Type", export_file["content_type"]),
+            ("Content-Disposition", content_disposition(export_file["file_name"])),
+        ]
+        return request.make_response(export_file["file_bytes"], headers=headers)
+
+    @http.route(
+        "/api/admin/logistics/exports/phase5-0429/<string:export_key>/direct-download",
+        type="http",
+        auth="user",
+        methods=["POST"],
+        csrf=False,
+    )
+    def download_phase5_0429_excel(self, export_key=None, **kwargs):
+        payload = self._merged_payload()
+        try:
+            export_file = Phase5ExportService.export_by_delivery_date(
+                request.env,
+                export_key=export_key or "",
+                delivery_date=payload.get("delivery_date") or "",
+                batch_no=payload.get("batch_no") or "",
+                file_locale=payload.get("file_locale") or "zh_CN",
+            )
+        except (ValidationError, Phase5ExportError) as exc:
+            return self._error_response(
+                message="0429表格导出失败",
+                error_code=self._resolve_error_code(exc, "PHASE5_EXPORT_FAILED"),
+                error_message=str(exc),
+                request_id_prefix="req_phase5_0429_export",
             )
         headers = [
             ("Content-Type", export_file["content_type"]),

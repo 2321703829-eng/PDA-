@@ -43,6 +43,8 @@ class LogisticsProductUnit(models.Model):
     small_unit_volume = fields.Float(string="小单位体积", digits=(16, 6), default=0.0)
     middle_unit_volume = fields.Float(string="中单位体积", digits=(16, 6), default=0.0)
     volume_unit_large = fields.Char(string="大单位体积量纲", size=32)
+    small_unit_qty = fields.Float(string="小单位数量", digits=(16, 4), default=0.0)
+    middle_unit_qty = fields.Float(string="中单位数量", digits=(16, 4), default=0.0)
     gross_weight_unit_large = fields.Char(string="大单位重量量纲", size=32)
     large_unit_qty = fields.Float(string="大单位数量", digits=(16, 4), default=0.0)
     brand_owner_name = fields.Char(string="品牌方", size=64)
@@ -72,6 +74,8 @@ class LogisticsProductUnit(models.Model):
         "weight",
         "small_unit_weight",
         "middle_unit_weight",
+        "small_unit_qty",
+        "middle_unit_qty",
         "volume",
         "small_unit_volume",
         "middle_unit_volume",
@@ -91,6 +95,8 @@ class LogisticsProductUnit(models.Model):
             "weight",
             "small_unit_weight",
             "middle_unit_weight",
+            "small_unit_qty",
+            "middle_unit_qty",
             "volume",
             "small_unit_volume",
             "middle_unit_volume",

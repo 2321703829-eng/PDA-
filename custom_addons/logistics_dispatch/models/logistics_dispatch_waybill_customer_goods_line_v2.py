@@ -71,6 +71,7 @@ class LogisticsDispatchWaybillCustomerGoodsLine(models.Model):
     base_unit_name = fields.Char(string="基础单位", size=32)
     doc_unit_name = fields.Char(string="单据单位", size=32)
     small_unit_name = fields.Char(string="小单位", size=32)
+    delivery_qty_text = fields.Char(string="发货数量", size=64)
     base_qty = fields.Float(string="基础数量", digits=(16, 4), default=0.0)
     doc_qty = fields.Float(string="单据数量", digits=(16, 4), default=0.0)
     small_qty = fields.Float(string="小单位数量", digits=(16, 4), default=0.0)

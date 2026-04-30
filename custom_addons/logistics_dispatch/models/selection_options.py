@@ -59,6 +59,7 @@ IMPORT_OBJECT_TYPE_SELECTION = [
     ("vehicle_profile", "Vehicle Profile"),
     ("dispatch_main", "Dispatch Main"),
     ("route_planning", "Route Planning"),
+    ("phase5_workbook", "Phase5 Workbook"),
     ("image_package", "Image Package"),
 ]
 

@@ -42,12 +42,16 @@ class LogisticsDispatchWaybillOrderLine(models.Model):
     audited_at = fields.Date(string="审核日期")
     department_name_snapshot = fields.Char(string="部门快照", size=64)
     channel_name_snapshot = fields.Char(string="渠道快照", size=64)
+    gathering_location = fields.Char(string="集货位", size=64)
+    salesperson_phone = fields.Char(string="业务员联系方式", size=64)
     salesperson_name_snapshot = fields.Char(string="业务员快照", size=64)
     payment_status = fields.Selection(selection=PAYMENT_STATUS_SELECTION, string="支付状态", index=True)
     audit_status = fields.Selection(selection=AUDIT_STATUS_SELECTION, string="审核状态", index=True)
     settlement_status = fields.Selection(selection=SETTLEMENT_STATUS_SELECTION, string="结算状态", index=True)
     doc_status = fields.Selection(selection=DOC_STATUS_SELECTION, string="单据状态", index=True)
     logistics_status = fields.Selection(selection=LOGISTICS_STATUS_SELECTION, string="物流状态", index=True)
+    whole_package_count = fields.Float(string="整件数", digits=(16, 4), default=0.0)
+    loose_package_count = fields.Float(string="散件数", digits=(16, 4), default=0.0)
     maker_name = fields.Char(string="制单人", size=64)
     auditor_name = fields.Char(string="审核人", size=64)
     made_at = fields.Datetime(string="制单时间")
@@ -66,6 +70,13 @@ class LogisticsDispatchWaybillOrderLine(models.Model):
         required=True,
     )
     goods_line_ids = fields.One2many("logistics.dispatch.waybill.customer.goods.line", "order_line_id", string="货物明细")
+
+
+    @api.constrains("whole_package_count", "loose_package_count")
+    def _check_non_negative_summary_values(self):
+        for record in self:
+            if record.whole_package_count < 0 or record.loose_package_count < 0:
+                raise ValidationError("整件数和散件数不能小于 0。")
 
     @api.constrains(
         "source_doc_no",

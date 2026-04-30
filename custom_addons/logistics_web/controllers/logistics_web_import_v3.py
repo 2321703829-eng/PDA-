@@ -7,11 +7,13 @@ from odoo.exceptions import AccessError, ValidationError
 from odoo.http import Response, content_disposition, request
 
 from ..services.route_planning_import_service import RoutePlanningImportService
+from ..services.phase5_workbook_import_service import Phase5WorkbookImportService
 from ..services.waybill_standard_import_service_v2 import WaybillStandardImportService
 
 
 class LogisticsWebImportController(http.Controller):
     IMPORT_SERVICE_BY_OBJECT_TYPE = {
+        Phase5WorkbookImportService.OBJECT_TYPE: Phase5WorkbookImportService,
         RoutePlanningImportService.OBJECT_TYPE: RoutePlanningImportService,
     }
     TOP_LEVEL_HTTP_STATUS = {
@@ -176,6 +178,84 @@ class LogisticsWebImportController(http.Controller):
         ]
         return request.make_response(file_bytes, headers=headers)
 
+
+    @http.route("/api/admin/logistics/imports/phase5-workbook/template", type="http", auth="user", methods=["GET"])
+    def download_phase5_workbook_template_meta(self, **kwargs):
+        payload = self._merged_payload()
+        try:
+            template_locale = Phase5WorkbookImportService.normalize_template_locale(payload.get("template_locale"))
+            data = Phase5WorkbookImportService.build_template_payload()
+            data["default_template_locale"] = template_locale
+            data["file_name"] = Phase5WorkbookImportService.get_template_variant(template_locale)["file_name"]
+            data["download_url"] = (
+                "/api/admin/logistics/imports/phase5-workbook/template/download"
+                f"?template_code={Phase5WorkbookImportService.TEMPLATE_CODE}"
+                f"&template_version={Phase5WorkbookImportService.TEMPLATE_VERSION}"
+                f"&template_locale={template_locale}"
+            )
+        except ValidationError as exc:
+            return self._error_response(
+                message="妯℃澘鏌ヨ澶辫触",
+                error_code="TEMPLATE_LOCALE_INVALID",
+                error_message=str(exc),
+                request_id_prefix="req_phase5_template",
+            )
+        except Exception as exc:
+            return self._error_response(
+                message="妯℃澘鏌ヨ澶辫触",
+                error_code="IMPORT_INTERNAL_ERROR",
+                error_message=str(exc),
+                request_id_prefix="req_phase5_template",
+            )
+        return self._success_response(data=data, request_id_prefix="req_phase5_template")
+
+    @http.route(
+        "/api/admin/logistics/imports/phase5-workbook/template/download",
+        type="http",
+        auth="user",
+        methods=["GET"],
+    )
+    def download_phase5_workbook_template_file(self, template_code=None, template_version=None, template_locale=None, **kwargs):
+        if template_code and template_code != Phase5WorkbookImportService.TEMPLATE_CODE:
+            return self._error_response(
+                message="妯℃澘涓嬭浇澶辫触",
+                error_code="TEMPLATE_CODE_INVALID",
+                error_message=f"璇蜂娇鐢ㄦ爣鍑嗘ā鏉?{Phase5WorkbookImportService.TEMPLATE_CODE}銆?",
+                request_id_prefix="req_phase5_template",
+            )
+        if template_version and template_version.lower() != Phase5WorkbookImportService.TEMPLATE_VERSION:
+            return self._error_response(
+                message="妯℃澘涓嬭浇澶辫触",
+                error_code="TEMPLATE_VERSION_INVALID",
+                error_message=f"璇蜂娇鐢ㄦā鏉跨増鏈?{Phase5WorkbookImportService.TEMPLATE_VERSION}銆?",
+                request_id_prefix="req_phase5_template",
+            )
+        try:
+            template_variant = Phase5WorkbookImportService.get_template_variant(template_locale)
+            file_bytes = Phase5WorkbookImportService.load_template_bytes(
+                template_locale=template_variant["template_locale"]
+            )
+        except ValidationError as exc:
+            return self._error_response(
+                message="妯℃澘涓嬭浇澶辫触",
+                error_code="TEMPLATE_LOCALE_INVALID",
+                error_message=str(exc),
+                request_id_prefix="req_phase5_template",
+            )
+        except Exception as exc:
+            return self._error_response(
+                message="妯℃澘涓嬭浇澶辫触",
+                error_code="IMPORT_INTERNAL_ERROR",
+                error_message=str(exc),
+                request_id_prefix="req_phase5_template",
+            )
+
+        headers = [
+            ("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"),
+            ("Content-Disposition", content_disposition(template_variant["file_name"])),
+        ]
+        return request.make_response(file_bytes, headers=headers)
+
     @http.route("/api/admin/logistics/imports/waybill-standard/precheck", type="http", auth="user", methods=["POST"], csrf=False)
     def precheck_waybill_standard_import(self, **kwargs):
         payload = self._merged_payload()
@@ -271,6 +351,52 @@ class LogisticsWebImportController(http.Controller):
             message = "预校验通过，但存在人工复查提醒"
         return self._success_response(data=data, request_id_prefix="req_route_planning_precheck", message=message)
 
+
+    @http.route("/api/admin/logistics/imports/phase5-workbook/precheck", type="http", auth="user", methods=["POST"], csrf=False)
+    def precheck_phase5_workbook_import(self, **kwargs):
+        payload = self._merged_payload()
+        upload_file = request.httprequest.files.get("file")
+        filename = upload_file.filename if upload_file else payload.get("file_name", "")
+        raw_bytes = upload_file.read() if upload_file else self._decode_base64_file(payload.get("file_base64"))
+        if raw_bytes is None:
+            return self._error_response(
+                message="棰勬牎楠屽け璐?",
+                error_code="PRECHECK_PARSE_FAILED",
+                error_message="鏂囦欢鍐呭涓嶆槸鏈夋晥鐨?Base64 缂栫爜銆?",
+                request_id_prefix="req_phase5_precheck",
+            )
+        try:
+            data = Phase5WorkbookImportService.precheck(
+                request.env,
+                raw_bytes,
+                filename=filename,
+                template_code=payload.get("template_code"),
+                template_version=payload.get("template_version"),
+            )
+        except ValidationError as exc:
+            return self._error_response(
+                message="棰勬牎楠屽け璐?",
+                error_code="IMPORT_PRECHECK_INVALID",
+                error_message=str(exc),
+                request_id_prefix="req_phase5_precheck",
+            )
+        except AccessError as exc:
+            return self._error_response(
+                message="棰勬牎楠屽け璐?",
+                error_code="IMPORT_PERMISSION_DENIED",
+                error_message=str(exc),
+                request_id_prefix="req_phase5_precheck",
+            )
+        except Exception as exc:
+            return self._error_response(
+                message="棰勬牎楠屽け璐?",
+                error_code="IMPORT_INTERNAL_ERROR",
+                error_message=str(exc),
+                request_id_prefix="req_phase5_precheck",
+            )
+        message = "棰勬牎楠岄€氳繃" if not data.get("errors") else "棰勬牎楠屽畬鎴?"
+        return self._success_response(data=data, request_id_prefix="req_phase5_precheck", message=message)
+
     @http.route("/api/admin/logistics/imports/waybill-standard/confirm", type="http", auth="user", methods=["POST"], csrf=False)
     def confirm_waybill_standard_import(self, **kwargs):
         payload = self._merged_payload()
@@ -340,6 +466,40 @@ class LogisticsWebImportController(http.Controller):
             request_id_prefix="req_route_planning_confirm",
             message="正式导入完成",
         )
+
+
+    @http.route("/api/admin/logistics/imports/phase5-workbook/confirm", type="http", auth="user", methods=["POST"], csrf=False)
+    def confirm_phase5_workbook_import(self, **kwargs):
+        payload = self._merged_payload()
+        try:
+            data = Phase5WorkbookImportService.confirm_import(
+                request.env,
+                precheck_token=payload.get("precheck_token"),
+                import_batch_no=payload.get("import_batch_no", ""),
+                task_no=payload.get("task_no", ""),
+            )
+        except AccessError as exc:
+            return self._error_response(
+                message="姝ｅ紡瀵煎叆澶辫触",
+                error_code="IMPORT_PERMISSION_DENIED",
+                error_message=str(exc),
+                request_id_prefix="req_phase5_confirm",
+            )
+        except ValidationError as exc:
+            return self._error_response(
+                message="姝ｅ紡瀵煎叆澶辫触",
+                error_code=self._resolve_import_confirm_error_code(str(exc)),
+                error_message=str(exc),
+                request_id_prefix="req_phase5_confirm",
+            )
+        except Exception as exc:
+            return self._error_response(
+                message="姝ｅ紡瀵煎叆澶辫触",
+                error_code="IMPORT_INTERNAL_ERROR",
+                error_message=str(exc),
+                request_id_prefix="req_phase5_confirm",
+            )
+        return self._success_response(data=data, request_id_prefix="req_phase5_confirm", message="姝ｅ紡瀵煎叆瀹屾垚")
 
     @http.route("/api/admin/logistics/imports/tasks/<string:task_no>", type="http", auth="user", methods=["GET"])
     def get_import_task_result(self, task_no=None, **kwargs):
