@@ -99,6 +99,12 @@ export class LogisticsExportResultAction extends Component {
     get sourceListMeta() {
         const sourcePage = this.result?.source_scope?.source_page || "";
         const objectType = this.result?.object_type || "dispatch_main";
+        if (objectType === "evidence_image_bundle" && sourcePage.startsWith("evidence")) {
+            return {
+                label: "证据列表",
+                actionXmlid: "logistics_trace_evidence.action_logistics_trace_evidence",
+            };
+        }
         if (objectType === "product_profile" && sourcePage.startsWith("product_unit")) {
             return {
                 label: "商品规格列表",
@@ -218,28 +224,28 @@ export class LogisticsExportResultAction extends Component {
                 key: "total",
                 label: "总任务行",
                 value: this.formatCount(result.total_count),
-                caption: "本次导出的入口对象数量",
+                caption: "本次导出的入口对象数量。",
             },
             {
                 key: "success",
-                label: "成功",
+                label: "已导出",
                 value: this.formatCount(result.success_count),
                 tone: "success",
-                caption: "成功生成内容的任务行",
+                caption: "成功生成内容的任务行。",
             },
             {
                 key: "failed",
-                label: "失败",
+                label: "未导出-系统异常",
                 value: this.formatCount(result.fail_count),
                 tone: result.fail_count ? "danger" : "",
-                caption: "执行失败的任务行",
+                caption: "执行失败的任务行。",
             },
             {
                 key: "skipped",
-                label: "跳过",
+                label: "未导出-数据缺失",
                 value: this.formatCount(result.skipped_count),
                 tone: result.skipped_count ? "warning" : "",
-                caption: "因无下游数据等原因跳过",
+                caption: "因无下游数据等原因跳过的任务行。",
             },
         ];
 
@@ -250,7 +256,7 @@ export class LogisticsExportResultAction extends Component {
                     key: "customer_profile",
                     label: "导出客户",
                     value: this.formatCount(metrics.customer_count),
-                    caption: "写入 CustomerProfile Sheet 的客户数",
+                    caption: "写入 CustomerProfile Sheet 的客户数。",
                 },
             ];
         }
@@ -262,13 +268,13 @@ export class LogisticsExportResultAction extends Component {
                     key: "product_profile",
                     label: "导出商品",
                     value: this.formatCount(metrics.product_count),
-                    caption: "写入 ProductProfile Sheet 的商品数",
+                    caption: "写入 ProductProfile Sheet 的商品数。",
                 },
                 {
                     key: "product_unit",
-                    label: "导出规格",
+                    label: "导出商品规格",
                     value: this.formatCount(metrics.product_unit_count),
-                    caption: "写入 ProductUnit Sheet 的规格数",
+                    caption: "写入 ProductUnit Sheet 的规格数。",
                 },
             ];
         }
@@ -277,22 +283,42 @@ export class LogisticsExportResultAction extends Component {
             return [
                 ...baseCards,
                 {
+                    key: "image_matched",
+                    label: "命中图片",
+                    value: this.formatCount(metrics.matched_image_count),
+                    caption: "列表范围内命中的图片总数。",
+                },
+                {
                     key: "image_waybill",
                     label: "导出运单",
                     value: this.formatCount(metrics.waybill_count),
-                    caption: "写入 ZIP 包的运单数",
+                    caption: "写入 ZIP 清单的运单数。",
                 },
                 {
                     key: "image_evidence",
                     label: "导出证据",
                     value: this.formatCount(metrics.evidence_count),
-                    caption: "包含图片的证据数",
+                    caption: "至少导出 1 张图片的证据数。",
                 },
                 {
                     key: "image_total",
                     label: "导出图片",
                     value: this.formatCount(metrics.image_count),
-                    caption: "实际打包的图片数",
+                    caption: "实际写入 ZIP 的图片数。",
+                },
+                {
+                    key: "image_missing",
+                    label: "未导出-数据缺失",
+                    value: this.formatCount(metrics.skipped_image_count),
+                    tone: metrics.skipped_image_count ? "warning" : "",
+                    caption: "历史图片缺失或当前记录无可导图片，未写入 ZIP。",
+                },
+                {
+                    key: "image_failed",
+                    label: "未导出-系统异常",
+                    value: this.formatCount(metrics.failed_image_count),
+                    tone: metrics.failed_image_count ? "danger" : "",
+                    caption: "读取或打包图片时发生系统异常，未写入 ZIP。",
                 },
             ];
         }
@@ -303,25 +329,25 @@ export class LogisticsExportResultAction extends Component {
                 key: "waybill",
                 label: "导出运单",
                 value: this.formatCount(business.exported_waybill_count),
-                caption: "写入 Waybill Sheet 的运单数",
+                caption: "写入 Waybill Sheet 的运单数。",
             },
             {
                 key: "customer",
-                label: "导出节点",
+                label: "导出客户",
                 value: this.formatCount(business.exported_customer_line_count),
-                caption: "写入 CustomerLine Sheet 的节点数",
+                caption: "写入 CustomerLine Sheet 的客户数。",
             },
             {
                 key: "order",
                 label: "导出订单",
                 value: this.formatCount(business.exported_order_line_count),
-                caption: "写入 OrderLine Sheet 的订单数",
+                caption: "写入 OrderLine Sheet 的订单数。",
             },
             {
                 key: "goods",
                 label: "导出货物",
                 value: this.formatCount(business.exported_goods_line_count),
-                caption: "写入 GoodsLine Sheet 的货物数",
+                caption: "写入 GoodsLine Sheet 的货物数。",
             },
         ];
     }
