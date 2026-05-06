@@ -17,3 +17,19 @@
   - 列表拆分为“留痕事件类型 + 留痕时间”
   - 后端按 `trace_event_type` 正式过滤
 - 补充历史数据兼容与后续增强路线
+- 补充可执行清单：
+  - 页面字段改动清单
+  - 后端查询改造清单
+- 进一步补充 Odoo 维度实现清单：
+  - model
+  - tree view
+  - form view
+  - search view
+  - action
+  - 导出 / 报表复用建议
+- 进一步补充按模块拆分的开发任务清单：
+  - `logistics_trace_evidence`
+  - `logistics_web`
+  - 视图改造
+  - 数据迁移
+  - 联调验证
