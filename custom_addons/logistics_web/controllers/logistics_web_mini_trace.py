@@ -1,3 +1,4 @@
+import hashlib
 import json
 import os
 
@@ -11,6 +12,14 @@ class LogisticsMiniApiAuthMixin:
         "X-Mini-Token",
         "X-App-Token",
     )
+
+    def _is_mini_token_enabled(self):
+        raw = (
+            request.env["ir.config_parameter"].sudo().get_param("logistics_web.mini_api_token_enabled")
+            or os.getenv("LOGISTICS_MINI_API_TOKEN_ENABLED")
+            or ""
+        ).strip().lower()
+        return raw in {"1", "true", "yes", "on"}
 
     def _get_configured_mini_token(self):
         token = (
@@ -38,9 +47,11 @@ class LogisticsMiniApiAuthMixin:
         return str(token).strip() if token else ""
 
     def _ensure_mini_token(self, payload):
+        if not self._is_mini_token_enabled():
+            return
         expected = self._get_configured_mini_token()
         if not expected:
-            return
+            raise PermissionError("Mini api token is not configured.")
         actual = self._get_request_mini_token(payload)
         if actual != expected:
             raise PermissionError("Invalid mini api token.")
@@ -126,13 +137,7 @@ class LogisticsMiniTraceController(http.Controller, LogisticsMiniApiAuthMixin):
                 },
                 status=404,
             )
-        evidence = request.env["logistics.trace.evidence"].sudo().create(
-            {
-                "trace_event_id": trace_event.id,
-                "uploaded_at": fields.Datetime.now(),
-                "remark": self._pick_first(payload, ["remark", "memo"]) or False,
-            }
-        )
+        evidence = self._get_or_create_evidence(trace_event, payload)
         return self._json_response(
             {
                 "ok": True,
@@ -373,9 +378,68 @@ class LogisticsMiniTraceController(http.Controller, LogisticsMiniApiAuthMixin):
                 return record
         return False
 
+    def _get_or_create_evidence(self, trace_event, payload):
+        evidence_model = request.env["logistics.trace.evidence"].sudo()
+        remark = self._pick_first(payload, ["remark", "memo"]) or False
+        client_request_id = self._extract_client_request_id(payload)
+
+        if client_request_id:
+            existing = evidence_model.search(
+                [
+                    ("trace_event_id", "=", trace_event.id),
+                    ("client_request_id", "=", client_request_id),
+                ],
+                order="id desc",
+                limit=1,
+            )
+            if existing:
+                return existing
+
+        fallback = evidence_model.search(
+            [
+                ("trace_event_id", "=", trace_event.id),
+                ("image_count", "=", 0),
+                ("remark", "=", remark or False),
+            ],
+            order="id desc",
+            limit=1,
+        )
+        if fallback and fallback.uploaded_at:
+            uploaded_at = fields.Datetime.to_datetime(fallback.uploaded_at)
+            if uploaded_at and abs((fields.Datetime.now() - uploaded_at).total_seconds()) <= 300:
+                if client_request_id and not fallback.client_request_id:
+                    fallback.write({"client_request_id": client_request_id})
+                return fallback
+
+        return evidence_model.create(
+            {
+                "trace_event_id": trace_event.id,
+                "uploaded_at": fields.Datetime.now(),
+                "remark": remark,
+                "client_request_id": client_request_id or False,
+            }
+        )
+
+    def _extract_client_request_id(self, payload):
+        value = self._pick_first(
+            payload,
+            [
+                "request_id",
+                "requestId",
+                "client_request_id",
+                "clientRequestId",
+                "idempotency_key",
+                "idempotencyKey",
+                "upload_request_id",
+                "uploadRequestId",
+            ],
+        )
+        return str(value).strip() if value else False
+
     def _handle_uploaded_files(self, evidence):
         uploaded = []
         files = []
+        image_model = request.env["logistics.trace.evidence.image"].sudo()
         for key in request.httprequest.files.keys():
             files.extend(request.httprequest.files.getlist(key))
         if not files:
@@ -385,17 +449,29 @@ class LogisticsMiniTraceController(http.Controller, LogisticsMiniApiAuthMixin):
             storage_file.stream.seek(0)
             if not content:
                 continue
-            image_record = evidence.sudo().upload_image_binary(
+            content_sha256 = hashlib.sha256(content).hexdigest()
+            existing_image = image_model.search(
+                [
+                    ("evidence_id", "=", evidence.id),
+                    ("content_sha256", "=", content_sha256),
+                    ("storage_status", "!=", "deleted"),
+                ],
+                order="id desc",
+                limit=1,
+            )
+            image_record = existing_image or evidence.sudo().upload_image_binary(
                 file_name=storage_file.filename or f"trace_{evidence.id}_{index}.jpg",
                 content=content,
                 content_type=storage_file.mimetype or "application/octet-stream",
                 sequence=index * 10,
+                content_sha256=content_sha256,
             )
             uploaded.append(
                 {
                     "image_id": image_record.id,
                     "image_access_key": image_record.image_access_key,
                     "preview_url": image_record.preview_url or "",
+                    "deduplicated": bool(existing_image),
                 }
             )
         return uploaded

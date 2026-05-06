@@ -1657,3 +1657,44 @@
         width: 100%;
     }
 }
+
+.o_logistics_web_evidence_thumb_list_cell {
+    min-width: 240px;
+}
+
+.o_logistics_web_evidence_thumb_list_strip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.o_logistics_web_evidence_thumb_list_item {
+    width: 56px;
+    height: 56px;
+    padding: 0;
+    border: 1px solid #d9e2ec;
+    border-radius: 12px;
+    background: #fff;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(31, 45, 61, 0.08);
+}
+
+.o_logistics_web_evidence_thumb_list_image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.o_logistics_web_evidence_thumb_list_more {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    background: #edf5ff;
+    color: #1e5f98;
+    font-weight: 700;
+}

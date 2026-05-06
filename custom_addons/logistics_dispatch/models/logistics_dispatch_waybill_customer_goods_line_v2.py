@@ -47,10 +47,35 @@ class LogisticsDispatchWaybillCustomerGoodsLine(models.Model):
         store=True,
         readonly=True,
     )
+    batch_id = fields.Many2one(
+        "logistics.dispatch.batch",
+        string="批次",
+        related="customer_line_id.batch_id",
+        store=True,
+        readonly=True,
+    )
+    batch_no = fields.Char(
+        string="批次号",
+        related="customer_line_id.batch_no",
+        store=True,
+        readonly=True,
+    )
     customer_id = fields.Many2one(
         "res.partner",
         string="客户",
         related="customer_line_id.customer_id",
+        store=True,
+        readonly=True,
+    )
+    order_no = fields.Char(
+        string="订单号",
+        related="order_line_id.order_no",
+        store=True,
+        readonly=True,
+    )
+    sales_order_no = fields.Char(
+        string="销售订单号",
+        related="order_line_id.sales_order_no",
         store=True,
         readonly=True,
     )

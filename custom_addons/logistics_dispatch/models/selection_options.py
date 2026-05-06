@@ -73,6 +73,7 @@ EXPORT_OBJECT_TYPE_SELECTION = [
 EXPORT_ENTRY_TYPE_SELECTION = [
     ("from_batch", "From Batch"),
     ("from_waybill", "From Waybill"),
+    ("from_evidence", "From Evidence"),
     ("from_customer", "From Customer"),
     ("from_product", "From Product"),
 ]
@@ -94,6 +95,7 @@ EXPORT_PACKAGE_STRUCTURE_SELECTION = [
 EXPORT_TARGET_OBJECT_TYPE_SELECTION = [
     ("batch", "Batch"),
     ("waybill", "Waybill"),
+    ("evidence", "Evidence"),
     ("customer", "Customer"),
     ("partner", "Partner"),
     ("product", "Product"),

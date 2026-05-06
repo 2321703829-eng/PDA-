@@ -271,4 +271,31 @@
             </button>
         </div>
     </t>
+
+    <t t-name="logistics_web.EvidenceThumbnailField">
+        <div class="o_logistics_web_evidence_thumb_list_cell">
+            <t t-if="hasImages">
+                <div class="o_logistics_web_evidence_thumb_list_strip">
+                    <t t-foreach="visibleItems" t-as="item" t-key="item.key">
+                        <button
+                            type="button"
+                            class="o_logistics_web_evidence_thumb_list_item"
+                            t-att-title="item.label"
+                            t-on-click="() => this.onOpenImage(item)">
+                            <img
+                                class="o_logistics_web_evidence_thumb_list_image"
+                                t-att-src="item.previewUrl"
+                                t-att-alt="item.label"/>
+                        </button>
+                    </t>
+                    <span t-if="overflowCount" class="o_logistics_web_evidence_thumb_list_more">
+                        <t t-esc="`+${overflowCount}`"/>
+                    </span>
+                </div>
+            </t>
+            <t t-else="">
+                <span class="text-muted">No images</span>
+            </t>
+        </div>
+    </t>
 </templates>

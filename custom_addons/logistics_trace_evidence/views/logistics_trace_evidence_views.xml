@@ -7,11 +7,13 @@
             <list string="Trace Evidence">
                 <field name="uploaded_at"/>
                 <field name="name"/>
+                <field name="batch_id"/>
                 <field name="trace_event_id"/>
                 <field name="waybill_id"/>
                 <field name="uploader_id"/>
                 <field name="image_count"/>
-                <field name="image_access_key"/>
+                <field name="preview_url" optional="hide"/>
+                <field name="image_items_json" widget="logistics_evidence_thumbnails" string="证据缩略图"/>
                 <field name="is_exception_related"/>
                 <field name="state"/>
             </list>

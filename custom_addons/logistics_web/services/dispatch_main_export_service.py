@@ -10,6 +10,7 @@ from openpyxl.styles import Font
 
 from odoo import fields
 from odoo.exceptions import AccessError, ValidationError
+from odoo.tools import config
 
 from .waybill_standard_import_service_v2 import WaybillStandardImportService
 
@@ -811,7 +812,8 @@ class DispatchMainExportService:
     def _store_output_file_bytes(cls, task, workbook_bytes, *, file_name):
         task.ensure_one()
         timestamp = fields.Datetime.now()
-        folder = cls.EXPORT_ROOT_DIR / timestamp.strftime("%Y") / timestamp.strftime("%m") / timestamp.strftime("%d") / task.task_no
+        export_root = cls._get_export_root_dir()
+        folder = export_root / timestamp.strftime("%Y") / timestamp.strftime("%m") / timestamp.strftime("%d") / task.task_no
         file_path = folder / file_name
         try:
             folder.mkdir(parents=True, exist_ok=True)
@@ -820,7 +822,7 @@ class DispatchMainExportService:
             raise ExportServiceError("EXPORT_FILE_WRITE_FAILED", f"Failed to store export file: {error}") from error
         download_ready_at = fields.Datetime.now()
         expires_at = download_ready_at + timedelta(days=cls.DOWNLOAD_EXPIRE_DAYS)
-        relative_path = file_path.relative_to(cls.EXPORT_ROOT_DIR).as_posix()
+        relative_path = file_path.relative_to(export_root).as_posix()
         return {
             "download_ready_at": download_ready_at,
             "expires_at": expires_at,
@@ -836,7 +838,7 @@ class DispatchMainExportService:
         raw_path = (storage_path or "").strip()
         if not raw_path:
             raise ExportServiceError("EXPORT_OUTPUT_FILE_NOT_READY", "output_storage_path is empty.")
-        export_root = cls.EXPORT_ROOT_DIR.resolve()
+        export_root = cls._get_export_root_dir().resolve()
         candidate = Path(raw_path)
         if not candidate.is_absolute():
             candidate = export_root / candidate
@@ -852,6 +854,13 @@ class DispatchMainExportService:
                 f"Output file path is outside export root: {raw_path}",
             ) from error
         return resolved_path
+
+    @classmethod
+    def _get_export_root_dir(cls):
+        data_dir = (config.get("data_dir") or "").strip()
+        if data_dir:
+            return Path(data_dir) / "export_tasks"
+        return cls.EXPORT_ROOT_DIR
 
     @classmethod
     def _compute_task_status(cls, *, success_count, fail_count, skipped_count, task_level_error_code):

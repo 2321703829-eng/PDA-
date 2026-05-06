@@ -243,6 +243,16 @@ class IrUiMenu(models.Model):
                 "action_xmlid": "logistics_web.action_logistics_web_vehicle_management",
                 "sequence": 90,
             },
+            {
+                "xmlid": "logistics_web.menu_logistics_web_import_center_phase5",
+                "label": "五期五表导入",
+                "active": False,
+            },
+            {
+                "xmlid": "logistics_web.menu_logistics_web_import_center_phase5_root",
+                "label": "五期五表导入",
+                "active": False,
+            },
         )
         for spec in menu_specs:
             self._sync_menu(

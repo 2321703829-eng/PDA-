@@ -7,9 +7,9 @@ import { standardActionServiceProps } from "@web/webclient/actions/action_servic
 
 const SOURCE_MODEL_CONFIG = {
     phase5_workbook: {
-        entryTitle: "五期五表导入",
-        focusSheetLabel: "五张业务样例表",
-        focusHint: "优先按商品资料、客户资料、排线门店详情、排线订单详情、门店货物三联单五张表分别导入，先保快照可查、可展示、可导出。",
+        entryTitle: "\u4e94\u671f\u4e94\u8868\u5bfc\u5165",
+        focusSheetLabel: "\u4e94\u5f20\u4e1a\u52a1\u6a21\u677f\u8868",
+        focusHint: "\u4f18\u5148\u6309\u5546\u54c1\u8d44\u6599\u3001\u5ba2\u6237\u8d44\u6599\u3001\u6392\u7ebf\u95e8\u5e97\u8be6\u60c5\u3001\u6392\u7ebf\u8ba2\u5355\u8be6\u60c5\u3001\u95e8\u5e97\u8d27\u7269\u4e09\u8054\u5355\u4e94\u5f20\u8868\u5206\u522b\u5bfc\u5165\uff0c\u5148\u4fdd\u8bc1\u5feb\u7167\u53ef\u67e5\u3001\u53ef\u5c55\u793a\u3001\u53ef\u5bfc\u51fa\u3002",
     },
     "logistics.dispatch.waybill": {
         entryTitle: "\u8fd0\u5355\u5bfc\u5165",
@@ -58,21 +58,21 @@ const EXPORT_SHORTCUTS = [
 const PHASE5_EXPORT_SHORTCUTS = [
     {
         key: "order_detail",
-        title: "导出0429订单详情",
-        detail: "按当前配送日期导出订单详情表，若当前入口带了批次号，则自动缩小到该批次。",
-        buttonLabel: "下载订单详情",
+        title: "\u5bfc\u51fa\u5f53\u524d\u8ba2\u5355\u8be6\u60c5",
+        detail: "\u6309\u5f53\u524d\u914d\u9001\u65e5\u671f\u5bfc\u51fa\u8ba2\u5355\u8be6\u60c5\u8868\uff1b\u5982\u679c\u5f53\u524d\u5165\u53e3\u5e26\u4e86\u6279\u6b21\u53f7\uff0c\u4f1a\u81ea\u52a8\u7f29\u5c0f\u5230\u8be5\u6279\u6b21\u3002",
+        buttonLabel: "\u4e0b\u8f7d\u8ba2\u5355\u8be6\u60c5",
     },
     {
         key: "store_detail",
-        title: "导出0429门店详情",
-        detail: "按当前配送日期导出门店详情表，门店备注按运单备注口径输出。",
-        buttonLabel: "下载门店详情",
+        title: "\u5bfc\u51fa\u5f53\u524d\u95e8\u5e97\u8be6\u60c5",
+        detail: "\u6309\u5f53\u524d\u914d\u9001\u65e5\u671f\u5bfc\u51fa\u95e8\u5e97\u8be6\u60c5\u8868\uff0c\u95e8\u5e97\u5907\u6ce8\u6309\u8fd0\u5355\u5907\u6ce8\u53e3\u5f84\u8f93\u51fa\u3002",
+        buttonLabel: "\u4e0b\u8f7d\u95e8\u5e97\u8be6\u60c5",
     },
     {
         key: "store_goods_triplet",
-        title: "导出0429门店货物信息三联单",
-        detail: "按当前配送日期导出货物三联单，未落库的新字段本版先按空值输出。",
-        buttonLabel: "下载货物三联单",
+        title: "\u5bfc\u51fa\u5f53\u524d\u95e8\u5e97\u8d27\u7269\u4fe1\u606f\u4e09\u8054\u5355",
+        detail: "\u6309\u5f53\u524d\u914d\u9001\u65e5\u671f\u5bfc\u51fa\u8d27\u7269\u4e09\u8054\u5355\uff0c\u672c\u7248\u4f1a\u4f18\u5148\u8f93\u51fa\u5df2\u843d\u5e93\u5b57\u6bb5\uff0c\u672a\u843d\u5e93\u5b57\u6bb5\u5148\u6309\u7a7a\u503c\u8f93\u51fa\u3002",
+        buttonLabel: "\u4e0b\u8f7d\u8d27\u7269\u4e09\u8054\u5355",
     },
 ];
 
@@ -137,32 +137,32 @@ export class LogisticsImportCenterAction extends Component {
     get ui() {
         return {
             title: "\u5bfc\u5165\u4e2d\u5fc3",
-            subtitle: "\u5148\u4e0b\u8f7d\u56db Sheet \u6807\u51c6\u6a21\u677f\uff0c\u518d\u4e0a\u4f20\u6587\u4ef6\u6267\u884c\u9884\u6821\u9a8c\uff0c\u786e\u8ba4\u901a\u8fc7\u540e\u518d\u6b63\u5f0f\u5bfc\u5165\uff0c\u8ba9\u7cfb\u7edf\u76f4\u63a5\u65b0\u5efa\u6ce2\u6b21\u3001\u6279\u6b21\u3001\u8fd0\u5355\u3001\u95e8\u5e97\u8282\u70b9\u3001\u8ba2\u5355\u884c\u548c\u8d27\u7269\u884c\u3002",
+            subtitle: "\u5148\u4e0b\u8f7d\u6807\u51c6\u6a21\u677f\uff0c\u518d\u4e0a\u4f20\u6587\u4ef6\u6267\u884c\u9884\u6821\u9a8c\uff1b\u786e\u8ba4\u901a\u8fc7\u540e\u518d\u6b63\u5f0f\u5bfc\u5165\uff0c\u7edf\u4e00\u5b8c\u6210\u6279\u6b21\u3001\u8fd0\u5355\u3001\u8282\u70b9\u3001\u8ba2\u5355\u548c\u8d27\u7269\u660e\u7ec6\u7684\u5199\u5165\u3002",
             badgePrimary: "TSL-IMPORT-WAYBILL-V3",
             badgeSecondary: "\u56db Sheet \u6b63\u5f0f\u6a21\u677f",
             heroNoteTitle: "\u5f53\u524d\u5de5\u4f5c\u65b9\u5411",
             heroNoteBody: "\u5148\u786e\u8ba4\u5165\u53e3\u548c\u6a21\u677f\uff0c\u518d\u5b8c\u6210\u9884\u6821\u9a8c\u3001\u6b63\u5f0f\u5bfc\u5165\u4e0e\u7ed3\u679c\u56de\u770b\uff0c\u907f\u514d\u628a\u6d41\u7a0b\u62c6\u6563\u5230\u591a\u4e2a\u9875\u9762\u91cc\u3002",
-            sectionPhase5TemplateTitle: "五期导入模板下载",
-            sectionPhase5TemplateHint: "下载五期五张业务样例表模板，按单表口径逐张整理后再上传，适合当前五期导入与0429导出配套场景。",
-            sectionPhase5UploadTitle: "五期五表导入",
-            sectionPhase5UploadHint: "先上传五期模板中的任意一张工作表执行预校验，通过后再正式写入；当前版本按单文件单表处理，不要求一次上传五张。",
-            phase5ChooseFile: "选择五期文件",
-            phase5ReplaceFile: "重新选择五期文件",
-            phase5RunPrecheck: "开始五期预校验",
-            phase5ConfirmImport: "确认写入五期数据",
-            phase5PrecheckingText: "预校验中...",
-            phase5ImportingText: "导入中...",
-            phase5PrecheckEmptyHint: "完成五期文件上传后，预校验结果会显示在这里。",
-            phase5ResultEmptyHint: "确认写入后，五期导入结果会显示在这里。",
-            phase5PrecheckFailed: "五期预校验失败，请刷新页面或稍后再试。",
-            phase5ConfirmFailed: "五期正式导入失败，请先处理错误后重试。",
-            sectionPhase5PrecheckTitle: "五期预校验结果",
-            sectionPhase5PrecheckHint: "当前展示前 20 条错误；如无错误即可继续正式导入。",
-            sectionPhase5ResultTitle: "五期导入结果",
-            sectionPhase5ResultHint: "正式写入后，这里汇总本次导入的成功、失败和跳过情况。",
-            phase5SuccessCountLabel: "成功行数",
-            phase5SkippedCountLabel: "跳过行数",
-            phase5ImportSuccess: "五期导入已完成。",
+            sectionPhase5TemplateTitle: "\u4e94\u671f\u5bfc\u5165\u6a21\u677f\u4e0b\u8f7d",
+            sectionPhase5TemplateHint: "\u4e0b\u8f7d\u4e94\u671f\u4e94\u5f20\u4e1a\u52a1\u6a21\u677f\u8868\uff0c\u6309\u5355\u8868\u53e3\u5f84\u9010\u5f20\u6574\u7406\u540e\u518d\u4e0a\u4f20\uff0c\u9002\u5408\u5f53\u524d\u4e94\u671f\u5bfc\u5165\u4e0e 0429 \u4e09\u8868\u5bfc\u51fa\u914d\u5957\u573a\u666f\u3002",
+            sectionPhase5UploadTitle: "\u4e94\u671f\u4e94\u8868\u5bfc\u5165",
+            sectionPhase5UploadHint: "\u5148\u4e0a\u4f20\u4e94\u671f\u6a21\u677f\u4e2d\u7684\u4efb\u610f\u4e00\u5f20\u5de5\u4f5c\u8868\u6267\u884c\u9884\u6821\u9a8c\uff0c\u901a\u8fc7\u540e\u518d\u6b63\u5f0f\u5199\u5165\uff1b\u5f53\u524d\u7248\u672c\u6309\u5355\u6587\u4ef6\u5355\u8868\u5904\u7406\uff0c\u4e0d\u8981\u6c42\u4e00\u6b21\u4e0a\u4f20\u4e94\u5f20\u3002",
+            phase5ChooseFile: "\u9009\u62e9\u4e94\u671f\u6587\u4ef6",
+            phase5ReplaceFile: "\u91cd\u65b0\u9009\u62e9\u4e94\u671f\u6587\u4ef6",
+            phase5RunPrecheck: "\u5f00\u59cb\u4e94\u671f\u9884\u6821\u9a8c",
+            phase5ConfirmImport: "\u786e\u8ba4\u5199\u5165\u4e94\u671f\u6570\u636e",
+            phase5PrecheckingText: "\u9884\u6821\u9a8c\u4e2d...",
+            phase5ImportingText: "\u5bfc\u5165\u4e2d...",
+            phase5PrecheckEmptyHint: "\u5b8c\u6210\u4e94\u671f\u6587\u4ef6\u4e0a\u4f20\u540e\uff0c\u9884\u6821\u9a8c\u7ed3\u679c\u4f1a\u663e\u793a\u5728\u8fd9\u91cc\u3002",
+            phase5ResultEmptyHint: "\u786e\u8ba4\u5199\u5165\u540e\uff0c\u4e94\u671f\u5bfc\u5165\u7ed3\u679c\u4f1a\u663e\u793a\u5728\u8fd9\u91cc\u3002",
+            phase5PrecheckFailed: "\u4e94\u671f\u9884\u6821\u9a8c\u5931\u8d25\uff0c\u8bf7\u5237\u65b0\u9875\u9762\u6216\u7a0d\u540e\u518d\u8bd5\u3002",
+            phase5ConfirmFailed: "\u4e94\u671f\u6b63\u5f0f\u5bfc\u5165\u5931\u8d25\uff0c\u8bf7\u5148\u5904\u7406\u9519\u8bef\u540e\u91cd\u8bd5\u3002",
+            sectionPhase5PrecheckTitle: "\u4e94\u671f\u9884\u6821\u9a8c\u7ed3\u679c",
+            sectionPhase5PrecheckHint: "\u5f53\u524d\u5c55\u793a\u524d 20 \u6761\u9519\u8bef\uff1b\u5982\u65e0\u9519\u8bef\u5373\u53ef\u7ee7\u7eed\u6b63\u5f0f\u5bfc\u5165\u3002",
+            sectionPhase5ResultTitle: "\u4e94\u671f\u5bfc\u5165\u7ed3\u679c",
+            sectionPhase5ResultHint: "\u6b63\u5f0f\u5199\u5165\u540e\uff0c\u8fd9\u91cc\u6c47\u603b\u672c\u6b21\u5bfc\u5165\u7684\u6210\u529f\u3001\u5931\u8d25\u548c\u8df3\u8fc7\u60c5\u51b5\u3002",
+            phase5SuccessCountLabel: "\u6210\u529f\u884c\u6570",
+            phase5SkippedCountLabel: "\u8df3\u8fc7\u884c\u6570",
+            phase5ImportSuccess: "\u4e94\u671f\u5bfc\u5165\u5df2\u5b8c\u6210\u3002",
             sectionRoutePlanningTemplateTitle: "\u6392\u7ebf\u6a21\u677f\u4e0b\u8f7d",
             sectionRoutePlanningTemplateHint: "\u72ec\u7acb\u4e8e\u6b63\u5f0f\u56db Sheet \u4e3b\u94fe\u7684\u5355\u8868\u6392\u7ebf\u6a21\u677f\uff0c\u53ea\u56f4\u7ed5\u6279\u6b21\u3001\u8fd0\u5355\u3001\u505c\u9760\u70b9\u987a\u5e8f\u3001\u95e8\u5e97\u8054\u7cfb\u4fe1\u606f\u548c\u5730\u7406\u5750\u6807\u3002",
             sectionRoutePlanningUploadTitle: "\u6392\u7ebf\u7528\u6570\u636e\u5bfc\u5165",
@@ -190,7 +190,7 @@ export class LogisticsImportCenterAction extends Component {
             sectionUploadTitle: "\u4e0a\u4f20\u4e0e\u9884\u6821\u9a8c",
             sectionUploadHint: "\u4e0a\u4f20\u56db Sheet \u6807\u51c6\u6a21\u677f\u540e\uff0c\u5148\u505a\u53ef\u5efa\u6863\u9884\u6821\u9a8c\uff0c\u518d\u51b3\u5b9a\u662f\u5426\u6b63\u5f0f\u5bfc\u5165\u3002",
             sectionDriverExportTitle: "\u53f8\u673a\u4fa7\u8def\u7ebf\u5bfc\u51fa",
-            sectionDriverExportHint: "\u6309\u914d\u9001\u65e5\u671f\u4e00\u6b21\u6027\u5bfc\u51fa\u5f53\u5929\u6240\u6709\u8def\u7ebf\uff0c\u751f\u6210\u5355\u8868 `\u53f8\u673a\u8def\u7ebf\u6e05\u5355`\uff0c\u4f9b\u8c03\u5ea6\u548c\u53f8\u673a\u4eba\u5de5\u590d\u6838\u540e\u4f7f\u7528\u3002",
+            sectionDriverExportHint: "\u6309\u914d\u9001\u65e5\u671f\u4e00\u6b21\u6027\u5bfc\u51fa\u5f53\u5929\u6240\u6709\u8def\u7ebf\uff0c\u751f\u6210\u5355\u8868\u300a\u53f8\u673a\u8def\u7ebf\u6e05\u5355\u300b\uff0c\u4f9b\u8c03\u5ea6\u548c\u53f8\u673a\u4eba\u5de5\u590d\u6838\u540e\u4f7f\u7528\u3002",
             driverExportDateLabel: "\u914d\u9001\u65e5\u671f",
             driverExportDateHint: "\u8bf7\u9009\u62e9\u9700\u8981\u5bfc\u51fa\u7684\u5f53\u5929\u8def\u7ebf\u65e5\u671f\u3002",
             driverExportButton: "\u5bfc\u51fa\u5f53\u5929\u8def\u7ebf",
@@ -199,12 +199,12 @@ export class LogisticsImportCenterAction extends Component {
             driverExportDateRequired: "\u8bf7\u5148\u9009\u62e9\u914d\u9001\u65e5\u671f\uff0c\u518d\u5bfc\u51fa\u5f53\u5929\u8def\u7ebf\u3002",
             driverExportSuccess: "\u53f8\u673a\u8def\u7ebf\u6e05\u5355\u5df2\u5f00\u59cb\u4e0b\u8f7d\u3002",
             driverExportBatchContextLabel: "\u5f53\u524d\u6765\u81ea\u6279\u6b21",
-            phase5ExportFailed: "0429\u8868\u683c\u5bfc\u51fa\u5931\u8d25\uff0c\u8bf7\u7a0d\u540e\u91cd\u8bd5\u3002",
-            phase5ExportSuccess: "0429\u8868\u683c\u5df2\u5f00\u59cb\u4e0b\u8f7d\u3002",
+            phase5ExportFailed: "\u5f53\u524d\u8868\u683c\u5bfc\u51fa\u5931\u8d25\uff0c\u8bf7\u7a0d\u540e\u91cd\u8bd5\u3002",
+            phase5ExportSuccess: "\u5f53\u524d\u8868\u683c\u5df2\u5f00\u59cb\u4e0b\u8f7d\u3002",
             sectionPrecheckTitle: "\u9884\u6821\u9a8c\u7ed3\u679c",
             sectionPrecheckHint: "\u5148\u770b\u901a\u8fc7\u6570\u91cf\u548c\u9519\u8bef\u660e\u7ec6\uff0c\u518d\u51b3\u5b9a\u662f\u5426\u6267\u884c\u6b63\u5f0f\u5bfc\u5165\u3002",
             sectionResultTitle: "\u5bfc\u5165\u7ed3\u679c",
-            sectionResultHint: "\u6b63\u5f0f\u5bfc\u5165\u5b8c\u6210\u540e\uff0c\u5728\u8fd9\u91cc\u67e5\u770b\u6279\u6b21\u53f7\u3001\u521b\u5efa\u6570\u91cf\u548c\u540e\u7eed\u5904\u7406\u5165\u53e3\u3002",
+            sectionResultHint: "\u6b63\u5f0f\u5bfc\u5165\u5b8c\u6210\u540e\uff0c\u5728\u8fd9\u91cc\u67e5\u770b\u4efb\u52a1\u53f7\u3001\u521b\u5efa\u6570\u91cf\u548c\u540e\u7eed\u5904\u7406\u5165\u53e3\u3002",
             chooseFile: "\u9009\u62e9\u5bfc\u5165\u6587\u4ef6",
             replaceFile: "\u91cd\u65b0\u9009\u62e9\u6587\u4ef6",
             runPrecheck: "\u5f00\u59cb\u9884\u6821\u9a8c",
@@ -693,6 +693,15 @@ export class LogisticsImportCenterAction extends Component {
         } finally {
             this.state.phase5ExportDownloadingKey = "";
         }
+    }
+
+    async onPhase5ExportButtonClicked(ev) {
+        const exportKey = ev?.currentTarget?.dataset?.exportKey || "";
+        if (!exportKey) {
+            this.state.error = this.ui.phase5ExportFailed;
+            return;
+        }
+        await this.downloadPhase5Export(exportKey);
     }
 
     downloadErrorReport() {

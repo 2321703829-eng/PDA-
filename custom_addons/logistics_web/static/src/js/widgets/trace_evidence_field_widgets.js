@@ -284,8 +284,6 @@ export class LogisticsEvidenceViewerField extends LogisticsWaybillBasePanel {
                     "image_access_key",
                     "preview_url",
                     "full_url",
-                    "image_items_json",
-                    "image_count",
                     "sequence",
                 ],
                 {
@@ -396,3 +394,78 @@ export const logisticsEvidenceViewerField = {
 };
 
 registry.category("fields").add("logistics_evidence_viewer", logisticsEvidenceViewerField);
+
+export class LogisticsEvidenceThumbnailField extends Component {
+    static template = "logistics_web.EvidenceThumbnailField";
+    static props = { ...standardFieldProps };
+
+    get imageCount() {
+        return this.props.record?.data?.image_count || 0;
+    }
+
+    get rawItems() {
+        return Array.isArray(this.props.record?.data?.image_items_json)
+            ? this.props.record.data.image_items_json
+            : [];
+    }
+
+    get visibleItems() {
+        if (this.rawItems.length) {
+            return this.rawItems
+                .map((item, index) => ({
+                    key: item.key || item.imageId || `${index + 1}`,
+                    label: item.label || item.name || `Evidence ${index + 1}`,
+                    previewUrl: this.normalizeUrl(item.previewUrl || item.fullUrl || ""),
+                }))
+                .filter((item) => item.previewUrl)
+                .slice(0, 6);
+        }
+        const legacyPreviewUrl = this.normalizeUrl(this.props.record?.data?.preview_url || "");
+        return legacyPreviewUrl
+            ? [{ key: "legacy_cover", label: "Evidence thumbnail", previewUrl: legacyPreviewUrl }]
+            : [];
+    }
+
+    get hasImages() {
+        return this.visibleItems.length > 0;
+    }
+
+    get overflowCount() {
+        return Math.max(this.imageCount - this.visibleItems.length, 0);
+    }
+
+    normalizeUrl(url) {
+        if (!url || typeof url !== "string") {
+            return "";
+        }
+        const trimmed = url.trim();
+        if (!trimmed) {
+            return "";
+        }
+        if (
+            trimmed.startsWith("http://") ||
+            trimmed.startsWith("https://") ||
+            trimmed.startsWith("file://") ||
+            trimmed.startsWith("blob:") ||
+            trimmed.startsWith("data:") ||
+            trimmed.startsWith("/")
+        ) {
+            return trimmed;
+        }
+        return trimmed;
+    }
+
+    onOpenImage(item) {
+        if (item?.previewUrl) {
+            window.open(item.previewUrl, "_blank", "noopener");
+        }
+    }
+}
+
+export const logisticsEvidenceThumbnailField = {
+    component: LogisticsEvidenceThumbnailField,
+    displayName: _t("Evidence Thumbnails"),
+    supportedTypes: ["json", "char"],
+};
+
+registry.category("fields").add("logistics_evidence_thumbnails", logisticsEvidenceThumbnailField);
