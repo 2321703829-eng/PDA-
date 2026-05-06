@@ -105,10 +105,23 @@ class LogisticsMiniWaybillController(http.Controller, LogisticsMiniApiAuthMixin)
         return stops
 
     def _pick_current_waybill_id(self, waybills):
+        arrived_candidates = []
+        pending_candidates = []
+        leaved_candidates = []
         for waybill in waybills:
             status = self._build_stop_status(waybill, is_current_candidate=False)
-            if status in {"PENDING", "CURRENT", "ARRIVED", "LEAVED"}:
-                return waybill.id
+            if status == "ARRIVED":
+                arrived_candidates.append(waybill.id)
+            elif status == "PENDING":
+                pending_candidates.append(waybill.id)
+            elif status == "LEAVED":
+                leaved_candidates.append(waybill.id)
+        if arrived_candidates:
+            return arrived_candidates[0]
+        if pending_candidates:
+            return pending_candidates[0]
+        if leaved_candidates:
+            return leaved_candidates[0]
         return False
 
     def _build_stop_status(self, waybill, *, is_current_candidate=False):

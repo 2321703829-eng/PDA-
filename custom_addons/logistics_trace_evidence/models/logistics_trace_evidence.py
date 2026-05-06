@@ -11,6 +11,10 @@ class LogisticsTraceEvidence(models.Model):
     _description = "Logistics Trace Evidence"
     _order = "uploaded_at desc, sequence asc, id desc"
     _rec_name = "name"
+    _uniq_logistics_trace_evidence_trace_request = models.Constraint(
+        "unique(trace_event_id, client_request_id)",
+        "Client request ID must be unique within the same trace event.",
+    )
 
     STATE_SELECTION = [
         ("available", "Available"),
@@ -111,7 +115,7 @@ class LogisticsTraceEvidence(models.Model):
         for record in self:
             if record.image_ids:
                 record.image_count = len(record._sorted_image_ids())
-            elif record.image_access_key or record.preview_url or record.full_url:
+            elif record.state != "missing" and (record.image_access_key or record.preview_url or record.full_url):
                 record.image_count = 1
             else:
                 record.image_count = 0
@@ -147,7 +151,7 @@ class LogisticsTraceEvidence(models.Model):
                     )
                     for index, image_record in enumerate(image_records, start=1)
                 ]
-            elif record.image_access_key or record.preview_url or record.full_url:
+            elif record.state != "missing" and (record.image_access_key or record.preview_url or record.full_url):
                 record.image_items_json = [record._build_legacy_image_item()]
             else:
                 record.image_items_json = []
@@ -317,6 +321,28 @@ class LogisticsTraceEvidence(models.Model):
                 }
             )
             evidence._sync_legacy_cover_fields(force_clear=True)
+        self._refresh_legacy_fallback_state()
+
+    def _refresh_legacy_fallback_state(self):
+        evidence_records = self.sudo().search(
+            [
+                ("image_ids", "=", False),
+                "|",
+                "|",
+                ("image_access_key", "!=", False),
+                ("preview_url", "!=", False),
+                ("full_url", "!=", False),
+            ],
+            order="id asc",
+        )
+        for evidence in evidence_records:
+            try:
+                payload = evidence._build_legacy_image_payload()
+            except UserError:
+                payload = False
+            target_state = "available" if payload else "missing"
+            if evidence.state != target_state:
+                evidence.sudo().write({"state": target_state})
 
     def _sync_legacy_cover_fields(self, *, force_clear=False):
         for record in self:
@@ -347,6 +373,10 @@ class LogisticsTraceEvidenceImage(models.Model):
     _uniq_logistics_trace_evidence_image_access_key = models.Constraint(
         "unique(image_access_key)",
         "Image access key must be unique.",
+    )
+    _uniq_logistics_trace_evidence_image_hash = models.Constraint(
+        "unique(evidence_id, content_sha256)",
+        "Image content hash must be unique within the same evidence.",
     )
 
     evidence_id = fields.Many2one(

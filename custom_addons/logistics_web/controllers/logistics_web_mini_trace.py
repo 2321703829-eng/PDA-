@@ -1,6 +1,7 @@
 import hashlib
 import json
 import os
+from psycopg2 import IntegrityError
 
 from odoo import fields, http
 from odoo.http import request
@@ -411,14 +412,28 @@ class LogisticsMiniTraceController(http.Controller, LogisticsMiniApiAuthMixin):
                     fallback.write({"client_request_id": client_request_id})
                 return fallback
 
-        return evidence_model.create(
-            {
-                "trace_event_id": trace_event.id,
-                "uploaded_at": fields.Datetime.now(),
-                "remark": remark,
-                "client_request_id": client_request_id or False,
-            }
-        )
+        vals = {
+            "trace_event_id": trace_event.id,
+            "uploaded_at": fields.Datetime.now(),
+            "remark": remark,
+            "client_request_id": client_request_id or False,
+        }
+        try:
+            with request.env.cr.savepoint():
+                return evidence_model.create(vals)
+        except IntegrityError:
+            if client_request_id:
+                existing = evidence_model.search(
+                    [
+                        ("trace_event_id", "=", trace_event.id),
+                        ("client_request_id", "=", client_request_id),
+                    ],
+                    order="id desc",
+                    limit=1,
+                )
+                if existing:
+                    return existing
+            raise
 
     def _extract_client_request_id(self, payload):
         value = self._pick_first(
@@ -459,13 +474,30 @@ class LogisticsMiniTraceController(http.Controller, LogisticsMiniApiAuthMixin):
                 order="id desc",
                 limit=1,
             )
-            image_record = existing_image or evidence.sudo().upload_image_binary(
-                file_name=storage_file.filename or f"trace_{evidence.id}_{index}.jpg",
-                content=content,
-                content_type=storage_file.mimetype or "application/octet-stream",
-                sequence=index * 10,
-                content_sha256=content_sha256,
-            )
+            if existing_image:
+                image_record = existing_image
+            else:
+                try:
+                    with request.env.cr.savepoint():
+                        image_record = evidence.sudo().upload_image_binary(
+                            file_name=storage_file.filename or f"trace_{evidence.id}_{index}.jpg",
+                            content=content,
+                            content_type=storage_file.mimetype or "application/octet-stream",
+                            sequence=index * 10,
+                            content_sha256=content_sha256,
+                        )
+                except IntegrityError:
+                    image_record = image_model.search(
+                        [
+                            ("evidence_id", "=", evidence.id),
+                            ("content_sha256", "=", content_sha256),
+                            ("storage_status", "!=", "deleted"),
+                        ],
+                        order="id desc",
+                        limit=1,
+                    )
+                    if not image_record:
+                        raise
             uploaded.append(
                 {
                     "image_id": image_record.id,
