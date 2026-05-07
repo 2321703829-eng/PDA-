@@ -12,7 +12,8 @@
 
 1. [_template.md](./_template.md)
 2. [indexes/2026-04.md](./indexes/2026-04.md)
-3. 需要版本基线时，补读 [../versioning/README.md](../versioning/README.md)
+3. [indexes/2026-05.md](./indexes/2026-05.md)
+4. 需要版本基线时，补读 [../versioning/README.md](../versioning/README.md)
 
 ## 当前检索规则
 
@@ -22,9 +23,10 @@
 
 ## 文件命名规则
 
-- 格式：`YYYY-MM-DD_topic_summary.md`
+- 例外格式：`YYYY-MM-DD_topic_summary.md`
 - 同一天多次迭代时，保持日期不变，靠主题段区分
 - 文件名优先写“发生了什么”，而不是写模糊状态词
+- 这是设计文件总治理规范下的目录级例外；正式规则见 [../spec/design_document_governance_spec.md](../spec/design_document_governance_spec.md)
 
 ## 目录治理规则
 
@@ -38,6 +40,8 @@
 
 - [indexes/2026-04.md](./indexes/2026-04.md)
   - 汇总 `2026-04` 每天的 note 数量、主要主题和建议检索词
+- [indexes/2026-05.md](./indexes/2026-05.md)
+  - 汇总 `2026-05` 每天的 note 数量、主要主题和建议检索词
 
 ## 使用边界
 

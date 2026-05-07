@@ -117,6 +117,7 @@ class IrUiMenu(models.Model):
                 "label": "所有统计图表",
                 "parent_xmlid": enterprise_root_xmlid,
                 "sequence": 60,
+                "active": False,
             },
             {
                 "xmlid": "logistics_web.menu_logistics_web_stats_center",
