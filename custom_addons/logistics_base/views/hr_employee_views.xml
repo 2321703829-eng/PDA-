@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_employee_form_logistics_base" model="ir.ui.view">
+        <field name="name">hr.employee.form.logistics.base</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Logistics" name="logistics">
+                    <group>
+                        <group>
+                            <field name="logistics_employee_code"/>
+                            <field name="logistics_role"/>
+                            <field name="logistics_work_status"/>
+                        </group>
+                        <group>
+                            <field name="logistics_service_area"/>
+                            <field name="logistics_default_warehouse_id"/>
+                            <field name="logistics_can_take_order"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

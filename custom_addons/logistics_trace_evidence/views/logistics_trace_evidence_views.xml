@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_logistics_trace_evidence_tree" model="ir.ui.view">
+        <field name="name">logistics.trace.evidence.tree</field>
+        <field name="model">logistics.trace.evidence</field>
+        <field name="arch" type="xml">
+            <list string="Trace Evidence">
+                <field name="uploaded_at"/>
+                <field name="name"/>
+                <field name="trace_event_id"/>
+                <field name="waybill_id"/>
+                <field name="uploader_id"/>
+                <field name="image_access_key"/>
+                <field name="is_exception_related"/>
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_logistics_trace_evidence_form" model="ir.ui.view">
+        <field name="name">logistics.trace.evidence.form</field>
+        <field name="model">logistics.trace.evidence</field>
+        <field name="arch" type="xml">
+            <form string="Trace Evidence">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="trace_event_id"/>
+                            <field name="waybill_id" readonly="1"/>
+                            <field name="batch_id" readonly="1"/>
+                            <field name="uploaded_at"/>
+                        </group>
+                        <group>
+                            <field name="uploader_id"/>
+                            <field name="uploader_name" readonly="1"/>
+                            <field name="sequence"/>
+                            <field name="state"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Image Access">
+                            <field name="image_access_key"/>
+                            <field name="preview_url"/>
+                            <field name="full_url"/>
+                        </group>
+                        <group string="Evidence Context">
+                            <field name="is_exception_related" readonly="1"/>
+                            <field name="remark"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_logistics_trace_evidence_search" model="ir.ui.view">
+        <field name="name">logistics.trace.evidence.search</field>
+        <field name="model">logistics.trace.evidence</field>
+        <field name="arch" type="xml">
+            <search string="Trace Evidence">
+                <field name="name"/>
+                <field name="trace_event_id"/>
+                <field name="waybill_id"/>
+                <field name="image_access_key"/>
+                <filter string="Exception Related" name="exception_related" domain="[('is_exception_related', '=', True)]"/>
+                <group>
+                    <filter string="Waybill" name="group_waybill" context="{'group_by': 'waybill_id'}"/>
+                    <filter string="Trace Event" name="group_trace" context="{'group_by': 'trace_event_id'}"/>
+                    <filter string="Uploader" name="group_uploader" context="{'group_by': 'uploader_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_logistics_trace_evidence" model="ir.actions.act_window">
+        <field name="name">Trace Evidence</field>
+        <field name="res_model">logistics.trace.evidence</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_logistics_trace_evidence_search"/>
+    </record>
+
+    <menuitem
+        id="menu_logistics_trace_evidence"
+        name="Trace Evidence"
+        parent="logistics_dispatch.menu_logistics_dispatch_root"
+        action="action_logistics_trace_evidence"
+        sequence="41"/>
+</odoo>

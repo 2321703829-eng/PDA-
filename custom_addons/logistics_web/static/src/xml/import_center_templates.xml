@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="logistics_web.ImportCenterAction">
+        <div class="o_action o_logistics_web_import_center_action">
+            <Layout display="display">
+                <div class="o_logistics_web_page o_logistics_web_import_center_page">
+                    <div class="o_logistics_web_page_header o_logistics_web_dashboard_header">
+                        <div>
+                            <h1><t t-esc="this.ui.title"/></h1>
+                            <p><t t-esc="this.ui.subtitle"/></p>
+                        </div>
+                        <div class="o_logistics_web_dashboard_header_meta">
+                            <span class="o_logistics_web_status_tag"><t t-esc="this.ui.badgePrimary"/></span>
+                            <span class="o_logistics_web_status_tag"><t t-esc="this.ui.badgeSecondary"/></span>
+                        </div>
+                    </div>
+
+                    <t t-if="state.loading">
+                        <div class="o_logistics_web_placeholder_panel">
+                            <p><t t-esc="this.ui.loading"/></p>
+                        </div>
+                    </t>
+                    <t t-else="">
+                        <t t-if="state.error">
+                            <div class="o_logistics_web_feedback_strip">
+                                <p><t t-esc="state.error"/></p>
+                            </div>
+                        </t>
+
+                        <div class="o_logistics_web_feedback_strip o_logistics_web_feedback_strip_light">
+                            <p>
+                                褰撳墠鍏ュ彛锛?                                <strong><t t-esc="this.sourceConfig.entryTitle"/></strong>
+                                銆傚缓璁紭鍏堝～鍐?                                <strong><t t-esc="this.sourceConfig.focusSheetLabel"/></strong>
+                                Sheet銆?
+                            </p>
+                            <div class="o_logistics_web_feedback_tags">
+                                <span class="o_logistics_web_status_tag" data-tone="info">
+                                    <t t-esc="this.sourceConfig.focusHint"/>
+                                </span>
+                            </div>
+                        </div>
+
+                        <section class="o_logistics_web_dashboard_section">
+                            <div class="o_logistics_web_section_heading">
+                                <h2><t t-esc="this.ui.sectionTemplateTitle"/></h2>
+                                <p><t t-esc="this.ui.sectionTemplateHint"/></p>
+                            </div>
+                            <div class="o_logistics_web_import_template_grid">
+                                <t t-foreach="availableTemplates" t-as="item" t-key="item.template_locale">
+                                    <div class="o_logistics_web_placeholder_panel o_logistics_web_import_template_card">
+                                        <strong><t t-esc="item.template_label"/></strong>
+                                        <p>
+                                            鏂囦欢鍚嶏細
+                                            <t t-esc="item.file_name"/>
+                                        </p>
+                                        <a class="btn btn-secondary" t-att-href="item.download_url">
+                                            涓嬭浇妯℃澘
+                                        </a>
+                                    </div>
+                                </t>
+                            </div>
+                        </section>
+
+                        <section class="o_logistics_web_dashboard_section">
+                            <div class="o_logistics_web_section_heading">
+                                <h2><t t-esc="this.ui.sectionUploadTitle"/></h2>
+                                <p><t t-esc="this.ui.sectionUploadHint"/></p>
+                            </div>
+                            <div class="o_logistics_web_import_upload_panel">
+                                <input
+                                    t-ref="fileInput"
+                                    class="d-none"
+                                    type="file"
+                                    accept=".xlsx"
+                                    t-on-change="onFileChanged"/>
+                                <div class="o_logistics_web_import_upload_main">
+                                    <strong>褰撳墠鏂囦欢</strong>
+                                    <p><t t-esc="this.fileLabel"/></p>
+                                </div>
+                                <div class="o_logistics_web_import_upload_actions">
+                                    <button type="button" class="btn btn-secondary" t-on-click="triggerFileSelect">
+                                        <t t-esc="hasSelectedFile ? this.ui.replaceFile : this.ui.chooseFile"/>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="btn btn-primary"
+                                        t-att-disabled="!hasSelectedFile or state.prechecking"
+                                        t-on-click="runPrecheck">
+                                        <t t-esc="state.prechecking ? '棰勬牎楠屼腑...' : this.ui.runPrecheck"/>
+                                    </button>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="o_logistics_web_dashboard_section">
+                            <div class="o_logistics_web_section_heading">
+                                <h2><t t-esc="this.ui.sectionPrecheckTitle"/></h2>
+                                <p><t t-esc="this.ui.sectionPrecheckHint"/></p>
+                            </div>
+                            <t t-if="hasPrecheckResult">
+                                <div class="o_logistics_web_dashboard_cards">
+                                    <div class="o_logistics_web_summary_card">
+                                        <span class="o_logistics_web_summary_card_label">瀵煎叆鎵规鍙?</span>
+                                        <strong class="o_logistics_web_summary_card_value o_logistics_web_summary_card_value_small">
+                                            <t t-esc="state.precheckResult.import_batch_no"/>
+                                        </strong>
+                                    </div>
+                                    <div class="o_logistics_web_summary_card">
+                                        <span class="o_logistics_web_summary_card_label">鎬昏鏁?</span>
+                                        <strong class="o_logistics_web_summary_card_value">
+                                            <t t-esc="state.precheckResult.total_row_count"/>
+                                        </strong>
+                                    </div>
+                                    <div class="o_logistics_web_summary_card" t-att-data-tone="state.precheckResult.failed_row_count ? 'warning' : 'info'">
+                                        <span class="o_logistics_web_summary_card_label">澶辫触琛屾暟</span>
+                                        <strong class="o_logistics_web_summary_card_value">
+                                            <t t-esc="state.precheckResult.failed_row_count"/>
+                                        </strong>
+                                    </div>
+                                    <div class="o_logistics_web_summary_card" t-att-data-tone="state.precheckResult.can_confirm_import ? 'info' : 'danger'">
+                                        <span class="o_logistics_web_summary_card_label">鍙寮忓鍏?</span>
+                                        <strong class="o_logistics_web_summary_card_value">
+                                            <t t-esc="state.precheckResult.can_confirm_import ? '鏄? : '鍚?'"/>
+                                        </strong>
+                                    </div>
+                                </div>
+
+                                <div class="o_logistics_web_import_action_bar">
+                                    <button
+                                        type="button"
+                                        class="btn btn-primary"
+                                        t-att-disabled="!canConfirmImport or state.confirming"
+                                        t-on-click="confirmImport">
+                                        <t t-esc="state.confirming ? '瀵煎叆涓?..' : this.ui.confirmImport"/>
+                                    </button>
+                                    <button
+                                        t-if="state.precheckResult.error_report_url"
+                                        type="button"
+                                        class="btn btn-secondary"
+                                        t-on-click="downloadErrorReport">
+                                        <t t-esc="this.ui.openErrorReport"/>
+                                    </button>
+                                </div>
+
+                                <t t-if="visibleErrors.length">
+                                    <div class="o_logistics_web_import_error_panel">
+                                        <div class="o_logistics_web_section_heading">
+                                            <h2>閿欒鏄庣粏</h2>
+                                            <p>褰撳墠鏈€澶氬睍绀哄墠 20 鏉￠敊璇紝瀹屾暣鍐呭璇蜂笅杞介敊璇姤鍛娿€?</p>
+                                        </div>
+                                        <div class="table-responsive">
+                                            <table class="table table-sm o_logistics_web_import_table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Sheet</th>
+                                                        <th>琛屽彿</th>
+                                                        <th>瀛楁</th>
+                                                        <th>閿欒缂栫爜</th>
+                                                        <th>閿欒璇存槑</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <t t-foreach="visibleErrors" t-as="item" t-key="`${item.sheet_name}-${item.row_no}-${item.field_code}-${item.error_code}`">
+                                                        <tr>
+                                                            <td><t t-esc="item.sheet_name"/></td>
+                                                            <td><t t-esc="item.row_no"/></td>
+                                                            <td><t t-esc="item.field_label or item.field_code"/></td>
+                                                            <td><t t-esc="item.error_code"/></td>
+                                                            <td><t t-esc="item.error_message"/></td>
+                                                        </tr>
+                                                    </t>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </t>
+                                <t t-else="">
+                                    <div class="o_logistics_web_placeholder_panel">
+                                        <p><t t-esc="this.ui.noErrors"/></p>
+                                    </div>
+                                </t>
+                            </t>
+                            <t t-else="">
+                                <div class="o_logistics_web_placeholder_panel">
+                                    <p>瀹屾垚鏂囦欢涓婁紶鍚庯紝棰勬牎楠岀粨鏋滀細鏄剧ず鍦ㄨ繖閲屻€?</p>
+                                </div>
+                            </t>
+                        </section>
+
+                        <section class="o_logistics_web_dashboard_section">
+                            <div class="o_logistics_web_section_heading">
+                                <h2><t t-esc="this.ui.sectionResultTitle"/></h2>
+                                <p><t t-esc="this.ui.sectionResultHint"/></p>
+                            </div>
+                            <t t-if="hasImportResult">
+                                <div class="o_logistics_web_dashboard_cards">
+                                    <div class="o_logistics_web_summary_card">
+                                        <span class="o_logistics_web_summary_card_label">瀵煎叆鎵规鍙?</span>
+                                        <strong class="o_logistics_web_summary_card_value o_logistics_web_summary_card_value_small">
+                                            <t t-esc="state.importResult.import_batch_no"/>
+                                        </strong>
+                                    </div>
+                                    <div class="o_logistics_web_summary_card" t-att-data-tone="state.importResult.status === 'finished' ? 'info' : 'warning'">
+                                        <span class="o_logistics_web_summary_card_label">鐘舵€?</span>
+                                        <strong class="o_logistics_web_summary_card_value">
+                                            <t t-esc="state.importResult.status_label"/>
+                                        </strong>
+                                    </div>
+                                    <div class="o_logistics_web_summary_card">
+                                        <span class="o_logistics_web_summary_card_label">鏂板杩愬崟</span>
+                                        <strong class="o_logistics_web_summary_card_value">
+                                            <t t-esc="state.importResult.created_waybill_count"/>
+                                        </strong>
+                                    </div>
+                                    <div class="o_logistics_web_summary_card">
+                                        <span class="o_logistics_web_summary_card_label">鏂板瀹㈡埛鏄庣粏</span>
+                                        <strong class="o_logistics_web_summary_card_value">
+                                            <t t-esc="state.importResult.created_customer_line_count"/>
+                                        </strong>
+                                    </div>
+                                    <div class="o_logistics_web_summary_card">
+                                        <span class="o_logistics_web_summary_card_label">鏂板璐х墿鏄庣粏</span>
+                                        <strong class="o_logistics_web_summary_card_value">
+                                            <t t-esc="state.importResult.created_goods_line_count"/>
+                                        </strong>
+                                    </div>
+                                </div>
+
+                                <t t-if="state.importResult.failure_reason">
+                                    <div class="o_logistics_web_feedback_strip">
+                                        <p><t t-esc="state.importResult.failure_reason"/></p>
+                                    </div>
+                                </t>
+
+                                <div class="o_logistics_web_import_action_bar">
+                                    <button
+                                        type="button"
+                                        class="btn btn-secondary"
+                                        t-att-disabled="state.refreshingResult"
+                                        t-on-click="refreshResult">
+                                        <t t-esc="state.refreshingResult ? '鍒锋柊涓?..' : this.ui.refreshResult"/>
+                                    </button>
+                                    <button type="button" class="btn btn-primary" t-on-click="openWaybillList">
+                                        <t t-esc="this.ui.openWaybillList"/>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="btn btn-secondary"
+                                        t-att-disabled="!currentImportBatchNo"
+                                        t-on-click="openImportResultPage">
+                                        <t t-esc="this.ui.openResultPage"/>
+                                    </button>
+                                    <button
+                                        t-if="state.importResult.error_report_url"
+                                        type="button"
+                                        class="btn btn-secondary"
+                                        t-on-click="downloadErrorReport">
+                                        <t t-esc="this.ui.openErrorReport"/>
+                                    </button>
+                                </div>
+                            </t>
+                            <t t-else="">
+                                <div class="o_logistics_web_placeholder_panel">
+                                    <p>姝ｅ紡瀵煎叆瀹屾垚鍚庯紝瀵煎叆鎵规鍜岀粨鏋滅粺璁′細鏄剧ず鍦ㄨ繖閲屻€?</p>
+                                </div>
+                            </t>
+                        </section>
+                    </t>
+                </div>
+            </Layout>
+        </div>
+    </t>
+</templates>

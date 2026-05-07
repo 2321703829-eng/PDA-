@@ -1,0 +1,78 @@
+﻿# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* logistics_base
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"POT-Creation-Date: 2026-04-14 00:00+0000\n"
+"PO-Revision-Date: 2026-04-14 00:00+0000\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#. module: logistics_base
+msgid "Logistics"
+msgstr "物流"
+
+#. module: logistics_base
+msgid "Employee Code"
+msgstr "员工编码"
+
+#. module: logistics_base
+msgid "Logistics Role"
+msgstr "物流角色"
+
+#. module: logistics_base
+msgid "Dispatcher"
+msgstr "调度员"
+
+#. module: logistics_base
+msgid "Customer Service"
+msgstr "客服"
+
+#. module: logistics_base
+msgid "Warehouse Keeper"
+msgstr "仓管员"
+
+#. module: logistics_base
+msgid "Driver"
+msgstr "司机"
+
+#. module: logistics_base
+msgid "Operator"
+msgstr "操作员"
+
+#. module: logistics_base
+msgid "Manager"
+msgstr "管理人员"
+
+#. module: logistics_base
+msgid "Work Status"
+msgstr "工作状态"
+
+#. module: logistics_base
+msgid "Active"
+msgstr "在岗"
+
+#. module: logistics_base
+msgid "Inactive"
+msgstr "停用"
+
+#. module: logistics_base
+msgid "Leave"
+msgstr "请假"
+
+#. module: logistics_base
+msgid "Service Area"
+msgstr "服务区域"
+
+#. module: logistics_base
+msgid "Default Warehouse"
+msgstr "默认仓库"
+
+#. module: logistics_base
+msgid "Can Take Order"
+msgstr "可接单"

@@ -1,0 +1,11 @@
+waybill_no,sequence,customer_no,customer_name,store_no,store_name,delivery_note,signoff_requirement
+WB260415-10001,10,CUST-001,Customer 001,STORE-001,Store 001,morning delivery,stamped signoff
+WB260415-10002,10,CUST-002,Customer 002,STORE-002,Store 002,cold chain first,photo required
+WB260415-10003,10,CUST-003,Customer 003,STORE-003,Store 003,loading dock B,ID check
+WB260415-10004,10,CUST-004,Customer 004,STORE-004,Store 004,no pallet return,seal check
+WB260415-10005,10,CUST-005,Customer 005,STORE-005,Store 005,deliver before noon,manager signoff
+WB260415-10006,10,CUST-006,Customer 006,STORE-006,Store 006,keep upright,photo required
+WB260415-10007,10,CUST-007,Customer 007,STORE-007,Store 007,use side entrance,seal check
+WB260415-10008,10,CUST-008,Customer 008,STORE-008,Store 008,ambient only,front desk signoff
+WB260415-10009,10,CUST-009,Customer 009,STORE-009,Store 009,call before arrive,ID check
+WB260415-10010,10,CUST-010,Customer 010,STORE-010,Store 010,night shift contact,manager signoff

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="logistics_web_layout_brand_title" inherit_id="web.layout">
+        <xpath expr="//title" position="replace">
+            <title t-esc="title or '天枢科技物流系统'"/>
+        </xpath>
+    </template>
+
+    <template id="logistics_web_webclient_bootstrap_brand" inherit_id="web.webclient_bootstrap">
+        <xpath expr="//meta[@name='theme-color']" position="replace">
+            <meta name="theme-color" content="#123d70"/>
+        </xpath>
+    </template>
+</odoo>

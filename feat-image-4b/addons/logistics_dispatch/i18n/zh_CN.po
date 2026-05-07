@@ -1,0 +1,593 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* logistics_dispatch
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-04-14 03:32+0000\n"
+"PO-Revision-Date: 2026-04-14 03:32+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_batch__actual_depart_time
+msgid "Actual Depart Time"
+msgstr "实际发车时间"
+
+#. module: logistics_dispatch
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_waybill_form
+msgid "Aggregates"
+msgstr "聚合统计"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__arrive_trace_status
+msgid "Arrival Trace"
+msgstr "到场留痕"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_waybill__state__arrived
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_waybill_search
+msgid "Arrived"
+msgstr "已到达"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__batch_id
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_waybill_search
+msgid "Batch"
+msgstr "批次"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_wave__total_batch_count
+msgid "Batch Count"
+msgstr "批次数"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_batch__name
+msgid "Batch No"
+msgstr "批次号"
+
+#. module: logistics_dispatch
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_batch_form
+msgid "Batch-level execution note"
+msgstr "批次执行备注"
+
+#. module: logistics_dispatch
+#: model:ir.actions.act_window,name:logistics_dispatch.action_logistics_dispatch_batch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_wave__batch_ids
+#: model:ir.ui.menu,name:logistics_dispatch.menu_logistics_dispatch_batch
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_wave_form
+msgid "Batches"
+msgstr "批次"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_batch__state__cancelled
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_wave__state__cancelled
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_waybill__state__cancelled
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_waybill_order_line__line_state__cancelled
+msgid "Cancelled"
+msgstr "已取消"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_waybill__exception_status__closed
+msgid "Closed"
+msgstr "已关闭"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_waybill__evidence_status__complete
+msgid "Complete"
+msgstr "完整"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_batch__create_uid
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_wave__create_uid
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__create_uid
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill_order_line__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_batch__create_date
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_wave__create_date
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__create_date
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill_order_line__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__customer_id
+msgid "Customer"
+msgstr "客户"
+
+#. module: logistics_dispatch
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_waybill_form
+msgid "Delivery Context"
+msgstr "配送上下文"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__delivery_date
+msgid "Delivery Date"
+msgstr "配送日期"
+
+#. module: logistics_dispatch
+#: model:ir.ui.menu,name:logistics_dispatch.menu_logistics_dispatch
+msgid "Dispatch"
+msgstr "调度"
+
+#. module: logistics_dispatch
+#: model:ir.model,name:logistics_dispatch.model_logistics_dispatch_batch
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_batch_form
+msgid "Dispatch Batch"
+msgstr "调度批次"
+
+#. module: logistics_dispatch
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_batch_search
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_batch_tree
+msgid "Dispatch Batches"
+msgstr "调度批次"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_wave__dispatch_date
+msgid "Dispatch Date"
+msgstr "调度日期"
+
+#. module: logistics_dispatch
+#: model:ir.model,name:logistics_dispatch.model_logistics_dispatch_wave
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_wave_form
+msgid "Dispatch Wave"
+msgstr "调度波次"
+
+#. module: logistics_dispatch
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_wave_search
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_wave_tree
+msgid "Dispatch Waves"
+msgstr "调度波次"
+
+#. module: logistics_dispatch
+#: model:ir.model,name:logistics_dispatch.model_logistics_dispatch_waybill
+msgid "Dispatch Waybill"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_batch__display_name
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_wave__display_name
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__display_name
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill_order_line__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_batch__state__done
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_wave__state__done
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_waybill__arrive_trace_status__done
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_waybill__signoff_trace_status__done
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_waybill__state__done
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_waybill_order_line__line_state__done
+msgid "Done"
+msgstr "已完成"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_batch__state__draft
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_wave__state__draft
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_waybill__state__draft
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_waybill_order_line__line_state__draft
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_wave_search
+msgid "Draft"
+msgstr "草稿"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_batch__driver_employee_id
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__driver_employee_id
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_batch_search
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_waybill_search
+msgid "Driver"
+msgstr "司机"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__evidence_count
+msgid "Evidence Count"
+msgstr "证据数"
+
+#. module: logistics_dispatch
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_waybill_search
+msgid "Evidence Missing"
+msgstr "证据缺失"
+
+#. module: logistics_dispatch
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_waybill_search
+msgid "Evidence Partial"
+msgstr "证据不完整"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__evidence_status
+msgid "Evidence Status"
+msgstr "证据状态"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__exception_status
+msgid "Exception Status"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_batch__exception_waybill_count
+msgid "Exception Waybill Count"
+msgstr "异常运单数"
+
+#. module: logistics_dispatch
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_waybill_form
+msgid "Execution Context"
+msgstr "执行上下文"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill_order_line__external_order_no
+msgid "External Order No"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_batch__finished_waybill_count
+msgid "Finished Waybill Count"
+msgstr "完成运单数"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill_order_line__goods_summary
+msgid "Goods Summary"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_waybill__risk_level__high
+msgid "High"
+msgstr "高"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_batch__id
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_wave__id
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__id
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill_order_line__id
+msgid "ID"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_wave__state__in_progress
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_wave_search
+msgid "In Progress"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_batch__state__in_transit
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_waybill__state__in_transit
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_batch_search
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_waybill_search
+msgid "In Transit"
+msgstr "运输中"
+
+#. module: logistics_dispatch
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_waybill_form
+msgid "Internal tracking note for this waybill"
+msgstr "该运单的内部追踪备注"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_batch__write_uid
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_wave__write_uid
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__write_uid
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill_order_line__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_batch__write_date
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_wave__write_date
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__write_date
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill_order_line__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__latest_trace_summary
+msgid "Latest Trace Summary"
+msgstr "最新留痕摘要"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__latest_trace_time
+msgid "Latest Trace Time"
+msgstr "最新留痕时间"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__latest_trace_type
+msgid "Latest Trace Type"
+msgstr "最新留痕类型"
+
+#. module: logistics_dispatch
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_waybill_form
+msgid "Latest trace summary will appear here"
+msgstr "最新留痕摘要将在此显示"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill_order_line__line_state
+msgid "Line Status"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_batch__state__loading
+msgid "Loading"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_batch__loading_position
+msgid "Loading Position"
+msgstr "装货口位"
+
+#. module: logistics_dispatch
+#: model:ir.ui.menu,name:logistics_dispatch.menu_logistics_dispatch_root
+msgid "Logistics"
+msgstr "物流"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_waybill__risk_level__low
+msgid "Low"
+msgstr "低"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_waybill__risk_level__medium
+msgid "Medium"
+msgstr "中"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_waybill__evidence_status__missing
+msgid "Missing"
+msgstr "缺失"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_waybill__exception_status__none
+msgid "No Exception"
+msgstr "无异常"
+
+#. module: logistics_dispatch
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_waybill_form
+msgid "Notes"
+msgstr "备注"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_waybill__exception_status__open
+msgid "Open"
+msgstr "打开"
+
+#. module: logistics_dispatch
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_waybill_form
+msgid "Open Batch"
+msgstr "打开批次"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__open_exception_count
+msgid "Open Exception Count"
+msgstr "未关闭异常数"
+
+#. module: logistics_dispatch
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_waybill_search
+msgid "Open Exceptions"
+msgstr "打开异常"
+
+#. module: logistics_dispatch
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_waybill_form
+msgid "Open Wave"
+msgstr "打开波次"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_wave__total_order_count
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__order_line_count
+msgid "Order Line Count"
+msgstr "订单明细数"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__order_line_ids
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_waybill_form
+msgid "Order Lines"
+msgstr "订单明细"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_waybill__arrive_trace_status__partial
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_waybill__evidence_status__partial
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_waybill__signoff_trace_status__partial
+msgid "Partial"
+msgstr "部分完整"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_waybill__arrive_trace_status__pending
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_waybill__signoff_trace_status__pending
+msgid "Pending"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_batch__planned_depart_time
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_wave__planned_depart_time
+msgid "Planned Depart Time"
+msgstr "计划发车时间"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_waybill__exception_status__processing
+msgid "Processing"
+msgstr "处理中"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill_order_line__qty_summary
+msgid "Quantity"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_batch__state__ready
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_wave__state__ready
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_waybill__state__ready
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_waybill_order_line__line_state__ready
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_batch_search
+msgid "Ready"
+msgstr "就绪"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_batch__remark
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_wave__remark
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__remark
+msgid "Remark"
+msgstr "备注"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__risk_level
+msgid "Risk Level"
+msgstr "风险等级"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__route_seq
+msgid "Route Sequence"
+msgstr "线路顺序"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_batch__route_summary
+msgid "Route Summary"
+msgstr "线路摘要"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill_order_line__sale_order_id
+msgid "Sale Order"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields.selection,name:logistics_dispatch.selection__logistics_dispatch_waybill__state__signed
+msgid "Signed"
+msgstr "已签收"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__signoff_trace_status
+msgid "Signoff Trace"
+msgstr "签收留痕"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_batch__state
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_wave__state
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__state
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_wave_search
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_waybill_search
+msgid "Status"
+msgstr "状态"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill_order_line__stock_picking_id
+msgid "Stock Picking"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__store_id
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill_order_line__store_id
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_waybill_search
+msgid "Store"
+msgstr "门店"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__trace_count
+msgid "Trace Count"
+msgstr "留痕数"
+
+#. module: logistics_dispatch
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_waybill_form
+msgid "Tracking Summary"
+msgstr "追踪摘要"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_batch__vehicle_id
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__vehicle_id
+msgid "Vehicle"
+msgstr "车辆"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill_order_line__volume_summary
+msgid "Volume"
+msgstr ""
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_batch__warehouse_id
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_wave__warehouse_id
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__warehouse_id
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_batch_search
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_wave_search
+msgid "Warehouse"
+msgstr "仓库"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_batch__wave_id
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__wave_id
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_batch_search
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_waybill_search
+msgid "Wave"
+msgstr "波次"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_wave__name
+msgid "Wave No"
+msgstr "波次号"
+
+#. module: logistics_dispatch
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_wave_form
+msgid "Wave-level coordination notes"
+msgstr "波次协同备注"
+
+#. module: logistics_dispatch
+#: model:ir.actions.act_window,name:logistics_dispatch.action_logistics_dispatch_wave
+#: model:ir.ui.menu,name:logistics_dispatch.menu_logistics_dispatch_wave
+msgid "Waves"
+msgstr "波次"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill_order_line__waybill_id
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_waybill_form
+msgid "Waybill"
+msgstr "运单"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_batch__total_waybill_count
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_wave__total_waybill_count
+msgid "Waybill Count"
+msgstr "运单数"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill__name
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_waybill_search
+msgid "Waybill No"
+msgstr "运单号"
+
+#. module: logistics_dispatch
+#: model:ir.model,name:logistics_dispatch.model_logistics_dispatch_waybill_order_line
+msgid "Waybill Order Line"
+msgstr ""
+
+#. module: logistics_dispatch
+#. odoo-python
+#: code:addons/logistics_dispatch/models/logistics_dispatch_waybill.py:0
+msgid "Waybill Order Lines"
+msgstr "运单订单明细"
+
+#. module: logistics_dispatch
+#: model:ir.actions.act_window,name:logistics_dispatch.action_logistics_dispatch_waybill
+#: model:ir.ui.menu,name:logistics_dispatch.menu_logistics_dispatch_waybill
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_waybill_search
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_waybill_tree
+msgid "Waybill Tracking"
+msgstr "运单追踪"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_batch__waybill_ids
+#: model_terms:ir.ui.view,arch_db:logistics_dispatch.view_logistics_dispatch_batch_form
+msgid "Waybills"
+msgstr "运单"
+
+#. module: logistics_dispatch
+#: model:ir.model.fields,field_description:logistics_dispatch.field_logistics_dispatch_waybill_order_line__weight_summary
+msgid "Weight"
+msgstr ""
+
+#. module: logistics_dispatch
+#. odoo-python
+#: code:addons/logistics_dispatch/models/logistics_dispatch_waybill.py:0
+msgid "waybill_id"
+msgstr ""

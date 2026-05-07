@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_logistics_dispatch_waybill_tree" model="ir.ui.view">
+        <field name="name">logistics.dispatch.waybill.tree</field>
+        <field name="model">logistics.dispatch.waybill</field>
+        <field name="arch" type="xml">
+            <list string="Waybill Tracking">
+                <field name="name"/>
+                <field name="state"/>
+                <field name="batch_id"/>
+                <field name="wave_id"/>
+                <field name="store_id"/>
+                <field name="driver_employee_id"/>
+                <field name="latest_trace_summary"/>
+                <field name="exception_status"/>
+                <field name="evidence_status"/>
+                <field name="write_date"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_logistics_dispatch_waybill_form" model="ir.ui.view">
+        <field name="name">logistics.dispatch.waybill.form</field>
+        <field name="model">logistics.dispatch.waybill</field>
+        <field name="arch" type="xml">
+            <form string="Waybill">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button
+                            name="action_open_wave"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-sitemap"
+                            string="Open Wave"
+                            invisible="not wave_id"/>
+                        <button
+                            name="action_open_batch"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-truck"
+                            string="Open Batch"
+                            invisible="not batch_id"/>
+                        <button
+                            name="action_open_order_lines"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-list">
+                            <field name="order_line_count" string="Order Lines" widget="statinfo"/>
+                        </button>
+                        <button
+                            name="action_open_stops"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-map-marker">
+                            <field name="stop_count" string="Stops" widget="statinfo"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                        <div class="text-muted">
+                            <field name="latest_trace_summary" readonly="1" placeholder="Latest trace summary will appear here"/>
+                        </div>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="delivery_date"/>
+                            <field name="state"/>
+                            <field name="route_seq"/>
+                        </group>
+                        <group>
+                            <field name="exception_status"/>
+                            <field name="evidence_status"/>
+                            <field name="risk_level"/>
+                            <field name="latest_trace_time"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Execution Context">
+                            <field name="wave_id" readonly="1"/>
+                            <field name="batch_id"/>
+                            <field name="warehouse_id"/>
+                            <field name="vehicle_id" readonly="1"/>
+                            <field name="driver_employee_id" readonly="1"/>
+                        </group>
+                        <group string="Delivery Context">
+                            <field name="customer_id"/>
+                            <field name="store_id"/>
+                            <field name="arrive_trace_status"/>
+                            <field name="signoff_trace_status"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Tracking Summary">
+                            <field name="latest_trace_type"/>
+                            <field name="latest_trace_summary"/>
+                            <field name="latest_trace_time"/>
+                        </group>
+                        <group string="Aggregates">
+                            <field name="trace_count" readonly="1"/>
+                            <field name="evidence_count" readonly="1"/>
+                            <field name="open_exception_count" readonly="1"/>
+                            <field name="order_line_count" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Order Lines">
+                            <field name="order_line_ids">
+                                <list editable="bottom">
+                                    <field name="external_order_no"/>
+                                    <field name="sale_order_id"/>
+                                    <field name="stock_picking_id"/>
+                                    <field name="store_id"/>
+                                    <field name="goods_summary"/>
+                                    <field name="qty_summary"/>
+                                    <field name="line_state"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Stops">
+                            <field name="stop_ids">
+                                <list editable="bottom">
+                                    <field name="stop_seq"/>
+                                    <field name="partner_id"/>
+                                    <field name="store_name"/>
+                                    <field name="address"/>
+                                    <field name="lat"/>
+                                    <field name="lng"/>
+                                    <field name="contact_name"/>
+                                    <field name="contact_phone"/>
+                                    <field name="guide_url"/>
+                                    <field name="goods_info"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Notes">
+                            <field name="remark" placeholder="Internal tracking note for this waybill"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_logistics_dispatch_waybill_search" model="ir.ui.view">
+        <field name="name">logistics.dispatch.waybill.search</field>
+        <field name="model">logistics.dispatch.waybill</field>
+        <field name="arch" type="xml">
+            <search string="Waybill Tracking">
+                <field name="name" string="Waybill No"/>
+                <field name="batch_id"/>
+                <field name="wave_id"/>
+                <field name="store_id"/>
+                <field name="driver_employee_id"/>
+                <field name="warehouse_id"/>
+                <separator/>
+                <filter string="Open Exceptions" name="open_exceptions" domain="[('exception_status', 'in', ('open', 'processing'))]"/>
+                <filter string="Evidence Missing" name="evidence_missing" domain="[('evidence_status', '=', 'missing')]"/>
+                <filter string="Evidence Partial" name="evidence_partial" domain="[('evidence_status', '=', 'partial')]"/>
+                <filter string="In Transit" name="in_transit" domain="[('state', '=', 'in_transit')]"/>
+                <filter string="Arrived" name="arrived" domain="[('state', '=', 'arrived')]"/>
+                <group>
+                    <filter string="Wave" name="group_wave" context="{'group_by': 'wave_id'}"/>
+                    <filter string="Batch" name="group_batch" context="{'group_by': 'batch_id'}"/>
+                    <filter string="Store" name="group_store" context="{'group_by': 'store_id'}"/>
+                    <filter string="Driver" name="group_driver" context="{'group_by': 'driver_employee_id'}"/>
+                    <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_logistics_dispatch_waybill" model="ir.actions.act_window">
+        <field name="name">Waybill Tracking</field>
+        <field name="res_model">logistics.dispatch.waybill</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_logistics_dispatch_waybill_search"/>
+    </record>
+</odoo>

@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_logistics_dispatch_wave_user,logistics.dispatch.wave user,model_logistics_dispatch_wave,base.group_user,1,1,1,1
+access_logistics_dispatch_batch_user,logistics.dispatch.batch user,model_logistics_dispatch_batch,base.group_user,1,1,1,1
+access_logistics_dispatch_waybill_user,logistics.dispatch.waybill user,model_logistics_dispatch_waybill,base.group_user,1,1,1,1
+access_logistics_dispatch_waybill_customer_line_user,logistics.dispatch.waybill.customer.line user,model_logistics_dispatch_waybill_customer_line,base.group_user,1,1,1,1
+access_logistics_dispatch_waybill_customer_goods_line_user,logistics.dispatch.waybill.customer.goods.line user,model_logistics_dispatch_waybill_customer_goods_line,base.group_user,1,1,1,1
+access_logistics_dispatch_waybill_order_line_user,logistics.dispatch.waybill.order.line user,model_logistics_dispatch_waybill_order_line,base.group_user,1,1,1,1
+access_logistics_import_batch_user,logistics.import.batch user,model_logistics_import_batch,base.group_user,1,1,1,1
+

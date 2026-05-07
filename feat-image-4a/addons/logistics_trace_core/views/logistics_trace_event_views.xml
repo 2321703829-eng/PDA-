@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_logistics_trace_event_tree" model="ir.ui.view">
+        <field name="name">logistics.trace.event.tree</field>
+        <field name="model">logistics.trace.event</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="biz_type"/>
+                <field name="batch_no"/>
+                <field name="waybill_no"/>
+                <field name="trace_type"/>
+                <field name="state"/>
+                <field name="occurred_at"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_logistics_trace_event_form" model="ir.ui.view">
+        <field name="name">logistics.trace.event.form</field>
+        <field name="model">logistics.trace.event</field>
+        <field name="arch" type="xml">
+            <form string="Trace Event">
+                <header>
+                    <button name="action_reset_new" type="object" string="Reset to New" invisible="state == 'new'"/>
+                    <button name="action_mark_exception" type="object" string="Mark Exception" invisible="state != 'new'"/>
+                    <button name="action_mark_done" type="object" string="Mark Done" invisible="state == 'done'"/>
+                    <button name="action_mark_void" type="object" string="Mark Void" invisible="state == 'void'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="new,done,void"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="biz_type"/>
+                            <field name="trace_type"/>
+                            <field name="occurred_at"/>
+                            <field name="trace_source"/>
+                        </group>
+                        <group>
+                            <field name="batch_no" invisible="biz_type != 'batch'"/>
+                            <field name="waybill_no" invisible="biz_type != 'waybill'"/>
+                            <field name="route_sequence"/>
+                            <field name="location_text"/>
+                            <field name="is_exception"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="driver_name"/>
+                            <field name="vehicle_no"/>
+                            <field name="partner_id"/>
+                            <field name="stock_picking_id"/>
+                        </group>
+                        <group>
+                            <field name="operator_id"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="remark"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_logistics_trace_event_search" model="ir.ui.view">
+        <field name="name">logistics.trace.event.search</field>
+        <field name="model">logistics.trace.event</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="batch_no"/>
+                <field name="waybill_no"/>
+                <field name="partner_id"/>
+                <filter name="filter_batch" string="Batch" domain="[('biz_type', '=', 'batch')]"/>
+                <filter name="filter_waybill" string="Waybill" domain="[('biz_type', '=', 'waybill')]"/>
+                <filter name="filter_exception" string="Exceptions" domain="[('is_exception', '=', True)]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_subject" string="Business Type" context="{'group_by': 'biz_type'}"/>
+                    <filter name="group_event" string="Trace Type" context="{'group_by': 'trace_type'}"/>
+                    <filter name="group_state" string="State" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_logistics_trace_event" model="ir.actions.act_window">
+        <field name="name">Trace Events</field>
+        <field name="res_model">logistics.trace.event</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_logistics_trace_event_search"/>
+    </record>
+</odoo>

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_logistics_dispatch_batch_tree" model="ir.ui.view">
+        <field name="name">logistics.dispatch.batch.tree</field>
+        <field name="model">logistics.dispatch.batch</field>
+        <field name="arch" type="xml">
+            <list string="批次列表">
+                <field name="name"/>
+                <field name="wave_id"/>
+                <field name="warehouse_id"/>
+                <field name="vehicle_id"/>
+                <field name="driver_employee_id"/>
+                <field name="state"/>
+                <field name="total_waybill_count"/>
+                <field name="exception_waybill_count"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_logistics_dispatch_batch_form" model="ir.ui.view">
+        <field name="name">logistics.dispatch.batch.form</field>
+        <field name="model">logistics.dispatch.batch</field>
+        <field name="arch" type="xml">
+            <form string="批次">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="wave_id"/>
+                            <field name="warehouse_id"/>
+                            <field name="state"/>
+                        </group>
+                        <group>
+                            <field name="vehicle_id"/>
+                            <field name="driver_employee_id"/>
+                            <field name="planned_depart_time"/>
+                            <field name="actual_depart_time"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="loading_position"/>
+                            <field name="route_summary"/>
+                        </group>
+                        <group>
+                            <field name="total_waybill_count" readonly="1"/>
+                            <field name="finished_waybill_count" readonly="1"/>
+                            <field name="exception_waybill_count" readonly="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="remark" placeholder="填写本批次的执行备注"/>
+                    </group>
+                    <notebook>
+                        <page string="运单">
+                            <field name="waybill_ids" readonly="1">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="store_id"/>
+                                    <field name="state"/>
+                                    <field name="latest_trace_summary"/>
+                                    <field name="exception_status"/>
+                                    <field name="evidence_status"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_logistics_dispatch_batch_search" model="ir.ui.view">
+        <field name="name">logistics.dispatch.batch.search</field>
+        <field name="model">logistics.dispatch.batch</field>
+        <field name="arch" type="xml">
+            <search string="批次查询">
+                <field name="name"/>
+                <field name="wave_id"/>
+                <field name="warehouse_id"/>
+                <field name="vehicle_id"/>
+                <field name="driver_employee_id"/>
+                <filter string="待执行" name="ready" domain="[('state', '=', 'ready')]"/>
+                <filter string="在途" name="in_transit" domain="[('state', '=', 'in_transit')]"/>
+                <group>
+                    <filter string="按波次" name="group_wave" context="{'group_by': 'wave_id'}"/>
+                    <filter string="按仓库" name="group_warehouse" context="{'group_by': 'warehouse_id'}"/>
+                    <filter string="按司机" name="group_driver" context="{'group_by': 'driver_employee_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_logistics_dispatch_batch" model="ir.actions.act_window">
+        <field name="name">批次</field>
+        <field name="res_model">logistics.dispatch.batch</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_logistics_dispatch_batch_search"/>
+    </record>
+</odoo>

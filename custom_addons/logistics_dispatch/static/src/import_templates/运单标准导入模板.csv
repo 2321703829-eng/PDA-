@@ -1,0 +1,11 @@
+运单号,批次号,配送日期,状态,异常状态,证据状态,风险等级,线路顺序,备注
+WB260415-10001,BT260414-0001,2026-04-16,ready,none,missing,low,10,样例-01
+WB260415-10002,BT260414-0001,2026-04-16,ready,pending,partial,medium,20,样例-02
+WB260415-10003,BT260414-0001,2026-04-16,draft,none,complete,low,30,样例-03
+WB260415-10004,BT260414-0001,2026-04-16,ready,processing,missing,high,40,样例-04
+WB260415-10005,BT260414-0001,2026-04-16,ready,none,partial,medium,50,样例-05
+WB260415-10006,BT260414-0001,2026-04-16,draft,pending,missing,medium,60,样例-06
+WB260415-10007,BT260414-0001,2026-04-16,ready,none,complete,low,70,样例-07
+WB260415-10008,BT260414-0001,2026-04-16,ready,processing,partial,high,80,样例-08
+WB260415-10009,BT260414-0001,2026-04-16,draft,none,missing,medium,90,样例-09
+WB260415-10010,BT260414-0001,2026-04-16,ready,pending,complete,low,100,样例-10

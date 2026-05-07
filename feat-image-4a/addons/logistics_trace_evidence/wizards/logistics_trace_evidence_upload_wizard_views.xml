@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_logistics_trace_evidence_upload_wizard_form" model="ir.ui.view">
+        <field name="name">logistics.trace.evidence.upload.wizard.form</field>
+        <field name="model">logistics.trace.evidence.upload.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Upload Evidence Image">
+                <group>
+                    <field name="evidence_id" readonly="1"/>
+                    <field name="file_name"/>
+                    <field name="file_data" filename="file_name"/>
+                </group>
+                <footer>
+                    <button name="action_upload" type="object" string="Upload" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

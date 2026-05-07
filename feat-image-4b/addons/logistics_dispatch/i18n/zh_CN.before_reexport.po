@@ -1,0 +1,260 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* logistics_dispatch
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-04-14 10:30+0000\n"
+"PO-Revision-Date: 2026-04-14 10:30+0000\n"
+"Last-Translator: Codex\n"
+"Language-Team: zh_CN\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "Logistics Dispatch"
+msgstr "物流调度"
+
+msgid "Dispatch execution mainline for waves, batches, and waybills"
+msgstr "波次、批次与运单执行主线"
+
+msgid "Logistics"
+msgstr "物流"
+
+msgid "Dispatch"
+msgstr "调度"
+
+msgid "Waybill Tracking"
+msgstr "运单追踪"
+
+msgid "Waybill"
+msgstr "运单"
+
+msgid "Waybill No"
+msgstr "运单号"
+
+msgid "Waybills"
+msgstr "运单"
+
+msgid "Waybill Count"
+msgstr "运单数"
+
+msgid "Waybill Order Lines"
+msgstr "运单订单明细"
+
+msgid "Batches"
+msgstr "批次"
+
+msgid "Dispatch Batches"
+msgstr "调度批次"
+
+msgid "Dispatch Batch"
+msgstr "调度批次"
+
+msgid "Batch"
+msgstr "批次"
+
+msgid "Batch No"
+msgstr "批次号"
+
+msgid "Batch Count"
+msgstr "批次数"
+
+msgid "Batch-level execution note"
+msgstr "批次执行备注"
+
+msgid "Waves"
+msgstr "波次"
+
+msgid "Dispatch Waves"
+msgstr "调度波次"
+
+msgid "Dispatch Wave"
+msgstr "调度波次"
+
+msgid "Wave"
+msgstr "波次"
+
+msgid "Wave No"
+msgstr "波次号"
+
+msgid "Wave-level coordination notes"
+msgstr "波次协同备注"
+
+msgid "Delivery Date"
+msgstr "配送日期"
+
+msgid "Dispatch Date"
+msgstr "调度日期"
+
+msgid "Status"
+msgstr "状态"
+
+msgid "Draft"
+msgstr "草稿"
+
+msgid "Ready"
+msgstr "就绪"
+
+msgid "In Transit"
+msgstr "运输中"
+
+msgid "Arrived"
+msgstr "已到达"
+
+msgid "Signed"
+msgstr "已签收"
+
+msgid "Done"
+msgstr "已完成"
+
+msgid "Cancelled"
+msgstr "已取消"
+
+msgid "Store"
+msgstr "门店"
+
+msgid "Customer"
+msgstr "客户"
+
+msgid "Warehouse"
+msgstr "仓库"
+
+msgid "Vehicle"
+msgstr "车辆"
+
+msgid "Driver"
+msgstr "司机"
+
+msgid "Route Sequence"
+msgstr "线路顺序"
+
+msgid "Route Summary"
+msgstr "线路摘要"
+
+msgid "Loading Position"
+msgstr "装货口位"
+
+msgid "Planned Depart Time"
+msgstr "计划发车时间"
+
+msgid "Actual Depart Time"
+msgstr "实际发车时间"
+
+msgid "Finished Waybill Count"
+msgstr "完成运单数"
+
+msgid "Exception Waybill Count"
+msgstr "异常运单数"
+
+msgid "Execution Context"
+msgstr "执行上下文"
+
+msgid "Delivery Context"
+msgstr "配送上下文"
+
+msgid "Tracking Summary"
+msgstr "追踪摘要"
+
+msgid "Aggregates"
+msgstr "聚合统计"
+
+msgid "Order Lines"
+msgstr "订单明细"
+
+msgid "Order Line Count"
+msgstr "订单明细数"
+
+msgid "Notes"
+msgstr "备注"
+
+msgid "Remark"
+msgstr "备注"
+
+msgid "Internal tracking note for this waybill"
+msgstr "该运单的内部追踪备注"
+
+msgid "Open Wave"
+msgstr "打开波次"
+
+msgid "Open Batch"
+msgstr "打开批次"
+
+msgid "Open Exceptions"
+msgstr "打开异常"
+
+msgid "Open Exceptions - %s"
+msgstr "打开异常 - %s"
+
+msgid "Latest trace summary will appear here"
+msgstr "最新留痕摘要将在此显示"
+
+msgid "Evidence Missing"
+msgstr "证据缺失"
+
+msgid "Evidence Partial"
+msgstr "证据不完整"
+
+msgid "Arrival Trace"
+msgstr "到场留痕"
+
+msgid "Signoff Trace"
+msgstr "签收留痕"
+
+msgid "No Exception"
+msgstr "无异常"
+
+msgid "Open"
+msgstr "打开"
+
+msgid "Processing"
+msgstr "处理中"
+
+msgid "Closed"
+msgstr "已关闭"
+
+msgid "Evidence Status"
+msgstr "证据状态"
+
+msgid "Missing"
+msgstr "缺失"
+
+msgid "Partial"
+msgstr "部分完整"
+
+msgid "Complete"
+msgstr "完整"
+
+msgid "Risk Level"
+msgstr "风险等级"
+
+msgid "Low"
+msgstr "低"
+
+msgid "Medium"
+msgstr "中"
+
+msgid "High"
+msgstr "高"
+
+msgid "Latest Trace Time"
+msgstr "最新留痕时间"
+
+msgid "Latest Trace Type"
+msgstr "最新留痕类型"
+
+msgid "Latest Trace Summary"
+msgstr "最新留痕摘要"
+
+msgid "Trace Count"
+msgstr "留痕数"
+
+msgid "Evidence Count"
+msgstr "证据数"
+
+msgid "Open Exception Count"
+msgstr "未关闭异常数"

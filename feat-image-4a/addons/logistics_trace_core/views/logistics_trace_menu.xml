@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_logistics_trace_root" name="Logistics Trace" sequence="10" groups="stock.group_stock_user"/>
+    <menuitem id="menu_logistics_trace_event" name="Trace Events" parent="menu_logistics_trace_root" action="action_logistics_trace_event" sequence="10"/>
+    <menuitem id="menu_logistics_waybill_stop" name="Waybill Stops" parent="menu_logistics_trace_root" action="action_logistics_waybill_stop" sequence="20"/>
+</odoo>

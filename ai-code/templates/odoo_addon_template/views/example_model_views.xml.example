@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_logistics_example_tree" model="ir.ui.view">
+        <field name="name">logistics.example.tree</field>
+        <field name="model">logistics.example</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_logistics_example_form" model="ir.ui.view">
+        <field name="name">logistics.example.form</field>
+        <field name="model">logistics.example</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="note"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_logistics_example" model="ir.actions.act_window">
+        <field name="name">Example</field>
+        <field name="res_model">logistics.example</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_logistics_example_root" name="Logistics Example"/>
+    <menuitem id="menu_logistics_example" name="Example" parent="menu_logistics_example_root" action="action_logistics_example"/>
+</odoo>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_inherit_logistics_trace_evidence" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.logistics.trace.evidence</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="stock.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//app[@name='stock']" position="inside">
+                <block title="Logistics Trace Evidence" name="logistics_trace_evidence_setting_container">
+                    <setting id="logistics_trace_evidence_storage" help="Store logistics evidence images on the server filesystem instead of Odoo attachment binaries.">
+                        <div class="content-group">
+                            <field name="logistics_trace_image_public_base_url" placeholder="https://your-odoo-host"/>
+                            <field name="logistics_trace_image_storage_root"/>
+                        </div>
+                        <div class="mt16">
+                            <button
+                                name="action_test_logistics_trace_image_storage"
+                                type="object"
+                                string="Test Image Storage"
+                                class="btn btn-secondary"
+                            />
+                        </div>
+                        <div class="text-muted mt8">
+                            Odoo only stores batch or waybill business links and image metadata. Binary image files are stored in the server-side storage root configured above.
+                        </div>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+</odoo>

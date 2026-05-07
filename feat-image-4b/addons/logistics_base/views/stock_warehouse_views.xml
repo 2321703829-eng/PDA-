@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_warehouse_form_logistics_base" model="ir.ui.view">
+        <field name="name">stock.warehouse.form.logistics.base</field>
+        <field name="model">stock.warehouse</field>
+        <field name="inherit_id" ref="stock.view_warehouse"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/notebook" position="before">
+                <group string="Logistics">
+                    <group>
+                        <field name="logistics_contact_name"/>
+                        <field name="logistics_contact_phone"/>
+                    </group>
+                    <group>
+                        <field name="logistics_status_note"/>
+                        <field name="logistics_operation_note"/>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

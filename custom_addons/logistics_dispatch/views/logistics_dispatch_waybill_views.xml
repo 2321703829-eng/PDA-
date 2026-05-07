@@ -1,0 +1,445 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_logistics_dispatch_waybill_tree" model="ir.ui.view">
+        <field name="name">logistics.dispatch.waybill.tree</field>
+        <field name="model">logistics.dispatch.waybill</field>
+        <field name="arch" type="xml">
+            <list string="运单">
+                <field name="name"/>
+                <field name="state"/>
+                <field name="batch_id"/>
+                <field name="wave_id"/>
+                <field name="store_id"/>
+                <field name="driver_employee_id"/>
+                <field name="latest_trace_summary"/>
+                <field name="exception_status"/>
+                <field name="evidence_status"/>
+                <field name="write_date"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_logistics_dispatch_waybill_form" model="ir.ui.view">
+        <field name="name">logistics.dispatch.waybill.form</field>
+        <field name="model">logistics.dispatch.waybill</field>
+        <field name="arch" type="xml">
+            <form string="运单">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button
+                            name="action_open_wave"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-sitemap"
+                            string="查看波次"
+                            invisible="not wave_id"/>
+                        <button
+                            name="action_open_batch"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-truck"
+                            string="查看批次"
+                            invisible="not batch_id"/>
+                        <button
+                            name="action_open_customer_lines"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-building-o">
+                            <field name="customer_line_count" string="客户明细" widget="statinfo"/>
+                        </button>
+                        <button
+                            name="action_open_goods_lines"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-cubes">
+                            <field name="goods_line_count" string="货物明细" widget="statinfo"/>
+                        </button>
+                        <button
+                            name="action_open_order_lines"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-list">
+                            <field name="order_line_count" string="原始订单明细" widget="statinfo"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                        <div class="text-muted">
+                            <field name="latest_trace_summary" readonly="1" placeholder="最近留痕摘要会显示在这里"/>
+                        </div>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="delivery_date"/>
+                            <field name="state"/>
+                            <field name="route_seq"/>
+                        </group>
+                        <group>
+                            <field name="exception_status"/>
+                            <field name="evidence_status"/>
+                            <field name="risk_level"/>
+                            <field name="latest_trace_time"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="执行上下文">
+                            <field name="wave_id" readonly="1"/>
+                            <field name="batch_id"/>
+                            <field name="warehouse_id"/>
+                            <field name="vehicle_id" readonly="1"/>
+                            <field name="driver_employee_id" readonly="1"/>
+                        </group>
+                        <group string="交付上下文">
+                            <field name="customer_id"/>
+                            <field name="store_id"/>
+                            <field name="arrive_trace_status"/>
+                            <field name="signoff_trace_status"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="留痕摘要">
+                            <field name="latest_trace_type"/>
+                            <field name="latest_trace_summary"/>
+                            <field name="latest_trace_time"/>
+                        </group>
+                        <group string="汇总信息">
+                            <field name="trace_count" readonly="1"/>
+                            <field name="evidence_count" readonly="1"/>
+                            <field name="open_exception_count" readonly="1"/>
+                            <field name="order_line_count" readonly="1"/>
+                            <field name="customer_line_count" readonly="1"/>
+                            <field name="goods_line_count" readonly="1"/>
+                            <field name="total_goods_qty" readonly="1"/>
+                            <field name="total_package_count" readonly="1"/>
+                            <field name="total_goods_weight" readonly="1"/>
+                            <field name="total_goods_volume" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="客户明细">
+                            <field name="customer_line_ids">
+                                <list editable="bottom" open_form_view="1">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="customer_no"/>
+                                    <field name="customer_id"/>
+                                    <field name="store_no"/>
+                                    <field name="store_id"/>
+                                    <field name="delivery_note"/>
+                                    <field name="signoff_requirement"/>
+                                    <field name="goods_line_count" readonly="1"/>
+                                    <field name="total_goods_qty" readonly="1"/>
+                                    <field name="total_package_count" readonly="1"/>
+                                    <field name="total_weight" readonly="1"/>
+                                    <field name="total_volume" readonly="1"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="货物明细">
+                            <field name="goods_line_ids">
+                                <list editable="bottom" open_form_view="1">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="customer_line_id"/>
+                                    <field name="customer_no" readonly="1"/>
+                                    <field name="goods_code"/>
+                                    <field name="goods_name"/>
+                                    <field name="specification"/>
+                                    <field name="quantity"/>
+                                    <field name="package_count"/>
+                                    <field name="uom_name"/>
+                                    <field name="weight"/>
+                                    <field name="volume"/>
+                                    <field name="temperature_zone"/>
+                                    <field name="package_type"/>
+                                    <field name="remark"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="原始订单明细（兼容）">
+                            <group string="使用说明">
+                                <div>
+                                    <span class="o_form_label">该区域保留原始订单行结构，主要用于兼容历史导入和问题核对。当前运单的主阅读路径请优先查看“客户明细”和“货物明细”。</span>
+                                </div>
+                            </group>
+                            <field name="order_line_ids">
+                                <list editable="bottom">
+                                    <field name="external_order_no"/>
+                                    <field name="sale_order_id"/>
+                                    <field name="stock_picking_id"/>
+                                    <field name="store_id"/>
+                                    <field name="goods_summary"/>
+                                    <field name="qty_summary"/>
+                                    <field name="line_state"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="备注">
+                            <field name="remark" placeholder="填写这张运单的内部跟进备注"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_logistics_dispatch_waybill_search" model="ir.ui.view">
+        <field name="name">logistics.dispatch.waybill.search</field>
+        <field name="model">logistics.dispatch.waybill</field>
+        <field name="arch" type="xml">
+            <search string="运单">
+                <field name="name" string="运单号"/>
+                <field name="batch_id"/>
+                <field name="wave_id"/>
+                <field name="store_id"/>
+                <field name="driver_employee_id"/>
+                <field name="warehouse_id"/>
+                <separator/>
+                <filter string="待处理异常" name="open_exceptions" domain="[('exception_status', 'in', ('open', 'processing'))]"/>
+                <filter string="证据缺失" name="evidence_missing" domain="[('evidence_status', '=', 'missing')]"/>
+                <filter string="证据不完整" name="evidence_partial" domain="[('evidence_status', '=', 'partial')]"/>
+                <filter string="配送途中" name="in_transit" domain="[('state', '=', 'in_transit')]"/>
+                <filter string="已到店" name="arrived" domain="[('state', '=', 'arrived')]"/>
+                <group>
+                    <filter string="按波次" name="group_wave" context="{'group_by': 'wave_id'}"/>
+                    <filter string="按批次" name="group_batch" context="{'group_by': 'batch_id'}"/>
+                    <filter string="按门店" name="group_store" context="{'group_by': 'store_id'}"/>
+                    <filter string="按司机" name="group_driver" context="{'group_by': 'driver_employee_id'}"/>
+                    <filter string="按状态" name="group_state" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_logistics_dispatch_waybill" model="ir.actions.act_window">
+        <field name="name">运单</field>
+        <field name="res_model">logistics.dispatch.waybill</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_logistics_dispatch_waybill_search"/>
+    </record>
+
+    <record id="view_logistics_dispatch_waybill_customer_line_tree" model="ir.ui.view">
+        <field name="name">logistics.dispatch.waybill.customer.line.tree</field>
+        <field name="model">logistics.dispatch.waybill.customer.line</field>
+        <field name="arch" type="xml">
+            <list string="客户明细" default_order="waybill_id desc, sequence asc, id asc">
+                <field name="waybill_id"/>
+                <field name="customer_no"/>
+                <field name="customer_id"/>
+                <field name="store_no"/>
+                <field name="store_id"/>
+                <field name="goods_line_count"/>
+                <field name="total_goods_qty"/>
+                <field name="total_package_count"/>
+                <field name="total_weight"/>
+                <field name="total_volume"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_logistics_dispatch_waybill_customer_line_form" model="ir.ui.view">
+        <field name="name">logistics.dispatch.waybill.customer.line.form</field>
+        <field name="model">logistics.dispatch.waybill.customer.line</field>
+        <field name="arch" type="xml">
+            <form string="客户明细">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="customer_name" placeholder="客户名称"/>
+                        </h1>
+                        <div class="text-muted">
+                            <field name="waybill_id" readonly="1"/>
+                        </div>
+                    </div>
+                    <group>
+                        <group string="客户信息">
+                            <field name="waybill_id"/>
+                            <field name="customer_no"/>
+                            <field name="customer_id"/>
+                            <field name="store_no"/>
+                            <field name="store_id"/>
+                        </group>
+                        <group string="汇总信息">
+                            <field name="goods_line_count" readonly="1"/>
+                            <field name="total_goods_qty" readonly="1"/>
+                            <field name="total_package_count" readonly="1"/>
+                            <field name="total_weight" readonly="1"/>
+                            <field name="total_volume" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="履约说明">
+                        <field name="delivery_note" placeholder="填写门店或客户的配送备注"/>
+                        <field name="signoff_requirement" placeholder="填写签收要求"/>
+                    </group>
+                    <group string="货物明细">
+                        <field name="goods_line_ids">
+                            <list editable="bottom" open_form_view="1">
+                                <field name="sequence" widget="handle"/>
+                                <field name="goods_code"/>
+                                <field name="goods_name"/>
+                                <field name="specification"/>
+                                <field name="quantity"/>
+                                <field name="package_count"/>
+                                <field name="uom_name"/>
+                                <field name="weight"/>
+                                <field name="volume"/>
+                                <field name="temperature_zone"/>
+                                <field name="package_type"/>
+                            </list>
+                        </field>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_logistics_dispatch_waybill_customer_line_search" model="ir.ui.view">
+        <field name="name">logistics.dispatch.waybill.customer.line.search</field>
+        <field name="model">logistics.dispatch.waybill.customer.line</field>
+        <field name="arch" type="xml">
+            <search string="客户明细">
+                <field name="waybill_id"/>
+                <field name="customer_no"/>
+                <field name="customer_name"/>
+                <field name="store_no"/>
+                <field name="store_name"/>
+                <group>
+                    <filter string="按运单" name="group_waybill" context="{'group_by': 'waybill_id'}"/>
+                    <filter string="按客户" name="group_customer" context="{'group_by': 'customer_id'}"/>
+                    <filter string="按门店" name="group_store" context="{'group_by': 'store_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_logistics_dispatch_waybill_customer_line" model="ir.actions.act_window">
+        <field name="name">客户明细</field>
+        <field name="res_model">logistics.dispatch.waybill.customer.line</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_logistics_dispatch_waybill_customer_line_search"/>
+    </record>
+
+    <record id="view_logistics_dispatch_waybill_customer_goods_line_tree" model="ir.ui.view">
+        <field name="name">logistics.dispatch.waybill.customer.goods.line.tree</field>
+        <field name="model">logistics.dispatch.waybill.customer.goods.line</field>
+        <field name="arch" type="xml">
+            <list string="货物明细" default_order="waybill_id desc, sequence asc, id asc">
+                <field name="waybill_id"/>
+                <field name="customer_no"/>
+                <field name="customer_id"/>
+                <field name="goods_code"/>
+                <field name="goods_name"/>
+                <field name="specification"/>
+                <field name="quantity"/>
+                <field name="package_count"/>
+                <field name="uom_name"/>
+                <field name="weight"/>
+                <field name="volume"/>
+                <field name="temperature_zone"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_logistics_dispatch_waybill_customer_goods_line_form" model="ir.ui.view">
+        <field name="name">logistics.dispatch.waybill.customer.goods.line.form</field>
+        <field name="model">logistics.dispatch.waybill.customer.goods.line</field>
+        <field name="arch" type="xml">
+            <form string="货物明细">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="goods_name" placeholder="货物名称"/>
+                        </h1>
+                        <div class="text-muted">
+                            <field name="waybill_id" readonly="1"/>
+                        </div>
+                    </div>
+                    <group>
+                        <group string="关联信息">
+                            <field name="customer_line_id"/>
+                            <field name="waybill_id" readonly="1"/>
+                            <field name="customer_id" readonly="1"/>
+                            <field name="customer_no" readonly="1"/>
+                        </group>
+                        <group string="货物信息">
+                            <field name="goods_code"/>
+                            <field name="specification"/>
+                            <field name="uom_name"/>
+                            <field name="temperature_zone"/>
+                            <field name="package_type"/>
+                        </group>
+                    </group>
+                    <group string="数量与体积">
+                        <field name="quantity"/>
+                        <field name="package_count"/>
+                        <field name="weight"/>
+                        <field name="volume"/>
+                    </group>
+                    <group string="备注">
+                        <field name="remark" placeholder="填写货物备注"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_logistics_dispatch_waybill_customer_goods_line_search" model="ir.ui.view">
+        <field name="name">logistics.dispatch.waybill.customer.goods.line.search</field>
+        <field name="model">logistics.dispatch.waybill.customer.goods.line</field>
+        <field name="arch" type="xml">
+            <search string="货物明细">
+                <field name="waybill_id"/>
+                <field name="customer_no"/>
+                <field name="goods_code"/>
+                <field name="goods_name"/>
+                <field name="temperature_zone"/>
+                <group>
+                    <filter string="按运单" name="group_waybill" context="{'group_by': 'waybill_id'}"/>
+                    <filter string="按客户" name="group_customer" context="{'group_by': 'customer_id'}"/>
+                    <filter string="按温层" name="group_temperature_zone" context="{'group_by': 'temperature_zone'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_logistics_dispatch_waybill_customer_goods_line" model="ir.actions.act_window">
+        <field name="name">货物明细</field>
+        <field name="res_model">logistics.dispatch.waybill.customer.goods.line</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_logistics_dispatch_waybill_customer_goods_line_search"/>
+    </record>
+
+    <record id="action_logistics_dispatch_waybill_import_center" model="ir.actions.act_window">
+        <field name="name">导入中心</field>
+        <field name="res_model">logistics.dispatch.waybill</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_logistics_dispatch_waybill_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                从这里进入运单导入主路径。            </p>
+            <p>
+                进入页面后，使用顶部的<strong>上传数据文件</strong>按钮上传标准模板，继续完成运单、客户和货物数据导入。            </p>
+        </field>
+    </record>
+
+    <record id="action_logistics_dispatch_waybill_import_center_direct" model="ir.actions.client">
+        <field name="name">导入中心</field>
+        <field name="tag">logistics_web.import_center</field>
+        <field name="target">current</field>
+        <field name="params" eval="{'source_model': 'logistics.dispatch.waybill'}"/>
+    </record>
+    <record id="action_logistics_dispatch_waybill_customer_line_import_center_direct" model="ir.actions.client">
+        <field name="name">客户明细导入</field>
+        <field name="tag">logistics_web.import_center</field>
+        <field name="target">current</field>
+        <field name="params" eval="{'source_model': 'logistics.dispatch.waybill.customer.line'}"/>
+    </record>
+
+    <record id="action_logistics_dispatch_waybill_customer_goods_line_import_center_direct" model="ir.actions.client">
+        <field name="name">货物明细导入</field>
+        <field name="tag">logistics_web.import_center</field>
+        <field name="target">current</field>
+        <field name="params" eval="{'source_model': 'logistics.dispatch.waybill.customer.goods.line'}"/>
+    </record>
+</odoo>
+

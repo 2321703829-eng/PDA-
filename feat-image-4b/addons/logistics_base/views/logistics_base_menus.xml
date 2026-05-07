@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_logistics_base_store" model="ir.actions.act_window">
+        <field name="name">Logistics Stores</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('is_logistics_store', '=', True)]</field>
+        <field name="context">{'default_is_logistics_store': True}</field>
+    </record>
+
+    <record id="action_logistics_base_customer" model="ir.actions.act_window">
+        <field name="name">Logistics Customers</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('is_logistics_customer', '=', True)]</field>
+        <field name="context">{'default_is_logistics_customer': True}</field>
+    </record>
+
+    <record id="action_logistics_base_driver" model="ir.actions.act_window">
+        <field name="name">Logistics Drivers</field>
+        <field name="res_model">hr.employee</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('logistics_role', '=', 'driver')]</field>
+        <field name="context">{'default_logistics_role': 'driver', 'default_logistics_can_take_order': True}</field>
+    </record>
+
+    <record id="action_logistics_base_warehouse" model="ir.actions.act_window">
+        <field name="name">Logistics Warehouses</field>
+        <field name="res_model">stock.warehouse</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_logistics_base_root" name="Logistics Master Data" sequence="39"/>
+
+    <menuitem
+        id="menu_logistics_base_partner"
+        name="Partners"
+        parent="menu_logistics_base_root"
+        sequence="10"/>
+
+    <menuitem
+        id="menu_logistics_base_store"
+        name="Stores"
+        parent="menu_logistics_base_partner"
+        action="action_logistics_base_store"
+        sequence="10"/>
+
+    <menuitem
+        id="menu_logistics_base_customer"
+        name="Customers"
+        parent="menu_logistics_base_partner"
+        action="action_logistics_base_customer"
+        sequence="20"/>
+
+    <menuitem
+        id="menu_logistics_base_employee"
+        name="Drivers"
+        parent="menu_logistics_base_root"
+        action="action_logistics_base_driver"
+        sequence="20"/>
+
+    <menuitem
+        id="menu_logistics_base_vehicle"
+        name="Vehicles"
+        parent="menu_logistics_base_root"
+        action="fleet.fleet_vehicle_action"
+        sequence="25"/>
+
+    <menuitem
+        id="menu_logistics_base_warehouse"
+        name="Warehouses"
+        parent="menu_logistics_base_root"
+        action="action_logistics_base_warehouse"
+        sequence="30"/>
+</odoo>

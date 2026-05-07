@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="logistics_web.PageHeader">
+        <div class="o_logistics_web_page_header">
+            <h2><t t-esc="props.title or ''"/></h2>
+            <p t-if="props.subtitle"><t t-esc="props.subtitle"/></p>
+        </div>
+    </t>
+
+    <t t-name="logistics_web.SummaryBand">
+        <div class="o_logistics_web_summary_band">
+            <t t-foreach="props.items or []" t-as="item" t-key="item.key or item.label">
+                <div class="o_logistics_web_summary_band_item">
+                    <span class="o_logistics_web_summary_band_label"><t t-esc="item.label"/></span>
+                    <strong class="o_logistics_web_summary_band_value"><t t-esc="item.value"/></strong>
+                </div>
+            </t>
+        </div>
+    </t>
+
+    <t t-name="logistics_web.SummaryCard">
+        <div class="o_logistics_web_summary_card">
+            <span class="o_logistics_web_summary_card_label"><t t-esc="props.label or ''"/></span>
+            <strong class="o_logistics_web_summary_card_value"><t t-esc="props.value"/></strong>
+        </div>
+    </t>
+
+    <t t-name="logistics_web.StatusTag">
+        <span class="o_logistics_web_status_tag" t-att-data-tone="props.tone or 'default'">
+            <t t-esc="props.label or ''"/>
+        </span>
+    </t>
+</templates>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_logistics_web_waybill_form_inherit" model="ir.ui.view">
+        <field name="name">logistics.dispatch.waybill.form.logistics.web</field>
+        <field name="model">logistics.dispatch.waybill</field>
+        <field name="inherit_id" ref="logistics_dispatch.view_logistics_dispatch_waybill_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="attributes">
+                <attribute name="js_class">logistics_waybill_form</attribute>
+            </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page string="留痕与证据">
+                    <div class="o_logistics_waybill_enhanced_detail o_logistics_waybill_enhanced_detail_primary">
+                        <div class="o_logistics_waybill_guide_strip">
+                            <div class="o_logistics_waybill_guide_item">
+                                <strong>先看留痕顺序</strong>
+                                <span>确认事件时间、提交人和异常标签。</span>
+                            </div>
+                            <div class="o_logistics_waybill_guide_item">
+                                <strong>再看证据图片</strong>
+                                <span>结合留痕上下文判断证据是否足够。</span>
+                            </div>
+                            <div class="o_logistics_waybill_guide_item">
+                                <strong>最后核对异常</strong>
+                                <span>只在需要追责、补证据或跟进处理时继续下钻。</span>
+                            </div>
+                        </div>
+                        <div class="o_logistics_waybill_widget_block">
+                            <h3 class="o_logistics_waybill_widget_heading">留痕时间线</h3>
+                            <div class="o_logistics_waybill_timeline_host o_logistics_waybill_widget_host"/>
+                        </div>
+
+                        <div class="o_logistics_waybill_widget_block">
+                            <h3 class="o_logistics_waybill_widget_heading">证据查看</h3>
+                            <div class="o_logistics_waybill_evidence_host o_logistics_waybill_widget_host"/>
+                        </div>
+                    </div>
+                    <div class="o_logistics_waybill_enhanced_detail o_logistics_waybill_fallback_section">
+                        <separator string="原始关联数据（调试）"/>
+                        <div class="o_form_label text-muted o_logistics_waybill_fallback_hint">
+                            仅在核对原始关联记录或排查组件显示问题时使用下方列表。
+                        </div>
+
+                        <group string="留痕记录（原始）" col="1">
+                            <field name="trace_event_ids" readonly="1">
+                                <list create="0" delete="0" open_form_view="1">
+                                    <field name="trace_time"/>
+                                    <field name="event_type"/>
+                                    <field name="submit_user_name"/>
+                                    <field name="evidence_count"/>
+                                    <field name="is_exception"/>
+                                    <field name="state"/>
+                                </list>
+                            </field>
+                        </group>
+                        <group string="证据记录（原始）" col="1">
+                            <field name="evidence_ids" readonly="1">
+                                <list create="0" delete="0" open_form_view="1">
+                                    <field name="name"/>
+                                    <field name="trace_event_id"/>
+                                    <field name="uploaded_at"/>
+                                    <field name="uploader_name"/>
+                                    <field name="is_exception_related"/>
+                                    <field name="sequence"/>
+                                </list>
+                            </field>
+                        </group>
+                    </div>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>
