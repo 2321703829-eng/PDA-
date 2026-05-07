@@ -71,6 +71,27 @@ class LogisticsDispatchWaybillOrderLine(models.Model):
     )
     goods_line_ids = fields.One2many("logistics.dispatch.waybill.customer.goods.line", "order_line_id", string="货物明细")
 
+    batch_id = fields.Many2one(
+        "logistics.dispatch.batch",
+        string="批次",
+        related="waybill_id.batch_id",
+        store=True,
+        readonly=True,
+        index=True,
+    )
+    batch_no = fields.Char(
+        string="批次号",
+        related="waybill_id.batch_no",
+        store=True,
+        readonly=True,
+        index=True,
+    )
+    customer_line_no = fields.Char(
+        string="配送节点编号",
+        related="customer_line_id.customer_line_no",
+        store=True,
+        readonly=True,
+    )
 
     @api.constrains("whole_package_count", "loose_package_count")
     def _check_non_negative_summary_values(self):

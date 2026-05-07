@@ -1,7 +1,7 @@
 {
     "name": "Logistics Trace Exception",
     "version": "19.0.1.0.0",
-    "summary": "Exception layer for logistics trace handling",
+    "summary": "物流留痕异常管理层",
     "author": "OpenAI",
     "license": "LGPL-3",
     "depends": [

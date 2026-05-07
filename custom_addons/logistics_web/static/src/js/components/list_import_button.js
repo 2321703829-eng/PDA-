@@ -43,6 +43,7 @@ patch(ListController.prototype, {
             this.props.showButtons &&
             (
                 this.props.resModel === "logistics.dispatch.waybill" ||
+                this.props.resModel === "logistics.trace.evidence" ||
                 this.isCustomerProfileExportList ||
                 this.isProductProfileExportList
             )
@@ -70,6 +71,10 @@ patch(ListController.prototype, {
             await this.exportWaybillProfiles();
             return;
         }
+        if (this.props.resModel === "logistics.trace.evidence") {
+            await this.exportEvidenceImages();
+            return;
+        }
         if (this.isCustomerProfileExportList) {
             await this.exportCustomerProfiles();
             return;
@@ -87,16 +92,46 @@ patch(ListController.prototype, {
             });
             return;
         }
-        await this.openExportResultFromRequest("/api/admin/logistics/exports/waybill", {
-            object_type: "dispatch_main",
-            entry_type: "from_waybill",
-            export_mode: "standard_xlsx",
-            selected_ids: selectedIds,
-            from_page: "waybill_list",
-            scope_snapshot: {
-                selected_waybill_ids: selectedIds,
+        await this.openExportResultFromRequest(
+            "/api/admin/logistics/exports/waybill",
+            {
+                object_type: "dispatch_main",
+                entry_type: "from_waybill",
+                export_mode: "standard_xlsx",
+                selected_ids: selectedIds,
+                from_page: "waybill_list",
+                scope_snapshot: {
+                    selected_waybill_ids: selectedIds,
+                },
             },
-        }, "运单导出失败，请稍后重试。");
+            "运单导出失败，请稍后重试。"
+        );
+    },
+
+    async exportEvidenceImages() {
+        const selectedIds = await this.model.root.getResIds(true);
+        if (!selectedIds.length) {
+            this.env.services.notification.add("请先选择至少一条证据，再发起导出。", {
+                type: "warning",
+            });
+            return;
+        }
+        await this.openExportResultFromRequest(
+            "/api/admin/logistics/exports/evidence-images",
+            {
+                object_type: "evidence_image_bundle",
+                entry_type: "from_evidence",
+                export_mode: "zip_package",
+                package_structure: "evidence_image_bundle_v1",
+                source_model: "logistics.trace.evidence",
+                selected_ids: selectedIds,
+                from_page: "evidence_list",
+                scope_snapshot: {
+                    selected_evidence_ids: selectedIds,
+                },
+            },
+            "证据原图批量导出失败，请稍后重试。"
+        );
     },
 
     async exportCustomerProfiles() {
@@ -107,16 +142,20 @@ patch(ListController.prototype, {
             });
             return;
         }
-        await this.openExportResultFromRequest("/api/admin/logistics/exports/customer-profile", {
-            object_type: "customer_profile",
-            entry_type: "from_customer",
-            export_mode: "standard_xlsx",
-            selected_ids: selectedIds,
-            from_page: "customer_profile_list",
-            scope_snapshot: {
-                selected_partner_ids: selectedIds,
+        await this.openExportResultFromRequest(
+            "/api/admin/logistics/exports/customer-profile",
+            {
+                object_type: "customer_profile",
+                entry_type: "from_customer",
+                export_mode: "standard_xlsx",
+                selected_ids: selectedIds,
+                from_page: "customer_profile_list",
+                scope_snapshot: {
+                    selected_partner_ids: selectedIds,
+                },
             },
-        }, "客户画像导出失败，请稍后重试。");
+            "客户画像导出失败，请稍后重试。"
+        );
     },
 
     async exportProductProfiles() {
@@ -150,14 +189,18 @@ patch(ListController.prototype, {
             };
         }
 
-        await this.openExportResultFromRequest("/api/admin/logistics/exports/product-profile", {
-            object_type: "product_profile",
-            entry_type: "from_product",
-            export_mode: "standard_xlsx",
-            selected_ids: productTemplateIds,
-            from_page: fromPage,
-            scope_snapshot: scopeSnapshot,
-        }, "货物画像导出失败，请稍后重试。");
+        await this.openExportResultFromRequest(
+            "/api/admin/logistics/exports/product-profile",
+            {
+                object_type: "product_profile",
+                entry_type: "from_product",
+                export_mode: "standard_xlsx",
+                selected_ids: productTemplateIds,
+                from_page: fromPage,
+                scope_snapshot: scopeSnapshot,
+            },
+            "货物画像导出失败，请稍后重试。"
+        );
     },
 
     normalizeProductTemplateIds(rows) {

@@ -34,53 +34,53 @@ export class LogisticsDashboardAction extends Component {
     get ui() {
         return {
             title: "物流工作台",
-            subtitle: "先看今天物流需要优先处理什么，再进入运单、批次和异常继续跟进。",
-            badgePrimary: "今日重点",
-            badgeSecondary: "运营视角",
-            heroNoteTitle: "当前工作方向",
-            heroNoteBody: "把工作台做成三期里更偏执行调度的样板页，先看优先事项，再快速进入处理链路。",
+            subtitle: "围绕异常、补证和高风险批次快速定位今日待办任务。",
+            badgePrimary: "今日待办",
+            badgeSecondary: "即时优先级",
+            heroNoteTitle: "处理建议",
+            heroNoteBody: "先从概览卡片判断风险面，再通过优先队列和最近变化快速进入具体运单、批次或异常对象。",
             loading: "正在加载工作台数据...",
-            sectionSummaryTitle: "今日重点",
-            sectionSummaryHint: "卡片既是提醒，也是处理入口，点击后可直接进入对应列表。",
-            summaryEmpty: "当前暂无可展示的今日重点摘要。",
+            sectionSummaryTitle: "概览指标",
+            sectionSummaryHint: "聚焦当前最需要关注的异常、补证和风险批次。",
+            summaryEmpty: "暂无概览指标可供展示。",
             sectionQueueTitle: "优先处理队列",
-            sectionQueueHint: "这些对象更适合优先查看，避免问题继续扩散到门店交付。",
-            sectionRecentTitle: "最新动态",
-            sectionRecentHint: "快速查看今天新增的异常、补图和状态变化。",
-            sectionDrilldownTitle: "常用入口",
-            sectionDrilldownHint: "从这里进入最常用的处理页面，继续查看详情和证据。",
-            queueOwner: "当前负责人",
-            noPriority: "当前没有需要优先处理的对象。",
-            noRecent: "今天还没有新的异常或证据变化。",
-            openWaybillTitle: "运单追踪",
-            openWaybillHint: "按运单查看最新留痕、证据状态和异常进展。",
-            openExceptionTitle: "异常处理",
-            openExceptionHint: "直接进入待处理异常，查看责任、证据和处理进度。",
-            openBatchTitle: "批次跟进",
-            openBatchHint: "当问题集中在同一执行批次时，从批次视角继续查看。",
-            backHome: "返回企业首页",
-            openStatsCenter: "查看统计图表",
-            noPermission: "当前账号暂无查看物流工作台的权限。",
+            sectionQueueHint: "按当前风险和处理时效给出的待办项。",
+            sectionRecentTitle: "最近变化",
+            sectionRecentHint: "追踪最近新增或更新的异常、批次和运单。",
+            sectionDrilldownTitle: "快速进入",
+            sectionDrilldownHint: "按对象类型直接进入列表完成后续处理。",
+            queueOwner: "负责人",
+            noPriority: "暂无需要立即处理的队列项。",
+            noRecent: "暂无需要关注的最近变化。",
+            openWaybillTitle: "运单列表",
+            openWaybillHint: "查看所有运单并继续下钻处理。",
+            openExceptionTitle: "异常列表",
+            openExceptionHint: "聚焦当前待处理或处理中的异常。",
+            openBatchTitle: "批次列表",
+            openBatchHint: "从批次视角分析波次执行与风险分布。",
+            backHome: "返回首页",
+            openStatsCenter: "打开统计中心",
+            noPermission: "当前账号没有访问该页的权限。",
         };
     }
 
     get summaryCardMetaMap() {
         return {
-            pending_exception_count: "先处理仍在流转中的异常对象",
-            evidence_missing_count: "优先补齐证据链薄弱的异常",
-            high_risk_batch_count: "关注异常聚集且影响面大的批次",
-            today_new_exception_count: "快速查看今天新增的风险变化",
+            pending_exception_count: "\u5f85\u5904\u7406\u5f02\u5e38\u6570",
+            evidence_missing_count: "\u5f85\u8865\u8bc1\u636e\u6570",
+            high_risk_batch_count: "\u9ad8\u98ce\u9669\u6279\u6b21\u6570",
+            today_new_exception_count: "\u4eca\u65e5\u65b0\u589e\u5f02\u5e38\u6570",
         };
     }
 
     get stateLabels() {
         return {
-            draft: "草稿",
-            open: "待处理",
-            processing: "处理中",
-            resolved: "已解决",
-            closed: "已关闭",
-            cancelled: "已取消",
+            draft: "\u8349\u7a3f",
+            open: "\u5f85\u5904\u7406",
+            processing: "\u5904\u7406\u4e2d",
+            resolved: "\u5df2\u89e3\u51b3",
+            closed: "\u5df2\u5173\u95ed",
+            cancelled: "\u5df2\u53d6\u6d88",
         };
     }
 
@@ -114,46 +114,46 @@ export class LogisticsDashboardAction extends Component {
     async onSummaryCardClick(card) {
         const key = card?.key;
         if (key === "pending_exception_count") {
-            return this.openExceptionList([["id", "in", card.record_ids || []]], "打开待处理异常");
+            return this.openExceptionList([["id", "in", card.record_ids || []]], "\u5f85\u5904\u7406\u5f02\u5e38");
         }
         if (key === "evidence_missing_count") {
-            return this.openExceptionList([["id", "in", card.record_ids || []]], "打开待补证据异常");
+            return this.openExceptionList([["id", "in", card.record_ids || []]], "\u5f85\u8865\u8bc1\u636e");
         }
         if (key === "high_risk_batch_count") {
-            return this.openBatchList([["id", "in", card.record_ids || []]], "打开风险批次");
+            return this.openBatchList([["id", "in", card.record_ids || []]], "\u9ad8\u98ce\u9669\u6279\u6b21");
         }
         if (key === "today_new_exception_count") {
-            return this.openExceptionList([["id", "in", card.record_ids || []]], "打开今日新增异常");
+            return this.openExceptionList([["id", "in", card.record_ids || []]], "\u5f85\u8865\u8bc1\u636e");
         }
     }
 
     async onPriorityItemClick(item) {
         if (item?.targetType === "exception") {
-            return this.openExceptionList([["name", "=", item.code]], `打开异常 ${item.code}`);
+            return this.openExceptionList([["name", "=", item.code]], `\u5f02\u5e38 ${item.code}`);
         }
         if (item?.targetType === "batch") {
-            return this.openBatchList([["name", "=", item.code]], `打开批次 ${item.code}`);
+            return this.openBatchList([["name", "=", item.code]], `\u6279\u6b21 ${item.code}`);
         }
         if (item?.targetType === "wave") {
-            return this.openWaveList([["name", "=", item.code]], `打开波次 ${item.code}`);
+            return this.openWaveList([["name", "=", item.code]], `\u6ce2\u6b21 ${item.code}`);
         }
-        return this.openWaybillList([["name", "=", item.code]], `打开运单 ${item.code}`);
+        return this.openWaybillList([["name", "=", item.code]], `\u8fd0\u5355 ${item.code}`);
     }
 
     async onDrilldownClick(target) {
         if (target === "waybill") {
-            return this.openWaybillList([], "运单追踪");
+            return this.openWaybillList([], "\u8fd0\u5355\u5217\u8868");
         }
         if (target === "exception") {
-            return this.openExceptionList([["state", "in", ["open", "processing"]]], "异常处理");
+            return this.openExceptionList([["state", "in", ["open", "processing"]]], "\u5f02\u5e38\u5217\u8868");
         }
         if (target === "batch") {
-            return this.openBatchList([], "批次跟进");
+            return this.openBatchList([], "\u6279\u6b21\u5217\u8868");
         }
     }
 
     async goToEnterpriseHome() {
-        const menu = this.findMenuByLabels(["天枢科技企业系统", "首页"]);
+        const menu = this.findMenuByLabels(["\u7269\u6d41\u5de5\u4f5c\u533a", "\u9996\u9875"]);
         if (menu) {
             return this.menuService.selectMenu(menu);
         }
@@ -169,7 +169,7 @@ export class LogisticsDashboardAction extends Component {
         return this.menuService.getAll().find((menu) => normalized.has(menu.name) && menu.actionID);
     }
 
-    async openWaybillList(domain = [], name = "运单追踪") {
+    async openWaybillList(domain = [], name = "\u8fd0\u5355") {
         return this.actionService.doAction({
             type: "ir.actions.act_window",
             name,
@@ -179,7 +179,7 @@ export class LogisticsDashboardAction extends Component {
         });
     }
 
-    async openBatchList(domain = [], name = "批次列表") {
+    async openBatchList(domain = [], name = "\u6279\u6b21") {
         return this.actionService.doAction({
             type: "ir.actions.act_window",
             name,
@@ -189,7 +189,7 @@ export class LogisticsDashboardAction extends Component {
         });
     }
 
-    async openWaveList(domain = [], name = "波次列表") {
+    async openWaveList(domain = [], name = "\u6ce2\u6b21") {
         return this.actionService.doAction({
             type: "ir.actions.act_window",
             name,
@@ -199,7 +199,7 @@ export class LogisticsDashboardAction extends Component {
         });
     }
 
-    async openExceptionList(domain = [], name = "异常列表") {
+    async openExceptionList(domain = [], name = "\u5f02\u5e38") {
         return this.actionService.doAction({
             type: "ir.actions.act_window",
             name,
@@ -211,10 +211,10 @@ export class LogisticsDashboardAction extends Component {
 
     mapErrorMessage(error) {
         const message = error?.message || "";
-        if (message.includes("权限") || message.includes("forbidden")) {
+        if (message.includes("\u6743\u9650") || message.includes("forbidden")) {
             return this.ui.noPermission;
         }
-        return message || "物流工作台加载失败，请刷新页面或稍后再试。";
+        return message || "\u5f53\u524d\u83dc\u5355\u6682\u672a\u914d\u7f6e\uff0c\u8bf7\u7a0d\u540e\u518d\u8bd5\u3002";
     }
 
     async apiRequest(url, options = {}) {
@@ -226,7 +226,7 @@ export class LogisticsDashboardAction extends Component {
         });
         const payload = await response.json().catch(() => null);
         if (!response.ok || !payload || payload.code !== 0) {
-            throw new Error(payload?.data?.errors?.[0]?.error_message || payload?.message || "请求失败。");
+            throw new Error(payload?.data?.errors?.[0]?.error_message || payload?.message || "\u8bf7\u6c42\u5931\u8d25\u3002");
         }
         return payload;
     }

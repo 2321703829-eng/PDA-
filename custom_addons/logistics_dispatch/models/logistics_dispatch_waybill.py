@@ -124,8 +124,14 @@ class LogisticsDispatchWaybill(models.Model):
     open_exception_count = fields.Integer(string="待处理异常数", default=0)
     order_line_ids = fields.One2many("logistics.dispatch.waybill.order.line", "waybill_id", string="订单明细")
     customer_line_ids = fields.One2many("logistics.dispatch.waybill.customer.line", "waybill_id", string="配送节点明细")
+    stop_ids = fields.One2many(
+        "logistics.dispatch.waybill.customer.line",
+        "waybill_id",
+        string="停靠点（兼容）",
+    )
     goods_line_ids = fields.One2many("logistics.dispatch.waybill.customer.goods.line", "waybill_id", string="货物明细")
     order_line_count = fields.Integer(string="订单数", compute="_compute_order_line_count", store=True)
+    order_refs_summary = fields.Char(string="订单号汇总", compute="_compute_order_summary", store=True)
     customer_line_count = fields.Integer(string="配送节点数", compute="_compute_detail_counts", store=True)
     goods_line_count = fields.Integer(string="货物条数", compute="_compute_detail_counts", store=True)
     total_goods_qty = fields.Float(string="货物总数量", compute="_compute_detail_counts", store=True)
@@ -394,6 +400,17 @@ class LogisticsDispatchWaybill(models.Model):
     def _compute_order_line_count(self):
         for record in self:
             record.order_line_count = len(record.order_line_ids)
+
+    @api.depends("order_line_ids.order_no", "order_line_ids.sales_order_no")
+    def _compute_order_summary(self):
+        for record in self:
+            order_refs = []
+            for line in record.order_line_ids:
+                for value in (line.sales_order_no, line.order_no):
+                    normalized = (value or "").strip()
+                    if normalized and normalized not in order_refs:
+                        order_refs.append(normalized)
+            record.order_refs_summary = " / ".join(order_refs[:5])
 
     @api.depends(
         "customer_line_ids",

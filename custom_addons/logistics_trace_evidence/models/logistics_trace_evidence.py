@@ -1,3 +1,5 @@
+import base64
+
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 
@@ -59,6 +61,7 @@ class LogisticsTraceEvidence(models.Model):
         store=True,
     )
     remark = fields.Char(string="Remark")
+    client_request_id = fields.Char(string="Client Request ID", index=True)
     is_exception_related = fields.Boolean(
         string="Exception Related",
         compute="_compute_exception_flags",
@@ -194,7 +197,7 @@ class LogisticsTraceEvidence(models.Model):
             "downloadUrl": full_url,
         }
 
-    def register_uploaded_image(self, image_payload, *, sequence=None, remark=""):
+    def register_uploaded_image(self, image_payload, *, sequence=None, remark="", content_sha256=False):
         self.ensure_one()
         image_model = self.env["logistics.trace.evidence.image"].sudo()
         image_vals = {
@@ -211,13 +214,14 @@ class LogisticsTraceEvidence(models.Model):
             "storage_relative_path": image_payload.get("storage_relative_path"),
             "storage_status": image_payload.get("storage_status") or "active",
             "captured_at": fields.Datetime.now(),
+            "content_sha256": content_sha256 or False,
             "remark": remark or False,
         }
         image_record = image_model.create(image_vals)
         self._sync_legacy_cover_fields(force_clear=True)
         return image_record
 
-    def upload_image_binary(self, *, file_name, content, content_type, sequence=None, remark=""):
+    def upload_image_binary(self, *, file_name, content, content_type, sequence=None, remark="", content_sha256=False):
         self.ensure_one()
         storage = LogisticsEvidenceImageStorage(self.env)
         payload = storage.upload_image(
@@ -225,7 +229,94 @@ class LogisticsTraceEvidence(models.Model):
             content=content,
             content_type=content_type,
         )
-        return self.register_uploaded_image(payload, sequence=sequence, remark=remark)
+        return self.register_uploaded_image(payload, sequence=sequence, remark=remark, content_sha256=content_sha256)
+
+    def _build_attachment_image_payload(self, attachment, *, preferred_key):
+        content = base64.b64decode(attachment.datas or b"")
+        if not content:
+            raise UserError("Legacy evidence attachment is empty.")
+        storage = LogisticsEvidenceImageStorage(self.env)
+        return storage.import_existing_image(
+            image_access_key=preferred_key,
+            file_name=attachment.name or preferred_key or "legacy_image.png",
+            content=content,
+            content_type=attachment.mimetype or "application/octet-stream",
+        )
+
+    def _build_legacy_image_payload(self):
+        self.ensure_one()
+        storage = LogisticsEvidenceImageStorage(self.env)
+        attachment = (
+            self.env["ir.attachment"]
+            .sudo()
+            .search(
+                [
+                    ("res_model", "=", "logistics.trace.evidence"),
+                    ("res_id", "=", self.id),
+                    ("description", "=", self.image_access_key),
+                ],
+                order="id asc",
+                limit=1,
+            )
+        )
+        if attachment and attachment.datas:
+            return self._build_attachment_image_payload(
+                attachment,
+                preferred_key=self.image_access_key,
+            )
+
+        legacy_source = (self.full_url or self.preview_url or "").strip()
+        if not legacy_source:
+            return False
+        legacy_file = storage.read_legacy_image(
+            self.name or self.image_access_key or f"legacy_{self.id}",
+            self.full_url,
+            self.preview_url,
+        )
+        return storage.import_existing_image(
+            image_access_key=self.image_access_key,
+            file_name=legacy_file["file_name"],
+            content=legacy_file["content"],
+            content_type=legacy_file["content_type"],
+        )
+
+    def _migrate_legacy_images_to_subtable(self):
+        image_model = self.env["logistics.trace.evidence.image"].sudo()
+        evidence_records = self.sudo().search(
+            [
+                ("image_access_key", "!=", False),
+                ("image_ids", "=", False),
+            ],
+            order="id asc",
+        )
+        for evidence in evidence_records:
+            try:
+                payload = evidence._build_legacy_image_payload()
+            except UserError:
+                payload = False
+            if not payload:
+                continue
+            image_model.create(
+                {
+                    "evidence_id": evidence.id,
+                    "sequence": 10,
+                    "image_access_key": payload["image_access_key"],
+                    "source_filename": payload.get("original_file_name") or payload.get("file_name"),
+                    "stored_file_name": payload.get("file_name"),
+                    "file_ext": payload.get("file_ext"),
+                    "mime_type": payload.get("content_type"),
+                    "file_size": payload.get("content_length"),
+                    "storage_provider": payload.get("storage_provider") or "local",
+                    "storage_bucket": payload.get("storage_bucket"),
+                    "storage_relative_path": payload.get("storage_relative_path"),
+                    "storage_status": payload.get("storage_status") or "active",
+                    "captured_at": evidence.uploaded_at or fields.Datetime.now(),
+                    "remark": evidence.remark or False,
+                    "legacy_preview_url": evidence.preview_url or False,
+                    "legacy_full_url": evidence.full_url or False,
+                }
+            )
+            evidence._sync_legacy_cover_fields(force_clear=True)
 
     def _sync_legacy_cover_fields(self, *, force_clear=False):
         for record in self:
@@ -325,6 +416,7 @@ class LogisticsTraceEvidenceImage(models.Model):
     full_url = fields.Char(string="Full URL", compute="_compute_urls")
     download_url = fields.Char(string="Download URL", compute="_compute_urls")
     remark = fields.Char(string="Remark")
+    content_sha256 = fields.Char(string="Content SHA256", index=True)
 
     @api.depends(
         "image_access_key",

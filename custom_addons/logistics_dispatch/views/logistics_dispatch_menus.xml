@@ -12,7 +12,8 @@
         id="menu_logistics_dispatch_scheduling"
         name="调度"
         parent="menu_logistics_dispatch_root"
-        groups="logistics_dispatch.group_logistics_dispatch_manager"
+        action="action_logistics_dispatch_batch"
+        groups="base.group_user"
         sequence="20"/>
 
     <menuitem
@@ -20,7 +21,7 @@
         name="批次"
         parent="menu_logistics_dispatch_scheduling"
         action="action_logistics_dispatch_batch"
-        groups="logistics_dispatch.group_logistics_dispatch_manager"
+        groups="base.group_user"
         sequence="10"/>
 
     <menuitem
@@ -28,8 +29,16 @@
         name="波次"
         parent="menu_logistics_dispatch_scheduling"
         action="action_logistics_dispatch_wave"
-        groups="logistics_dispatch.group_logistics_dispatch_manager"
+        groups="base.group_user"
         sequence="20"/>
+
+    <menuitem
+        id="menu_logistics_dispatch_order_line"
+        name="订单明细"
+        parent="menu_logistics_dispatch_scheduling"
+        action="action_logistics_dispatch_waybill_order_line"
+        groups="base.group_user"
+        sequence="30"/>
 
     <menuitem
         id="menu_logistics_dispatch_waybill_center"
@@ -89,6 +98,7 @@
         action="action_logistics_dispatch_waybill_customer_goods_line_import_center_direct"
         groups="base.group_no_one"
         sequence="30"/>
+
 
     <record id="menu_logistics_dispatch_import_waybill" model="ir.ui.menu">
         <field name="active" eval="False"/>

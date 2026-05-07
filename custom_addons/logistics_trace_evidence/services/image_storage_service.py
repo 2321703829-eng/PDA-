@@ -1,3 +1,5 @@
+import base64
+import binascii
 import mimetypes
 from datetime import datetime
 from pathlib import Path
@@ -95,6 +97,31 @@ class LogisticsEvidenceImageStorage:
             "content_length": len(content),
         }
 
+    def import_existing_image(self, *, image_access_key, file_name, content, content_type):
+        safe_name, extension = self._validate_file(
+            file_name=file_name,
+            content=content,
+            content_type=content_type,
+        )
+        storage_root = self.ensure_storage_ready()
+        stored_file_name = self._build_stored_file_name(extension)
+        relative_path = self._build_relative_path(stored_file_name)
+        absolute_path = storage_root / relative_path
+        absolute_path.parent.mkdir(parents=True, exist_ok=True)
+        absolute_path.write_bytes(content)
+        return {
+            "image_access_key": (image_access_key or "").strip() or self._build_access_key(),
+            "file_name": stored_file_name,
+            "original_file_name": safe_name,
+            "file_ext": extension,
+            "storage_provider": "local",
+            "storage_bucket": False,
+            "storage_relative_path": relative_path.replace("\\", "/"),
+            "storage_status": "active",
+            "content_type": content_type,
+            "content_length": len(content),
+        }
+
     def _resolve_storage_path(self, relative_path):
         storage_root = self.get_storage_root().resolve()
         candidate = storage_root / (relative_path or "")
@@ -162,6 +189,9 @@ class LogisticsEvidenceImageStorage:
         }
 
     def read_legacy_image(self, file_name, full_url, preview_url):
+        data_payload = self._read_legacy_data_url(file_name, full_url or preview_url)
+        if data_payload:
+            return data_payload
         local_path = self._resolve_legacy_local_path(full_url or preview_url)
         if not local_path or not local_path.exists():
             raise UserError(_("Legacy image file does not exist on local storage."))
@@ -170,6 +200,34 @@ class LogisticsEvidenceImageStorage:
         return {
             "file_name": Path(file_name or local_path.name).name,
             "content_type": content_type,
+            "content_length": len(content),
+            "content": content,
+        }
+
+    def _read_legacy_data_url(self, file_name, raw_url):
+        value = (raw_url or "").strip()
+        if not value.startswith("data:"):
+            return False
+        header, separator, encoded = value.partition(",")
+        if not separator:
+            raise UserError(_("Legacy image data URL is invalid."))
+        meta = header[5:]
+        meta_parts = [part for part in meta.split(";") if part]
+        content_type = meta_parts[0] if meta_parts else "application/octet-stream"
+        is_base64 = any(part.lower() == "base64" for part in meta_parts[1:])
+        if not is_base64:
+            raise UserError(_("Legacy image data URL must be base64 encoded."))
+        try:
+            content = base64.b64decode(encoded)
+        except (binascii.Error, ValueError) as error:
+            raise UserError(_("Legacy image data URL is not valid base64 content.")) from error
+        safe_name = Path(file_name or "evidence_image").name or "evidence_image"
+        if not Path(safe_name).suffix:
+            extension = mimetypes.guess_extension(content_type or "") or ".bin"
+            safe_name = f"{safe_name}{extension}"
+        return {
+            "file_name": safe_name,
+            "content_type": content_type or "application/octet-stream",
             "content_length": len(content),
             "content": content,
         }

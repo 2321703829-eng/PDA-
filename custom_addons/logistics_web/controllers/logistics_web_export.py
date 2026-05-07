@@ -126,7 +126,7 @@ class LogisticsWebExportController(http.Controller):
         selected_ids = self._load_list_payload(payload.get("selected_ids"))
         scope_snapshot = self._load_json_value(payload.get("scope_snapshot"))
         try:
-            created = EvidenceImageExportService.create_waybill_export_task(
+            created = EvidenceImageExportService.create_export_task(
                 request.env,
                 selected_ids=selected_ids,
                 source_page=payload.get("from_page") or payload.get("source_page") or "",
@@ -136,8 +136,9 @@ class LogisticsWebExportController(http.Controller):
                 entry_type=payload.get("entry_type") or EvidenceImageExportService.ENTRY_TYPE,
                 export_mode=payload.get("export_mode") or EvidenceImageExportService.EXPORT_MODE,
                 package_structure=payload.get("package_structure") or EvidenceImageExportService.PACKAGE_STRUCTURE,
+                source_model=payload.get("source_model") or EvidenceImageExportService.SOURCE_MODEL,
             )
-            data = EvidenceImageExportService.run_waybill_export_task(request.env, task_no=created["task_no"])
+            data = EvidenceImageExportService.run_export_task(request.env, task_no=created["task_no"])
         except ValidationError as exc:
             return self._error_response(
                 message="Evidence image export failed",

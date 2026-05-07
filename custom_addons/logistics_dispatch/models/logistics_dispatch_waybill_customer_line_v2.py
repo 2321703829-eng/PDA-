@@ -5,7 +5,7 @@ from odoo.exceptions import ValidationError
 class LogisticsDispatchWaybillCustomerLine(models.Model):
     _name = "logistics.dispatch.waybill.customer.line"
     _description = "运单配送节点明细"
-    _order = "sequence, id"
+    _order = "batch_id desc, waybill_route_seq asc, stop_seq_in_waybill asc, id asc"
 
     _uniq_waybill_customer_line_no = models.Constraint(
         "unique(waybill_id, customer_line_no)",
@@ -33,6 +33,28 @@ class LogisticsDispatchWaybillCustomerLine(models.Model):
         ondelete="cascade",
         index=True,
     )
+    batch_id = fields.Many2one(
+        "logistics.dispatch.batch",
+        string="批次",
+        related="waybill_id.batch_id",
+        store=True,
+        readonly=True,
+        index=True,
+    )
+    batch_no = fields.Char(
+        string="批次号",
+        related="waybill_id.batch_no",
+        store=True,
+        readonly=True,
+        index=True,
+    )
+    waybill_route_seq = fields.Integer(
+        string="线路顺序",
+        related="waybill_id.route_seq",
+        store=True,
+        readonly=True,
+        index=True,
+    )
     waybill_no = fields.Char(string="运单号（导入导出）", compute="_compute_waybill_no", inverse="_inverse_waybill_no")
     customer_line_no = fields.Char(string="配送节点编号", size=64, index=True, copy=False)
 
@@ -46,7 +68,7 @@ class LogisticsDispatchWaybillCustomerLine(models.Model):
     partner_no = fields.Char(string="客户号", compute="_compute_partner_fields", inverse="_inverse_partner_no")
     partner_name = fields.Char(string="客户名称", compute="_compute_partner_fields", inverse="_inverse_partner_name")
 
-    # 兼容字段：保留底层旧口径，但用户界面不再直接暴露。
+    # 兼容字段：保留旧口径，但页面主阅读入口统一走 partner_* 与快照字段。
     customer_id = fields.Many2one(
         "res.partner",
         string="客户（兼容）",
@@ -87,6 +109,13 @@ class LogisticsDispatchWaybillCustomerLine(models.Model):
         "customer_line_id",
         string="货物明细",
     )
+    order_line_ids = fields.One2many(
+        "logistics.dispatch.waybill.order.line",
+        "customer_line_id",
+        string="订单明细",
+    )
+    order_line_count = fields.Integer(string="订单数", compute="_compute_order_summary", store=True)
+    order_refs_summary = fields.Char(string="订单号汇总", compute="_compute_order_summary", store=True)
     goods_line_count = fields.Integer(string="货物条数", compute="_compute_totals", store=True)
     total_goods_qty = fields.Float(string="货物总数量", compute="_compute_totals", store=True)
     total_package_count = fields.Integer(string="货物总件数", compute="_compute_totals", store=True)
@@ -116,7 +145,12 @@ class LogisticsDispatchWaybillCustomerLine(models.Model):
     @api.depends("partner_id.external_customer_code", "partner_id.logistics_customer_code", "partner_id.logistics_store_code")
     def _compute_store_no(self):
         for record in self:
-            record.store_no = record.partner_id.external_customer_code or record.partner_id.logistics_customer_code or record.partner_id.logistics_store_code or ""
+            record.store_no = (
+                record.partner_id.external_customer_code
+                or record.partner_id.logistics_customer_code
+                or record.partner_id.logistics_store_code
+                or ""
+            )
 
     @api.depends("partner_id.name")
     def _compute_store_name(self):
@@ -128,6 +162,7 @@ class LogisticsDispatchWaybillCustomerLine(models.Model):
         "partner_id.external_customer_code",
         "partner_id.internal_customer_code",
         "partner_id.logistics_customer_code",
+        "partner_id.logistics_store_code",
         "partner_id.name",
         "customer_id",
     )
@@ -151,6 +186,18 @@ class LogisticsDispatchWaybillCustomerLine(models.Model):
             record.total_package_count = sum(record.goods_line_ids.mapped("package_count"))
             record.total_weight = sum(record.goods_line_ids.mapped("weight"))
             record.total_volume = sum(record.goods_line_ids.mapped("volume"))
+
+    @api.depends("order_line_ids.order_no", "order_line_ids.sales_order_no")
+    def _compute_order_summary(self):
+        for record in self:
+            record.order_line_count = len(record.order_line_ids)
+            order_refs = []
+            for line in record.order_line_ids:
+                for value in (line.sales_order_no, line.order_no):
+                    normalized = (value or "").strip()
+                    if normalized and normalized not in order_refs:
+                        order_refs.append(normalized)
+            record.order_refs_summary = " / ".join(order_refs[:5])
 
     def _inverse_waybill_no(self):
         for record in self:
