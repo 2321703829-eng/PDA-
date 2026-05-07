@@ -112,7 +112,7 @@ export class LogisticsHomeAction extends Component {
             { key: "fleet", title: "车队", hint: "进入车队应用，查看车辆、车务记录和相关成本。", menuLabels: ["车队", "Vehicles"] },
             { key: "employee", title: "员工", hint: "进入员工应用，查看员工档案、岗位和组织信息。", menuLabels: ["员工", "Employees"] },
             { key: "inventory", title: "库存", hint: "进入库存应用，查看库存作业、出入库单和履约流转。", menuLabels: ["库存", "Inventory"] },
-            { key: "dashboard", title: "所有统计图表", hint: "进入统计图表中心，查看物流分析与排行分布。", menuLabels: ["所有统计图表", "Statistics Center"] },
+            { key: "dashboard", title: "所有统计图表", hint: "进入统计图表中心，查看物流分析与排行分布。", actionXmlid: "logistics_web.action_logistics_web_stats_center" },
             { key: "invoice", title: "发票", hint: "进入发票应用，查看开票、发票列表和对账处理。", menuLabels: ["发票", "Invoices"] },
             { key: "settings", title: "设置", hint: "进入系统设置和基础参数配置。", menuLabels: ["设置", "Settings"] },
         ];
