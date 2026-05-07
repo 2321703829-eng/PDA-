@@ -1,5 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <record id="view_logistics_trace_evidence_summary_tree" model="ir.ui.view">
+        <field name="name">logistics.trace.evidence.summary.tree</field>
+        <field name="model">logistics.trace.evidence.summary</field>
+        <field name="arch" type="xml">
+            <list string="&#30041;&#30165;&#35777;&#25454;&#27719;&#24635;" create="0" edit="0" delete="0">
+                <field name="batch_display_text" string="&#25209;&#27425;&#21495;" width="160"/>
+                <field name="waybill_no" string="&#36816;&#21333;&#21495;" width="160"/>
+                <field name="upload_role" string="&#30041;&#30165;&#31471;" width="90"/>
+                <field name="trace_event_count" string="&#30041;&#30165;&#25968;" width="70"/>
+                <field name="evidence_count" string="&#35777;&#25454;&#25968;" width="70"/>
+                <field name="latest_uploaded_at" string="&#26368;&#26032;&#19978;&#20256;&#26102;&#38388;" width="170"/>
+                <field name="thumbnail_html" widget="html" string="&#35777;&#25454;&#32553;&#30053;&#22270;" width="260"/>
+                <button name="action_download_waybill_images" type="object" string="&#19979;&#36733;&#22270;&#29255;" class="btn-link"/>
+                <button name="action_open_waybill_evidences" type="object" string="&#35777;&#25454;&#26126;&#32454;" class="btn-link"/>
+                <button name="action_open_waybill_record" type="object" string="&#36816;&#21333;&#35814;&#24773;" class="btn-link"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_logistics_trace_evidence_summary_form" model="ir.ui.view">
+        <field name="name">logistics.trace.evidence.summary.form</field>
+        <field name="model">logistics.trace.evidence.summary</field>
+        <field name="arch" type="xml">
+            <form string="&#30041;&#30165;&#35777;&#25454;&#27719;&#24635;" create="0" edit="0" delete="0">
+                <header>
+                    <button name="action_download_waybill_images" type="object" string="&#19979;&#36733;&#22270;&#29255;" class="btn-primary"/>
+                    <button name="action_open_waybill_evidences" type="object" string="&#26597;&#30475;&#35777;&#25454;&#26126;&#32454;" class="btn-secondary"/>
+                    <button name="action_open_waybill_record" type="object" string="&#25171;&#24320;&#36816;&#21333;" class="btn-secondary"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="waybill_no" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="waybill_id" readonly="1"/>
+                            <field name="batch_id" readonly="1"/>
+                            <field name="upload_role" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="trace_event_count" readonly="1"/>
+                            <field name="evidence_count" readonly="1"/>
+                            <field name="latest_uploaded_at" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="&#35777;&#25454;&#22270;&#24211;">
+                        <field name="gallery_html" widget="html" nolabel="1" readonly="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_logistics_trace_evidence_summary_search" model="ir.ui.view">
+        <field name="name">logistics.trace.evidence.summary.search</field>
+        <field name="model">logistics.trace.evidence.summary</field>
+        <field name="arch" type="xml">
+            <search string="&#30041;&#30165;&#35777;&#25454;&#27719;&#24635;">
+                <field name="waybill_no"/>
+                <field name="batch_id"/>
+                <field name="upload_role"/>
+                <filter string="&#20179;&#24211;&#30041;&#30165;" name="warehouse_trace" domain="[('upload_role', '=', 'warehouse')]"/>
+                <filter string="&#21496;&#26426;&#30041;&#30165;" name="driver_trace" domain="[('upload_role', '=', 'driver')]"/>
+                <filter string="&#26410;&#26631;&#35760;" name="unknown_trace" domain="[('upload_role', '=', 'unknown')]"/>
+                <group>
+                    <filter string="&#25353;&#25209;&#27425;" name="group_batch" context="{'group_by': 'batch_id'}"/>
+                    <filter string="&#25353;&#30041;&#30165;&#31471;" name="group_upload_role" context="{'group_by': 'upload_role'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
     <record id="view_logistics_trace_evidence_tree" model="ir.ui.view">
         <field name="name">logistics.trace.evidence.tree</field>
         <field name="model">logistics.trace.evidence</field>
@@ -8,6 +82,7 @@
                 <field name="uploaded_at"/>
                 <field name="name"/>
                 <field name="batch_id"/>
+                <field name="upload_role" string="留痕端"/>
                 <field name="trace_event_type" optional="show"/>
                 <field name="trace_event_time" optional="show"/>
                 <field name="trace_event_display_name" optional="hide"/>
@@ -28,6 +103,9 @@
         <field name="model">logistics.trace.evidence</field>
         <field name="arch" type="xml">
             <form string="Trace Evidence">
+                <header>
+                    <button name="action_download_images" type="object" string="下载图片" class="btn-primary"/>
+                </header>
                 <sheet>
                     <div class="oe_title">
                         <h1>
@@ -46,13 +124,14 @@
                         <group>
                             <field name="uploader_id"/>
                             <field name="uploader_name" readonly="1"/>
+                            <field name="upload_role"/>
                             <field name="sequence"/>
                             <field name="state"/>
                             <field name="image_count" readonly="1"/>
                         </group>
                     </group>
                     <group>
-                        <group string="Cover Image Compatibility">
+                        <group string="Cover Image Compatibility" invisible="1">
                             <field name="image_access_key"/>
                             <field name="preview_url"/>
                             <field name="full_url"/>
@@ -63,20 +142,23 @@
                         </group>
                     </group>
                     <group string="Images" col="1">
-                        <field name="image_ids" readonly="1">
-                            <list create="0" delete="0">
-                                <field name="sequence"/>
-                                <field name="image_access_key"/>
-                                <field name="source_filename"/>
-                                <field name="storage_provider"/>
-                                <field name="storage_status"/>
-                                <field name="preview_url" widget="url"/>
-                                <field name="download_url" widget="url"/>
-                            </list>
-                        </field>
+                        <field name="image_items_json" widget="logistics_evidence_record_viewer" nolabel="1" readonly="1"/>
+                        <field name="image_ids" invisible="1"/>
                     </group>
                 </sheet>
             </form>
+        </field>
+    </record>
+
+    <record id="view_logistics_trace_event_form_evidence_back" model="ir.ui.view">
+        <field name="name">logistics.trace.event.form.evidence.back</field>
+        <field name="model">logistics.trace.event</field>
+        <field name="inherit_id" ref="logistics_trace_core.view_logistics_trace_event_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="before">
+                <header>
+                </header>
+            </xpath>
         </field>
     </record>
 
@@ -89,7 +171,12 @@
                 <field name="trace_event_type"/>
                 <field name="trace_event_id"/>
                 <field name="waybill_id"/>
+                <field name="upload_role"/>
                 <field name="image_access_key"/>
+                <separator/>
+                <filter string="仓库证据" name="warehouse_trace" domain="[('upload_role', '=', 'warehouse')]"/>
+                <filter string="司机证据" name="driver_trace" domain="[('upload_role', '=', 'driver')]"/>
+                <filter string="未标记" name="unknown_trace" domain="[('upload_role', '=', 'unknown')]"/>
                 <separator/>
                 <filter string="完成签收" name="event_signoff" domain="[('trace_event_type', '=', 'signoff')]"/>
                 <filter string="完成装车" name="event_finish_loading" domain="[('trace_event_type', '=', 'finish_loading')]"/>
@@ -101,10 +188,34 @@
                 <group>
                     <filter string="By Waybill" name="group_waybill" context="{'group_by': 'waybill_id'}"/>
                     <filter string="By Trace Event" name="group_trace" context="{'group_by': 'trace_event_id'}"/>
+                    <filter string="按留痕端" name="group_upload_role" context="{'group_by': 'upload_role'}"/>
                     <filter string="By Uploader" name="group_uploader" context="{'group_by': 'uploader_id'}"/>
                 </group>
             </search>
         </field>
+    </record>
+
+    <record id="action_logistics_trace_evidence_summary" model="ir.actions.act_window">
+        <field name="name">&#30041;&#30165;&#35777;&#25454;&#27719;&#24635;</field>
+        <field name="res_model">logistics.trace.evidence.summary</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_logistics_trace_evidence_summary_search"/>
+    </record>
+
+    <record id="action_logistics_trace_evidence_summary_warehouse" model="ir.actions.act_window">
+        <field name="name">&#20179;&#24211;&#30041;&#30165;</field>
+        <field name="res_model">logistics.trace.evidence.summary</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('upload_role', 'in', ['warehouse', 'unknown'])]</field>
+        <field name="search_view_id" ref="view_logistics_trace_evidence_summary_search"/>
+    </record>
+
+    <record id="action_logistics_trace_evidence_summary_driver" model="ir.actions.act_window">
+        <field name="name">&#21496;&#26426;&#30041;&#30165;</field>
+        <field name="res_model">logistics.trace.evidence.summary</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('upload_role', 'in', ['driver', 'unknown'])]</field>
+        <field name="search_view_id" ref="view_logistics_trace_evidence_summary_search"/>
     </record>
 
     <record id="action_logistics_trace_evidence" model="ir.actions.act_window">
@@ -114,10 +225,40 @@
         <field name="search_view_id" ref="view_logistics_trace_evidence_search"/>
     </record>
 
+    <record id="action_logistics_trace_evidence_warehouse" model="ir.actions.act_window">
+        <field name="name">仓库证据</field>
+        <field name="res_model">logistics.trace.evidence</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('upload_role', 'in', ['warehouse', 'unknown'])]</field>
+        <field name="search_view_id" ref="view_logistics_trace_evidence_search"/>
+    </record>
+
+    <record id="action_logistics_trace_evidence_driver" model="ir.actions.act_window">
+        <field name="name">司机证据</field>
+        <field name="res_model">logistics.trace.evidence</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('upload_role', 'in', ['driver', 'unknown'])]</field>
+        <field name="search_view_id" ref="view_logistics_trace_evidence_search"/>
+    </record>
+
     <menuitem
         id="menu_logistics_trace_evidence"
         name="Evidence"
         parent="logistics_dispatch.menu_logistics_dispatch"
-        action="action_logistics_trace_evidence"
+        action="action_logistics_trace_evidence_summary"
         sequence="50"/>
+
+    <menuitem
+        id="menu_logistics_trace_evidence_warehouse"
+        name="仓库证据"
+        parent="menu_logistics_trace_evidence"
+        action="action_logistics_trace_evidence_summary_warehouse"
+        sequence="10"/>
+
+    <menuitem
+        id="menu_logistics_trace_evidence_driver"
+        name="司机证据"
+        parent="menu_logistics_trace_evidence"
+        action="action_logistics_trace_evidence_summary_driver"
+        sequence="20"/>
 </odoo>

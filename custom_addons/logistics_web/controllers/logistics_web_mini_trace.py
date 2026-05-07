@@ -146,6 +146,7 @@ class LogisticsMiniTraceController(http.Controller, LogisticsMiniApiAuthMixin):
                     "evidence_id": evidence.id,
                     "trace_event_id": trace_event.id,
                     "waybill_no": trace_event.waybill_id.name or "",
+                    "upload_role": evidence.upload_role,
                 },
             },
             status=200,
@@ -176,6 +177,9 @@ class LogisticsMiniTraceController(http.Controller, LogisticsMiniApiAuthMixin):
                 },
                 status=404,
             )
+        upload_role = self._resolve_upload_role(payload)
+        if upload_role != "unknown" and evidence.upload_role != upload_role:
+            evidence.sudo().write({"upload_role": upload_role})
         uploaded_images = self._handle_uploaded_files(evidence)
         return self._json_response(
             {
@@ -383,6 +387,7 @@ class LogisticsMiniTraceController(http.Controller, LogisticsMiniApiAuthMixin):
         evidence_model = request.env["logistics.trace.evidence"].sudo()
         remark = self._pick_first(payload, ["remark", "memo"]) or False
         client_request_id = self._extract_client_request_id(payload)
+        upload_role = self._resolve_upload_role(payload)
 
         if client_request_id:
             existing = evidence_model.search(
@@ -394,6 +399,8 @@ class LogisticsMiniTraceController(http.Controller, LogisticsMiniApiAuthMixin):
                 limit=1,
             )
             if existing:
+                if upload_role != "unknown" and existing.upload_role != upload_role:
+                    existing.write({"upload_role": upload_role})
                 return existing
 
         fallback = evidence_model.search(
@@ -401,6 +408,7 @@ class LogisticsMiniTraceController(http.Controller, LogisticsMiniApiAuthMixin):
                 ("trace_event_id", "=", trace_event.id),
                 ("image_count", "=", 0),
                 ("remark", "=", remark or False),
+                ("upload_role", "in", [upload_role, "unknown"]),
             ],
             order="id desc",
             limit=1,
@@ -408,8 +416,13 @@ class LogisticsMiniTraceController(http.Controller, LogisticsMiniApiAuthMixin):
         if fallback and fallback.uploaded_at:
             uploaded_at = fields.Datetime.to_datetime(fallback.uploaded_at)
             if uploaded_at and abs((fields.Datetime.now() - uploaded_at).total_seconds()) <= 300:
+                write_vals = {}
                 if client_request_id and not fallback.client_request_id:
-                    fallback.write({"client_request_id": client_request_id})
+                    write_vals["client_request_id"] = client_request_id
+                if upload_role != "unknown" and fallback.upload_role != upload_role:
+                    write_vals["upload_role"] = upload_role
+                if write_vals:
+                    fallback.write(write_vals)
                 return fallback
 
         vals = {
@@ -417,6 +430,7 @@ class LogisticsMiniTraceController(http.Controller, LogisticsMiniApiAuthMixin):
             "uploaded_at": fields.Datetime.now(),
             "remark": remark,
             "client_request_id": client_request_id or False,
+            "upload_role": upload_role,
         }
         try:
             with request.env.cr.savepoint():
@@ -432,6 +446,8 @@ class LogisticsMiniTraceController(http.Controller, LogisticsMiniApiAuthMixin):
                     limit=1,
                 )
                 if existing:
+                    if upload_role != "unknown" and existing.upload_role != upload_role:
+                        existing.write({"upload_role": upload_role})
                     return existing
             raise
 
@@ -450,6 +466,30 @@ class LogisticsMiniTraceController(http.Controller, LogisticsMiniApiAuthMixin):
             ],
         )
         return str(value).strip() if value else False
+
+    def _resolve_upload_role(self, payload):
+        raw = self._pick_first(
+            payload,
+            [
+                "upload_role",
+                "uploadRole",
+                "uploader_role",
+                "uploaderRole",
+                "user_role",
+                "userRole",
+                "role",
+            ],
+        )
+        normalized = str(raw or "").strip().lower()
+        mapping = {
+            "warehouse": "warehouse",
+            "store": "warehouse",
+            "keeper": "warehouse",
+            "driver": "driver",
+            "truck_driver": "driver",
+            "unknown": "unknown",
+        }
+        return mapping.get(normalized, "unknown")
 
     def _handle_uploaded_files(self, evidence):
         uploaded = []

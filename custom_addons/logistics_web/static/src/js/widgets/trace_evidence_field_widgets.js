@@ -395,6 +395,52 @@ export const logisticsEvidenceViewerField = {
 
 registry.category("fields").add("logistics_evidence_viewer", logisticsEvidenceViewerField);
 
+export class LogisticsEvidenceRecordViewerField extends LogisticsEvidenceViewerField {
+    static template = xml`
+        <div class="o_logistics_waybill_widget_field">
+            <EvidenceViewerWidget
+                items="state.items"
+                loading="state.loading"
+                emptyText="'当前证据没有图片。'"
+                onTraceClick.bind="onTraceClick"
+                onExceptionClick.bind="onExceptionClick"
+                onOpenFullImage.bind="onOpenFullImage"
+            />
+        </div>
+    `;
+
+    async loadItems(props = this.props) {
+        const data = props.record?.data || {};
+        const record = {
+            id: props.record?.resId,
+            name: data.name,
+            trace_event_id: data.trace_event_id,
+            uploaded_at: data.uploaded_at,
+            uploader_name: data.uploader_name,
+            remark: data.remark,
+            is_exception_related: data.is_exception_related,
+            image_access_key: data.image_access_key,
+            preview_url: data.preview_url,
+            full_url: data.full_url,
+            sequence: data.sequence,
+            image_count: data.image_count,
+            image_items_json: Array.isArray(data.image_items_json) ? data.image_items_json : [],
+        };
+        this.state.items = this.mapEvidenceRecord(record).filter(
+            (item) => item.previewUrl || item.fullUrl || item.imageAccessKey
+        );
+        this.state.loading = false;
+    }
+}
+
+export const logisticsEvidenceRecordViewerField = {
+    component: LogisticsEvidenceRecordViewerField,
+    displayName: _t("证据图片查看"),
+    supportedTypes: ["json", "char"],
+};
+
+registry.category("fields").add("logistics_evidence_record_viewer", logisticsEvidenceRecordViewerField);
+
 export class LogisticsEvidenceThumbnailField extends Component {
     static template = "logistics_web.EvidenceThumbnailField";
     static props = { ...standardFieldProps };

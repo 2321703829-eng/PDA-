@@ -11,6 +11,16 @@ const SOURCE_MODEL_CONFIG = {
         focusSheetLabel: "\u4e94\u5f20\u4e1a\u52a1\u6a21\u677f\u8868",
         focusHint: "\u4f18\u5148\u6309\u5546\u54c1\u8d44\u6599\u3001\u5ba2\u6237\u8d44\u6599\u3001\u6392\u7ebf\u95e8\u5e97\u8be6\u60c5\u3001\u6392\u7ebf\u8ba2\u5355\u8be6\u60c5\u3001\u95e8\u5e97\u8d27\u7269\u4e09\u8054\u5355\u4e94\u5f20\u8868\u5206\u522b\u5bfc\u5165\uff0c\u5148\u4fdd\u8bc1\u5feb\u7167\u53ef\u67e5\u3001\u53ef\u5c55\u793a\u3001\u53ef\u5bfc\u51fa\u3002",
     },
+    mini_program_raw_sheet: {
+        entryTitle: "\u5c0f\u7a0b\u5e8f\u539f\u59cb\u5355\u8868\u5bfc\u5165",
+        focusSheetLabel: "\u539f\u59cb\u5355\u8868\u4e0e\u53d1\u8f66\u5355\u53f7",
+        focusHint: "\u4fdd\u7559\u539f\u59cb\u5ba2\u6237\u540d\u79f0\u4e0e\u8fd0\u8425\u5907\u6ce8\uff0c\u6839\u636e\u53d1\u8f66\u5355\u53f7\u751f\u6210 batch_no\uff0c\u5148\u9884\u6821\u9a8c\u540d\u79f0\u5355\u547d\u4e2d\uff0c\u518d\u5199\u5165\u6392\u7ebf\u6279\u6b21\u4e0e\u505c\u9760\u70b9\u3002",
+    },
+    route_planning: {
+        entryTitle: "\u6392\u7ebf\u5355\u8868\u5bfc\u5165",
+        focusSheetLabel: "\u5355\u8868\u6392\u7ebf\u6a21\u677f",
+        focusHint: "\u9002\u5408\u76f4\u63a5\u5199\u5165\u6392\u7ebf\u8349\u7a3f\uff0c\u5148\u505a\u6700\u5c0f\u6821\u9a8c\u548c\u4eba\u5de5\u590d\u67e5\u63d0\u9192\uff0c\u786e\u8ba4\u540e\u518d\u5199\u5165\u505c\u9760\u70b9\u3002",
+    },
     "logistics.dispatch.waybill": {
         entryTitle: "\u8fd0\u5355\u5bfc\u5165",
         focusSheetLabel: "\u56db Sheet \u6b63\u5f0f\u6a21\u677f",
@@ -76,6 +86,37 @@ const PHASE5_EXPORT_SHORTCUTS = [
     },
 ];
 
+const IMPORT_ENTRY_CARDS = [
+    {
+        key: "waybill_standard",
+        sourceModel: "logistics.dispatch.waybill",
+        title: "标准运单导入",
+        detail: "适合四 Sheet 正式模板，统一写入波次、批次、运单、客户明细与货物明细。",
+        sectionId: "import-entry-waybill-standard",
+    },
+    {
+        key: "mini_program_raw_sheet",
+        sourceModel: "mini_program_raw_sheet",
+        title: "小程序原始单表导入",
+        detail: "适合直接上传小程序原始表，提取发车单号、客户名称和客户地址后写入排线批次与停靠点。",
+        sectionId: "import-entry-mini-program-raw-sheet",
+    },
+    {
+        key: "route_planning",
+        sourceModel: "route_planning",
+        title: "排线单表导入",
+        detail: "适合已经整理好的排线单表，先预校验，再写入排线草稿。",
+        sectionId: "import-entry-route-planning",
+    },
+    {
+        key: "phase5_workbook",
+        sourceModel: "phase5_workbook",
+        title: "五期五表导入",
+        detail: "适合按五张业务模板表逐步整理和导入的五期链路。",
+        sectionId: "import-entry-phase5-workbook",
+    },
+];
+
 export class LogisticsImportCenterAction extends Component {
     static template = "logistics_web.ImportCenterAction";
     static components = { Layout };
@@ -85,6 +126,7 @@ export class LogisticsImportCenterAction extends Component {
         this.actionService = this.env.services.action;
         this.notification = this.env.services.notification;
         this.fileInputRef = useRef("fileInput");
+        this.miniProgramRawSheetFileInputRef = useRef("miniProgramRawSheetFileInput");
         this.routePlanningFileInputRef = useRef("routePlanningFileInput");
         this.phase5FileInputRef = useRef("phase5FileInput");
         this.display = {
@@ -95,22 +137,28 @@ export class LogisticsImportCenterAction extends Component {
             loading: true,
             error: "",
             templateMeta: null,
+            miniProgramRawSheetTemplateMeta: null,
             routePlanningTemplateMeta: null,
             phase5TemplateMeta: null,
             selectedFile: null,
+            miniProgramRawSheetSelectedFile: null,
             routePlanningSelectedFile: null,
             phase5SelectedFile: null,
             prechecking: false,
+            miniProgramRawSheetPrechecking: false,
             routePlanningPrechecking: false,
             phase5Prechecking: false,
             confirming: false,
+            miniProgramRawSheetConfirming: false,
             routePlanningConfirming: false,
             phase5Confirming: false,
             refreshingResult: false,
             precheckResult: null,
+            miniProgramRawSheetPrecheckResult: null,
             routePlanningPrecheckResult: null,
             phase5PrecheckResult: null,
             importResult: null,
+            miniProgramRawSheetImportResult: null,
             routePlanningImportResult: null,
             phase5ImportResult: null,
             sourceModel: this.props.action?.params?.source_model || "logistics.dispatch.waybill",
@@ -124,6 +172,7 @@ export class LogisticsImportCenterAction extends Component {
         onWillStart(async () => {
             await Promise.all([
                 this.loadTemplateMeta(),
+                this.loadMiniProgramRawSheetTemplateMeta(),
                 this.loadRoutePlanningTemplateMeta(),
                 this.loadPhase5TemplateMeta(),
             ]);
@@ -163,6 +212,29 @@ export class LogisticsImportCenterAction extends Component {
             phase5SuccessCountLabel: "\u6210\u529f\u884c\u6570",
             phase5SkippedCountLabel: "\u8df3\u8fc7\u884c\u6570",
             phase5ImportSuccess: "\u4e94\u671f\u5bfc\u5165\u5df2\u5b8c\u6210\u3002",
+            sectionEntrySwitchTitle: "导入入口切换",
+            sectionEntrySwitchHint: "网页导入中心现在同时承接标准运单、排线单表、小程序原始单表和五期五表四条入口，先选入口再操作会更稳。",
+            entryCardOpenLabel: "进入该入口",
+            entryCardCurrentLabel: "当前入口",
+            sectionMiniProgramRawSheetTemplateTitle: "小程序原始单表模板与说明",
+            sectionMiniProgramRawSheetTemplateHint: "下载当前导入模式的说明与示例后，再上传小程序原始单表执行预校验；正式导入前会先核对客户名称单命中和发车单号。",
+            sectionMiniProgramRawSheetUploadTitle: "小程序原始单表导入",
+            sectionMiniProgramRawSheetUploadHint: "上传原始单表后，系统会先补齐合并单元格、提取发车单号、做名称单命中匹配，再决定是否允许写入排线批次与停靠点。",
+            miniProgramRawSheetChooseFile: "选择小程序原始表",
+            miniProgramRawSheetReplaceFile: "重新选择原始表",
+            miniProgramRawSheetRunPrecheck: "开始小程序预校验",
+            miniProgramRawSheetConfirmImport: "确认写入小程序排线数据",
+            miniProgramRawSheetPrecheckingText: "预校验中...",
+            miniProgramRawSheetImportingText: "写入中...",
+            miniProgramRawSheetPrecheckEmptyHint: "完成原始单表上传后，小程序预校验结果会显示在这里。",
+            miniProgramRawSheetResultEmptyHint: "确认写入后，小程序原始单表导入结果会显示在这里。",
+            miniProgramRawSheetPrecheckFailed: "小程序原始单表预校验失败，请稍后再试。",
+            miniProgramRawSheetConfirmFailed: "小程序原始单表导入失败，请先处理错误后重试。",
+            miniProgramMatchedCountLabel: "命中客户数",
+            miniProgramUnmatchedCountLabel: "未命中客户数",
+            miniProgramRawSheetDeduplicatedCountLabel: "去重后行数",
+            miniProgramCreatedStopCountLabel: "写入停靠点",
+            miniProgramCreatedBatchLabel: "排线批次 ID",
             sectionRoutePlanningTemplateTitle: "\u6392\u7ebf\u6a21\u677f\u4e0b\u8f7d",
             sectionRoutePlanningTemplateHint: "\u72ec\u7acb\u4e8e\u6b63\u5f0f\u56db Sheet \u4e3b\u94fe\u7684\u5355\u8868\u6392\u7ebf\u6a21\u677f\uff0c\u53ea\u56f4\u7ed5\u6279\u6b21\u3001\u8fd0\u5355\u3001\u505c\u9760\u70b9\u987a\u5e8f\u3001\u95e8\u5e97\u8054\u7cfb\u4fe1\u606f\u548c\u5730\u7406\u5750\u6807\u3002",
             sectionRoutePlanningUploadTitle: "\u6392\u7ebf\u7528\u6570\u636e\u5bfc\u5165",
@@ -253,6 +325,13 @@ export class LogisticsImportCenterAction extends Component {
         return SOURCE_MODEL_CONFIG[this.state.sourceModel] || SOURCE_MODEL_CONFIG["logistics.dispatch.waybill"];
     }
 
+    get importEntryCards() {
+        return IMPORT_ENTRY_CARDS.map((item) => ({
+            ...item,
+            isActive: item.sourceModel === this.state.sourceModel,
+        }));
+    }
+
     get exportShortcuts() {
         return EXPORT_SHORTCUTS;
     }
@@ -291,6 +370,10 @@ export class LogisticsImportCenterAction extends Component {
         return this.state.templateMeta?.available_templates || [];
     }
 
+    get miniProgramRawSheetTemplates() {
+        return this.state.miniProgramRawSheetTemplateMeta?.available_templates || [];
+    }
+
     get routePlanningTemplates() {
         return this.state.routePlanningTemplateMeta?.available_templates || [];
     }
@@ -301,6 +384,10 @@ export class LogisticsImportCenterAction extends Component {
 
     get visibleErrors() {
         return (this.state.precheckResult?.errors || []).slice(0, 20);
+    }
+
+    get miniProgramRawSheetVisibleErrors() {
+        return (this.state.miniProgramRawSheetPrecheckResult?.errors || []).slice(0, 20);
     }
 
     get routePlanningVisibleErrors() {
@@ -319,6 +406,14 @@ export class LogisticsImportCenterAction extends Component {
         return this.state.selectedFile?.name || this.ui.noFile;
     }
 
+    get miniProgramRawSheetFileLabel() {
+        return this.state.miniProgramRawSheetSelectedFile?.name || this.ui.noFile;
+    }
+
+    get hasMiniProgramRawSheetSelectedFile() {
+        return Boolean(this.state.miniProgramRawSheetSelectedFile);
+    }
+
     get routePlanningFileLabel() {
         return this.state.routePlanningSelectedFile?.name || this.ui.noFile;
     }
@@ -335,12 +430,23 @@ export class LogisticsImportCenterAction extends Component {
         return Boolean(this.state.phase5SelectedFile);
     }
 
+    get hasMiniProgramRawSheetPrecheckResult() {
+        return Boolean(this.state.miniProgramRawSheetPrecheckResult);
+    }
+
     get hasRoutePlanningPrecheckResult() {
         return Boolean(this.state.routePlanningPrecheckResult);
     }
 
     get hasPhase5PrecheckResult() {
         return Boolean(this.state.phase5PrecheckResult);
+    }
+
+    get canConfirmMiniProgramRawSheetImport() {
+        return Boolean(
+            this.state.miniProgramRawSheetPrecheckResult?.can_confirm_import &&
+                (this.state.miniProgramRawSheetPrecheckResult?.task_no || this.state.miniProgramRawSheetPrecheckResult?.import_batch_no)
+        );
     }
 
     get canConfirmRoutePlanningImport() {
@@ -355,6 +461,10 @@ export class LogisticsImportCenterAction extends Component {
             this.state.phase5PrecheckResult?.can_confirm_import &&
                 (this.state.phase5PrecheckResult?.task_no || this.state.phase5PrecheckResult?.import_batch_no)
         );
+    }
+
+    get hasMiniProgramRawSheetImportResult() {
+        return Boolean(this.state.miniProgramRawSheetImportResult);
     }
 
     get hasRoutePlanningImportResult() {
@@ -379,6 +489,16 @@ export class LogisticsImportCenterAction extends Component {
             this.state.error = this.mapLoadError(error, this.ui.loadFailed);
         } finally {
             this.state.loading = false;
+        }
+    }
+
+    async loadMiniProgramRawSheetTemplateMeta() {
+        this.state.error = "";
+        try {
+            const payload = await this.apiRequest("/api/admin/logistics/imports/mini-program-raw-sheet/template");
+            this.state.miniProgramRawSheetTemplateMeta = payload.data;
+        } catch (error) {
+            this.state.error = this.mapLoadError(error, this.ui.loadFailed);
         }
     }
 
@@ -414,6 +534,21 @@ export class LogisticsImportCenterAction extends Component {
         this.state.selectedFile = file || null;
         this.state.precheckResult = null;
         this.state.importResult = null;
+        this.state.error = "";
+    }
+
+    triggerMiniProgramRawSheetFileSelect() {
+        if (this.miniProgramRawSheetFileInputRef.el) {
+            this.miniProgramRawSheetFileInputRef.el.value = "";
+        }
+        this.miniProgramRawSheetFileInputRef.el?.click();
+    }
+
+    onMiniProgramRawSheetFileChanged(ev) {
+        const file = ev.target.files?.[0];
+        this.state.miniProgramRawSheetSelectedFile = file || null;
+        this.state.miniProgramRawSheetPrecheckResult = null;
+        this.state.miniProgramRawSheetImportResult = null;
         this.state.error = "";
     }
 
@@ -480,6 +615,40 @@ export class LogisticsImportCenterAction extends Component {
             this.state.error = this.mapLoadError(error, this.ui.precheckFailed);
         } finally {
             this.state.prechecking = false;
+        }
+    }
+
+    async runMiniProgramRawSheetPrecheck() {
+        if (!this.state.miniProgramRawSheetSelectedFile) {
+            this.state.error = this.ui.noFile;
+            return;
+        }
+        this.state.miniProgramRawSheetPrechecking = true;
+        this.state.error = "";
+        this.state.miniProgramRawSheetPrecheckResult = null;
+        this.state.miniProgramRawSheetImportResult = null;
+        try {
+            const formData = new FormData();
+            formData.append("file", this.state.miniProgramRawSheetSelectedFile);
+            formData.append(
+                "template_code",
+                this.state.miniProgramRawSheetTemplateMeta?.template_code || "TSL-IMPORT-MINI-PROGRAM-RAW-SHEET-V1"
+            );
+            formData.append("template_version", this.state.miniProgramRawSheetTemplateMeta?.template_version || "v1");
+            const payload = await this.apiRequest("/api/admin/logistics/imports/mini-program-raw-sheet/precheck", {
+                method: "POST",
+                body: formData,
+            });
+            this.state.miniProgramRawSheetPrecheckResult = payload.data;
+            if (payload.data?.can_confirm_import) {
+                this.notification.add("小程序原始单表预校验通过，可以继续写入排线批次和停靠点。", { type: "success" });
+            } else {
+                this.notification.add("小程序原始单表预校验已完成，请先处理未命中或结构错误。", { type: "warning" });
+            }
+        } catch (error) {
+            this.state.error = this.mapLoadError(error, this.ui.miniProgramRawSheetPrecheckFailed);
+        } finally {
+            this.state.miniProgramRawSheetPrechecking = false;
         }
     }
 
@@ -580,6 +749,32 @@ export class LogisticsImportCenterAction extends Component {
             this.state.error = this.mapLoadError(error, this.ui.confirmFailed);
         } finally {
             this.state.confirming = false;
+        }
+    }
+
+    async confirmMiniProgramRawSheetImport() {
+        if (!this.canConfirmMiniProgramRawSheetImport) {
+            return;
+        }
+        this.state.miniProgramRawSheetConfirming = true;
+        this.state.error = "";
+        try {
+            const payload = await this.apiRequest("/api/admin/logistics/imports/mini-program-raw-sheet/confirm", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    task_no:
+                        this.state.miniProgramRawSheetPrecheckResult.task_no ||
+                        this.state.miniProgramRawSheetPrecheckResult.import_batch_no,
+                    import_batch_no: this.state.miniProgramRawSheetPrecheckResult.import_batch_no,
+                }),
+            });
+            this.state.miniProgramRawSheetImportResult = payload.data;
+            this.notification.add("小程序原始单表导入已完成。", { type: "success" });
+        } catch (error) {
+            this.state.error = this.mapLoadError(error, this.ui.miniProgramRawSheetConfirmFailed);
+        } finally {
+            this.state.miniProgramRawSheetConfirming = false;
         }
     }
 
@@ -710,6 +905,10 @@ export class LogisticsImportCenterAction extends Component {
             this.state.importResult?.error_report_url ||
             this.state.precheckResult?.error_report?.download_url ||
             this.state.precheckResult?.error_report_url ||
+            this.state.miniProgramRawSheetImportResult?.error_report?.download_url ||
+            this.state.miniProgramRawSheetImportResult?.error_report_url ||
+            this.state.miniProgramRawSheetPrecheckResult?.error_report?.download_url ||
+            this.state.miniProgramRawSheetPrecheckResult?.error_report_url ||
             this.state.routePlanningImportResult?.error_report?.download_url ||
             this.state.routePlanningImportResult?.error_report_url ||
             this.state.routePlanningPrecheckResult?.error_report?.download_url ||
@@ -725,6 +924,15 @@ export class LogisticsImportCenterAction extends Component {
 
     async openWaybillList() {
         return this.actionService.doAction("logistics_dispatch.action_logistics_dispatch_waybill");
+    }
+
+    async focusImportEntry(sourceModel, sectionId) {
+        this.state.sourceModel = sourceModel || this.state.sourceModel;
+        if (sectionId) {
+            window.setTimeout(() => {
+                document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }, 0);
+        }
     }
 
     async openExportEntry(actionXmlid) {

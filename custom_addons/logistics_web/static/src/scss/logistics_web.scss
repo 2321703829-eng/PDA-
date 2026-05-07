@@ -1698,3 +1698,11 @@
     color: #1e5f98;
     font-weight: 700;
 }
+
+
+// Keep logistics pages clean: use the explicit back button instead of Odoo breadcrumbs.
+.o_control_panel .breadcrumb,
+.o_control_panel .o_breadcrumb,
+.o_control_panel .o_last_breadcrumb_item {
+  display: none !important;
+}

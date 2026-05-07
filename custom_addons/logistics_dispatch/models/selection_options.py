@@ -1,4 +1,4 @@
-from odoo.addons.logistics_base.models.selection_options import (
+﻿from odoo.addons.logistics_base.models.selection_options import (
     DRIVER_DISPATCH_STATUS_SELECTION,
     SHIFT_TYPE_SELECTION,
     VEHICLE_DISPATCH_STATUS_SELECTION,
@@ -59,6 +59,7 @@ IMPORT_OBJECT_TYPE_SELECTION = [
     ("vehicle_profile", "Vehicle Profile"),
     ("dispatch_main", "Dispatch Main"),
     ("route_planning", "Route Planning"),
+    ("mini_program_raw_sheet", "Mini Program Raw Sheet"),
     ("phase5_workbook", "Phase5 Workbook"),
     ("image_package", "Image Package"),
 ]
@@ -126,3 +127,5 @@ EXPORT_ERROR_STAGE_SELECTION = [
     ("file_store", "File Store"),
     ("download_prepare", "Download Prepare"),
 ]
+
+

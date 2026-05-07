@@ -9,12 +9,14 @@ from odoo.http import Response, content_disposition, request
 from ..services.route_planning_import_service import RoutePlanningImportService
 from ..services.phase5_workbook_import_service import Phase5WorkbookImportService
 from ..services.waybill_standard_import_service_v2 import WaybillStandardImportService
+from ..services.mini_program_raw_sheet_import_service import MiniProgramRawSheetImportService
 
 
 class LogisticsWebImportController(http.Controller):
     IMPORT_SERVICE_BY_OBJECT_TYPE = {
         Phase5WorkbookImportService.OBJECT_TYPE: Phase5WorkbookImportService,
         RoutePlanningImportService.OBJECT_TYPE: RoutePlanningImportService,
+        MiniProgramRawSheetImportService.OBJECT_TYPE: MiniProgramRawSheetImportService,
     }
     TOP_LEVEL_HTTP_STATUS = {
         4001: 400,
@@ -40,14 +42,14 @@ class LogisticsWebImportController(http.Controller):
             )
         except ValidationError as exc:
             return self._error_response(
-                message="模板查询失败",
+                message="妯℃澘鏌ヨ澶辫触",
                 error_code="TEMPLATE_LOCALE_INVALID",
                 error_message=str(exc),
                 request_id_prefix="req_import_template",
             )
         except Exception as exc:
             return self._error_response(
-                message="模板查询失败",
+                message="妯℃澘鏌ヨ澶辫触",
                 error_code="IMPORT_INTERNAL_ERROR",
                 error_message=str(exc),
                 request_id_prefix="req_import_template",
@@ -63,16 +65,16 @@ class LogisticsWebImportController(http.Controller):
     def download_waybill_standard_template_file(self, template_code=None, template_version=None, template_locale=None, **kwargs):
         if template_code and template_code != WaybillStandardImportService.TEMPLATE_CODE:
             return self._error_response(
-                message="模板下载失败",
+                message="妯℃澘涓嬭浇澶辫触",
                 error_code="TEMPLATE_CODE_INVALID",
-                error_message=f"请使用标准模板 {WaybillStandardImportService.TEMPLATE_CODE}。",
+                error_message=f"Please use template code {WaybillStandardImportService.TEMPLATE_CODE}.",
                 request_id_prefix="req_import_template",
             )
         if template_version and template_version.lower() != WaybillStandardImportService.TEMPLATE_VERSION:
             return self._error_response(
-                message="模板下载失败",
+                message="妯℃澘涓嬭浇澶辫触",
                 error_code="TEMPLATE_VERSION_INVALID",
-                error_message=f"请使用模板版本 {WaybillStandardImportService.TEMPLATE_VERSION}。",
+                error_message=f"Please use template version {WaybillStandardImportService.TEMPLATE_VERSION}.",
                 request_id_prefix="req_import_template",
             )
         try:
@@ -82,14 +84,14 @@ class LogisticsWebImportController(http.Controller):
             )
         except ValidationError as exc:
             return self._error_response(
-                message="模板下载失败",
+                message="妯℃澘涓嬭浇澶辫触",
                 error_code="TEMPLATE_LOCALE_INVALID",
                 error_message=str(exc),
                 request_id_prefix="req_import_template",
             )
         except Exception as exc:
             return self._error_response(
-                message="模板下载失败",
+                message="妯℃澘涓嬭浇澶辫触",
                 error_code="IMPORT_INTERNAL_ERROR",
                 error_message=str(exc),
                 request_id_prefix="req_import_template",
@@ -117,14 +119,14 @@ class LogisticsWebImportController(http.Controller):
             )
         except ValidationError as exc:
             return self._error_response(
-                message="模板查询失败",
+                message="妯℃澘鏌ヨ澶辫触",
                 error_code="TEMPLATE_LOCALE_INVALID",
                 error_message=str(exc),
                 request_id_prefix="req_route_planning_template",
             )
         except Exception as exc:
             return self._error_response(
-                message="模板查询失败",
+                message="妯℃澘鏌ヨ澶辫触",
                 error_code="IMPORT_INTERNAL_ERROR",
                 error_message=str(exc),
                 request_id_prefix="req_route_planning_template",
@@ -140,16 +142,16 @@ class LogisticsWebImportController(http.Controller):
     def download_route_planning_template_file(self, template_code=None, template_version=None, template_locale=None, **kwargs):
         if template_code and template_code != RoutePlanningImportService.TEMPLATE_CODE:
             return self._error_response(
-                message="模板下载失败",
+                message="妯℃澘涓嬭浇澶辫触",
                 error_code="TEMPLATE_CODE_INVALID",
-                error_message=f"请使用标准模板 {RoutePlanningImportService.TEMPLATE_CODE}。",
+                error_message=f"Please use template code {RoutePlanningImportService.TEMPLATE_CODE}.",
                 request_id_prefix="req_route_planning_template",
             )
         if template_version and template_version.lower() != RoutePlanningImportService.TEMPLATE_VERSION:
             return self._error_response(
-                message="模板下载失败",
+                message="妯℃澘涓嬭浇澶辫触",
                 error_code="TEMPLATE_VERSION_INVALID",
-                error_message=f"请使用模板版本 {RoutePlanningImportService.TEMPLATE_VERSION}。",
+                error_message=f"Please use template version {RoutePlanningImportService.TEMPLATE_VERSION}.",
                 request_id_prefix="req_route_planning_template",
             )
         try:
@@ -159,14 +161,14 @@ class LogisticsWebImportController(http.Controller):
             )
         except ValidationError as exc:
             return self._error_response(
-                message="模板下载失败",
+                message="妯℃澘涓嬭浇澶辫触",
                 error_code="TEMPLATE_LOCALE_INVALID",
                 error_message=str(exc),
                 request_id_prefix="req_route_planning_template",
             )
         except Exception as exc:
             return self._error_response(
-                message="模板下载失败",
+                message="妯℃澘涓嬭浇澶辫触",
                 error_code="IMPORT_INTERNAL_ERROR",
                 error_message=str(exc),
                 request_id_prefix="req_route_planning_template",
@@ -195,14 +197,14 @@ class LogisticsWebImportController(http.Controller):
             )
         except ValidationError as exc:
             return self._error_response(
-                message="妯℃澘鏌ヨ澶辫触",
+                message="Template query failed",
                 error_code="TEMPLATE_LOCALE_INVALID",
                 error_message=str(exc),
                 request_id_prefix="req_phase5_template",
             )
         except Exception as exc:
             return self._error_response(
-                message="妯℃澘鏌ヨ澶辫触",
+                message="Template query failed",
                 error_code="IMPORT_INTERNAL_ERROR",
                 error_message=str(exc),
                 request_id_prefix="req_phase5_template",
@@ -218,16 +220,16 @@ class LogisticsWebImportController(http.Controller):
     def download_phase5_workbook_template_file(self, template_code=None, template_version=None, template_locale=None, **kwargs):
         if template_code and template_code != Phase5WorkbookImportService.TEMPLATE_CODE:
             return self._error_response(
-                message="妯℃澘涓嬭浇澶辫触",
+                message="Template download failed",
                 error_code="TEMPLATE_CODE_INVALID",
-                error_message=f"璇蜂娇鐢ㄦ爣鍑嗘ā鏉?{Phase5WorkbookImportService.TEMPLATE_CODE}銆?",
+                error_message=f"Please use template code {Phase5WorkbookImportService.TEMPLATE_CODE}.",
                 request_id_prefix="req_phase5_template",
             )
         if template_version and template_version.lower() != Phase5WorkbookImportService.TEMPLATE_VERSION:
             return self._error_response(
-                message="妯℃澘涓嬭浇澶辫触",
+                message="Template download failed",
                 error_code="TEMPLATE_VERSION_INVALID",
-                error_message=f"璇蜂娇鐢ㄦā鏉跨増鏈?{Phase5WorkbookImportService.TEMPLATE_VERSION}銆?",
+                error_message=f"Please use template version {Phase5WorkbookImportService.TEMPLATE_VERSION}.",
                 request_id_prefix="req_phase5_template",
             )
         try:
@@ -237,14 +239,14 @@ class LogisticsWebImportController(http.Controller):
             )
         except ValidationError as exc:
             return self._error_response(
-                message="妯℃澘涓嬭浇澶辫触",
+                message="Template download failed",
                 error_code="TEMPLATE_LOCALE_INVALID",
                 error_message=str(exc),
                 request_id_prefix="req_phase5_template",
             )
         except Exception as exc:
             return self._error_response(
-                message="妯℃澘涓嬭浇澶辫触",
+                message="Template download failed",
                 error_code="IMPORT_INTERNAL_ERROR",
                 error_message=str(exc),
                 request_id_prefix="req_phase5_template",
@@ -264,9 +266,9 @@ class LogisticsWebImportController(http.Controller):
         raw_bytes = upload_file.read() if upload_file else self._decode_base64_file(payload.get("file_base64"))
         if raw_bytes is None:
             return self._error_response(
-                message="预校验失败",
+                message="Precheck failed",
                 error_code="PRECHECK_PARSE_FAILED",
-                error_message="文件内容不是有效的 Base64 编码。",
+                error_message="file_base64 is not valid Base64.",
                 request_id_prefix="req_import_precheck",
             )
         try:
@@ -279,26 +281,26 @@ class LogisticsWebImportController(http.Controller):
             )
         except ValidationError as exc:
             return self._error_response(
-                message="预校验失败",
+                message="Precheck failed",
                 error_code="IMPORT_PRECHECK_INVALID",
                 error_message=str(exc),
                 request_id_prefix="req_import_precheck",
             )
         except AccessError as exc:
             return self._error_response(
-                message="预校验失败",
+                message="Precheck failed",
                 error_code="IMPORT_PERMISSION_DENIED",
                 error_message=str(exc),
                 request_id_prefix="req_import_precheck",
             )
         except Exception as exc:
             return self._error_response(
-                message="预校验失败",
+                message="Precheck failed",
                 error_code="IMPORT_INTERNAL_ERROR",
                 error_message=str(exc),
                 request_id_prefix="req_import_precheck",
             )
-        message = "预校验通过" if not data.get("errors") else "预校验完成"
+        message = "Precheck passed" if not data.get("errors") else "Precheck finished"
         return self._success_response(data=data, request_id_prefix="req_import_precheck", message=message)
 
     @http.route("/api/admin/logistics/imports/route-planning/precheck", type="http", auth="user", methods=["POST"], csrf=False)
@@ -309,9 +311,9 @@ class LogisticsWebImportController(http.Controller):
         raw_bytes = upload_file.read() if upload_file else self._decode_base64_file(payload.get("file_base64"))
         if raw_bytes is None:
             return self._error_response(
-                message="预校验失败",
+                message="Precheck failed",
                 error_code="PRECHECK_PARSE_FAILED",
-                error_message="文件内容不是有效的 Base64 编码。",
+                error_message="file_base64 is not valid Base64.",
                 request_id_prefix="req_route_planning_precheck",
             )
         try:
@@ -324,31 +326,31 @@ class LogisticsWebImportController(http.Controller):
             )
         except ValidationError as exc:
             return self._error_response(
-                message="预校验失败",
+                message="Precheck failed",
                 error_code="IMPORT_PRECHECK_INVALID",
                 error_message=str(exc),
                 request_id_prefix="req_route_planning_precheck",
             )
         except AccessError as exc:
             return self._error_response(
-                message="预校验失败",
+                message="Precheck failed",
                 error_code="IMPORT_PERMISSION_DENIED",
                 error_message=str(exc),
                 request_id_prefix="req_route_planning_precheck",
             )
         except Exception as exc:
             return self._error_response(
-                message="预校验失败",
+                message="Precheck failed",
                 error_code="IMPORT_INTERNAL_ERROR",
                 error_message=str(exc),
                 request_id_prefix="req_route_planning_precheck",
             )
 
-        message = "预校验通过"
+        message = "Precheck passed"
         if data.get("errors"):
-            message = "预校验完成"
+            message = "Precheck finished"
         elif data.get("has_review_warning"):
-            message = "预校验通过，但存在人工复查提醒"
+            message = "Precheck finished with review warnings"
         return self._success_response(data=data, request_id_prefix="req_route_planning_precheck", message=message)
 
 
@@ -360,9 +362,9 @@ class LogisticsWebImportController(http.Controller):
         raw_bytes = upload_file.read() if upload_file else self._decode_base64_file(payload.get("file_base64"))
         if raw_bytes is None:
             return self._error_response(
-                message="棰勬牎楠屽け璐?",
+                message="妫板嫭鐗庢灞姐亼鐠?",
                 error_code="PRECHECK_PARSE_FAILED",
-                error_message="鏂囦欢鍐呭涓嶆槸鏈夋晥鐨?Base64 缂栫爜銆?",
+                error_message="閺傚洣娆㈤崘鍛啇娑撳秵妲搁張澶嬫櫏閻?Base64 缂傛牜鐖滈妴?",
                 request_id_prefix="req_phase5_precheck",
             )
         try:
@@ -375,26 +377,26 @@ class LogisticsWebImportController(http.Controller):
             )
         except ValidationError as exc:
             return self._error_response(
-                message="棰勬牎楠屽け璐?",
+                message="妫板嫭鐗庢灞姐亼鐠?",
                 error_code="IMPORT_PRECHECK_INVALID",
                 error_message=str(exc),
                 request_id_prefix="req_phase5_precheck",
             )
         except AccessError as exc:
             return self._error_response(
-                message="棰勬牎楠屽け璐?",
+                message="妫板嫭鐗庢灞姐亼鐠?",
                 error_code="IMPORT_PERMISSION_DENIED",
                 error_message=str(exc),
                 request_id_prefix="req_phase5_precheck",
             )
         except Exception as exc:
             return self._error_response(
-                message="棰勬牎楠屽け璐?",
+                message="妫板嫭鐗庢灞姐亼鐠?",
                 error_code="IMPORT_INTERNAL_ERROR",
                 error_message=str(exc),
                 request_id_prefix="req_phase5_precheck",
             )
-        message = "棰勬牎楠岄€氳繃" if not data.get("errors") else "棰勬牎楠屽畬鎴?"
+        message = "妫板嫭鐗庢宀勨偓姘崇箖" if not data.get("errors") else "妫板嫭鐗庢灞界暚閹?"
         return self._success_response(data=data, request_id_prefix="req_phase5_precheck", message=message)
 
     @http.route("/api/admin/logistics/imports/waybill-standard/confirm", type="http", auth="user", methods=["POST"], csrf=False)
@@ -409,26 +411,26 @@ class LogisticsWebImportController(http.Controller):
             )
         except AccessError as exc:
             return self._error_response(
-                message="正式导入失败",
+                message="姝ｅ紡瀵煎叆澶辫触",
                 error_code="IMPORT_PERMISSION_DENIED",
                 error_message=str(exc),
                 request_id_prefix="req_import_confirm",
             )
         except ValidationError as exc:
             return self._error_response(
-                message="正式导入失败",
+                message="姝ｅ紡瀵煎叆澶辫触",
                 error_code=self._resolve_import_confirm_error_code(str(exc)),
                 error_message=str(exc),
                 request_id_prefix="req_import_confirm",
             )
         except Exception as exc:
             return self._error_response(
-                message="正式导入失败",
+                message="姝ｅ紡瀵煎叆澶辫触",
                 error_code="IMPORT_INTERNAL_ERROR",
                 error_message=str(exc),
                 request_id_prefix="req_import_confirm",
             )
-        return self._success_response(data=data, request_id_prefix="req_import_confirm", message="正式导入完成")
+        return self._success_response(data=data, request_id_prefix="req_import_confirm", message="姝ｅ紡瀵煎叆瀹屾垚")
 
     @http.route("/api/admin/logistics/imports/route-planning/confirm", type="http", auth="user", methods=["POST"], csrf=False)
     def confirm_route_planning_import(self, **kwargs):
@@ -442,21 +444,21 @@ class LogisticsWebImportController(http.Controller):
             )
         except AccessError as exc:
             return self._error_response(
-                message="正式导入失败",
+                message="姝ｅ紡瀵煎叆澶辫触",
                 error_code="IMPORT_PERMISSION_DENIED",
                 error_message=str(exc),
                 request_id_prefix="req_route_planning_confirm",
             )
         except ValidationError as exc:
             return self._error_response(
-                message="正式导入失败",
+                message="姝ｅ紡瀵煎叆澶辫触",
                 error_code=self._resolve_import_confirm_error_code(str(exc)),
                 error_message=str(exc),
                 request_id_prefix="req_route_planning_confirm",
             )
         except Exception as exc:
             return self._error_response(
-                message="正式导入失败",
+                message="姝ｅ紡瀵煎叆澶辫触",
                 error_code="IMPORT_INTERNAL_ERROR",
                 error_message=str(exc),
                 request_id_prefix="req_route_planning_confirm",
@@ -464,7 +466,7 @@ class LogisticsWebImportController(http.Controller):
         return self._success_response(
             data=data,
             request_id_prefix="req_route_planning_confirm",
-            message="正式导入完成",
+            message="姝ｅ紡瀵煎叆瀹屾垚",
         )
 
 
@@ -480,26 +482,26 @@ class LogisticsWebImportController(http.Controller):
             )
         except AccessError as exc:
             return self._error_response(
-                message="姝ｅ紡瀵煎叆澶辫触",
+                message="濮濓絽绱＄€电厧鍙嗘径杈Е",
                 error_code="IMPORT_PERMISSION_DENIED",
                 error_message=str(exc),
                 request_id_prefix="req_phase5_confirm",
             )
         except ValidationError as exc:
             return self._error_response(
-                message="姝ｅ紡瀵煎叆澶辫触",
+                message="濮濓絽绱＄€电厧鍙嗘径杈Е",
                 error_code=self._resolve_import_confirm_error_code(str(exc)),
                 error_message=str(exc),
                 request_id_prefix="req_phase5_confirm",
             )
         except Exception as exc:
             return self._error_response(
-                message="姝ｅ紡瀵煎叆澶辫触",
+                message="濮濓絽绱＄€电厧鍙嗘径杈Е",
                 error_code="IMPORT_INTERNAL_ERROR",
                 error_message=str(exc),
                 request_id_prefix="req_phase5_confirm",
             )
-        return self._success_response(data=data, request_id_prefix="req_phase5_confirm", message="姝ｅ紡瀵煎叆瀹屾垚")
+        return self._success_response(data=data, request_id_prefix="req_phase5_confirm", message="Confirm finished")
 
     @http.route("/api/admin/logistics/imports/tasks/<string:task_no>", type="http", auth="user", methods=["GET"])
     def get_import_task_result(self, task_no=None, **kwargs):
@@ -528,21 +530,21 @@ class LogisticsWebImportController(http.Controller):
             )
         except AccessError as exc:
             return self._error_response(
-                message="查询导入结果失败",
+                message="鏌ヨ瀵煎叆缁撴灉澶辫触",
                 error_code="IMPORT_PERMISSION_DENIED",
                 error_message=str(exc),
                 request_id_prefix="req_import_task_result",
             )
         except ValidationError as exc:
             return self._error_response(
-                message="查询导入结果失败",
+                message="鏌ヨ瀵煎叆缁撴灉澶辫触",
                 error_code="IMPORT_RESULT_NOT_FOUND",
                 error_message=str(exc),
                 request_id_prefix="req_import_task_result",
             )
         except Exception as exc:
             return self._error_response(
-                message="查询导入结果失败",
+                message="鏌ヨ瀵煎叆缁撴灉澶辫触",
                 error_code="IMPORT_INTERNAL_ERROR",
                 error_message=str(exc),
                 request_id_prefix="req_import_task_result",
@@ -563,21 +565,21 @@ class LogisticsWebImportController(http.Controller):
             )
         except AccessError as exc:
             return self._error_response(
-                message="查询导入行结果失败",
+                message="Query import task lines failed",
                 error_code="IMPORT_PERMISSION_DENIED",
                 error_message=str(exc),
                 request_id_prefix="req_import_task_lines",
             )
         except ValidationError as exc:
             return self._error_response(
-                message="查询导入行结果失败",
+                message="Query import task lines failed",
                 error_code="IMPORT_TASK_LINE_NOT_FOUND",
                 error_message=str(exc),
                 request_id_prefix="req_import_task_lines",
             )
         except Exception as exc:
             return self._error_response(
-                message="查询导入行结果失败",
+                message="Query import task lines failed",
                 error_code="IMPORT_INTERNAL_ERROR",
                 error_message=str(exc),
                 request_id_prefix="req_import_task_lines",
@@ -597,21 +599,21 @@ class LogisticsWebImportController(http.Controller):
             )
         except AccessError as exc:
             return self._error_response(
-                message="查询导入错误明细失败",
+                message="鏌ヨ瀵煎叆閿欒鏄庣粏澶辫触",
                 error_code="IMPORT_PERMISSION_DENIED",
                 error_message=str(exc),
                 request_id_prefix="req_import_task_errors",
             )
         except ValidationError as exc:
             return self._error_response(
-                message="查询导入错误明细失败",
+                message="鏌ヨ瀵煎叆閿欒鏄庣粏澶辫触",
                 error_code="IMPORT_TASK_ERROR_NOT_FOUND",
                 error_message=str(exc),
                 request_id_prefix="req_import_task_errors",
             )
         except Exception as exc:
             return self._error_response(
-                message="查询导入错误明细失败",
+                message="鏌ヨ瀵煎叆閿欒鏄庣粏澶辫触",
                 error_code="IMPORT_INTERNAL_ERROR",
                 error_message=str(exc),
                 request_id_prefix="req_import_task_errors",
@@ -648,21 +650,21 @@ class LogisticsWebImportController(http.Controller):
             )
         except AccessError as exc:
             return self._error_response(
-                message="下载错误报告失败",
+                message="涓嬭浇閿欒鎶ュ憡澶辫触",
                 error_code="IMPORT_PERMISSION_DENIED",
                 error_message=str(exc),
                 request_id_prefix="req_import_task_error_report",
             )
         except ValidationError as exc:
             return self._error_response(
-                message="下载错误报告失败",
+                message="涓嬭浇閿欒鎶ュ憡澶辫触",
                 error_code="ERROR_REPORT_NOT_FOUND",
                 error_message=str(exc),
                 request_id_prefix="req_import_task_error_report",
             )
         except Exception as exc:
             return self._error_response(
-                message="下载错误报告失败",
+                message="涓嬭浇閿欒鎶ュ憡澶辫触",
                 error_code="IMPORT_INTERNAL_ERROR",
                 error_message=str(exc),
                 request_id_prefix="req_import_task_error_report",
@@ -674,7 +676,7 @@ class LogisticsWebImportController(http.Controller):
         ]
         return request.make_response(report["file_bytes"], headers=headers)
 
-    def _success_response(self, *, data, request_id_prefix, message="成功", status=200):
+    def _success_response(self, *, data, request_id_prefix, message="鎴愬姛", status=200):
         return self._json_response(
             {
                 "code": 0,
@@ -709,23 +711,23 @@ class LogisticsWebImportController(http.Controller):
         if any(fragment in code for fragment in ("INVALID", "EMPTY", "PARSE_FAILED", "TEMPLATE")):
             return 4001
 
-        if any(fragment in message for fragment in ("无权", "禁止", "forbidden")):
+        if any(fragment in message.lower() for fragment in ("permission", "forbidden", "unauthorized")):
             return 4003
-        if any(fragment in message for fragment in ("失效", "不允许", "未通过", "正在执行", "已存在", "稍后刷新")):
+        if any(fragment in message.lower() for fragment in ("invalid", "not allowed", "not pass", "running", "already exists", "retry later")):
             return 4090
-        if any(fragment in message for fragment in ("未找到", "不存在")):
+        if any(fragment in message.lower() for fragment in ("not found", "does not exist")):
             return 4004
-        if any(fragment in message for fragment in ("请提供", "非法", "无效", "模板", "Base64")):
+        if any(fragment in message for fragment in ("Please provide", "invalid", "template", "Base64")):
             return 4001
         return 5000
 
     def _resolve_import_confirm_error_code(self, error_message):
         message = (error_message or "").strip()
-        if any(fragment in message for fragment in ("失效", "不允许", "未通过", "正在执行", "已存在")):
+        if any(fragment in message.lower() for fragment in ("invalid", "not allowed", "not pass", "running", "already exists")):
             return "IMPORT_CONFIRM_STATUS_INVALID"
-        if any(fragment in message for fragment in ("未找到", "不存在")):
+        if any(fragment in message.lower() for fragment in ("not found", "does not exist")):
             return "IMPORT_CONFIRM_NOT_FOUND"
-        if any(fragment in message for fragment in ("请提供", "非法", "无效")):
+        if any(fragment in message.lower() for fragment in ("please provide", "invalid")):
             return "IMPORT_CONFIRM_INVALID"
         return "IMPORT_CONFIRM_FAILED"
 
@@ -760,3 +762,5 @@ class LogisticsWebImportController(http.Controller):
 
     def _build_request_id(self, prefix):
         return f"{prefix}_{uuid.uuid4().hex[:12]}"
+
+

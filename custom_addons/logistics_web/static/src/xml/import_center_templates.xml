@@ -55,6 +55,185 @@
 
                         <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_import_section">
                             <div class="o_logistics_web_section_heading">
+                                <h2><t t-esc="this.ui.sectionEntrySwitchTitle" /></h2>
+                                <p><t t-esc="this.ui.sectionEntrySwitchHint" /></p>
+                            </div>
+                            <div class="o_logistics_web_import_template_grid">
+                                <t t-foreach="this.importEntryCards" t-as="item" t-key="item.key">
+                                    <div class="o_logistics_web_placeholder_panel o_logistics_web_import_template_card" t-att-data-tone="item.isActive ? 'info' : undefined">
+                                        <strong><t t-esc="item.title" /></strong>
+                                        <p><t t-esc="item.detail" /></p>
+                                        <div class="d-flex gap-2 align-items-center flex-wrap">
+                                            <button type="button" t-att-class="item.isActive ? 'btn btn-primary' : 'btn btn-secondary'" t-on-click="() => this.focusImportEntry(item.sourceModel, item.sectionId)">
+                                                <t t-esc="item.isActive ? this.ui.entryCardCurrentLabel : this.ui.entryCardOpenLabel" />
+                                            </button>
+                                            <span t-if="item.isActive" class="o_logistics_web_status_tag" data-tone="info">
+                                                <t t-esc="this.ui.entryCardCurrentLabel" />
+                                            </span>
+                                        </div>
+                                    </div>
+                                </t>
+                            </div>
+                        </section>
+
+                        <section id="import-entry-mini-program-raw-sheet" class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_import_section">
+                            <div class="o_logistics_web_section_heading">
+                                <h2><t t-esc="this.ui.sectionMiniProgramRawSheetTemplateTitle" /></h2>
+                                <p><t t-esc="this.ui.sectionMiniProgramRawSheetTemplateHint" /></p>
+                            </div>
+                            <div class="o_logistics_web_import_template_grid">
+                                <t t-foreach="miniProgramRawSheetTemplates" t-as="item" t-key="`mini-${item.template_locale}`">
+                                    <div class="o_logistics_web_placeholder_panel o_logistics_web_import_template_card">
+                                        <strong><t t-esc="item.template_label" /></strong>
+                                        <p><t t-esc="this.ui.fileNameLabel" />：<t t-esc="item.file_name" /></p>
+                                        <a class="btn btn-secondary" t-att-href="item.download_url">
+                                            <t t-esc="this.ui.downloadTemplate" />
+                                        </a>
+                                    </div>
+                                </t>
+                            </div>
+                        </section>
+
+                        <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_import_section">
+                            <div class="o_logistics_web_section_heading">
+                                <h2><t t-esc="this.ui.sectionMiniProgramRawSheetUploadTitle" /></h2>
+                                <p><t t-esc="this.ui.sectionMiniProgramRawSheetUploadHint" /></p>
+                            </div>
+                            <div class="o_logistics_web_import_upload_panel">
+                                <input t-ref="miniProgramRawSheetFileInput" class="d-none" type="file" accept=".xlsx" t-on-change="onMiniProgramRawSheetFileChanged" />
+                                <div class="o_logistics_web_import_upload_main">
+                                    <strong><t t-esc="this.ui.currentFileLabel" /></strong>
+                                    <p><t t-esc="this.miniProgramRawSheetFileLabel" /></p>
+                                </div>
+                                <div class="o_logistics_web_import_upload_actions">
+                                    <button type="button" class="btn btn-secondary" t-on-click="triggerMiniProgramRawSheetFileSelect">
+                                        <t t-esc="hasMiniProgramRawSheetSelectedFile ? this.ui.miniProgramRawSheetReplaceFile : this.ui.miniProgramRawSheetChooseFile" />
+                                    </button>
+                                    <button type="button" class="btn btn-primary" t-att-disabled="!hasMiniProgramRawSheetSelectedFile or state.miniProgramRawSheetPrechecking" t-on-click="runMiniProgramRawSheetPrecheck">
+                                        <t t-esc="state.miniProgramRawSheetPrechecking ? this.ui.miniProgramRawSheetPrecheckingText : this.ui.miniProgramRawSheetRunPrecheck" />
+                                    </button>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_import_section">
+                            <div class="o_logistics_web_section_heading">
+                                <h2>小程序预校验结果</h2>
+                                <p>先确认发车单号、去重结果和客户命中情况，再决定是否正式写入排线批次与停靠点。</p>
+                            </div>
+                            <t t-if="hasMiniProgramRawSheetPrecheckResult">
+                                <div class="o_logistics_web_dashboard_cards">
+                                    <div class="o_logistics_web_summary_card">
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="this.ui.importBatchNoLabel" /></span>
+                                        <strong class="o_logistics_web_summary_card_value o_logistics_web_summary_card_value_small">
+                                            <t t-esc="state.miniProgramRawSheetPrecheckResult.task_no || state.miniProgramRawSheetPrecheckResult.import_batch_no" />
+                                        </strong>
+                                    </div>
+                                    <div class="o_logistics_web_summary_card">
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="this.ui.totalRowsLabel" /></span>
+                                        <strong class="o_logistics_web_summary_card_value"><t t-esc="state.miniProgramRawSheetPrecheckResult.total_row_count" /></strong>
+                                    </div>
+                                    <div class="o_logistics_web_summary_card">
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="this.ui.miniProgramRawSheetDeduplicatedCountLabel" /></span>
+                                        <strong class="o_logistics_web_summary_card_value"><t t-esc="state.miniProgramRawSheetPrecheckResult.deduplicated_row_count" /></strong>
+                                    </div>
+                                    <div class="o_logistics_web_summary_card" t-att-data-tone="state.miniProgramRawSheetPrecheckResult.unmatched_row_count ? 'warning' : 'success'">
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="this.ui.miniProgramUnmatchedCountLabel" /></span>
+                                        <strong class="o_logistics_web_summary_card_value"><t t-esc="state.miniProgramRawSheetPrecheckResult.unmatched_row_count" /></strong>
+                                    </div>
+                                    <div class="o_logistics_web_summary_card" t-att-data-tone="state.miniProgramRawSheetPrecheckResult.can_confirm_import ? 'success' : 'danger'">
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="this.ui.canImportLabel" /></span>
+                                        <strong class="o_logistics_web_summary_card_value">
+                                            <t t-esc="state.miniProgramRawSheetPrecheckResult.can_confirm_import ? this.ui.yesLabel : this.ui.noLabel" />
+                                        </strong>
+                                    </div>
+                                </div>
+                                <div class="o_logistics_web_import_action_bar">
+                                    <button type="button" class="btn btn-primary" t-att-disabled="!canConfirmMiniProgramRawSheetImport or state.miniProgramRawSheetConfirming" t-on-click="confirmMiniProgramRawSheetImport">
+                                        <t t-esc="state.miniProgramRawSheetConfirming ? this.ui.miniProgramRawSheetImportingText : this.ui.miniProgramRawSheetConfirmImport" />
+                                    </button>
+                                    <button t-if="state.miniProgramRawSheetPrecheckResult.error_report_url" type="button" class="btn btn-secondary" t-on-click="downloadErrorReport">
+                                        <t t-esc="this.ui.openErrorReport" />
+                                    </button>
+                                </div>
+                                <t t-if="miniProgramRawSheetVisibleErrors.length">
+                                    <div class="o_logistics_web_import_error_panel">
+                                        <div class="o_logistics_web_section_heading">
+                                            <h2><t t-esc="this.ui.errorDetailsTitle" /></h2>
+                                            <p><t t-esc="this.ui.errorDetailsHint" /></p>
+                                        </div>
+                                        <div class="table-responsive">
+                                            <table class="table table-sm o_logistics_web_import_table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>工作表</th>
+                                                        <th><t t-esc="this.ui.rowNumberLabel" /></th>
+                                                        <th><t t-esc="this.ui.fieldLabel" /></th>
+                                                        <th><t t-esc="this.ui.errorCodeLabel" /></th>
+                                                        <th><t t-esc="this.ui.errorMessageLabel" /></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <t t-foreach="miniProgramRawSheetVisibleErrors" t-as="item" t-key="`${item.sheet_name}-${item.row_no}-${item.field_code}-${item.error_code}`">
+                                                        <tr>
+                                                            <td><t t-esc="item.sheet_name" /></td>
+                                                            <td><t t-esc="item.row_no" /></td>
+                                                            <td><t t-esc="item.field_label or item.field_code" /></td>
+                                                            <td><t t-esc="item.error_code" /></td>
+                                                            <td><t t-esc="item.error_message" /></td>
+                                                        </tr>
+                                                    </t>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </t>
+                            </t>
+                            <t t-else="">
+                                <div class="o_logistics_web_placeholder_panel o_logistics_web_state_panel">
+                                    <strong>等待小程序预校验结果</strong>
+                                    <p><t t-esc="this.ui.miniProgramRawSheetPrecheckEmptyHint" /></p>
+                                </div>
+                            </t>
+                        </section>
+
+                        <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_import_section">
+                            <div class="o_logistics_web_section_heading">
+                                <h2>小程序导入结果</h2>
+                                <p>正式写入后，这里显示发车单号对应的排线批次和停靠点写入结果。</p>
+                            </div>
+                            <t t-if="hasMiniProgramRawSheetImportResult">
+                                <div class="o_logistics_web_dashboard_cards">
+                                    <div class="o_logistics_web_summary_card">
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="this.ui.importBatchNoLabel" /></span>
+                                        <strong class="o_logistics_web_summary_card_value o_logistics_web_summary_card_value_small">
+                                            <t t-esc="state.miniProgramRawSheetImportResult.task_no || state.miniProgramRawSheetImportResult.import_batch_no" />
+                                        </strong>
+                                    </div>
+                                    <div class="o_logistics_web_summary_card">
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="this.ui.statusLabel" /></span>
+                                        <strong class="o_logistics_web_summary_card_value"><t t-esc="state.miniProgramRawSheetImportResult.status_label || state.miniProgramRawSheetImportResult.status" /></strong>
+                                    </div>
+                                    <div class="o_logistics_web_summary_card">
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="this.ui.miniProgramCreatedBatchLabel" /></span>
+                                        <strong class="o_logistics_web_summary_card_value"><t t-esc="state.miniProgramRawSheetImportResult.route_planning_batch_id" /></strong>
+                                    </div>
+                                    <div class="o_logistics_web_summary_card">
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="this.ui.miniProgramCreatedStopCountLabel" /></span>
+                                        <strong class="o_logistics_web_summary_card_value"><t t-esc="state.miniProgramRawSheetImportResult.created_stop_line_count" /></strong>
+                                    </div>
+                                </div>
+                            </t>
+                            <t t-else="">
+                                <div class="o_logistics_web_placeholder_panel o_logistics_web_state_panel">
+                                    <strong>当前还没有小程序导入结果</strong>
+                                    <p><t t-esc="this.ui.miniProgramRawSheetResultEmptyHint" /></p>
+                                </div>
+                            </t>
+                        </section>
+
+                        <section id="import-entry-route-planning" class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_import_section">
+                            <div class="o_logistics_web_section_heading">
                                 <h2><t t-esc="this.ui.sectionRoutePlanningTemplateTitle" /></h2>
                                 <p><t t-esc="this.ui.sectionRoutePlanningTemplateHint" /></p>
                             </div>
@@ -255,7 +434,7 @@
                             </t>
                         </section>
 
-                        <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_import_section">
+                        <section id="import-entry-phase5-workbook" class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_import_section">
                             <div class="o_logistics_web_section_heading">
                                 <h2><t t-esc="this.ui.sectionPhase5TemplateTitle" /></h2>
                                 <p><t t-esc="this.ui.sectionPhase5TemplateHint" /></p>
@@ -434,7 +613,7 @@
                             </t>
                         </section>
 
-                        <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_import_section">
+                        <section id="import-entry-waybill-standard" class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_import_section">
                             <div class="o_logistics_web_section_heading">
                                 <h2><t t-esc="this.ui.sectionTemplateTitle" /></h2>
                                 <p><t t-esc="this.ui.sectionTemplateHint" /></p>

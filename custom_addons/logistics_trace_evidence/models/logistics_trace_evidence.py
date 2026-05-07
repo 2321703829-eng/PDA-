@@ -1,4 +1,5 @@
 import base64
+from html import escape
 
 from odoo import api, fields, models
 from odoo.exceptions import UserError
@@ -19,6 +20,12 @@ class LogisticsTraceEvidence(models.Model):
     STATE_SELECTION = [
         ("available", "Available"),
         ("missing", "Missing"),
+    ]
+
+    UPLOAD_ROLE_SELECTION = [
+        ("warehouse", "仓库留痕"),
+        ("driver", "司机留痕"),
+        ("unknown", "未标记"),
     ]
 
     name = fields.Char(string="Evidence Name", required=True, copy=False, default="New")
@@ -63,6 +70,13 @@ class LogisticsTraceEvidence(models.Model):
         string="Uploader Name",
         compute="_compute_uploader_name",
         store=True,
+    )
+    upload_role = fields.Selection(
+        UPLOAD_ROLE_SELECTION,
+        string="留痕端",
+        required=True,
+        default="unknown",
+        index=True,
     )
     trace_event_type = fields.Selection(
         [
@@ -121,6 +135,11 @@ class LogisticsTraceEvidence(models.Model):
     image_items_json = fields.Json(
         string="Image Items",
         compute="_compute_image_items_json",
+    )
+    image_preview_html = fields.Html(
+        string="证据图片",
+        compute="_compute_image_preview_html",
+        sanitize=False,
     )
 
     @api.depends("uploader_id")
@@ -196,17 +215,114 @@ class LogisticsTraceEvidence(models.Model):
             else:
                 record.image_items_json = []
 
+    @api.depends("image_items_json")
+    def _compute_image_preview_html(self):
+        for record in self:
+            items = record.image_items_json or []
+            blocks = []
+            overlays = []
+            for index, item in enumerate(items, start=1):
+                url = (item.get("previewUrl") or item.get("fullUrl") or "").strip()
+                if not url:
+                    continue
+                label = escape(item.get("sourceFilename") or item.get("label") or record.name or "证据图片")
+                safe_url = escape(url, quote=True)
+                target_id = f"evidence-image-preview-{record.id}-{index}"
+                blocks.append(
+                    '<a href="#{target_id}" '
+                    'style="display:inline-block;margin:0 12px 12px 0;text-decoration:none;">'
+                    '<img src="{url}" alt="{label}" '
+                    'style="width:148px;height:148px;object-fit:cover;border-radius:8px;'
+                    'border:1px solid #d9e2ef;background:#f8fafc;display:block;"/>'
+                    '<div style="max-width:148px;margin-top:4px;font-size:12px;color:#526070;'
+                    'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{label}</div>'
+                    '</a>'.format(target_id=target_id, url=safe_url, label=label)
+                )
+                overlays.append(
+                    '<div id="{target_id}" class="o_logistics_evidence_lightbox">'
+                    '<a href="#" class="o_logistics_evidence_lightbox_backdrop" aria-label="关闭"></a>'
+                    '<div class="o_logistics_evidence_lightbox_body">'
+                    '<a href="#" class="o_logistics_evidence_lightbox_close">关闭</a>'
+                    '<img src="{url}" alt="{label}"/>'
+                    '</div>'
+                    '</div>'.format(target_id=target_id, url=safe_url, label=label)
+                )
+            record.image_preview_html = (
+                '<style>'
+                '.o_logistics_evidence_lightbox{display:none;position:fixed;z-index:3000;'
+                'left:0;top:0;right:0;bottom:0;background:rgba(15,23,42,.72);'
+                'align-items:center;justify-content:center;padding:32px;}'
+                '.o_logistics_evidence_lightbox:target{display:flex;}'
+                '.o_logistics_evidence_lightbox_backdrop{position:absolute;left:0;top:0;right:0;bottom:0;}'
+                '.o_logistics_evidence_lightbox_body{position:relative;z-index:1;max-width:92vw;max-height:88vh;}'
+                '.o_logistics_evidence_lightbox_body img{display:block;max-width:92vw;max-height:88vh;'
+                'object-fit:contain;border-radius:8px;background:#fff;}'
+                '.o_logistics_evidence_lightbox_close{position:absolute;right:10px;top:10px;'
+                'padding:6px 12px;border-radius:6px;background:rgba(15,23,42,.78);'
+                'color:#fff;text-decoration:none;font-size:13px;}'
+                '</style>'
+                '<div style="display:flex;flex-wrap:wrap;align-items:flex-start;">'
+                + "".join(blocks)
+                + "</div>"
+                + "".join(overlays)
+                if blocks
+                else '<span style="color:#8a94a6;">暂无可显示图片</span>'
+            )
+
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
+            if not vals.get("upload_role"):
+                vals["upload_role"] = self._resolve_upload_role(vals)
             if vals.get("name", "New") in ("New", "新建"):
                 vals["name"] = self._build_evidence_name(vals)
         return super().create(vals_list)
+
+    def _resolve_upload_role(self, vals):
+        raw = vals.get("upload_role") or vals.get("uploadRole") or vals.get("uploader_role") or vals.get("role")
+        normalized = str(raw or "").strip().lower()
+        mapping = {
+            "warehouse": "warehouse",
+            "store": "warehouse",
+            "keeper": "warehouse",
+            "driver": "driver",
+            "truck_driver": "driver",
+            "unknown": "unknown",
+        }
+        return mapping.get(normalized, "unknown")
 
     def _build_evidence_name(self, vals):
         uploaded_at = vals.get("uploaded_at")
         uploaded_dt = fields.Datetime.to_datetime(uploaded_at) if uploaded_at else fields.Datetime.now()
         return f"Evidence - {fields.Datetime.to_string(uploaded_dt)}"
+
+    def action_back_to_evidence_list(self):
+        self.ensure_one()
+        action_xml_id = "logistics_trace_evidence.action_logistics_trace_evidence"
+        if self.upload_role == "warehouse":
+            action_xml_id = "logistics_trace_evidence.action_logistics_trace_evidence_warehouse"
+        elif self.upload_role == "driver":
+            action_xml_id = "logistics_trace_evidence.action_logistics_trace_evidence_driver"
+        action = self.env["ir.actions.actions"]._for_xml_id(action_xml_id)
+        action["target"] = "current"
+        return action
+
+    def action_download_images(self):
+        self.ensure_one()
+        image_records = self._sorted_image_ids()
+        if image_records:
+            download_url = image_records[0].download_url or image_records[0].full_url or image_records[0].preview_url
+        elif self.state != "missing" and (self.full_url or self.preview_url):
+            download_url = self.full_url or self.preview_url
+        else:
+            download_url = False
+        if not download_url:
+            raise UserError("当前证据没有可下载图片。")
+        return {
+            "type": "ir.actions.act_url",
+            "url": download_url,
+            "target": "self",
+        }
 
     def _sorted_image_ids(self):
         return self.image_ids.filtered(lambda rec: rec.storage_status != "deleted").sorted(
@@ -448,6 +564,13 @@ class LogisticsTraceEvidenceImage(models.Model):
         "logistics.dispatch.batch",
         string="Batch",
         related="evidence_id.batch_id",
+        store=True,
+        readonly=True,
+        index=True,
+    )
+    upload_role = fields.Selection(
+        related="evidence_id.upload_role",
+        string="留痕端",
         store=True,
         readonly=True,
         index=True,
