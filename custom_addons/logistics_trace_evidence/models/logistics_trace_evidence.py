@@ -64,6 +64,36 @@ class LogisticsTraceEvidence(models.Model):
         compute="_compute_uploader_name",
         store=True,
     )
+    trace_event_type = fields.Selection(
+        [
+            ("arrive_loading_point", "到达装货点"),
+            ("start_loading", "开始装车"),
+            ("finish_loading", "完成装车"),
+            ("departed", "离开门店"),
+            ("arrive_store", "到达门店"),
+            ("deliver_finish", "交付完成"),
+            ("signoff", "完成签收"),
+            ("exception_report", "异常上报"),
+        ],
+        string="留痕事件类型",
+        compute="_compute_trace_event_fields",
+        store=True,
+        readonly=True,
+        index=True,
+    )
+    trace_event_time = fields.Datetime(
+        string="留痕时间",
+        compute="_compute_trace_event_fields",
+        store=True,
+        readonly=True,
+        index=True,
+    )
+    trace_event_display_name = fields.Char(
+        string="留痕事件",
+        compute="_compute_trace_event_fields",
+        store=True,
+        readonly=True,
+    )
     remark = fields.Char(string="Remark")
     client_request_id = fields.Char(string="Client Request ID", index=True)
     is_exception_related = fields.Boolean(
@@ -97,6 +127,13 @@ class LogisticsTraceEvidence(models.Model):
     def _compute_uploader_name(self):
         for record in self:
             record.uploader_name = record.uploader_id.name or ""
+
+    @api.depends("trace_event_id.event_type", "trace_event_id.trace_time", "trace_event_id.display_name")
+    def _compute_trace_event_fields(self):
+        for record in self:
+            record.trace_event_type = record.trace_event_id.event_type or False
+            record.trace_event_time = record.trace_event_id.trace_time or False
+            record.trace_event_display_name = record.trace_event_id.display_name or ""
 
     @api.depends("trace_event_id.event_type")
     def _compute_exception_flags(self):
@@ -133,6 +170,9 @@ class LogisticsTraceEvidence(models.Model):
         "full_url",
         "name",
         "trace_event_id",
+        "trace_event_type",
+        "trace_event_time",
+        "trace_event_display_name",
         "uploaded_at",
         "uploader_name",
         "remark",
@@ -188,7 +228,9 @@ class LogisticsTraceEvidence(models.Model):
             "label": self.name or f"Evidence {self.id}",
             "name": self.name or f"Evidence {self.id}",
             "traceEventId": self.trace_event_id.id,
-            "traceLabel": self.trace_event_id.display_name or "Trace Event",
+            "traceLabel": self.trace_event_display_name or self.trace_event_id.display_name or "Trace Event",
+            "traceEventType": self.trace_event_type or "",
+            "traceEventTime": fields.Datetime.to_string(self.trace_event_time) if self.trace_event_time else False,
             "uploadedAt": fields.Datetime.to_string(self.uploaded_at) if self.uploaded_at else False,
             "uploader": self.uploader_name or "",
             "remark": self.remark or "",
@@ -530,7 +572,9 @@ class LogisticsTraceEvidenceImage(models.Model):
             "label": f"{evidence_label}{label_suffix}",
             "name": f"{evidence_label}{label_suffix}",
             "traceEventId": evidence.trace_event_id.id,
-            "traceLabel": evidence.trace_event_id.display_name or "Trace Event",
+            "traceLabel": evidence.trace_event_display_name or evidence.trace_event_id.display_name or "Trace Event",
+            "traceEventType": evidence.trace_event_type or "",
+            "traceEventTime": fields.Datetime.to_string(evidence.trace_event_time) if evidence.trace_event_time else False,
             "uploadedAt": fields.Datetime.to_string(evidence.uploaded_at) if evidence.uploaded_at else False,
             "uploader": evidence.uploader_name or "",
             "remark": self.remark or evidence.remark or "",

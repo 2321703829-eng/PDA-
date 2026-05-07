@@ -8,7 +8,10 @@
                 <field name="uploaded_at"/>
                 <field name="name"/>
                 <field name="batch_id"/>
-                <field name="trace_event_id"/>
+                <field name="trace_event_type" optional="show"/>
+                <field name="trace_event_time" optional="show"/>
+                <field name="trace_event_display_name" optional="hide"/>
+                <field name="trace_event_id" optional="hide"/>
                 <field name="waybill_id"/>
                 <field name="uploader_id"/>
                 <field name="image_count"/>
@@ -34,6 +37,8 @@
                     <group>
                         <group>
                             <field name="trace_event_id"/>
+                            <field name="trace_event_type" readonly="1"/>
+                            <field name="trace_event_time" readonly="1"/>
                             <field name="waybill_id" readonly="1"/>
                             <field name="batch_id" readonly="1"/>
                             <field name="uploaded_at"/>
@@ -81,9 +86,17 @@
         <field name="arch" type="xml">
             <search string="Trace Evidence">
                 <field name="name"/>
+                <field name="trace_event_type"/>
                 <field name="trace_event_id"/>
                 <field name="waybill_id"/>
                 <field name="image_access_key"/>
+                <separator/>
+                <filter string="完成签收" name="event_signoff" domain="[('trace_event_type', '=', 'signoff')]"/>
+                <filter string="完成装车" name="event_finish_loading" domain="[('trace_event_type', '=', 'finish_loading')]"/>
+                <filter string="到达门店" name="event_arrive_store" domain="[('trace_event_type', '=', 'arrive_store')]"/>
+                <filter string="离开门店" name="event_departed" domain="[('trace_event_type', '=', 'departed')]"/>
+                <filter string="异常上报" name="event_exception" domain="[('trace_event_type', '=', 'exception_report')]"/>
+                <separator/>
                 <filter string="Exception Related" name="exception_related" domain="[('is_exception_related', '=', True)]"/>
                 <group>
                     <filter string="By Waybill" name="group_waybill" context="{'group_by': 'waybill_id'}"/>

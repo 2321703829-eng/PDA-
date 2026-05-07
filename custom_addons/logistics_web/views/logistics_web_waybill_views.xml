@@ -79,7 +79,10 @@
                             <field name="evidence_ids" readonly="1">
                                 <list create="0" delete="0" open_form_view="1">
                                     <field name="name"/>
-                                    <field name="trace_event_id"/>
+                                    <field name="trace_event_type"/>
+                                    <field name="trace_event_time"/>
+                                    <field name="trace_event_display_name" optional="hide"/>
+                                    <field name="trace_event_id" optional="hide"/>
                                     <field name="uploaded_at"/>
                                     <field name="uploader_name"/>
                                     <field name="is_exception_related"/>
