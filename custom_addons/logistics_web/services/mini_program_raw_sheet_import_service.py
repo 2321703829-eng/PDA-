@@ -2,6 +2,7 @@
 import io
 import json
 import re
+from collections import OrderedDict
 
 from openpyxl import load_workbook
 
@@ -127,6 +128,57 @@ class MiniProgramRawSheetImportService(WaybillStandardImportService):
         if not task:
             raise ValidationError("Import task not found.")
         return cls._confirm_task_import(env, task)
+
+    @classmethod
+    def assign_manual_partner(cls, env, *, task_no="", business_key="", partner_id=0):
+        task = cls._get_task_by_task_no(env, task_no)
+        if not task:
+            raise ValidationError("Import task not found.")
+        if task.status != "pending":
+            raise ValidationError("Only prechecked pending tasks support manual partner assignment.")
+        business_key = (business_key or "").strip()
+        if not business_key:
+            raise ValidationError("business_key is required.")
+        partner_id = int(partner_id or 0)
+        if not partner_id:
+            raise ValidationError("partner_id is required.")
+
+        task_line = task.task_line_ids.sudo().filtered(lambda record: record.business_key == business_key)[:1]
+        if not task_line:
+            raise ValidationError("Import task line not found.")
+        candidate = cls._deserialize_task_line_payload(task_line)
+        if candidate.get("match_status") != "unmatched":
+            raise ValidationError("Only unmatched rows support manual partner assignment.")
+
+        partner = env["res.partner"].sudo().with_context(active_test=False).browse(partner_id).exists()
+        if not partner:
+            raise ValidationError("Selected customer master record does not exist.")
+        if not getattr(partner, "is_logistics_partner", False):
+            raise ValidationError("Selected customer is not available in the logistics customer scope.")
+
+        route_snapshot = cls._build_route_snapshot(env, partner, candidate)
+        if not route_snapshot.get("longitude") or not route_snapshot.get("latitude"):
+            raise ValidationError("Selected customer is missing longitude or latitude.")
+
+        candidate.update(
+            {
+                "match_status": "matched_manual",
+                "partner_id": partner.id,
+                "partner_name": partner.name,
+                "route_snapshot": route_snapshot,
+                "can_confirm_line": True,
+            }
+        )
+        cls._update_task_line(
+            task_line,
+            status="pending",
+            message=json.dumps(candidate, ensure_ascii=False),
+        )
+        task.error_line_ids.sudo().filtered(
+            lambda record: record.task_line_id.id == task_line.id and record.error_code == "NAME_MATCH_NOT_FOUND"
+        ).unlink()
+        cls._refresh_mini_precheck_task_rollup(task)
+        return cls._build_mini_task_result_payload(task)
 
     @classmethod
     def get_import_task_result(cls, env, *, task_no="", import_batch_no=""):
@@ -381,6 +433,7 @@ class MiniProgramRawSheetImportService(WaybillStandardImportService):
                 "partner_id": False,
                 "partner_name": False,
                 "route_snapshot": {},
+                "similar_partner_candidates": [],
                 "can_confirm_line": False,
             }
             source_row_no = bucket["source_row_nos"][0] if bucket["source_row_nos"] else 0
@@ -412,6 +465,12 @@ class MiniProgramRawSheetImportService(WaybillStandardImportService):
                 continue
             if not partners:
                 candidate["match_status"] = "unmatched"
+                candidate["similar_partner_candidates"] = cls._build_similar_partner_candidates(
+                    env,
+                    bucket["normalized_store_name"],
+                    bucket["normalized_address"],
+                    limit=5,
+                )
                 errors.append(
                     cls._make_error(
                         sheet_name="raw_sheet",
@@ -604,7 +663,7 @@ class MiniProgramRawSheetImportService(WaybillStandardImportService):
             cls._deserialize_task_line_payload(task_line)
             for task_line in task.task_line_ids.sorted(key=lambda record: (record.line_no, record.id))
         ]
-        errors = list(task.error_line_ids)
+        errors = list(task.error_line_ids.sorted(key=lambda record: (record.source_row_no, record.id)))
         summary = cls._build_summary_from_task(task, candidates, errors)
         source_file = task.source_file_id
         return {
@@ -621,6 +680,10 @@ class MiniProgramRawSheetImportService(WaybillStandardImportService):
             },
             "error_count": len(errors),
             "summary_message": task.summary_message,
+            "preview_lines": [cls._public_candidate_payload(item) for item in candidates[:20]],
+            "errors": [cls._public_error_line_payload(item) for item in errors[:20]],
+            "source_file": cls._build_source_file_payload(source_file) if source_file else False,
+            "error_report_url": cls._build_task_error_report_url(task) if errors else False,
         }
 
     @classmethod
@@ -649,7 +712,7 @@ class MiniProgramRawSheetImportService(WaybillStandardImportService):
             "matched_row_count": sum(
                 1
                 for item in candidates
-                if item.get("match_status") == "matched_exact" and item.get("can_confirm_line")
+                if item.get("match_status") in {"matched_exact", "matched_manual"} and item.get("can_confirm_line")
             ),
             "ambiguous_row_count": sum(1 for item in candidates if item.get("match_status") == "matched_ambiguous"),
             "unmatched_row_count": sum(1 for item in candidates if item.get("match_status") == "unmatched"),
@@ -671,7 +734,7 @@ class MiniProgramRawSheetImportService(WaybillStandardImportService):
             "matched_row_count": sum(
                 1
                 for item in candidates
-                if item.get("match_status") == "matched_exact" and item.get("can_confirm_line")
+                if item.get("match_status") in {"matched_exact", "matched_manual"} and item.get("can_confirm_line")
             ),
             "ambiguous_row_count": sum(1 for item in candidates if item.get("match_status") == "matched_ambiguous"),
             "unmatched_row_count": sum(1 for item in candidates if item.get("match_status") == "unmatched"),
@@ -681,6 +744,36 @@ class MiniProgramRawSheetImportService(WaybillStandardImportService):
             and all(item.get("can_confirm_line") for item in candidates)
             and not any((error.source_row_no or 0) == 0 for error in errors),
         }
+
+    @classmethod
+    def _public_error_line_payload(cls, error):
+        return {
+            "sheet_name": "raw_sheet" if (error.source_row_no or 0) > 0 else "template_file",
+            "row_no": error.source_row_no or 0,
+            "field_code": error.field_name,
+            "field_label": error.field_name,
+            "error_code": error.error_code,
+            "error_message": error.error_message,
+            "raw_value": error.raw_value or False,
+            "mapped_value": error.mapped_value or False,
+        }
+
+    @classmethod
+    def _refresh_mini_precheck_task_rollup(cls, task):
+        task.ensure_one()
+        candidates = [
+            cls._deserialize_task_line_payload(task_line)
+            for task_line in task.task_line_ids.sorted(key=lambda record: (record.line_no, record.id))
+        ]
+        errors = list(task.error_line_ids)
+        summary = cls._build_summary_from_task(task, candidates, errors)
+        task.sudo().write(
+            {
+                "success_count": summary["matched_row_count"],
+                "fail_count": summary["ambiguous_row_count"] + summary["unmatched_row_count"] + summary["error_row_count"],
+                "summary_message": cls._build_precheck_summary_message(summary),
+            }
+        )
 
     @classmethod
     def _build_merged_value_map(cls, worksheet):
@@ -790,6 +883,88 @@ class MiniProgramRawSheetImportService(WaybillStandardImportService):
         return matched
 
     @classmethod
+    def _tokenize_search_text(cls, value):
+        text = cls._normalize_text(value)
+        if not text:
+            return []
+        tokens = []
+        for part in re.split(r"[\s,，;；、/\\()（）\-]+", text):
+            token = part.strip()
+            if not token:
+                continue
+            if len(token) == 1 and not re.search(r"[\u4e00-\u9fffA-Za-z0-9]", token):
+                continue
+            tokens.append(token)
+        return tokens
+
+    @classmethod
+    def _build_similar_partner_candidates(cls, env, normalized_store_name, normalized_address, limit=5):
+        partner_model = env["res.partner"].sudo().with_context(active_test=False)
+        search_terms = []
+        if normalized_store_name:
+            search_terms.append(normalized_store_name)
+            search_terms.extend(token for token in cls._tokenize_search_text(normalized_store_name) if len(token) >= 2)
+        candidate_map = OrderedDict()
+        for term in search_terms:
+            for partner in partner_model.search(
+                [("is_logistics_partner", "=", True), ("name", "ilike", term)],
+                limit=20,
+            ):
+                candidate_map[partner.id] = partner
+            if len(candidate_map) >= 30:
+                break
+        if not candidate_map and normalized_store_name:
+            fallback_term = re.split(r"[\s()（）]+", normalized_store_name, maxsplit=1)[0]
+            if fallback_term:
+                for partner in partner_model.search(
+                    [("is_logistics_partner", "=", True), ("name", "ilike", fallback_term)],
+                    limit=20,
+                ):
+                    candidate_map[partner.id] = partner
+
+        name_tokens = set(cls._tokenize_search_text(normalized_store_name))
+        address_tokens = set(token for token in cls._tokenize_search_text(normalized_address) if len(token) >= 2)
+        scored = []
+        for partner in candidate_map.values():
+            partner_name = cls._normalize_store_name(partner.name)
+            partner_address = cls._normalize_address(
+                getattr(partner, "address_full", False) or getattr(partner, "street", False) or ""
+            )
+            score = 0
+            if normalized_store_name and partner_name == normalized_store_name:
+                score += 1000
+            if normalized_store_name and normalized_store_name in partner_name:
+                score += 200
+            if normalized_store_name and partner_name and partner_name in normalized_store_name:
+                score += 150
+            partner_name_tokens = set(cls._tokenize_search_text(partner_name))
+            score += len(name_tokens & partner_name_tokens) * 20
+            if normalized_address and partner_address:
+                if normalized_address in partner_address or partner_address in normalized_address:
+                    score += 60
+                partner_address_tokens = set(cls._tokenize_search_text(partner_address))
+                score += len(address_tokens & partner_address_tokens) * 5
+            scored.append((score, partner.id, partner, partner_address))
+        scored.sort(key=lambda item: (-item[0], item[1]))
+        results = []
+        for score, _partner_id, partner, partner_address in scored[:limit]:
+            results.append(
+                {
+                    "partner_id": partner.id,
+                    "partner_name": partner.name,
+                    "address_detail": partner_address or False,
+                    "contact_phone": (
+                        getattr(partner, "contact_phone", False)
+                        or getattr(partner, "phone", False)
+                        or getattr(partner, "mobile", False)
+                        or False
+                    ),
+                    "score_hint": score,
+                }
+            )
+        return results
+
+    @classmethod
     def _build_route_snapshot(cls, env, partner, candidate):
         store_profile = env["logistics.store.profile"].sudo().search([("partner_id", "=", partner.id)], limit=1)
         longitude = (store_profile.longitude if store_profile else 0.0) or getattr(partner, "partner_longitude", 0.0) or 0.0
@@ -842,6 +1017,8 @@ class MiniProgramRawSheetImportService(WaybillStandardImportService):
             "match_status": candidate.get("match_status") or False,
             "partner_id": candidate.get("partner_id") or False,
             "partner_name": candidate.get("partner_name") or False,
+            "business_key": candidate.get("business_key") or False,
+            "similar_partner_candidates": candidate.get("similar_partner_candidates") or [],
             "duplicate_merged": bool(candidate.get("duplicate_merged")),
             "duplicate_source_count": max(int(candidate.get("source_row_count") or 1) - 1, 0),
             "can_confirm_line": bool(candidate.get("can_confirm_line")),

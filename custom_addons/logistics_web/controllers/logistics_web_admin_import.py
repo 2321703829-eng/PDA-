@@ -111,6 +111,44 @@ class LogisticsWebAdminImportController(LogisticsWebImportController):
             )
         return self._success_response(data=data, request_id_prefix="req_mini_raw_confirm", message="Confirm finished")
 
+    @http.route(
+        "/api/admin/logistics/imports/mini-program-raw-sheet/assign-partner",
+        type="http",
+        auth="user",
+        methods=["POST"],
+        csrf=False,
+    )
+    def admin_assign_mini_program_raw_sheet_partner(self, **kwargs):
+        payload = self._merged_payload()
+        try:
+            data = MiniProgramRawSheetImportService.assign_manual_partner(
+                request.env,
+                task_no=payload.get("task_no", ""),
+                business_key=payload.get("business_key", ""),
+                partner_id=payload.get("partner_id", 0),
+            )
+        except AccessError as exc:
+            return self._error_response(
+                message="Assign failed",
+                error_code="IMPORT_PERMISSION_DENIED",
+                error_message=str(exc),
+                request_id_prefix="req_mini_raw_assign",
+            )
+        except ValidationError as exc:
+            return self._error_response(
+                message="Assign failed",
+                error_code="IMPORT_PRECHECK_INVALID",
+                error_message=str(exc),
+                request_id_prefix="req_mini_raw_assign",
+            )
+        except Exception as exc:
+            return self._error_response(
+                message="Assign failed",
+                error_code="IMPORT_INTERNAL_ERROR",
+                error_message=str(exc),
+                request_id_prefix="req_mini_raw_assign",
+            )
+        return self._success_response(data=data, request_id_prefix="req_mini_raw_assign", message="Assign finished")
     def _decode_base64_file(self, payload):
         if not payload:
             return b""
