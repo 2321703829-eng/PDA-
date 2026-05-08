@@ -188,6 +188,54 @@
                                         </div>
                                     </div>
                                 </t>
+                                <t t-if="miniProgramRawSheetUnmatchedCandidates.length">
+                                    <div class="o_logistics_web_import_error_panel">
+                                        <div class="o_logistics_web_section_heading">
+                                            <h2>未命中客户候选</h2>
+                                            <p>仅用于人工复核辅助展示，不会放宽自动导入匹配规则。每条未命中客户最多展示 5 个相近候选。</p>
+                                        </div>
+                                        <div class="table-responsive">
+                                            <table class="table table-sm o_logistics_web_import_table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>原始客户名称</th>
+                                                        <th>原始地址</th>
+                                                        <th>候选客户</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <t t-foreach="miniProgramRawSheetUnmatchedCandidates" t-as="item" t-key="`${item.source_row_nos}-${item.raw_store_name}`">
+                                                        <tr>
+                                                            <td><t t-esc="item.raw_store_name" /></td>
+                                                            <td><t t-esc="item.raw_address" /></td>
+                                                            <td>
+                                                                <t t-if="item.similar_partner_candidates?.length">
+                                                                    <div t-foreach="item.similar_partner_candidates" t-as="candidate" t-key="candidate.partner_id" class="mb-2">
+                                                                        <strong><t t-esc="candidate.partner_name" /></strong>
+                                                                        <div class="text-muted" t-if="candidate.address_detail"><t t-esc="candidate.address_detail" /></div>
+                                                                        <div class="text-muted" t-if="candidate.contact_phone"><t t-esc="candidate.contact_phone" /></div>
+                                                                        <div class="mt-1">
+                                                                            <button
+                                                                                type="button"
+                                                                                class="btn btn-sm btn-secondary"
+                                                                                t-att-disabled="this.isMiniProgramRawSheetAssigning(item.business_key)"
+                                                                                t-on-click="() => this.assignMiniProgramRawSheetPartner(item.business_key, candidate.partner_id)">
+                                                                                <t t-esc="this.isMiniProgramRawSheetAssigning(item.business_key) ? this.ui.miniProgramRawSheetAssigningText : this.ui.miniProgramRawSheetAssignPartner" />
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                </t>
+                                                                <t t-else="">
+                                                                    <span class="text-muted">暂无候选</span>
+                                                                </t>
+                                                            </td>
+                                                        </tr>
+                                                    </t>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </t>
                             </t>
                             <t t-else="">
                                 <div class="o_logistics_web_placeholder_panel o_logistics_web_state_panel">

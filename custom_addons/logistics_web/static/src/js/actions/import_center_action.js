@@ -167,6 +167,7 @@ export class LogisticsImportCenterAction extends Component {
             driverExportHint: this.props.action?.params?.driver_export_hint || "",
             driverExportDownloading: false,
             phase5ExportDownloadingKey: "",
+            miniProgramRawSheetAssigningBusinessKey: "",
         });
 
         onWillStart(async () => {
@@ -230,6 +231,10 @@ export class LogisticsImportCenterAction extends Component {
             miniProgramRawSheetResultEmptyHint: "确认写入后，小程序原始单表导入结果会显示在这里。",
             miniProgramRawSheetPrecheckFailed: "小程序原始单表预校验失败，请稍后再试。",
             miniProgramRawSheetConfirmFailed: "小程序原始单表导入失败，请先处理错误后重试。",
+            miniProgramRawSheetAssignPartner: "选择此客户",
+            miniProgramRawSheetAssigningText: "指定中...",
+            miniProgramRawSheetAssignSuccess: "已为当前导入任务指定客户。",
+            miniProgramRawSheetAssignFailed: "人工指定客户失败，请稍后重试。",
             miniProgramMatchedCountLabel: "命中客户数",
             miniProgramUnmatchedCountLabel: "未命中客户数",
             miniProgramRawSheetDeduplicatedCountLabel: "去重后行数",
@@ -390,6 +395,16 @@ export class LogisticsImportCenterAction extends Component {
         return (this.state.miniProgramRawSheetPrecheckResult?.errors || []).slice(0, 20);
     }
 
+    get miniProgramRawSheetUnmatchedCandidates() {
+        return (this.state.miniProgramRawSheetPrecheckResult?.preview_lines || []).filter(
+            (item) => item?.match_status === "unmatched"
+        );
+    }
+
+    isMiniProgramRawSheetAssigning(businessKey) {
+        return this.state.miniProgramRawSheetAssigningBusinessKey === businessKey;
+    }
+
     get routePlanningVisibleErrors() {
         return (this.state.routePlanningPrecheckResult?.errors || []).slice(0, 20);
     }
@@ -477,6 +492,29 @@ export class LogisticsImportCenterAction extends Component {
 
     get hasDriverExportContext() {
         return Boolean(this.state.driverExportBatchNo || this.state.driverExportHint);
+    }
+
+    normalizeMiniProgramRawSheetPrecheckResult(data) {
+        if (!data) {
+            return null;
+        }
+        const summary = data.summary || {};
+        return {
+            ...data,
+            ...summary,
+            import_batch_no: data.import_batch_no || data.task_no || "",
+            can_confirm_import:
+                data.can_confirm_import ??
+                summary.can_confirm_import ??
+                (
+                    data.result_flags?.has_ambiguous === false &&
+                    data.result_flags?.has_unmatched === false &&
+                    data.result_flags?.has_fatal_error === false
+                ),
+            error_report_url: data.error_report?.download_url || data.error_report_url || false,
+            errors: data.errors || [],
+            preview_lines: data.preview_lines || [],
+        };
     }
 
     async loadTemplateMeta() {
@@ -639,8 +677,8 @@ export class LogisticsImportCenterAction extends Component {
                 method: "POST",
                 body: formData,
             });
-            this.state.miniProgramRawSheetPrecheckResult = payload.data;
-            if (payload.data?.can_confirm_import) {
+            this.state.miniProgramRawSheetPrecheckResult = this.normalizeMiniProgramRawSheetPrecheckResult(payload.data);
+            if (this.state.miniProgramRawSheetPrecheckResult?.can_confirm_import) {
                 this.notification.add("小程序原始单表预校验通过，可以继续写入排线批次和停靠点。", { type: "success" });
             } else {
                 this.notification.add("小程序原始单表预校验已完成，请先处理未命中或结构错误。", { type: "warning" });
@@ -775,6 +813,33 @@ export class LogisticsImportCenterAction extends Component {
             this.state.error = this.mapLoadError(error, this.ui.miniProgramRawSheetConfirmFailed);
         } finally {
             this.state.miniProgramRawSheetConfirming = false;
+        }
+    }
+
+    async assignMiniProgramRawSheetPartner(businessKey, partnerId) {
+        if (!businessKey || !partnerId) {
+            return;
+        }
+        this.state.miniProgramRawSheetAssigningBusinessKey = businessKey;
+        this.state.error = "";
+        try {
+            const payload = await this.apiRequest("/api/admin/logistics/imports/mini-program-raw-sheet/assign-partner", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    task_no:
+                        this.state.miniProgramRawSheetPrecheckResult?.task_no ||
+                        this.state.miniProgramRawSheetPrecheckResult?.import_batch_no,
+                    business_key: businessKey,
+                    partner_id: partnerId,
+                }),
+            });
+            this.state.miniProgramRawSheetPrecheckResult = this.normalizeMiniProgramRawSheetPrecheckResult(payload.data);
+            this.notification.add(this.ui.miniProgramRawSheetAssignSuccess, { type: "success" });
+        } catch (error) {
+            this.state.error = this.mapLoadError(error, this.ui.miniProgramRawSheetAssignFailed);
+        } finally {
+            this.state.miniProgramRawSheetAssigningBusinessKey = "";
         }
     }
 
