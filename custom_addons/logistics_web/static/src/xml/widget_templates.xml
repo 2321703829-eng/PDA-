@@ -303,7 +303,7 @@
     <t t-inherit="web.FormView" t-inherit-mode="extension">
         <xpath expr="//t[@t-set-slot='control-panel-create-button']/button[contains(@class, 'o_form_button_create')]" position="before">
             <button
-                t-if="!model.root.isInEdition and !env.inDialog"
+                t-if="!env.inDialog"
                 type="button"
                 class="btn btn-secondary o_logistics_form_back_button me-2"
                 t-on-click.stop="onLogisticsBackButtonClick">
