@@ -4,6 +4,7 @@ import zipfile
 from urllib.parse import quote
 
 from odoo import http
+from odoo.exceptions import UserError
 from odoo.http import request
 
 from ..services.image_storage_service import LogisticsEvidenceImageStorage
@@ -32,42 +33,45 @@ class LogisticsTraceEvidenceImageController(http.Controller):
         except KeyError:
             image_record = False
 
-        if image_record:
-            payload = storage.read_image(image_record)
-        else:
-            evidence = (
-                request.env["logistics.trace.evidence"]
-                .sudo()
-                .search([("image_access_key", "=", image_access_key)], limit=1)
-            )
-            if not evidence:
-                return request.not_found()
-            attachment = (
-                request.env["ir.attachment"]
-                .sudo()
-                .search(
-                    [
-                        ("res_model", "=", "logistics.trace.evidence"),
-                        ("res_id", "=", evidence.id),
-                        ("description", "=", image_access_key),
-                    ],
-                    limit=1,
-                )
-            )
-            if attachment and attachment.datas:
-                content = base64.b64decode(attachment.datas)
-                payload = {
-                    "file_name": attachment.name or image_access_key,
-                    "content_type": attachment.mimetype or "application/octet-stream",
-                    "content_length": len(content),
-                    "content": content,
-                }
+        try:
+            if image_record:
+                payload = storage.read_image(image_record)
             else:
-                payload = storage.read_legacy_image(
-                    evidence.name or image_access_key,
-                    evidence.full_url,
-                    evidence.preview_url,
+                evidence = (
+                    request.env["logistics.trace.evidence"]
+                    .sudo()
+                    .search([("image_access_key", "=", image_access_key)], limit=1)
                 )
+                if not evidence:
+                    return request.not_found()
+                attachment = (
+                    request.env["ir.attachment"]
+                    .sudo()
+                    .search(
+                        [
+                            ("res_model", "=", "logistics.trace.evidence"),
+                            ("res_id", "=", evidence.id),
+                            ("description", "=", image_access_key),
+                        ],
+                        limit=1,
+                    )
+                )
+                if attachment and attachment.datas:
+                    content = base64.b64decode(attachment.datas)
+                    payload = {
+                        "file_name": attachment.name or image_access_key,
+                        "content_type": attachment.mimetype or "application/octet-stream",
+                        "content_length": len(content),
+                        "content": content,
+                    }
+                else:
+                    payload = storage.read_legacy_image(
+                        evidence.name or image_access_key,
+                        evidence.full_url,
+                        evidence.preview_url,
+                    )
+        except UserError:
+            return request.not_found()
         file_name = payload["file_name"]
         disposition = "attachment" if download else "inline"
         encoded_name = quote(file_name)
@@ -110,14 +114,20 @@ class LogisticsTraceEvidenceImageController(http.Controller):
             ).sorted(key=lambda rec: (rec.sequence, rec.id))
             if image_records:
                 for image in image_records:
-                    payload = storage.read_image(image)
+                    try:
+                        payload = storage.read_image(image)
+                    except UserError:
+                        continue
                     archive_name = self._unique_archive_name(
                         payload.get("file_name") or image.image_access_key or "evidence-image",
                         used_names,
                     )
                     zip_entries.append((archive_name, payload["content"]))
             elif evidence.image_access_key or evidence.full_url or evidence.preview_url:
-                payload = self._read_legacy_evidence_payload(storage, evidence)
+                try:
+                    payload = self._read_legacy_evidence_payload(storage, evidence)
+                except UserError:
+                    continue
                 archive_name = self._unique_archive_name(
                     payload.get("file_name") or evidence.image_access_key or evidence.name or "evidence-image",
                     used_names,

@@ -4,6 +4,7 @@ import os
 from psycopg2 import IntegrityError
 
 from odoo import fields, http
+from odoo.exceptions import UserError
 from odoo.http import request
 
 
@@ -180,7 +181,18 @@ class LogisticsMiniTraceController(http.Controller, LogisticsMiniApiAuthMixin):
         upload_role = self._resolve_upload_role(payload)
         if upload_role != "unknown" and evidence.upload_role != upload_role:
             evidence.sudo().write({"upload_role": upload_role})
-        uploaded_images = self._handle_uploaded_files(evidence)
+        try:
+            uploaded_images = self._handle_uploaded_files(evidence)
+        except UserError as error:
+            return self._json_response(
+                {
+                    "ok": False,
+                    "message": str(error),
+                    "code": "IMAGE_UPLOAD_INVALID",
+                    "data": {"evidence_id": evidence.id},
+                },
+                status=400,
+            )
         return self._json_response(
             {
                 "ok": True,
