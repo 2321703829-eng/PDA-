@@ -75,6 +75,7 @@ EXPORT_ENTRY_TYPE_SELECTION = [
     ("from_batch", "From Batch"),
     ("from_waybill", "From Waybill"),
     ("from_evidence", "From Evidence"),
+    ("from_summary", "From Summary"),
     ("from_customer", "From Customer"),
     ("from_product", "From Product"),
 ]

@@ -191,13 +191,13 @@ class LogisticsTraceEvidenceSummary(models.Model):
                         e.uploaded_at,
                         COALESCE(e.upload_role, 'unknown') AS upload_role,
                         COALESCE(
-                            NULLIF(e.preview_url, ''),
-                            NULLIF(e.full_url, ''),
                             CASE
                                 WHEN e.image_access_key IS NOT NULL AND e.image_access_key != ''
                                 THEN '/logistics_trace/evidence-images/' || e.image_access_key
                                 ELSE NULL
-                            END
+                            END,
+                            NULLIF(e.preview_url, ''),
+                            NULLIF(e.full_url, '')
                         ) AS preview_url
                     FROM logistics_trace_evidence e
                     LEFT JOIN logistics_dispatch_waybill w ON w.id = e.waybill_id

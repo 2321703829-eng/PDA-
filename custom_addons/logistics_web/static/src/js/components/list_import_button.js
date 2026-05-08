@@ -9,10 +9,57 @@ const LOGISTICS_IMPORT_MODELS = new Set([
     "logistics.dispatch.waybill",
     "logistics.trace.event",
     "logistics.trace.evidence",
+    "logistics.trace.evidence.summary",
     "logistics.trace.exception",
 ]);
 
+const LOGISTICS_OPERATION_MODELS = new Set([
+    "logistics.dispatch.wave",
+    "logistics.dispatch.batch",
+    "logistics.dispatch.waybill",
+    "logistics.dispatch.waybill.customer.line",
+    "logistics.dispatch.waybill.customer.goods.line",
+    "logistics.dispatch.waybill.order.line",
+]);
+
 patch(ListController.prototype, {
+    get showLogisticsDeleteButton() {
+        return (
+            !this.env.inDialog &&
+            this.props.showButtons &&
+            this.activeActions.delete &&
+            LOGISTICS_OPERATION_MODELS.has(this.props.resModel)
+        );
+    },
+
+    async onClickLogisticsDelete() {
+        const selectedIds = await this.model.root.getResIds(true);
+        if (!selectedIds.length) {
+            this.env.services.notification.add("请先勾选至少一条记录，再执行删除。", {
+                type: "warning",
+            });
+            return;
+        }
+        const confirmed = window.confirm(`确定删除已选中的 ${selectedIds.length} 条记录吗？`);
+        if (!confirmed) {
+            return;
+        }
+        try {
+            await this.env.services.orm.unlink(this.props.resModel, selectedIds, {
+                context: this.model.root.context,
+            });
+            this.env.services.notification.add("删除成功，正在刷新列表。", {
+                type: "success",
+            });
+            window.location.reload();
+        } catch (error) {
+            this.env.services.notification.add(
+                String(error?.message || "删除失败，请稍后重试。"),
+                { type: "danger" }
+            );
+        }
+    },
+
     get showLogisticsImportButton() {
         return (
             !this.env.inDialog &&
@@ -37,6 +84,13 @@ patch(ListController.prototype, {
         });
     },
 
+    getLogisticsExportActionDescription() {
+        if (this.props.resModel === "logistics.trace.evidence" || this.props.resModel === "logistics.trace.evidence.summary") {
+            return "下载图片";
+        }
+        return "导出";
+    },
+
     get showLogisticsExportButton() {
         return (
             !this.env.inDialog &&
@@ -44,10 +98,24 @@ patch(ListController.prototype, {
             (
                 this.props.resModel === "logistics.dispatch.waybill" ||
                 this.props.resModel === "logistics.trace.evidence" ||
+                this.props.resModel === "logistics.trace.evidence.summary" ||
                 this.isCustomerProfileExportList ||
                 this.isProductProfileExportList
             )
         );
+    },
+
+    getStaticActionMenuItems() {
+        const items = super.getStaticActionMenuItems();
+        if (this.showLogisticsExportButton) {
+            items.logistics_export = {
+                sequence: 12,
+                icon: "fa fa-download",
+                description: this.getLogisticsExportActionDescription(),
+                callback: () => this.onClickLogisticsExport(),
+            };
+        }
+        return items;
     },
 
     get isCustomerProfileExportList() {
@@ -73,6 +141,10 @@ patch(ListController.prototype, {
         }
         if (this.props.resModel === "logistics.trace.evidence") {
             await this.exportEvidenceImages();
+            return;
+        }
+        if (this.props.resModel === "logistics.trace.evidence.summary") {
+            await this.exportEvidenceSummaryImages();
             return;
         }
         if (this.isCustomerProfileExportList) {
@@ -131,6 +203,63 @@ patch(ListController.prototype, {
                 },
             },
             "证据原图批量导出失败，请稍后重试。"
+        );
+    },
+
+    async exportEvidenceSummaryImages() {
+        const selectedIds = await this.model.root.getResIds(true);
+        if (!selectedIds.length) {
+            this.env.services.notification.add("\u8bf7\u5148\u9009\u62e9\u81f3\u5c11\u4e00\u6761\u7559\u75d5\u6c47\u603b\uff0c\u518d\u53d1\u8d77\u5bfc\u51fa\u3002", {
+                type: "warning",
+            });
+            return;
+        }
+        const rows = await this.env.services.orm.read(
+            "logistics.trace.evidence.summary",
+            selectedIds,
+            ["waybill_id", "waybill_no", "upload_role"]
+        );
+        const seen = new Set();
+        const waybillIds = [];
+        const items = [];
+        for (const row of rows || []) {
+            const value = row.waybill_id;
+            const waybillId = Array.isArray(value) ? value[0] : value;
+            if (!waybillId || seen.has(waybillId)) {
+                continue;
+            }
+            seen.add(waybillId);
+            waybillIds.push(waybillId);
+            items.push({
+                summary_id: row.id,
+                waybill_id: waybillId,
+                waybill_no: row.waybill_no || (Array.isArray(value) ? value[1] : ""),
+                upload_role: row.upload_role,
+            });
+        }
+        if (!waybillIds.length) {
+            this.env.services.notification.add("\u9009\u4e2d\u7684\u7559\u75d5\u6c47\u603b\u6ca1\u6709\u5173\u8054\u8fd0\u5355\uff0c\u6682\u65f6\u65e0\u6cd5\u5bfc\u51fa\u3002", {
+                type: "warning",
+            });
+            return;
+        }
+        await this.openExportResultFromRequest(
+            "/api/admin/logistics/exports/evidence-images",
+            {
+                object_type: "evidence_image_bundle",
+                entry_type: "from_waybill",
+                export_mode: "zip_package",
+                package_structure: "evidence_image_bundle_v1",
+                source_model: "logistics.dispatch.waybill",
+                selected_ids: waybillIds,
+                from_page: "evidence_summary_list",
+                scope_snapshot: {
+                    selected_summary_ids: selectedIds,
+                    selected_waybill_ids: waybillIds,
+                    items,
+                },
+            },
+            "\u7559\u75d5\u56fe\u7247\u6279\u91cf\u5bfc\u51fa\u5931\u8d25\uff0c\u8bf7\u7a0d\u540e\u91cd\u8bd5\u3002"
         );
     },
 

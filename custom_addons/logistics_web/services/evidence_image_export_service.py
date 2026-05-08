@@ -21,9 +21,11 @@ class EvidenceImageExportService(DispatchMainExportService):
     PACKAGE_STRUCTURE = "evidence_image_bundle_v1"
     SOURCE_MODEL = "logistics.dispatch.waybill"
     SOURCE_MODEL_EVIDENCE = "logistics.trace.evidence"
+    SOURCE_MODEL_SUMMARY = "logistics.trace.evidence.summary"
     SOURCE_PAGE_DEFAULT = "waybill_list"
     TARGET_OBJECT_TYPE = "waybill"
     TARGET_OBJECT_TYPE_EVIDENCE = "evidence"
+    ENTRY_TYPE_SUMMARY = "from_summary"
     DOWNLOAD_CONTENT_TYPE = "application/zip"
 
     @classmethod
@@ -332,6 +334,8 @@ class EvidenceImageExportService(DispatchMainExportService):
         source_model = task.source_scope_id.source_model or cls.SOURCE_MODEL
         if source_model == cls.SOURCE_MODEL_EVIDENCE:
             return cls._collect_evidence_image_package(env, task_line)
+        if source_model == cls.SOURCE_MODEL_SUMMARY:
+            return cls._collect_evidence_summary_image_package(env, task_line)
         return cls._collect_waybill_image_package(env, task_line)
 
     @classmethod
@@ -531,6 +535,122 @@ class EvidenceImageExportService(DispatchMainExportService):
         }
 
     @classmethod
+    def _collect_evidence_summary_image_package(cls, env, task_line):
+        summary = env[cls.SOURCE_MODEL_SUMMARY].browse(task_line.target_res_id).exists()
+        if not summary:
+            raise ExportServiceError(
+                "EXPORT_EVIDENCE_SUMMARY_NOT_FOUND",
+                f"Evidence summary for line {task_line.line_no} was not found.",
+            )
+
+        waybill = summary.waybill_id
+        if not waybill:
+            raise ExportServiceError(
+                "EXPORT_WAYBILL_NOT_FOUND",
+                f"Evidence summary {summary.id} is not linked to a readable waybill.",
+            )
+
+        evidences = waybill.evidence_ids.filtered(lambda rec: (rec.upload_role or "unknown") == (summary.upload_role or "unknown"))
+        evidences = evidences.sorted(key=lambda rec: (rec.uploaded_at or fields.Datetime.now(), rec.sequence, rec.id))
+        if not evidences:
+            raise ExportServiceError(
+                "EXPORT_TARGET_NO_DOWNSTREAM_DATA",
+                f"Waybill {waybill.name or waybill.id} has no evidence images under upload_role {summary.upload_role or 'unknown'}.",
+            )
+
+        storage = LogisticsEvidenceImageStorage(env)
+        zip_entries = []
+        manifest_items = []
+        matched_image_count = 0
+        exported_image_count = 0
+        skipped_image_count = 0
+        failed_image_count = 0
+        matched_evidence_count = 0
+        exported_evidence_count = 0
+        waybill_folder = cls._sanitize_name(waybill.name or f"waybill_{waybill.id}")
+        role_folder = cls._sanitize_name(summary.upload_role or "unknown")
+
+        for evidence in evidences:
+            evidence_entries = cls._build_evidence_image_entries(evidence)
+            if not evidence_entries:
+                continue
+            matched_evidence_count += 1
+            evidence_folder = cls._sanitize_name(f"evidence_{evidence.id}")
+            exported_for_evidence = 0
+            for image_index, image_entry in enumerate(evidence_entries, start=1):
+                matched_image_count += 1
+                try:
+                    file_payload = cls._read_evidence_image_entry(storage, image_entry)
+                except Exception as error:
+                    if cls._is_missing_image_error(error):
+                        skipped_image_count += 1
+                        continue
+                    failed_image_count += 1
+                    continue
+                exported_image_count += 1
+                exported_for_evidence += 1
+                safe_file_name = cls._sanitize_name(file_payload["file_name"] or f"image_{image_index}")
+                extension = Path(safe_file_name).suffix or Path(image_entry.get("file_name") or "").suffix or ".bin"
+                if not Path(safe_file_name).suffix:
+                    safe_file_name = f"{safe_file_name}{extension}"
+                archive_name = f"{waybill_folder}/{role_folder}/{evidence_folder}/{image_index:03d}_{safe_file_name}"
+                zip_entries.append({"archive_name": archive_name, "content": file_payload["content"]})
+                manifest_items.append(
+                    {
+                        "waybill_id": waybill.id,
+                        "waybill_no": waybill.name or "",
+                        "batch_id": waybill.batch_id.id if waybill.batch_id else False,
+                        "batch_no": waybill.batch_id.name if waybill.batch_id else "",
+                        "upload_role": summary.upload_role or "unknown",
+                        "trace_event_id": evidence.trace_event_id.id,
+                        "trace_event_name": evidence.trace_event_id.display_name or "",
+                        "evidence_id": evidence.id,
+                        "evidence_name": evidence.name or "",
+                        "evidence_uploaded_at": fields.Datetime.to_string(evidence.uploaded_at) if evidence.uploaded_at else False,
+                        "evidence_remark": evidence.remark or "",
+                        "image_id": image_entry.get("image_id") or False,
+                        "image_access_key": image_entry.get("image_access_key") or "",
+                        "image_file_name": file_payload["file_name"],
+                        "archive_name": archive_name,
+                        "storage_provider": image_entry.get("storage_provider") or "",
+                    }
+                )
+            if exported_for_evidence:
+                exported_evidence_count += 1
+
+        if not zip_entries:
+            if failed_image_count:
+                raise ExportServiceError(
+                    "EXPORT_IMAGE_CONTENT_UNREADABLE",
+                    f"Waybill {waybill.name or waybill.id} has image records under upload_role {summary.upload_role or 'unknown'}, but none could be exported successfully.",
+                )
+            raise ExportServiceError(
+                "EXPORT_TARGET_NO_DOWNSTREAM_DATA",
+                f"Waybill {waybill.name or waybill.id} has no readable evidence images under upload_role {summary.upload_role or 'unknown'}.",
+            )
+
+        return {
+            "zip_entries": zip_entries,
+            "manifest_items": manifest_items,
+            "waybill_count": 1,
+            "matched_evidence_count": matched_evidence_count,
+            "evidence_count": exported_evidence_count,
+            "matched_image_count": matched_image_count,
+            "image_count": exported_image_count,
+            "skipped_image_count": skipped_image_count,
+            "failed_image_count": failed_image_count,
+            "line_metrics_json": {
+                "waybill_count": 1,
+                "matched_evidence_count": matched_evidence_count,
+                "evidence_count": exported_evidence_count,
+                "matched_image_count": matched_image_count,
+                "image_count": exported_image_count,
+                "skipped_image_count": skipped_image_count,
+                "failed_image_count": failed_image_count,
+            },
+        }
+
+    @classmethod
     def _build_evidence_image_entries(cls, evidence):
         image_entries = []
         image_records = evidence.image_ids.sorted(key=lambda rec: (rec.sequence, rec.id))
@@ -681,7 +801,7 @@ class EvidenceImageExportService(DispatchMainExportService):
     def _validate_create_contract(cls, *, object_type, entry_type, export_mode, package_structure, source_model):
         if object_type != cls.OBJECT_TYPE:
             raise ExportServiceError("EXPORT_TASK_OBJECT_TYPE_INVALID", f"Unsupported object_type: {object_type}")
-        if entry_type not in (cls.ENTRY_TYPE, cls.ENTRY_TYPE_EVIDENCE):
+        if entry_type not in (cls.ENTRY_TYPE, cls.ENTRY_TYPE_EVIDENCE, cls.ENTRY_TYPE_SUMMARY):
             raise ExportServiceError("EXPORT_TASK_ENTRY_TYPE_INVALID", f"Unsupported entry_type: {entry_type}")
         if export_mode != cls.EXPORT_MODE:
             raise ExportServiceError("EXPORT_MODE_INVALID", f"Unsupported export_mode: {export_mode}")
@@ -690,6 +810,7 @@ class EvidenceImageExportService(DispatchMainExportService):
         valid_pairs = {
             (cls.ENTRY_TYPE, cls.SOURCE_MODEL),
             (cls.ENTRY_TYPE_EVIDENCE, cls.SOURCE_MODEL_EVIDENCE),
+            (cls.ENTRY_TYPE_SUMMARY, cls.SOURCE_MODEL_SUMMARY),
         }
         if (entry_type, source_model) not in valid_pairs:
             raise ExportServiceError("EXPORT_SCOPE_SNAPSHOT_INVALID", f"Unsupported source_model: {source_model}")
@@ -698,6 +819,8 @@ class EvidenceImageExportService(DispatchMainExportService):
     def _get_records_for_scope(cls, env, *, selected_ids, source_model):
         if source_model == cls.SOURCE_MODEL_EVIDENCE:
             return cls._get_evidences_for_scope(env, selected_ids), cls.TARGET_OBJECT_TYPE_EVIDENCE, cls.SOURCE_MODEL_EVIDENCE
+        if source_model == cls.SOURCE_MODEL_SUMMARY:
+            return cls._get_summaries_for_scope(env, selected_ids), cls.TARGET_OBJECT_TYPE, cls.SOURCE_MODEL_SUMMARY
         return cls._get_waybills_for_scope(env, selected_ids), cls.TARGET_OBJECT_TYPE, cls.SOURCE_MODEL
 
     @classmethod
@@ -720,6 +843,25 @@ class EvidenceImageExportService(DispatchMainExportService):
         return model.browse([record.id for record in ordered_records])
 
     @classmethod
+    def _get_summaries_for_scope(cls, env, selected_ids):
+        model = env[cls.SOURCE_MODEL_SUMMARY]
+        model.check_access("read")
+        records = model.browse(selected_ids)
+        records.check_access("read")
+        existing = {record.id: record for record in records.exists()}
+        ordered_records = []
+        missing_ids = []
+        for record_id in selected_ids:
+            record = existing.get(record_id)
+            if record:
+                ordered_records.append(record)
+            else:
+                missing_ids.append(record_id)
+        if missing_ids:
+            raise ExportServiceError("EXPORT_EVIDENCE_SUMMARY_NOT_FOUND", f"Evidence summary ids not found or not readable: {missing_ids}")
+        return model.browse([record.id for record in ordered_records])
+
+    @classmethod
     def _build_scope_snapshot(cls, records, *, source_model):
         if source_model == cls.SOURCE_MODEL_EVIDENCE:
             items = []
@@ -738,18 +880,40 @@ class EvidenceImageExportService(DispatchMainExportService):
                 "selected_count": len(items),
                 "items": items,
             }
+        if source_model == cls.SOURCE_MODEL_SUMMARY:
+            items = []
+            for summary in records:
+                items.append(
+                    {
+                        "id": summary.id,
+                        "waybill_id": summary.waybill_id.id if summary.waybill_id else False,
+                        "waybill_no": summary.waybill_no or "",
+                        "upload_role": summary.upload_role or "unknown",
+                        "evidence_count": summary.evidence_count or 0,
+                    }
+                )
+            return {
+                "object_type": cls.OBJECT_TYPE,
+                "entry_type": cls.ENTRY_TYPE_SUMMARY,
+                "selected_count": len(items),
+                "items": items,
+            }
         return super()._build_scope_snapshot(records)
 
     @classmethod
     def _build_business_key(cls, record, *, source_model):
         if source_model == cls.SOURCE_MODEL_EVIDENCE:
             return record.name or f"evidence_{record.id}"
+        if source_model == cls.SOURCE_MODEL_SUMMARY:
+            return f"{record.waybill_no or record.waybill_id.id or record.id}:{record.upload_role or 'unknown'}"
         return record.name or str(record.id)
 
     @classmethod
     def _build_display_name(cls, record, *, source_model):
         if source_model == cls.SOURCE_MODEL_EVIDENCE:
             return f"Evidence {record.name or record.id}"
+        if source_model == cls.SOURCE_MODEL_SUMMARY:
+            return f"Waybill {record.waybill_no or record.waybill_id.id or record.id} / {record.upload_role or 'unknown'}"
         return f"Waybill {record.name or record.id}"
 
     @classmethod
