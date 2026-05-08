@@ -2,6 +2,7 @@ from odoo import http
 from odoo.addons.web.controllers.database import Database
 from odoo.http import request
 from odoo.tools import config
+from werkzeug.exceptions import NotFound
 
 
 class LogisticsWebDatabaseGuard(Database):
@@ -18,12 +19,12 @@ class LogisticsWebDatabaseGuard(Database):
             return
         return self._database_http_closed_response()
 
+    def _raise_database_not_found(self):
+        raise NotFound()
+
     @http.route("/web/database/selector", type="http", auth="none")
     def selector(self, **kw):
         if not config["list_db"]:
-            if request.db and getattr(request, "env", None):
-                request.env.cr.close()
-                return request.redirect("/web/login")
             return self._database_http_closed_response()
         return super().selector(**kw)
 
@@ -36,7 +37,8 @@ class LogisticsWebDatabaseGuard(Database):
 
     @http.route("/web/database/list", type="jsonrpc", auth="none")
     def list(self):
-        self._ensure_database_entry_open()
+        if not config["list_db"]:
+            self._raise_database_not_found()
         return super().list()
 
     @http.route("/web/database/create", type="http", auth="none", methods=["POST"], csrf=False)
