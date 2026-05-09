@@ -8,6 +8,7 @@ from odoo.exceptions import UserError
 from odoo.http import request
 
 from ..services.image_storage_service import LogisticsEvidenceImageStorage
+from .image_capability_controller import LogisticsImageCapabilityController
 
 
 class LogisticsTraceEvidenceImageController(http.Controller):
@@ -34,7 +35,11 @@ class LogisticsTraceEvidenceImageController(http.Controller):
             image_record = False
 
         try:
-            if image_record:
+            if image_record and image_record.storage_provider == "oss":
+                payload = self._read_oss_image(image_record, download=download)
+                if not download:
+                    return request.redirect(payload["url"], code=302)
+            elif image_record:
                 payload = storage.read_image(image_record)
             else:
                 evidence = (
@@ -115,7 +120,10 @@ class LogisticsTraceEvidenceImageController(http.Controller):
             if image_records:
                 for image in image_records:
                     try:
-                        payload = storage.read_image(image)
+                        if image.storage_provider == "oss":
+                            payload = self._read_oss_image(image, download=True)
+                        else:
+                            payload = storage.read_image(image)
                     except UserError:
                         continue
                     archive_name = self._unique_archive_name(
@@ -152,6 +160,28 @@ class LogisticsTraceEvidenceImageController(http.Controller):
             ("Content-Disposition", f"attachment; filename*=UTF-8''{encoded_name}"),
         ]
         return request.make_response(content, headers=headers)
+
+
+    def _read_oss_image(self, image_record, *, download):
+        signer = LogisticsImageCapabilityController()
+        config = request.env["ir.config_parameter"].sudo()
+        session = {
+            "image_access_key": image_record.image_access_key,
+            "bucket": image_record.storage_bucket or (config.get_param("logistics_trace_image_accel.bucket", default="") or "").strip(),
+            "endpoint": (config.get_param("logistics_trace_image_accel.endpoint", default="") or "").strip(),
+            "object_key": image_record.storage_relative_path or "",
+            "mime_type": image_record.mime_type or "image/jpeg",
+            "filename": image_record.source_filename or image_record.stored_file_name or image_record.image_access_key,
+        }
+        if not all([session["bucket"], session["endpoint"], session["object_key"]]):
+            raise UserError("OSS image metadata is incomplete.")
+        signed_url = signer._build_signed_oss_url(config, session, method="GET")
+        if not download:
+            return {"url": signed_url}
+        result = signer._download_oss_object(config, session)
+        if not result.get("ok"):
+            raise UserError(result.get("message") or "OSS image download failed.")
+        return result
 
     def _read_legacy_evidence_payload(self, storage, evidence):
         attachment = (

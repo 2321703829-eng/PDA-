@@ -586,6 +586,7 @@ class LogisticsTraceEvidenceImage(models.Model):
         [
             ("local", "Local Storage"),
             ("legacy_url", "Legacy URL"),
+            ("oss", "Aliyun OSS"),
         ],
         string="Storage Provider",
         default="local",
