@@ -530,12 +530,7 @@ class LogisticsImageCapabilityController(http.Controller):
     def _build_local_preview_url(self, config, session):
         if not session.get("local_relative_path"):
             return False
-        base_url = (config.get_param("logistics_trace_evidence.image_public_base_url", default="") or "").strip().rstrip("/")
-        if not base_url:
-            base_url = (config.get_param("web.base.url", default="") or "").strip().rstrip("/")
-        if not base_url:
-            return False
-        return f"{base_url}/logistics_trace/evidence-images/{session['image_access_key']}"
+        return f"/logistics_trace/evidence-images/{session['image_access_key']}"
 
     def _local_file_exists(self, config, session):
         relative_path = session.get("local_relative_path")

@@ -37,6 +37,14 @@ class LogisticsRoutePlanningBatch(models.Model):
         for record in self:
             record.stop_count = len(record.stop_line_ids)
 
+    def action_logistics_delete(self):
+        self.stop_line_ids.unlink()
+        self.unlink()
+        return True
+
+    def action_logistics_archive(self):
+        return self.action_logistics_delete()
+
 
 class LogisticsRoutePlanningStopLine(models.Model):
     _name = "logistics.route.planning.stop.line"

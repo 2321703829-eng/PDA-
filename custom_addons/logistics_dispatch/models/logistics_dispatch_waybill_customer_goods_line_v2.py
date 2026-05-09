@@ -25,6 +25,7 @@ class LogisticsDispatchWaybillCustomerGoodsLine(models.Model):
             },
         ]
 
+    active = fields.Boolean(default=True, index=True)
     sequence = fields.Integer(string="排序", default=10)
     customer_line_id = fields.Many2one(
         "logistics.dispatch.waybill.customer.line",
@@ -314,3 +315,10 @@ class LogisticsDispatchWaybillCustomerGoodsLine(models.Model):
             for field_name in numeric_fields:
                 if record[field_name] < 0:
                     raise ValidationError(f"{record._fields[field_name].string} 不能小于 0。")
+
+    def action_logistics_delete(self):
+        self.unlink()
+        return True
+
+    def action_logistics_archive(self):
+        return self.action_logistics_delete()

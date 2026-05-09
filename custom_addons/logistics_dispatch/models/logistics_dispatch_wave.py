@@ -17,6 +17,7 @@ class LogisticsDispatchWave(models.Model):
         compute="_compute_wave_no",
         inverse="_inverse_wave_no",
     )
+    active = fields.Boolean(default=True, index=True)
     dispatch_date = fields.Date(
         string="发车日期",
         required=True,
@@ -91,3 +92,11 @@ class LogisticsDispatchWave(models.Model):
             for field_name, field_value in self._build_snapshot_vals(vals).items():
                 vals.setdefault(field_name, field_value)
         return super().write(vals)
+
+    def action_logistics_delete(self):
+        self.batch_ids.action_logistics_delete()
+        self.unlink()
+        return True
+
+    def action_logistics_archive(self):
+        return self.action_logistics_delete()

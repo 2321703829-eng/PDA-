@@ -253,21 +253,12 @@ class LogisticsEvidenceImageStorage:
             return candidate
         return False
 
-    def _get_public_base_url(self):
-        base_url = self.config.get_param("logistics_trace_evidence.image_public_base_url", default="") or ""
-        base_url = base_url.strip().rstrip("/")
-        if base_url:
-            return base_url
-        return (self.config.get_param("web.base.url", default="") or "").strip().rstrip("/")
-
     def build_preview_url(self, image_access_key):
-        base_url = self._get_public_base_url()
-        if not base_url:
+        if not image_access_key:
             return False
-        return f"{base_url}/logistics_trace/evidence-images/{image_access_key}"
+        return f"/logistics_trace/evidence-images/{image_access_key}"
 
     def build_download_url(self, image_access_key):
-        base_url = self._get_public_base_url()
-        if not base_url:
+        if not image_access_key:
             return False
-        return f"{base_url}/logistics_trace/evidence-images/{image_access_key}?download=true"
+        return f"/logistics_trace/evidence-images/{image_access_key}?download=true"

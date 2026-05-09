@@ -25,6 +25,7 @@ class LogisticsDispatchWaybillCustomerLine(models.Model):
             },
         ]
 
+    active = fields.Boolean(default=True, index=True)
     sequence = fields.Integer(string="排序", default=10)
     waybill_id = fields.Many2one(
         "logistics.dispatch.waybill",
@@ -377,3 +378,12 @@ class LogisticsDispatchWaybillCustomerLine(models.Model):
     def _onchange_partner_id(self):
         for record in self:
             record._apply_partner_link(record.partner_id)
+
+    def action_logistics_delete(self):
+        self.goods_line_ids.action_logistics_delete()
+        self.order_line_ids.action_logistics_delete()
+        self.unlink()
+        return True
+
+    def action_logistics_archive(self):
+        return self.action_logistics_delete()

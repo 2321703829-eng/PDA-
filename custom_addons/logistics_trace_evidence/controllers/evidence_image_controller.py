@@ -36,9 +36,7 @@ class LogisticsTraceEvidenceImageController(http.Controller):
 
         try:
             if image_record and image_record.storage_provider == "oss":
-                payload = self._read_oss_image(image_record, download=download)
-                if not download:
-                    return request.redirect(payload["url"], code=302)
+                payload = self._read_oss_image(image_record, download=True)
             elif image_record:
                 payload = storage.read_image(image_record)
             else:
@@ -181,6 +179,14 @@ class LogisticsTraceEvidenceImageController(http.Controller):
         result = signer._download_oss_object(config, session)
         if not result.get("ok"):
             raise UserError(result.get("message") or "OSS image download failed.")
+        content = result.get("content") or b""
+        result.update(
+            {
+                "file_name": session["filename"],
+                "content_type": result.get("mime_type") or session["mime_type"],
+                "content_length": len(content),
+            }
+        )
         return result
 
     def _read_legacy_evidence_payload(self, storage, evidence):

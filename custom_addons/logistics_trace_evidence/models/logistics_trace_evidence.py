@@ -524,6 +524,15 @@ class LogisticsTraceEvidence(models.Model):
                 super(LogisticsTraceEvidence, record.sudo()).write(values)
 
 
+    def action_logistics_delete(self):
+        self.image_ids.sudo().unlink()
+        self.unlink()
+        return True
+
+    def action_logistics_archive(self):
+        return self.action_logistics_delete()
+
+
 class LogisticsTraceEvidenceImage(models.Model):
     _name = "logistics.trace.evidence.image"
     _description = "Logistics Trace Evidence Image"
@@ -680,6 +689,13 @@ class LogisticsTraceEvidenceImage(models.Model):
             "url": self.download_url,
             "target": "new",
         }
+
+    def action_logistics_delete(self):
+        self.unlink()
+        return True
+
+    def action_logistics_archive(self):
+        return self.action_logistics_delete()
 
     def to_viewer_item(self, *, evidence, index, total):
         self.ensure_one()

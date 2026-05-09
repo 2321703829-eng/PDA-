@@ -510,3 +510,11 @@ class LogisticsTraceException(models.Model):
                 "default_batch_id": self.batch_id.id,
             },
         }
+
+    def action_logistics_delete(self):
+        self.process_log_ids.sudo().unlink()
+        self.unlink()
+        return True
+
+    def action_logistics_archive(self):
+        return self.action_logistics_delete()

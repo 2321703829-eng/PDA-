@@ -13,6 +13,7 @@ class LogisticsDispatchBatch(models.Model):
     )
 
     name = fields.Char(string="批次号", required=True, copy=False, default="新建", index=True)
+    active = fields.Boolean(default=True, index=True)
     batch_no = fields.Char(
         string="批次号（导入导出）",
         compute="_compute_batch_no",
@@ -153,3 +154,35 @@ class LogisticsDispatchBatch(models.Model):
             for field_name, field_value in self._build_snapshot_vals(normalized_vals).items():
                 normalized_vals.setdefault(field_name, field_value)
         return super().write(normalized_vals)
+
+    def _logistics_delete_related(self, model_name, domain):
+        if model_name not in self.env.registry:
+            return
+        records = self.env[model_name].sudo().search(domain)
+        if not records:
+            return
+        if hasattr(records, "action_logistics_delete"):
+            records.action_logistics_delete()
+            return
+        records.unlink()
+
+    def action_logistics_delete(self):
+        batch_ids = self.ids
+        self._logistics_delete_related(
+            "logistics.trace.exception",
+            [("batch_id", "in", batch_ids), ("waybill_id", "=", False)],
+        )
+        self._logistics_delete_related(
+            "logistics.trace.evidence",
+            [("batch_id", "in", batch_ids), ("waybill_id", "=", False)],
+        )
+        self._logistics_delete_related(
+            "logistics.trace.event",
+            [("batch_id", "in", batch_ids), ("waybill_id", "=", False)],
+        )
+        self.waybill_ids.action_logistics_delete()
+        self.unlink()
+        return True
+
+    def action_logistics_archive(self):
+        return self.action_logistics_delete()

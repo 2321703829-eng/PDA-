@@ -10,6 +10,11 @@ const LOGISTICS_OPERATION_MODELS = new Set([
     "logistics.dispatch.waybill.customer.line",
     "logistics.dispatch.waybill.customer.goods.line",
     "logistics.dispatch.waybill.order.line",
+    "logistics.route.planning.batch",
+    "logistics.trace.event",
+    "logistics.trace.evidence",
+    "logistics.trace.evidence.summary",
+    "logistics.trace.exception",
 ]);
 
 patch(FormController.prototype, {
@@ -27,7 +32,6 @@ patch(FormController.prototype, {
             !this.env.inDialog &&
             this.props.resModel &&
             LOGISTICS_OPERATION_MODELS.has(this.props.resModel) &&
-            this.activeActions?.delete &&
             Boolean(this.model?.root?.resId)
         );
     },
@@ -52,12 +56,12 @@ patch(FormController.prototype, {
         if (!resId) {
             return;
         }
-        const confirmed = window.confirm("确定删除当前记录吗？");
+        const confirmed = window.confirm("确定删除当前记录吗？删除后不可恢复。");
         if (!confirmed) {
             return;
         }
         try {
-            await this.env.services.orm.unlink(this.props.resModel, [resId], {
+            await this.env.services.orm.call(this.props.resModel, "action_logistics_delete", [[resId]], {
                 context: this.model?.root?.context,
             });
             this.env.services.notification.add("删除成功。", {

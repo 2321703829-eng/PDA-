@@ -20,6 +20,7 @@ class LogisticsDispatchWaybillOrderLine(models.Model):
         "同一配送节点下的来源单号必须唯一。",
     )
 
+    active = fields.Boolean(default=True, index=True)
     waybill_id = fields.Many2one("logistics.dispatch.waybill", string="运单", required=True, ondelete="cascade", index=True)
     customer_line_id = fields.Many2one(
         "logistics.dispatch.waybill.customer.line",
@@ -166,3 +167,11 @@ class LogisticsDispatchWaybillOrderLine(models.Model):
             if record.customer_line_id:
                 record.waybill_id = record.customer_line_id.waybill_id
                 record.store_id = record.customer_line_id.partner_id
+
+    def action_logistics_delete(self):
+        self.goods_line_ids.action_logistics_delete()
+        self.unlink()
+        return True
+
+    def action_logistics_archive(self):
+        return self.action_logistics_delete()

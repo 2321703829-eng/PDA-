@@ -29,6 +29,7 @@ class LogisticsDispatchWaybill(models.Model):
     name = fields.Char(string="运单号", required=True, copy=False, default="新建", index=True)
     waybill_no = fields.Char(string="运单号（导入导出）", compute="_compute_waybill_no", inverse="_inverse_waybill_no")
     waybill_group_no = fields.Char(string="运单分组号", size=64, index=True)
+    active = fields.Boolean(default=True, index=True)
     delivery_date = fields.Date(string="配送日期", default=fields.Date.context_today, index=True)
 
     partner_id = fields.Many2one(
@@ -482,6 +483,30 @@ class LogisticsDispatchWaybill(models.Model):
             "domain": [("waybill_id", "=", self.id)],
             "context": {"default_waybill_id": self.id},
         }
+
+    def _logistics_delete_related(self, model_name, domain):
+        if model_name not in self.env.registry:
+            return
+        records = self.env[model_name].sudo().search(domain)
+        if not records:
+            return
+        if hasattr(records, "action_logistics_delete"):
+            records.action_logistics_delete()
+            return
+        records.unlink()
+
+    def action_logistics_delete(self):
+        waybill_ids = self.ids
+        self._logistics_delete_related("logistics.trace.exception", [("waybill_id", "in", waybill_ids)])
+        self._logistics_delete_related("logistics.trace.evidence", [("waybill_id", "in", waybill_ids)])
+        self._logistics_delete_related("logistics.trace.event", [("waybill_id", "in", waybill_ids)])
+        self.customer_line_ids.action_logistics_delete()
+        self.order_line_ids.action_logistics_delete()
+        self.unlink()
+        return True
+
+    def action_logistics_archive(self):
+        return self.action_logistics_delete()
 
     def action_open_customer_lines(self):
         self.ensure_one()

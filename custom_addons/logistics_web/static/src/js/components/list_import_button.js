@@ -20,6 +20,11 @@ const LOGISTICS_OPERATION_MODELS = new Set([
     "logistics.dispatch.waybill.customer.line",
     "logistics.dispatch.waybill.customer.goods.line",
     "logistics.dispatch.waybill.order.line",
+    "logistics.route.planning.batch",
+    "logistics.trace.event",
+    "logistics.trace.evidence",
+    "logistics.trace.evidence.summary",
+    "logistics.trace.exception",
 ]);
 
 patch(ListController.prototype, {
@@ -27,7 +32,6 @@ patch(ListController.prototype, {
         return (
             !this.env.inDialog &&
             this.props.showButtons &&
-            this.activeActions.delete &&
             LOGISTICS_OPERATION_MODELS.has(this.props.resModel)
         );
     },
@@ -40,12 +44,12 @@ patch(ListController.prototype, {
             });
             return;
         }
-        const confirmed = window.confirm(`确定删除已选中的 ${selectedIds.length} 条记录吗？`);
+        const confirmed = window.confirm(`确定删除已选中的 ${selectedIds.length} 条记录吗？删除后不可恢复。`);
         if (!confirmed) {
             return;
         }
         try {
-            await this.env.services.orm.unlink(this.props.resModel, selectedIds, {
+            await this.env.services.orm.call(this.props.resModel, "action_logistics_delete", [selectedIds], {
                 context: this.model.root.context,
             });
             this.env.services.notification.add("删除成功，正在刷新列表。", {
@@ -209,7 +213,7 @@ patch(ListController.prototype, {
     async exportEvidenceSummaryImages() {
         const selectedIds = await this.model.root.getResIds(true);
         if (!selectedIds.length) {
-            this.env.services.notification.add("\u8bf7\u5148\u9009\u62e9\u81f3\u5c11\u4e00\u6761\u7559\u75d5\u6c47\u603b\uff0c\u518d\u53d1\u8d77\u5bfc\u51fa\u3002", {
+            this.env.services.notification.add("请先选择至少一条留痕汇总，再发起导出。", {
                 type: "warning",
             });
             return;
@@ -238,7 +242,7 @@ patch(ListController.prototype, {
             });
         }
         if (!waybillIds.length) {
-            this.env.services.notification.add("\u9009\u4e2d\u7684\u7559\u75d5\u6c47\u603b\u6ca1\u6709\u5173\u8054\u8fd0\u5355\uff0c\u6682\u65f6\u65e0\u6cd5\u5bfc\u51fa\u3002", {
+            this.env.services.notification.add("选中的留痕汇总没有关联运单，暂时无法导出。", {
                 type: "warning",
             });
             return;
@@ -259,7 +263,7 @@ patch(ListController.prototype, {
                     items,
                 },
             },
-            "\u7559\u75d5\u56fe\u7247\u6279\u91cf\u5bfc\u51fa\u5931\u8d25\uff0c\u8bf7\u7a0d\u540e\u91cd\u8bd5\u3002"
+            "留痕图片批量导出失败，请稍后重试。"
         );
     },
 

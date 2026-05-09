@@ -189,3 +189,18 @@ class LogisticsTraceEvent(models.Model):
         trace_dt = fields.Datetime.to_datetime(trace_time) if trace_time else fields.Datetime.now()
         event_label = dict(self.EVENT_SELECTION).get(event_type, "Trace Event")
         return f"{event_label} - {fields.Datetime.to_string(trace_dt)}"
+
+    def action_logistics_delete(self):
+        if "logistics.trace.exception" in self.env.registry:
+            self.env["logistics.trace.exception"].sudo().search(
+                [("trace_event_id", "in", self.ids)]
+            ).action_logistics_delete()
+        if "logistics.trace.evidence" in self.env.registry:
+            self.env["logistics.trace.evidence"].sudo().search(
+                [("trace_event_id", "in", self.ids)]
+            ).action_logistics_delete()
+        self.unlink()
+        return True
+
+    def action_logistics_archive(self):
+        return self.action_logistics_delete()

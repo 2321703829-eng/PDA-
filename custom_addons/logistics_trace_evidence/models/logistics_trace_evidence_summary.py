@@ -175,6 +175,22 @@ class LogisticsTraceEvidenceSummary(models.Model):
             "views": [[False, "form"]],
         }
 
+    def action_logistics_delete(self):
+        evidence_model = self.env["logistics.trace.evidence"].sudo()
+        for record in self:
+            if not record.waybill_id:
+                continue
+            domain = [("waybill_id", "=", record.waybill_id.id)]
+            if record.upload_role:
+                domain.append(("upload_role", "=", record.upload_role))
+            evidences = evidence_model.search(domain)
+            if evidences:
+                evidences.action_logistics_delete()
+        return True
+
+    def action_logistics_archive(self):
+        return self.action_logistics_delete()
+
     def init(self):
         tools.drop_view_if_exists(self.env.cr, self._table)
         self.env.cr.execute(
