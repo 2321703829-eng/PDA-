@@ -10,4 +10,5 @@ from . import database_guard
 from . import webmanifest
 from . import logistics_web_admin_import
 from . import logistics_web_mini_import
+from . import tenant_db_param_guard
 
