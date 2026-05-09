@@ -16,6 +16,10 @@
 | `2026-04-27_企业隔离P1_trace_evidence_exception差距盘点表.md` |  |  |
 | `2026-04-27_企业隔离P1_trace_evidence_exception设计小稿拆分与开发任务单.md` |  |  |
 | `2026-04-27_企业隔离P1_开发任务拆分单_v2.md` |  |  |
+| `2026-05-09_19109_odoo.conf.example` | `19109` Odoo 多租户配置模板 |  |
+| `2026-05-09_19109_team_access.nginx.conf` | 团队访问 Nginx 入口模板 |  |
+| `2026-05-09_19109_team_access_verify.ps1` | 团队访问回归验收脚本 |  |
+| `2026-05-09_19109_team_access_client_diag.ps1` | 团队成员客户端一键排查脚本 |  |
 
 ## 状态标识
 
