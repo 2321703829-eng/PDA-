@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ===== 系统底座 ===== -->
+    <record id="group_system_admin" model="res.groups">
+        <field name="name">系统管理员</field>
+        <field name="comment">可管理账号、角色、权限、模块配置、操作日志</field>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <!-- ===== ERP 角色 ===== -->
+    <record id="group_erp_admin" model="res.groups">
+        <field name="name">ERP 管理员</field>
+        <field name="comment">管理商品、客户、供应商、价格主档，查看全部 ERP 数据</field>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <record id="group_erp_sales" model="res.groups">
+        <field name="name">销售业务</field>
+        <field name="comment">销售订单、订单导入、客户管理，查看销售报表</field>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <record id="group_erp_purchase" model="res.groups">
+        <field name="name">采购业务</field>
+        <field name="comment">采购订单、供应商管理，查看采购报表</field>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <record id="group_erp_accountant" model="res.groups">
+        <field name="name">财务会计</field>
+        <field name="comment">应收应付、收付款、对账、结账、结算，经营报表</field>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <!-- ===== WMS 角色 ===== -->
+    <record id="group_wms_manager" model="res.groups">
+        <field name="name">仓库管理员</field>
+        <field name="comment">仓库配置、库位管理、库存盘点、仓库报表</field>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <record id="group_wms_operator" model="res.groups">
+        <field name="name">仓库作业员</field>
+        <field name="comment">收货、上架、拣货、复核、装车交接</field>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <!-- ===== TMS 角色 ===== -->
+    <record id="group_tms_dispatcher" model="res.groups">
+        <field name="name">调度员</field>
+        <field name="comment">排线、派车、运单管理、司机任务下发</field>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <record id="group_tms_driver" model="res.groups">
+        <field name="name">司机</field>
+        <field name="comment">仅查看自己的任务、导航、签收上报</field>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <!-- ===== BI 角色 ===== -->
+    <record id="group_bi_viewer" model="res.groups">
+        <field name="name">BI 查看者</field>
+        <field name="comment">只读查看 BI 看板和 KPI 日报，不能改动业务数据</field>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+</odoo>
