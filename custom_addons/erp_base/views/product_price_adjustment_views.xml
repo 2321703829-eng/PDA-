@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_price_adjustment_tree" model="ir.ui.view">
+        <field name="name">product.price.adjustment.tree</field>
+        <field name="model">product.price.adjustment</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="adjustment_date"/>
+                <field name="product_id"/>
+                <field name="price_type"/>
+                <field name="old_price"/>
+                <field name="new_price"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_price_adjustment_form" model="ir.ui.view">
+        <field name="name">product.price.adjustment.form</field>
+        <field name="model">product.price.adjustment</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_confirm" string="确认生效" type="object"
+                            states="draft" class="btn-primary"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="product_id"/>
+                        <field name="price_type"/>
+                        <field name="adjustment_date"/>
+                    </group>
+                    <group>
+                        <field name="old_price"/>
+                        <field name="new_price"/>
+                    </group>
+                    <group string="原因">
+                        <field name="reason"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_price_adjustment" model="ir.actions.act_window">
+        <field name="name">价格调整记录</field>
+        <field name="res_model">product.price.adjustment</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_price_adjustment"
+              name="价格管理"
+              action="action_price_adjustment"
+              parent="stock.menu_stock_products"
+              sequence="20"/>
+
+</odoo>

@@ -8,3 +8,10 @@ access_wms_operator_partner,wms.operator.partner,base.model_res_partner,erp_base
 access_tms_dispatcher_partner,tms.dispatcher.partner,base.model_res_partner,erp_base.group_tms_dispatcher,1,0,0,0
 access_tms_driver_partner,tms.driver.partner,base.model_res_partner,erp_base.group_tms_driver,1,0,0,0
 access_bi_viewer_partner,bi.viewer.partner,base.model_res_partner,erp_base.group_bi_viewer,1,0,0,0
+access_erp_admin_template,erp.admin.template,model_erp_import_template,erp_base.group_erp_admin,1,1,1,1
+access_erp_sales_template,erp.sales.template,model_erp_import_template,erp_base.group_erp_sales,1,1,1,0
+access_erp_admin_price_adj,erp.admin.price.adj,model_product_price_adjustment,erp_base.group_erp_admin,1,1,1,1
+access_erp_sales_price_adj,erp.sales.price.adj,model_product_price_adjustment,erp_base.group_erp_sales,1,1,1,0
+access_erp_admin_order_import,erp.admin.order.import,model_erp_order_import,erp_base.group_erp_admin,1,1,1,1
+access_erp_sales_order_import,erp.sales.order.import,model_erp_order_import,erp_base.group_erp_sales,1,1,1,0
+access_erp_order_import_line_all,erp.order.import.line,model_erp_order_import_line,erp_base.group_erp_admin,1,1,1,1

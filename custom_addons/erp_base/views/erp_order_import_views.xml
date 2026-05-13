@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_order_import_tree" model="ir.ui.view">
+        <field name="name">erp.order.import.tree</field>
+        <field name="model">erp.order.import</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="state"/>
+                <field name="total_rows"/>
+                <field name="matched_rows"/>
+                <field name="error_rows"/>
+                <field name="create_date"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_order_import_form" model="ir.ui.view">
+        <field name="name">erp.order.import.form</field>
+        <field name="model">erp.order.import</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="import_file" filename="file_name"/>
+                        <field name="file_name" invisible="1"/>
+                    </group>
+                    <group string="统计">
+                        <field name="total_rows"/>
+                        <field name="matched_rows"/>
+                        <field name="error_rows"/>
+                    </group>
+                    <group string="处理日志">
+                        <field name="log"/>
+                    </group>
+                    <field name="order_ids">
+                        <tree>
+                            <field name="sequence"/>
+                            <field name="customer_name"/>
+                            <field name="store_name"/>
+                            <field name="product_name"/>
+                            <field name="quantity"/>
+                            <field name="match_status"/>
+                            <field name="error_msg"/>
+                        </tree>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_order_import" model="ir.actions.act_window">
+        <field name="name">订单导入</field>
+        <field name="res_model">erp.order.import</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_order_import"
+              name="订单导入"
+              action="action_order_import"
+              parent="sale.sale_menu_root"
+              sequence="50"/>
+
+</odoo>

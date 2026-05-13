@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_erp_import_template_tree" model="ir.ui.view">
+        <field name="name">erp.import.template.tree</field>
+        <field name="model">erp.import.template</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="template_type"/>
+                <field name="description"/>
+                <field name="is_active"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_erp_import_template_form" model="ir.ui.view">
+        <field name="name">erp.import.template.form</field>
+        <field name="model">erp.import.template</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="template_type"/>
+                        <field name="is_active"/>
+                        <field name="sequence"/>
+                    </group>
+                    <group string="模板文件">
+                        <field name="attachment_id"/>
+                    </group>
+                    <group string="说明">
+                        <field name="description"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_erp_import_template" model="ir.actions.act_window">
+        <field name="name">导入导出模板</field>
+        <field name="res_model">erp.import.template</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_erp_import_template"
+              name="导入导出模板"
+              action="action_erp_import_template"
+              parent="base.menu_administration"
+              sequence="60"/>
+
+</odoo>
