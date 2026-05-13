@@ -41,18 +41,4 @@
         </field>
     </record>
 
-    <!-- 商品搜索扩展 -->
-    <record id="product_template_search_erp" model="ir.ui.view">
-        <field name="name">product.template.search.erp</field>
-        <field name="model">product.template</field>
-        <field name="inherit_id" ref="product.product_template_search_view"/>
-        <field name="arch" type="xml">
-            <xpath expr="//filter[@name='service']" position="after">
-                <separator/>
-                <filter name="erp_active_sale" string="可销售" domain="[('is_active_sale','=',True)]"/>
-                <filter name="erp_logistics_category" string="物流分类" domain="[]" context="{'group_by':'logistics_category'}"/>
-            </xpath>
-        </field>
-    </record>
-
 </odoo>
