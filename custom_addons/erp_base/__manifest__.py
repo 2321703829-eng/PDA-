@@ -25,6 +25,8 @@
         "views/erp_import_template_views.xml",
         "views/product_price_adjustment_views.xml",
         "views/erp_order_import_views.xml",
+        "views/erp_delivery_plan_views.xml",
+        "views/erp_finance_views.xml",
     ],
     "installable": True,
     "application": True,

@@ -3,3 +3,8 @@ from . import res_partner
 from . import erp_import_template
 from . import product_price_adjustment
 from . import erp_order_import
+from . import erp_delivery_plan
+from . import erp_reconciliation
+from . import erp_claim_writeoff
+from . import erp_period_close
+from . import erp_sale_return

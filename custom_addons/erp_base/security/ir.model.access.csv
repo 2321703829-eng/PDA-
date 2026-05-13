@@ -19,3 +19,8 @@ access_erp_admin_template_all,erp.admin.template.all,model_erp_import_template,b
 access_erp_admin_price_adj_all,erp.admin.price.adj.all,model_product_price_adjustment,base.group_user,1,1,1,1
 access_erp_admin_order_import_all,erp.admin.order.import.all,model_erp_order_import,base.group_user,1,1,1,1
 access_erp_admin_order_line_all,erp.admin.order.line.all,model_erp_order_import_line,base.group_user,1,1,1,1
+access_erp_user_delivery_plan,erp.user.delivery.plan,model_erp_delivery_plan,base.group_user,1,1,1,1
+access_erp_user_reconciliation,erp.user.reconciliation,model_erp_reconciliation,base.group_user,1,1,1,1
+access_erp_user_claim_rule,erp.user.claim.rule,model_erp_claim_rule,base.group_user,1,1,1,1
+access_erp_user_period_close,erp.user.period.close,model_erp_period_close,base.group_user,1,1,1,1
+access_erp_user_sale_return,erp.user.sale.return,model_erp_sale_return,base.group_user,1,1,1,1
