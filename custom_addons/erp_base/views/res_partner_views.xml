@@ -22,7 +22,7 @@
                         <group>
                             <field name="is_logistics_serviceable"/>
                             <field name="is_store"/>
-                            <field name="store_code" attrs="{'invisible': [('is_store', '=', False)]}"/>
+                            <field name="store_code" invisible="not is_store"/>
                         </group>
                     </group>
                 </page>
