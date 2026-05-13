@@ -15,3 +15,7 @@ access_erp_sales_price_adj,erp.sales.price.adj,model_product_price_adjustment,er
 access_erp_admin_order_import,erp.admin.order.import,model_erp_order_import,erp_base.group_erp_admin,1,1,1,1
 access_erp_sales_order_import,erp.sales.order.import,model_erp_order_import,erp_base.group_erp_sales,1,1,1,0
 access_erp_order_import_line_all,erp.order.import.line,model_erp_order_import_line,erp_base.group_erp_admin,1,1,1,1
+access_erp_admin_template_all,erp.admin.template.all,model_erp_import_template,base.group_user,1,1,1,1
+access_erp_admin_price_adj_all,erp.admin.price.adj.all,model_product_price_adjustment,base.group_user,1,1,1,1
+access_erp_admin_order_import_all,erp.admin.order.import.all,model_erp_order_import,base.group_user,1,1,1,1
+access_erp_admin_order_line_all,erp.admin.order.line.all,model_erp_order_import_line,base.group_user,1,1,1,1
