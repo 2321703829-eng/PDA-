@@ -23,7 +23,7 @@
             <form>
                 <header>
                     <button name="action_confirm" string="确认生效" type="object"
-                            states="draft" class="btn-primary"/>
+                            invisible="state != 'draft'" class="btn-primary"/>
                     <field name="state" widget="statusbar"/>
                 </header>
                 <sheet>
