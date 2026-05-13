@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_enterprise_sales_orders" model="ir.actions.act_window">
+        <field name="name">&#38144;&#21806;&#35746;&#21333;</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{}</field>
+    </record>
+
+    <record id="action_enterprise_purchase_orders" model="ir.actions.act_window">
+        <field name="name">&#37319;&#36141;&#35746;&#21333;</field>
+        <field name="res_model">purchase.order</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{}</field>
+    </record>
+
+    <record id="action_enterprise_partners" model="ir.actions.act_window">
+        <field name="name">&#23458;&#25143;/&#20379;&#24212;&#21830;</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{}</field>
+    </record>
+
+    <record id="action_enterprise_products" model="ir.actions.act_window">
+        <field name="name">&#21830;&#21697;&#36164;&#26009;</field>
+        <field name="res_model">product.template</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="context">{}</field>
+    </record>
+
+    <record id="action_enterprise_stock_pickings" model="ir.actions.act_window">
+        <field name="name">&#20986;&#20837;&#24211;&#21333;</field>
+        <field name="res_model">stock.picking</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{}</field>
+    </record>
+
+    <record id="action_enterprise_stock_quants" model="ir.actions.act_window">
+        <field name="name">&#24211;&#23384;&#26597;&#35810;</field>
+        <field name="res_model">stock.quant</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{}</field>
+    </record>
+
+    <record id="action_enterprise_wms_receipts" model="ir.actions.act_window">
+        <field name="name">&#25910;&#36135;&#20219;&#21153;</field>
+        <field name="res_model">wms.receipt.task</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{}</field>
+    </record>
+
+    <record id="action_enterprise_wms_outbound" model="ir.actions.act_window">
+        <field name="name">&#20986;&#24211;&#20219;&#21153;</field>
+        <field name="res_model">wms.outbound.task</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{}</field>
+    </record>
+
+    <record id="action_enterprise_tms_dispatch_orders" model="ir.actions.act_window">
+        <field name="name">&#27966;&#36710;&#21333;</field>
+        <field name="res_model">tms.dispatch.order</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{}</field>
+    </record>
+
+    <record id="action_enterprise_tms_driver_tasks" model="ir.actions.act_window">
+        <field name="name">&#21496;&#26426;&#20219;&#21153;</field>
+        <field name="res_model">tms.driver.task</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{}</field>
+    </record>
+
+    <record id="action_enterprise_trace_evidence" model="ir.actions.act_window">
+        <field name="name">&#31614;&#25910;&#22238;&#21333;/&#35777;&#25454;</field>
+        <field name="res_model">logistics.trace.evidence</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{}</field>
+    </record>
+
+    <record id="action_enterprise_trace_exception" model="ir.actions.act_window">
+        <field name="name">&#37197;&#36865;&#24322;&#24120;</field>
+        <field name="res_model">logistics.trace.exception</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{}</field>
+    </record>
+
+    <menuitem id="menu_enterprise_master_data"
+              name="&#22522;&#30784;&#36164;&#26009;"
+              parent="menu_tianshu_enterprise_root"
+              sequence="20"/>
+
+    <menuitem id="menu_enterprise_master_partners"
+              name="&#23458;&#25143;/&#20379;&#24212;&#21830;"
+              parent="menu_enterprise_master_data"
+              action="action_enterprise_partners"
+              sequence="10"/>
+
+    <menuitem id="menu_enterprise_master_products"
+              name="&#21830;&#21697;&#36164;&#26009;"
+              parent="menu_enterprise_master_data"
+              action="action_enterprise_products"
+              sequence="20"/>
+
+    <menuitem id="menu_enterprise_master_drivers"
+              name="&#21496;&#26426;&#31649;&#29702;"
+              parent="menu_enterprise_master_data"
+              action="action_logistics_web_driver_management"
+              sequence="30"/>
+
+    <menuitem id="menu_enterprise_master_vehicles"
+              name="&#36710;&#36742;&#31649;&#29702;"
+              parent="menu_enterprise_master_data"
+              action="action_logistics_web_vehicle_management"
+              sequence="40"/>
+
+    <menuitem id="menu_enterprise_erp"
+              name="&#35746;&#21333;&#32463;&#33829; ERP"
+              parent="menu_tianshu_enterprise_root"
+              sequence="30"/>
+
+    <menuitem id="menu_enterprise_erp_sales"
+              name="&#38144;&#21806;&#35746;&#21333;"
+              parent="menu_enterprise_erp"
+              action="action_enterprise_sales_orders"
+              sequence="10"/>
+
+    <menuitem id="menu_enterprise_erp_purchase"
+              name="&#37319;&#36141;&#35746;&#21333;"
+              parent="menu_enterprise_erp"
+              action="action_enterprise_purchase_orders"
+              sequence="20"/>
+
+    <menuitem id="menu_enterprise_wms"
+              name="&#20179;&#24211;&#20316;&#19994; WMS"
+              parent="menu_tianshu_enterprise_root"
+              sequence="40"/>
+
+    <menuitem id="menu_enterprise_wms_receipts"
+              name="&#25910;&#36135;&#20219;&#21153;"
+              parent="menu_enterprise_wms"
+              action="action_enterprise_wms_receipts"
+              sequence="10"/>
+
+    <menuitem id="menu_enterprise_wms_outbound"
+              name="&#20986;&#24211;&#20219;&#21153;"
+              parent="menu_enterprise_wms"
+              action="action_enterprise_wms_outbound"
+              sequence="20"/>
+
+    <menuitem id="menu_enterprise_wms_pickings"
+              name="&#20986;&#20837;&#24211;&#21333;"
+              parent="menu_enterprise_wms"
+              action="action_enterprise_stock_pickings"
+              sequence="30"/>
+
+    <menuitem id="menu_enterprise_wms_stock"
+              name="&#24211;&#23384;&#26597;&#35810;"
+              parent="menu_enterprise_wms"
+              action="action_enterprise_stock_quants"
+              sequence="40"/>
+
+    <menuitem id="menu_enterprise_tms"
+              name="&#37197;&#36865;&#35843;&#24230; TMS"
+              parent="menu_tianshu_enterprise_root"
+              sequence="50"/>
+
+    <menuitem id="menu_enterprise_tms_workbench"
+              name="&#35843;&#24230;&#24037;&#20316;&#21488;"
+              parent="menu_enterprise_tms"
+              action="action_logistics_web_dashboard"
+              sequence="10"/>
+
+    <menuitem id="menu_enterprise_tms_batches"
+              name="&#25209;&#27425;"
+              parent="menu_enterprise_tms"
+              action="logistics_dispatch.action_logistics_dispatch_batch"
+              sequence="20"/>
+
+    <menuitem id="menu_enterprise_tms_waves"
+              name="&#27874;&#27425;"
+              parent="menu_enterprise_tms"
+              action="logistics_dispatch.action_logistics_dispatch_wave"
+              sequence="30"/>
+
+    <menuitem id="menu_enterprise_tms_waybills"
+              name="&#36816;&#21333;&#21015;&#34920;"
+              parent="menu_enterprise_tms"
+              action="logistics_dispatch.action_logistics_dispatch_waybill"
+              sequence="40"/>
+
+    <menuitem id="menu_enterprise_tms_customer_lines"
+              name="&#37197;&#36865;&#33410;&#28857;&#26126;&#32454;"
+              parent="menu_enterprise_tms"
+              action="logistics_dispatch.action_logistics_dispatch_waybill_customer_line"
+              sequence="50"/>
+
+    <menuitem id="menu_enterprise_tms_order_lines"
+              name="&#35746;&#21333;&#26126;&#32454;"
+              parent="menu_enterprise_tms"
+              action="logistics_dispatch.action_logistics_dispatch_waybill_order_line"
+              sequence="60"/>
+
+    <menuitem id="menu_enterprise_tms_goods_lines"
+              name="&#36135;&#29289;&#26126;&#32454;"
+              parent="menu_enterprise_tms"
+              action="logistics_dispatch.action_logistics_dispatch_waybill_customer_goods_line"
+              sequence="70"/>
+
+    <menuitem id="menu_enterprise_tms_dispatch_orders"
+              name="&#27966;&#36710;&#21333;"
+              parent="menu_enterprise_tms"
+              action="action_enterprise_tms_dispatch_orders"
+              sequence="80"/>
+
+    <menuitem id="menu_enterprise_tms_driver_tasks"
+              name="&#21496;&#26426;&#20219;&#21153;"
+              parent="menu_enterprise_tms"
+              action="action_enterprise_tms_driver_tasks"
+              sequence="90"/>
+
+    <menuitem id="menu_enterprise_tms_import_center"
+              name="&#23548;&#20837;&#20013;&#24515;"
+              parent="menu_enterprise_tms"
+              action="action_logistics_web_import_center"
+              sequence="100"/>
+
+    <menuitem id="menu_enterprise_tms_exception"
+              name="&#37197;&#36865;&#24322;&#24120;"
+              parent="menu_enterprise_tms"
+              action="action_enterprise_trace_exception"
+              sequence="110"/>
+
+    <menuitem id="menu_enterprise_trace"
+              name="&#30041;&#30165;&#35777;&#25454;"
+              parent="menu_enterprise_tms"
+              sequence="120"/>
+
+    <menuitem id="menu_enterprise_trace_warehouse"
+              name="&#20179;&#24211;&#35777;&#25454;"
+              parent="menu_enterprise_trace"
+              action="logistics_trace_evidence.action_logistics_trace_evidence_summary_warehouse"
+              sequence="10"/>
+
+    <menuitem id="menu_enterprise_trace_driver"
+              name="&#21496;&#26426;&#35777;&#25454;"
+              parent="menu_enterprise_trace"
+              action="logistics_trace_evidence.action_logistics_trace_evidence_summary_driver"
+              sequence="20"/>
+
+    <menuitem id="menu_enterprise_trace_summary"
+              name="&#35777;&#25454;&#27719;&#24635;"
+              parent="menu_enterprise_trace"
+              action="logistics_trace_evidence.action_logistics_trace_evidence_summary"
+              sequence="30"/>
+
+    <menuitem id="menu_enterprise_bi"
+              name="&#25968;&#25454;&#30475;&#26495; BI"
+              parent="menu_tianshu_enterprise_root"
+              action="action_logistics_web_stats_center"
+              groups="base.group_system,logistics_web.group_logistics_analysis_viewer"
+              sequence="60"/>
+
+    <menuitem id="menu_enterprise_bi_trace"
+              name="&#31649;&#29702;&#30475;&#26495;"
+              parent="menu_enterprise_bi"
+              action="action_logistics_web_boss_trace"
+              sequence="10"/>
+
+    <menuitem id="menu_enterprise_bi_stats"
+              name="&#32479;&#35745;&#22270;&#34920;&#20013;&#24515;"
+              parent="menu_enterprise_bi"
+              action="action_logistics_web_stats_center"
+              sequence="20"/>
+</odoo>
