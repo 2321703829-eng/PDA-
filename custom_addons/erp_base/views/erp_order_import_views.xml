@@ -5,14 +5,14 @@
         <field name="name">erp.order.import.tree</field>
         <field name="model">erp.order.import</field>
         <field name="arch" type="xml">
-            <tree>
+            <list>
                 <field name="name"/>
                 <field name="state"/>
                 <field name="total_rows"/>
                 <field name="matched_rows"/>
                 <field name="error_rows"/>
                 <field name="create_date"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -39,7 +39,7 @@
                         <field name="log"/>
                     </group>
                     <field name="order_ids">
-                        <tree>
+                        <list>
                             <field name="sequence"/>
                             <field name="customer_name"/>
                             <field name="store_name"/>
@@ -47,7 +47,7 @@
                             <field name="quantity"/>
                             <field name="match_status"/>
                             <field name="error_msg"/>
-                        </tree>
+                        </list>
                     </field>
                 </sheet>
             </form>
@@ -57,7 +57,7 @@
     <record id="action_order_import" model="ir.actions.act_window">
         <field name="name">订单导入</field>
         <field name="res_model">erp.order.import</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
     </record>
 
     <menuitem id="menu_order_import"

@@ -5,13 +5,13 @@
         <field name="name">erp.import.template.tree</field>
         <field name="model">erp.import.template</field>
         <field name="arch" type="xml">
-            <tree>
+            <list>
                 <field name="sequence" widget="handle"/>
                 <field name="name"/>
                 <field name="template_type"/>
                 <field name="description"/>
                 <field name="is_active"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -41,7 +41,7 @@
     <record id="action_erp_import_template" model="ir.actions.act_window">
         <field name="name">导入导出模板</field>
         <field name="res_model">erp.import.template</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
     </record>
 
     <menuitem id="menu_erp_import_template"
