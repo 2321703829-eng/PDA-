@@ -1,0 +1,25 @@
+{
+    "name": "B2B Storefront",
+    "version": "19.0.1.0.0",
+    "summary": "B2B customer ordering frontend - product browsing, cart, checkout, order tracking",
+    "author": "Tianshu Tech",
+    "license": "LGPL-3",
+    "depends": [
+        "base", "contacts", "product", "sale", "sale_stock",
+        "account", "stock", "website", "portal", "website_sale",
+        "erp_base",
+    ],
+    "data": [
+        "security/b2b_storefront_security.xml",
+        "security/ir.model.access.csv",
+        "views/res_partner_views.xml",
+        "views/product_template_views.xml",
+        "views/b2b_catalog_scope_views.xml",
+        "views/b2b_cart_views.xml",
+        "views/b2b_after_sale_views.xml",
+        "views/b2b_config_views.xml",
+        "views/sale_order_b2b_views.xml",
+    ],
+    "installable": True,
+    "application": False,
+}
