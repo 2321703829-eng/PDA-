@@ -27,6 +27,8 @@
     "data": [
         "security/erp_base_security.xml",
         "security/ir.model.access.csv",
+        "views/product_template_views.xml",
+        "views/res_partner_views.xml",
     ],
     "installable": True,
     "application": True,
