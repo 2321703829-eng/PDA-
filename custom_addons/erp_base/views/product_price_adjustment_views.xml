@@ -53,7 +53,7 @@
     <menuitem id="menu_price_adjustment"
               name="价格管理"
               action="action_price_adjustment"
-              parent="stock.menu_stock_products"
+              parent="sale.sale_menu_root"
               sequence="20"/>
 
 </odoo>
