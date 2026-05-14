@@ -13,6 +13,18 @@ class B2bFrontend(http.Controller):
             cart = request.env["b2b.cart.draft"].sudo().create({"partner_id": partner_id})
         return cart
 
+    def _get_stores(self):
+        """获取可用的收货门店列表。如果没配 B2B 门店字段,退回显示所有公司类型 partner"""
+        stores = request.env["res.partner"].sudo().search(
+            [("is_b2b_store", "=", True), ("b2b_enabled", "=", True)])
+        if not stores:
+            # 退回: 显示当前登录用户的 partner 及所有公司
+            stores = request.env["res.partner"].sudo().search(
+                [("is_company", "=", True)], limit=20)
+        if not stores:
+            stores = request.env.user.partner_id
+        return stores
+
     def _get_cart_values(self, cart):
         lines = []
         total_qty = 0
@@ -71,7 +83,7 @@ class B2bFrontend(http.Controller):
     def cart_page(self, **kw):
         cart = self._get_cart()
         cv = self._get_cart_values(cart)
-        stores = request.env["res.partner"].sudo().search([("is_b2b_store", "=", True)])
+        stores = self._get_stores()
         return request.render("b2b_storefront.cart_page", {
             "cart": cart, "stores": stores,
             "lines": cv["lines"], "total_qty": cv["total_qty"],
@@ -115,7 +127,7 @@ class B2bFrontend(http.Controller):
         if not cart.line_ids:
             return request.redirect("/b2b/cart")
         cv = self._get_cart_values(cart)
-        stores = request.env["res.partner"].sudo().search([("is_b2b_store", "=", True)])
+        stores = self._get_stores()
         partner = request.env.user.partner_id
         return request.render("b2b_storefront.checkout_page", {
             "cart": cart, "stores": stores, "partner": partner,
@@ -139,7 +151,7 @@ class B2bFrontend(http.Controller):
                 "lines": self._get_cart_values(cart)["lines"],
                 "total_amount": self._get_cart_values(cart)["total_amount"],
                 "total_qty": self._get_cart_values(cart)["total_qty"],
-                "stores": request.env["res.partner"].sudo().search([("is_b2b_store", "=", True)]),
+                "stores": self._get_stores(),
                 "partner": request.env.user.partner_id,
                 "payment_method": kw.get("payment_method", "credit"),
             })
@@ -149,9 +161,10 @@ class B2bFrontend(http.Controller):
             order_lines = []
             for l in cart.line_ids:
                 variant = l.product_id.product_variant_id
+                v_id = variant.id if variant else l.product_id.product_variant_ids[:1].id if l.product_id.product_variant_ids else False
                 order_lines.append((0, 0, {
                     "product_template_id": l.product_id.id,
-                    "product_id": variant.id if variant else False,
+                    "product_id": v_id,
                     "product_uom_qty": l.qty,
                     "price_unit": l.unit_price,
                 }))
@@ -175,7 +188,7 @@ class B2bFrontend(http.Controller):
                 "lines": self._get_cart_values(cart)["lines"],
                 "total_amount": self._get_cart_values(cart)["total_amount"],
                 "total_qty": self._get_cart_values(cart)["total_qty"],
-                "stores": request.env["res.partner"].sudo().search([("is_b2b_store", "=", True)]),
+                "stores": self._get_stores(),
                 "partner": request.env.user.partner_id,
                 "payment_method": kw.get("payment_method", "credit"),
             })
