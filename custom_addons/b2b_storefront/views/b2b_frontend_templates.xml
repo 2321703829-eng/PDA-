@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- ===== 公共导航栏 ===== -->
+    <!-- ===== 导航栏 ===== -->
     <template id="b2b_navbar" name="B2B Navbar">
-        <div class="b2b-navbar" style="background:#0052d9;color:#fff;padding:12px 20px;display:flex;justify-content:space-between;align-items:center">
+        <div style="background:#0052d9;color:#fff;padding:10px 20px;display:flex;justify-content:space-between;align-items:center">
             <div>
-                <a href="/b2b/products" style="color:#fff;margin-right:20px;text-decoration:none">商品</a>
-                <a href="/b2b/cart" style="color:#fff;margin-right:20px;text-decoration:none">购物车<t t-if="cart_count" style="background:red;border-radius:10px;padding:1px 6px;font-size:12px;margin-left:4px"><t t-esc="cart_count"/></t></a>
-                <a href="/b2b/orders" style="color:#fff;text-decoration:none">我的订单</a>
+                <a href="/b2b/products" style="color:#fff;margin-right:20px;text-decoration:none;font-size:15px">商品</a>
+                <a href="/b2b/cart" style="color:#fff;margin-right:20px;text-decoration:none;font-size:15px">
+                    购物车<t t-if="cart_count" style="background:red;border-radius:10px;padding:1px 7px;font-size:12px;margin-left:4px"><t t-esc="cart_count"/></t>
+                </a>
+                <a href="/b2b/orders" style="color:#fff;text-decoration:none;font-size:15px">我的订单</a>
             </div>
             <div>
                 <span style="margin-right:12px"><t t-esc="request.env.user.partner_id.name"/></span>
@@ -20,24 +22,19 @@
     <template id="product_list_page" name="B2B Product List">
         <t t-call="website.layout">
             <div id="wrap">
-                <div class="container">
-                    <!-- 搜索 -->
-                    <div style="margin:20px 0;display:flex;gap:8px">
-                        <form method="get" action="/b2b/products" style="display:flex;gap:8px;width:100%">
-                            <input type="text" name="keyword" class="form-control" placeholder="搜索商品名称/编码" t-att-value="keyword" style="flex:1"/>
-                            <select name="category_id" class="form-control" style="width:200px">
-                                <option value="">全部分类</option>
-                                <t t-foreach="categories" t-as="c">
-                                    <option t-att-value="c.id"><t t-esc="c.name"/></option>
-                                </t>
-                            </select>
-                            <button type="submit" class="btn btn-primary">搜索</button>
-                        </form>
-                        <a href="/b2b/cart" class="btn btn-outline-primary">
-                            购物车 <t t-if="cart_count">(<t t-esc="cart_count"/>)</t>
-                        </a>
-                    </div>
-                    <!-- 商品网格 -->
+                <t t-call="b2b_storefront.b2b_navbar"/>
+                <div class="container" style="margin-top:20px">
+                    <form method="get" action="/b2b/products" style="display:flex;gap:8px;margin-bottom:20px">
+                        <input type="text" name="keyword" class="form-control" placeholder="搜索商品名称/编码" t-att-value="keyword" style="flex:1"/>
+                        <select name="category_id" class="form-control" style="width:200px">
+                            <option value="">全部分类</option>
+                            <t t-foreach="categories" t-as="c"><option t-att-value="c.id"><t t-esc="c.name"/></option></t>
+                        </select>
+                        <button type="submit" class="btn btn-primary">搜索</button>
+                    </form>
+                    <t t-if="'added' in str(request.httprequest.query_string)">
+                        <div class="alert alert-success">已加入购物车</div>
+                    </t>
                     <div class="row">
                         <t t-foreach="products" t-as="p">
                             <div class="col-md-3 col-sm-6" style="margin-bottom:16px">
@@ -46,20 +43,21 @@
                                         <h6 class="card-title"><t t-esc="p.name"/></h6>
                                         <p class="text-muted small" t-if="p.default_code"><t t-esc="p.default_code"/></p>
                                         <p class="text-primary font-weight-bold" style="font-size:18px">¥<t t-esc="'%.2f' % p.list_price"/></p>
-                                        <p class="small text-muted" t-if="p.b2b_min_qty and p.b2b_min_qty > 1">起订量: <t t-esc="int(p.b2b_min_qty)"/></p>
-                                        <p class="small text-muted" t-if="p.b2b_saleable_desc"><t t-esc="p.b2b_saleable_desc"/></p>
+                                        <p class="small text-muted" t-if="p.b2b_min_qty and p.b2b_min_qty > 1">起订: <t t-esc="int(p.b2b_min_qty)"/></p>
                                         <form method="post" action="/b2b/cart/add">
-                                            <input type="hidden" name="product_id" t-att-value="p.id"/>
-                                            <input type="hidden" name="qty" t-att-value="int(p.b2b_min_qty) or 1"/>
                                             <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                                            <button type="submit" class="btn btn-sm btn-success btn-block">加入购物车</button>
+                                            <input type="hidden" name="product_id" t-att-value="p.id"/>
+                                            <div style="display:flex;gap:4px">
+                                                <input type="number" name="qty" class="form-control form-control-sm" style="width:60px" t-att-value="int(p.b2b_min_qty) or 1" min="1"/>
+                                                <button type="submit" class="btn btn-sm btn-success" style="flex:1">加入购物车</button>
+                                            </div>
                                         </form>
                                     </div>
                                 </div>
                             </div>
                         </t>
                     </div>
-                    <p t-if="not products" class="text-center text-muted" style="margin-top:40px">暂无商品</p>
+                    <p t-if="not products" class="text-center text-muted" style="margin-top:60px">暂无商品</p>
                 </div>
             </div>
         </t>
@@ -68,208 +66,223 @@
     <!-- ===== 购物车页 ===== -->
     <template id="cart_page" name="B2B Cart">
         <t t-call="website.layout">
-            <div id="wrap"><div class="container" style="margin-top:20px">
-                <h3>我的购物车</h3>
-                <t t-if="lines">
-                    <table class="table">
-                        <thead><tr><th>商品</th><th>单价</th><th>数量</th><th>小计</th><th>操作</th></tr></thead>
-                        <tbody>
-                            <t t-foreach="lines" t-as="l">
-                                <tr>
-                                    <td><t t-esc="l['product'].name"/></td>
-                                    <td>¥<t t-esc="'%.2f' % l['unit_price']"/></td>
-                                    <td>
-                                        <form method="post" action="/b2b/cart/update" style="display:inline">
-                                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                                            <input type="hidden" name="line_id" t-att-value="l['id']"/>
-                                            <input type="number" name="qty" t-att-value="l['qty']" min="1" style="width:70px"/>
-                                            <button type="submit" class="btn btn-sm btn-outline-secondary">更新</button>
-                                        </form>
-                                    </td>
-                                    <td>¥<t t-esc="'%.2f' % l['subtotal']"/></td>
-                                    <td>
-                                        <form method="post" action="/b2b/cart/update" style="display:inline">
-                                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                                            <input type="hidden" name="line_id" t-att-value="l['id']"/>
-                                            <input type="hidden" name="qty" value="0"/>
-                                            <button type="submit" class="btn btn-sm btn-danger">删除</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            </t>
-                        </tbody>
-                    </table>
-                    <div style="text-align:right;margin:20px 0">
-                        <h4>合计: ¥<t t-esc="'%.2f' % total_amount"/> (共<t t-esc="total_qty"/>件)</h4>
-                        <form method="post" action="/b2b/cart/clear" style="display:inline;margin-right:8px">
-                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                            <button type="submit" class="btn btn-outline-danger">清空购物车</button>
-                        </form>
-                        <a href="/b2b/checkout" class="btn btn-primary btn-lg">去结算</a>
+            <div id="wrap">
+                <t t-call="b2b_storefront.b2b_navbar"/>
+                <div class="container" style="margin-top:20px">
+                    <h3>我的购物车</h3>
+                    <!-- 门店选择 -->
+                    <div class="card" style="margin-bottom:16px">
+                        <div class="card-body">
+                            <form method="post" action="/b2b/cart/set-store" style="display:flex;gap:8px;align-items:center">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                <label style="white-space:nowrap;margin:0">收货门店:</label>
+                                <select name="store_id" class="form-control" style="width:300px">
+                                    <option value="">请选择</option>
+                                    <t t-foreach="stores" t-as="s">
+                                        <option t-att-value="s.id" t-att-selected="'selected' if cart.store_id.id == s.id else None"><t t-esc="s.name"/></option>
+                                    </t>
+                                </select>
+                                <button type="submit" class="btn btn-sm btn-outline-primary">确定</button>
+                            </form>
+                        </div>
                     </div>
-                </t>
-                <t t-else=""><p class="text-center text-muted" style="margin-top:60px">购物车是空的</p></t>
-            </div></div>
+                    <!-- 商品列表 -->
+                    <t t-if="lines">
+                        <table class="table">
+                            <thead><tr><th>商品</th><th>单价</th><th>数量</th><th>小计</th><th>操作</th></tr></thead>
+                            <tbody>
+                                <t t-foreach="lines" t-as="l">
+                                    <tr>
+                                        <td><t t-esc="l['product_name']"/></td>
+                                        <td>¥<t t-esc="'%.2f' % l['unit_price']"/></td>
+                                        <td>
+                                            <form method="post" action="/b2b/cart/update" style="display:flex;gap:4px">
+                                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                                <input type="hidden" name="line_id" t-att-value="l['id']"/>
+                                                <input type="number" name="qty" class="form-control form-control-sm" t-att-value="l['qty']" min="1" style="width:70px"/>
+                                                <button type="submit" class="btn btn-sm btn-outline-secondary">更新</button>
+                                            </form>
+                                        </td>
+                                        <td class="font-weight-bold">¥<t t-esc="'%.2f' % l['subtotal']"/></td>
+                                        <td>
+                                            <form method="post" action="/b2b/cart/update" onsubmit="return confirm('确认删除?')">
+                                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                                <input type="hidden" name="line_id" t-att-value="l['id']"/>
+                                                <input type="hidden" name="action" value="delete"/>
+                                                <button type="submit" class="btn btn-sm btn-danger">删除</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                        <div style="text-align:right;margin:20px 0;padding:16px;background:#f8f9fa;border-radius:8px">
+                            <h4>合计: ¥<t t-esc="'%.2f' % total_amount"/> (共 <t t-esc="total_qty"/> 件)</h4>
+                            <div style="margin-top:8px">
+                                <form method="post" action="/b2b/cart/clear" style="display:inline;margin-right:8px" onsubmit="return confirm('确认清空?')">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                    <button type="submit" class="btn btn-outline-danger">清空购物车</button>
+                                </form>
+                                <a href="/b2b/checkout" class="btn btn-primary btn-lg">去结算</a>
+                            </div>
+                        </div>
+                    </t>
+                    <t t-else=""><p class="text-center text-muted" style="margin-top:60px">购物车是空的, 去<a href="/b2b/products">选商品</a></p></t>
+                </div>
+            </div>
         </t>
     </template>
 
     <!-- ===== 下单页 ===== -->
     <template id="checkout_page" name="B2B Checkout">
         <t t-call="website.layout">
-            <div id="wrap"><div class="container" style="margin-top:20px">
-                <h3>确认订单</h3>
-                <form method="post" action="/b2b/orders/submit">
-                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                    <!-- 收货信息 -->
-                    <div class="card" style="margin-bottom:16px">
-                        <div class="card-header font-weight-bold">收货信息</div>
-                        <div class="card-body">
-                            <div class="form-group">
-                                <label>收货门店</label>
-                                <select name="store_id" class="form-control" required="">
-                                    <option value="">请选择门店</option>
-                                    <t t-foreach="stores" t-as="s">
-                                        <option t-att-value="s.id" t-att-selected="'selected' if cart.store_id.id == s.id else None"><t t-esc="s.name"/></option>
-                                    </t>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>要求送达时间</label>
-                                <input type="text" name="delivery_time_required" class="form-control" placeholder="如: 2026-05-15 上午"/>
+            <div id="wrap">
+                <t t-call="b2b_storefront.b2b_navbar"/>
+                <div class="container" style="margin-top:20px;max-width:800px">
+                    <h3>确认订单</h3>
+                    <t t-if="error"><div class="alert alert-danger"><t t-esc="error"/></div></t>
+                    <form method="post" action="/b2b/orders/submit">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <div class="card" style="margin-bottom:16px">
+                            <div class="card-header font-weight-bold">收货信息</div>
+                            <div class="card-body">
+                                <div class="form-group"><label>客户</label><input class="form-control" t-att-value="partner.name" readonly="readonly"/></div>
+                                <div class="form-group">
+                                    <label class="text-danger">* 收货门店</label>
+                                    <select name="store_id" class="form-control" required="">
+                                        <option value="">请选择门店</option>
+                                        <t t-foreach="stores" t-as="s">
+                                            <option t-att-value="s.id" t-att-selected="'selected' if cart.store_id.id == s.id else None"><t t-esc="s.name"/></option>
+                                        </t>
+                                    </select>
+                                </div>
+                                <div class="form-group"><label>要求送达时间</label><input type="text" name="delivery_time_required" class="form-control" placeholder="如: 5月15日 上午"/></div>
                             </div>
                         </div>
-                    </div>
-                    <!-- 订单明细 -->
-                    <div class="card" style="margin-bottom:16px">
-                        <div class="card-header font-weight-bold">订单明细</div>
-                        <div class="card-body">
-                            <table class="table table-sm">
+                        <div class="card" style="margin-bottom:16px">
+                            <div class="card-header font-weight-bold">订单明细</div>
+                            <table class="table table-sm mb-0">
                                 <thead><tr><th>商品</th><th>单价</th><th>数量</th><th>小计</th></tr></thead>
                                 <tbody>
                                     <t t-foreach="lines" t-as="l">
-                                        <tr><td><t t-esc="l['product'].name"/></td><td>¥<t t-esc="'%.2f' % l['unit_price']"/></td><td><t t-esc="l['qty']"/></td><td>¥<t t-esc="'%.2f' % l['subtotal']"/></td></tr>
+                                        <tr><td><t t-esc="l['product_name']"/></td><td>¥<t t-esc="'%.2f' % l['unit_price']"/></td><td><t t-esc="l['qty']"/></td><td>¥<t t-esc="'%.2f' % l['subtotal']"/></td></tr>
                                     </t>
                                 </tbody>
                             </table>
                         </div>
-                    </div>
-                    <!-- 付款与备注 -->
-                    <div class="card" style="margin-bottom:16px">
-                        <div class="card-header font-weight-bold">付款方式与备注</div>
-                        <div class="card-body">
-                            <div class="form-group">
-                                <label>付款方式</label>
-                                <select name="payment_method" class="form-control">
-                                    <option value="credit" t-att-selected="'selected' if payment_method=='credit' else None">账期</option>
-                                    <option value="transfer" t-att-selected="'selected' if payment_method=='transfer' else None">线下转账</option>
-                                    <option value="cod" t-att-selected="'selected' if payment_method=='cod' else None">货到付款</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>订单备注</label>
-                                <textarea name="note" class="form-control" rows="2" placeholder="选填"></textarea>
+                        <div class="card" style="margin-bottom:16px">
+                            <div class="card-header font-weight-bold">付款与备注</div>
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label>付款方式</label>
+                                    <select name="payment_method" class="form-control">
+                                        <option value="credit" t-att-selected="'selected' if payment_method=='credit' else None">账期</option>
+                                        <option value="transfer" t-att-selected="'selected' if payment_method=='transfer' else None">线下转账</option>
+                                        <option value="cod" t-att-selected="'selected' if payment_method=='cod' else None">货到付款</option>
+                                    </select>
+                                </div>
+                                <div class="form-group"><label>备注</label><textarea name="note" class="form-control" rows="2" placeholder="选填"></textarea></div>
                             </div>
                         </div>
-                    </div>
-                    <!-- 金额 -->
-                    <div style="text-align:right;margin:20px 0">
-                        <h3>应付: ¥<t t-esc="'%.2f' % total_amount"/></h3>
-                        <button type="submit" class="btn btn-primary btn-lg">提交订单</button>
-                    </div>
-                </form>
-            </div></div>
+                        <div style="text-align:right;margin:20px 0;padding:16px;background:#f8f9fa;border-radius:8px">
+                            <h3>应付: ¥<t t-esc="'%.2f' % total_amount"/> (共 <t t-esc="total_qty"/> 件)</h3>
+                            <button type="submit" class="btn btn-primary btn-lg" style="margin-top:8px">确认提交订单</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </t>
     </template>
 
     <!-- ===== 订单列表页 ===== -->
     <template id="order_list_page" name="B2B Order List">
         <t t-call="website.layout">
-            <div id="wrap"><div class="container" style="margin-top:20px">
-                <h3>我的订单</h3>
-                <t t-if="orders">
-                    <table class="table">
-                        <thead><tr><th>订单号</th><th>状态</th><th>金额</th><th>门店</th><th>日期</th><th>操作</th></tr></thead>
-                        <tbody>
-                            <t t-foreach="orders" t-as="o">
-                                <tr>
-                                    <td><t t-esc="o.name"/></td>
-                                    <td><t t-esc="o.state"/></td>
-                                    <td>¥<t t-esc="'%.2f' % o.amount_total"/></td>
-                                    <td><t t-esc="o.store_partner_id.name or ''"/></td>
-                                    <td><t t-esc="o.create_date.strftime('%Y-%m-%d')"/></td>
-                                    <td><a t-att-href="'/b2b/orders/%s' % o.id" class="btn btn-sm btn-outline-primary">查看</a></td>
-                                </tr>
-                            </t>
-                        </tbody>
-                    </table>
-                </t>
-                <t t-else=""><p class="text-center text-muted" style="margin-top:60px">暂无订单</p></t>
-            </div></div>
+            <div id="wrap">
+                <t t-call="b2b_storefront.b2b_navbar"/>
+                <div class="container" style="margin-top:20px">
+                    <h3>我的订单</h3>
+                    <t t-if="orders">
+                        <table class="table">
+                            <thead><tr><th>订单号</th><th>金额</th><th>门店</th><th>日期</th><th>状态</th><th>操作</th></tr></thead>
+                            <tbody>
+                                <t t-foreach="orders" t-as="o">
+                                    <tr>
+                                        <td><t t-esc="o.name"/></td>
+                                        <td>¥<t t-esc="'%.2f' % o.amount_total"/></td>
+                                        <td><t t-esc="o.store_partner_id.name or ''"/></td>
+                                        <td><t t-esc="o.create_date.strftime('%Y-%m-%d')"/></td>
+                                        <td><span class="badge badge-info"><t t-esc="o.state"/></span></td>
+                                        <td><a t-att-href="'/b2b/orders/%s' % o.id" class="btn btn-sm btn-outline-primary">查看</a></td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </t>
+                    <t t-else=""><p class="text-center text-muted" style="margin-top:60px">暂无订单, 去<a href="/b2b/products">下单</a></p></t>
+                </div>
+            </div>
         </t>
     </template>
 
     <!-- ===== 订单详情页 ===== -->
     <template id="order_detail_page" name="B2B Order Detail">
         <t t-call="website.layout">
-            <div id="wrap"><div class="container" style="margin-top:20px">
-                <h3>订单详情 — <t t-esc="order.name"/></h3>
-                <div class="row" style="margin-top:16px">
-                    <div class="col-md-8">
-                        <div class="card" style="margin-bottom:16px">
-                            <div class="card-header font-weight-bold">商品明细</div>
-                            <table class="table table-sm">
-                                <thead><tr><th>商品</th><th>数量</th><th>单价</th><th>小计</th></tr></thead>
-                                <tbody>
-                                    <t t-foreach="order.order_line" t-as="l">
-                                        <tr><td><t t-esc="l.product_id.name"/></td><td><t t-esc="int(l.product_uom_qty)"/></td><td>¥<t t-esc="'%.2f' % l.price_unit"/></td><td>¥<t t-esc="'%.2f' % l.price_subtotal"/></td></tr>
-                                    </t>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card" style="margin-bottom:16px">
-                            <div class="card-header font-weight-bold">订单信息</div>
-                            <div class="card-body">
-                                <p>状态: <t t-esc="order.state"/></p>
-                                <p>来源: <t t-esc="order.source_channel or ''"/></p>
-                                <p>门店: <t t-esc="order.store_partner_id.name or ''"/></p>
-                                <p>付款方式: <t t-esc="order.b2b_payment_method or ''"/></p>
-                                <p>送达要求: <t t-esc="order.delivery_time_required or ''"/></p>
-                                <p>金额: ¥<t t-esc="'%.2f' % order.amount_total"/></p>
-                                <p t-if="order.b2b_submit_note">备注: <t t-esc="order.b2b_submit_note"/></p>
+            <div id="wrap">
+                <t t-call="b2b_storefront.b2b_navbar"/>
+                <div class="container" style="margin-top:20px">
+                    <a href="/b2b/orders" class="btn btn-sm btn-outline-secondary mb-3">← 返回订单列表</a>
+                    <h3>订单 <t t-esc="order.name"/></h3>
+                    <div class="row" style="margin-top:16px">
+                        <div class="col-md-7">
+                            <div class="card" style="margin-bottom:16px">
+                                <div class="card-header font-weight-bold">商品明细</div>
+                                <table class="table table-sm mb-0">
+                                    <thead><tr><th>商品</th><th>数量</th><th>单价</th><th>小计</th></tr></thead>
+                                    <tbody>
+                                        <t t-foreach="order.order_line" t-as="l">
+                                            <tr><td><t t-esc="l.product_id.name"/></td><td><t t-esc="int(l.product_uom_qty)"/></td><td>¥<t t-esc="'%.2f' % l.price_unit"/></td><td>¥<t t-esc="'%.2f' % l.price_subtotal"/></td></tr>
+                                        </t>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
-                        <!-- 履约摘要 -->
-                        <div class="card" style="margin-bottom:16px" t-if="hasattr(order, 'wms_status')">
-                            <div class="card-header font-weight-bold">履约状态</div>
-                            <div class="card-body">
-                                <p>仓库: <t t-esc="order.wms_status or '待出库'"/></p>
-                                <p>配送: <t t-esc="order.tms_status or '待排线'"/></p>
+                        <div class="col-md-5">
+                            <div class="card" style="margin-bottom:16px">
+                                <div class="card-header font-weight-bold">订单信息</div>
+                                <div class="card-body">
+                                    <p>状态: <span class="badge badge-info"><t t-esc="order.state"/></span></p>
+                                    <p>门店: <t t-esc="order.store_partner_id.name or ''"/></p>
+                                    <p>付款: <t t-esc="order.b2b_payment_method or ''"/></p>
+                                    <p>送达: <t t-esc="order.delivery_time_required or '未指定'"/></p>
+                                    <p class="font-weight-bold" style="font-size:18px">金额: ¥<t t-esc="'%.2f' % order.amount_total"/></p>
+                                    <p class="small text-muted" t-if="order.b2b_submit_note">备注: <t t-esc="order.b2b_submit_note"/></p>
+                                </div>
                             </div>
-                        </div>
-                        <!-- 售后 -->
-                        <div class="card">
-                            <div class="card-header font-weight-bold">售后申请</div>
-                            <div class="card-body">
-                                <form method="post" action="/b2b/after-sale/submit">
-                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                                    <input type="hidden" name="order_id" t-att-value="order.id"/>
-                                    <div class="form-group">
-                                        <select name="ticket_type" class="form-control form-control-sm">
+                            <div class="card" style="margin-bottom:16px" t-if="wms_status or tms_status">
+                                <div class="card-header font-weight-bold">履约状态</div>
+                                <div class="card-body">
+                                    <p>仓库: <t t-esc="wms_status or '待出库'"/></p>
+                                    <p>配送: <t t-esc="tms_status or '待排线'"/></p>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-header font-weight-bold">售后申请</div>
+                                <div class="card-body">
+                                    <form method="post" action="/b2b/after-sale/submit">
+                                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                        <input type="hidden" name="order_id" t-att-value="order.id"/>
+                                        <div class="form-group"><select name="ticket_type" class="form-control form-control-sm">
                                             <option value="shortage">缺货</option><option value="damage">破损</option><option value="wrong_item">错货</option><option value="quality">质量问题</option><option value="other">其他</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <textarea name="description" class="form-control form-control-sm" rows="2" placeholder="问题描述"></textarea>
-                                    </div>
-                                    <button type="submit" class="btn btn-sm btn-outline-danger btn-block">提交售后</button>
-                                </form>
+                                        </select></div>
+                                        <div class="form-group"><textarea name="description" class="form-control form-control-sm" rows="2" placeholder="问题描述"></textarea></div>
+                                        <button type="submit" class="btn btn-sm btn-outline-danger btn-block">提交售后</button>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div></div>
+            </div>
         </t>
     </template>
 
