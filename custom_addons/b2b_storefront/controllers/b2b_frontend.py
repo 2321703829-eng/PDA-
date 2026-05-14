@@ -158,16 +158,6 @@ class B2bFrontend(http.Controller):
         # 先标记避免重复提交
         cart.write({"state": "submitted"})
         try:
-            order_lines = []
-            for l in cart.line_ids:
-                variant = l.product_id.product_variant_id
-                v_id = variant.id if variant else l.product_id.product_variant_ids[:1].id if l.product_id.product_variant_ids else False
-                order_lines.append((0, 0, {
-                    "product_template_id": l.product_id.id,
-                    "product_id": v_id,
-                    "product_uom_qty": l.qty,
-                    "price_unit": l.unit_price,
-                }))
             order = request.env["sale.order"].sudo().create({
                 "partner_id": partner_id,
                 "source_channel": "b2b",
@@ -176,8 +166,19 @@ class B2bFrontend(http.Controller):
                 "b2b_submit_note": kw.get("note", ""),
                 "b2b_submit_user_id": request.env.user.id,
                 "delivery_time_required": kw.get("delivery_time_required", ""),
-                "order_line": order_lines,
+                "pricelist_id": False,  # 不使用价格表,防止自动改价
             })
+            for l in cart.line_ids:
+                variant = l.product_id.product_variant_id
+                v_id = variant.id if variant else l.product_id.product_variant_ids[:1].id if l.product_id.product_variant_ids else False
+                line = request.env["sale.order.line"].sudo().create({
+                    "order_id": order.id,
+                    "product_template_id": l.product_id.id,
+                    "product_id": v_id,
+                    "product_uom_qty": l.qty,
+                })
+                # 创建后直接覆写单价,绕过产品 onchange 重算
+                line.sudo().write({"price_unit": l.unit_price})
             cart.write({"state": "converted"})
             return request.redirect("/b2b/orders/%s" % order.id)
         except Exception as e:
