@@ -31,7 +31,7 @@ class B2bFrontend(http.Controller):
         total_amount = 0.0
         for l in cart.line_ids:
             subtotal = l.qty * l.unit_price
-            total_qty += l.qty
+            total_qty += int(l.qty)
             total_amount += subtotal
             lines.append({"id": l.id, "product_id": l.product_id.id,
                           "product_name": l.product_id.name,
