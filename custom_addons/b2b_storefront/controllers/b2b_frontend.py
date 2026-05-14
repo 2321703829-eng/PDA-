@@ -176,10 +176,9 @@ class B2bFrontend(http.Controller):
                     "product_template_id": l.product_id.id,
                     "product_id": v_id,
                     "product_uom_qty": l.qty,
-                    "tax_id": [(5, 0, 0)],  # 清除默认税, B2B 批发不适用
+                    "tax_ids": [(5, 0, 0)],  # B2B 清税
                 })
-                # 创建后直接覆写单价,绕过产品 onchange 重算
-                line.sudo().write({"price_unit": l.unit_price, "tax_id": [(5, 0, 0)]})
+                line.sudo().write({"price_unit": l.unit_price, "tax_ids": [(5, 0, 0)]})
             cart.write({"state": "converted"})
             return request.redirect("/b2b/orders/%s" % order.id)
         except Exception as e:
