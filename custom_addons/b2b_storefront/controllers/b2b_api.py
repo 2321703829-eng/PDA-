@@ -5,16 +5,21 @@ from odoo.http import request
 
 class B2bApi(http.Controller):
 
-    # ========== B01: 商品列表接口 ==========
+    # ========== B01: 商品列表接口(加入可见范围校验) ==========
     @http.route("/api/open/logistics/b2b/products", type="http", auth="user", methods=["GET"], csrf=False)
     def b2b_products(self, **kw):
-        domain = [("is_b2b_visible", "=", True), ("is_active_sale", "=", True)]
+        partner = request.env.user.partner_id
+        scope = request.env["b2b.catalog.scope"].sudo().search([("partner_id", "=", partner.id), ("scope_type", "=", "exclude")])
+        excluded_ids = scope.product_ids.ids if scope else []
+        domain = [("is_b2b_visible", "=", True)]
+        if excluded_ids:
+            domain.append(("id", "not in", excluded_ids))
         if kw.get("keyword"):
             domain.append(("name", "ilike", kw["keyword"]))
         if kw.get("category_id"):
             domain.append(("categ_id", "=", int(kw["category_id"])))
         products = request.env["product.template"].sudo().search(domain, offset=int(kw.get("offset", 0)), limit=int(kw.get("limit", 20)))
-        data = [{"id": p.id, "name": p.name, "list_price": p.list_price, "b2b_min_qty": p.b2b_min_qty, "b2b_saleable_desc": p.b2b_saleable_desc, "default_code": p.default_code} for p in products]
+        data = [{"id": p.id, "name": p.name, "list_price": p.list_price, "b2b_min_qty": p.b2b_min_qty, "b2b_saleable_desc": p.b2b_saleable_desc, "default_code": p.default_code or ""} for p in products]
         return request.make_response(json.dumps({"ok": True, "data": data}), headers=[("Content-Type", "application/json")])
 
     # ========== B04: 购物车接口 ==========
@@ -84,22 +89,30 @@ class B2bApi(http.Controller):
         if not cart or not cart.line_ids:
             return request.make_response(json.dumps({"ok": False, "message": "购物车为空"}), headers=[("Content-Type", "application/json")])
         store_id = int(body.get("store_id", 0))
+        if not store_id:
+            return request.make_response(json.dumps({"ok": False, "message": "请选择收货门店"}), headers=[("Content-Type", "application/json")])
         payment_method = body.get("payment_method", "credit")
         note = body.get("note", "")
         delivery_time = body.get("delivery_time", "")
-        order_lines = [(0, 0, {"product_template_id": l.product_id.id, "product_id": l.product_id.product_variant_id.id, "product_uom_qty": l.qty, "price_unit": l.unit_price}) for l in cart.line_ids]
-        order = request.env["sale.order"].sudo().create({
-            "partner_id": partner_id,
-            "source_channel": "b2b",
-            "store_partner_id": store_id or None,
-            "b2b_payment_method": payment_method,
-            "b2b_submit_note": note,
-            "b2b_submit_user_id": request.env.user.id,
-            "delivery_time_required": delivery_time,
-            "order_line": order_lines,
-        })
+        # 防重复: 先标记 submitted 再创建订单
         cart.write({"state": "submitted"})
-        return request.make_response(json.dumps({"ok": True, "data": {"order_id": order.id, "order_name": order.name}}), headers=[("Content-Type", "application/json")])
+        try:
+            order_lines = [(0, 0, {"product_template_id": l.product_id.id, "product_id": l.product_id.product_variant_id.id, "product_uom_qty": l.qty, "price_unit": l.unit_price}) for l in cart.line_ids]
+            order = request.env["sale.order"].sudo().create({
+                "partner_id": partner_id,
+                "source_channel": "b2b",
+                "store_partner_id": store_id or None,
+                "b2b_payment_method": payment_method,
+                "b2b_submit_note": note,
+                "b2b_submit_user_id": request.env.user.id,
+                "delivery_time_required": delivery_time,
+                "order_line": order_lines,
+            })
+            cart.write({"state": "converted"})
+            return request.make_response(json.dumps({"ok": True, "data": {"order_id": order.id, "order_name": order.name}}), headers=[("Content-Type", "application/json")])
+        except Exception as e:
+            cart.write({"state": "draft"})
+            return request.make_response(json.dumps({"ok": False, "message": str(e)}), headers=[("Content-Type", "application/json")])
 
     # ========== D01 + D02: 订单查询 ==========
     @http.route("/api/open/logistics/b2b/orders", type="http", auth="user", methods=["GET"], csrf=False)

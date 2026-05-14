@@ -19,6 +19,7 @@
         "views/b2b_after_sale_views.xml",
         "views/b2b_config_views.xml",
         "views/sale_order_b2b_views.xml",
+        "views/b2b_frontend_templates.xml",
     ],
     "installable": True,
     "application": False,
