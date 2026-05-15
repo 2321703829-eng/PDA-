@@ -5,6 +5,6 @@ from . import stock_warehouse
 from . import stock_picking
 from . import stock_move
 from . import logistics_dispatch_waybill
+from . import wms_task_models
 from . import wms_inventory_ledger
 from . import wms_inventory_models
-from . import wms_task_models
