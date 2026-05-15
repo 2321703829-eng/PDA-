@@ -186,6 +186,28 @@ class WmsOutboundTask(models.Model):
         })
         return outbound
 
+    # #2: WMS出库任务状态变化 → 反写 sale.order.wms_status
+    def write(self, vals):
+        res = super().write(vals)
+        if "state" in vals:
+            for task in self:
+                task._backfill_sale_wms_status()
+        return res
+
+    def _backfill_sale_wms_status(self):
+        picking = self.stock_picking_id
+        if not picking or not picking.sale_id:
+            return
+        state_map = {
+            "waiting_outbound": "pending",
+            "task_created": "pending",
+            "task_processing": "picking",
+            "task_done": "ready",
+            "task_exception": "exception",
+        }
+        wms_status = state_map.get(self.state, "pending")
+        picking.sale_id.write({"wms_status": wms_status})
+
     def action_start_outbound(self):
         for record in self:
             record.write({"state": "task_processing"})

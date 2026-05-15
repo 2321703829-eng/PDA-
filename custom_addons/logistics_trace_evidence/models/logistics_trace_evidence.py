@@ -276,7 +276,18 @@ class LogisticsTraceEvidence(models.Model):
                 vals["upload_role"] = self._resolve_upload_role(vals)
             if vals.get("name", "New") in ("New", "新建"):
                 vals["name"] = self._build_evidence_name(vals)
-        return super().create(vals_list)
+        records = super().create(vals_list)
+        # P7: 证据创建后反写 evidence_status
+        for rec in records:
+            rec._backfill_evidence_status()
+        return records
+
+    def _backfill_evidence_status(self):
+        """P7: 证据上传后反写 waybill/batch evidence_status"""
+        for rec in self:
+            for ref in (rec.trace_event_id.waybill_id, rec.trace_event_id.batch_id):
+                if ref and hasattr(ref, 'evidence_status') and ref.evidence_status != 'available':
+                    ref.write({"evidence_status": "available"})
 
     def _resolve_upload_role(self, vals):
         raw = vals.get("upload_role") or vals.get("uploadRole") or vals.get("uploader_role") or vals.get("role")

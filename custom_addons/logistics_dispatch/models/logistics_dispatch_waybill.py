@@ -458,6 +458,9 @@ class LogisticsDispatchWaybill(models.Model):
         if "state" in vals:
             for waybill in self:
                 waybill._auto_create_trace_event(vals.get("state"))
+                # P4: 状态变为 ready → 自动生成 TMS 派车单和司机任务
+                if vals.get("state") in ("ready", "in_transit"):
+                    waybill._auto_generate_tms_objects()
         return res
 
     def _auto_create_trace_event(self, new_state):
@@ -490,6 +493,101 @@ class LogisticsDispatchWaybill(models.Model):
         # 反写证据状态
         if new_state == "signed":
             self.write({"evidence_status": "available"})
+
+    # ========== P4: 运单/批次 → TMS 对象自动生成 ==========
+    def _auto_generate_tms_objects(self):
+        """运单 ready 后自动生成 TMS 派车单 + 司机任务 + 节点"""
+        self.ensure_one()
+        batch = self.batch_id
+        if not batch:
+            return
+        # P5: 确保车辆主档存在
+        vehicle = self._ensure_vehicle(batch)
+        driver_employee = batch.driver_employee_id
+        # 生成派车单
+        existing_dispatch = self.env["tms.dispatch.order"].sudo().search([
+            ("route_batch_id", "=", batch.id),
+        ], limit=1)
+        if not existing_dispatch:
+            dispatch = self.env["tms.dispatch.order"].sudo().create({
+                "route_batch_id": batch.id,
+                "warehouse_id": self.warehouse_id.id,
+                "driver_profile_id": self._ensure_driver_profile(driver_employee).id,
+                "vehicle_profile_id": self._ensure_vehicle_profile(vehicle).id,
+                "state": "dispatched",
+            })
+            # 绑定车辆和司机到批次
+            batch.write({
+                "vehicle_id": vehicle.id if vehicle else False,
+                "driver_employee_id": driver_employee.id if driver_employee else False,
+            })
+        else:
+            dispatch = existing_dispatch
+        # 生成司机任务(已有则跳过)
+        existing_task = self.env["tms.driver.task"].sudo().search([
+            ("dispatch_order_id", "=", dispatch.id),
+            ("waybill_id", "=", self.id),
+        ], limit=1)
+        if not existing_task:
+            task = self.env["tms.driver.task"].sudo().create({
+                "dispatch_order_id": dispatch.id,
+                "waybill_id": self.id,
+                "state": "waiting_dispatch",
+                "waybill_no": self.waybill_no or self.name,
+            })
+            # 为每条配送节点创建 TMS 节点
+            for cust_line in self.customer_line_ids:
+                self.env["tms.driver.task.node"].sudo().create({
+                    "driver_task_id": task.id,
+                    "store_id": cust_line.partner_id.id,
+                    "sequence": cust_line.sequence or 1,
+                    "state": "departed",
+                })
+
+    def _ensure_vehicle(self, batch):
+        """P5: 确保车辆主档存在,没有就创建一个默认车辆"""
+        if batch.vehicle_id:
+            return batch.vehicle_id
+        vehicle = self.env["fleet.vehicle"].sudo().search([], limit=1)
+        if not vehicle:
+            model = self.env["fleet.vehicle.model"].sudo().search([], limit=1)
+            if not model:
+                brand = self.env["fleet.vehicle.model.brand"].sudo().search([], limit=1)
+                if not brand:
+                    brand = self.env["fleet.vehicle.model.brand"].sudo().create({"name": "默认品牌"})
+                model = self.env["fleet.vehicle.model"].sudo().create({
+                    "name": "默认车型",
+                    "brand_id": brand.id,
+                })
+            vehicle = self.env["fleet.vehicle"].sudo().create({
+                "model_id": model.id,
+                "license_plate": "DEFAULT-001",
+            })
+        return vehicle
+
+    def _ensure_driver_profile(self, driver_employee):
+        profile = self.env["logistics.driver.profile"].sudo().search([
+            ("employee_id", "=", driver_employee.id),
+        ], limit=1) if driver_employee else None
+        if not profile and driver_employee:
+            profile = self.env["logistics.driver.profile"].sudo().create({
+                "name": driver_employee.name,
+                "employee_id": driver_employee.id,
+            })
+        return profile
+
+    def _ensure_vehicle_profile(self, vehicle):
+        if not vehicle:
+            return None
+        profile = self.env["logistics.vehicle.profile"].sudo().search([
+            ("vehicle_id", "=", vehicle.id),
+        ], limit=1)
+        if not profile:
+            profile = self.env["logistics.vehicle.profile"].sudo().create({
+                "name": vehicle.license_plate or vehicle.name,
+                "vehicle_id": vehicle.id,
+            })
+        return profile
 
     def action_open_batch(self):
         self.ensure_one()
