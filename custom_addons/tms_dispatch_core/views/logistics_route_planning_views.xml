@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_logistics_route_planning_batch_form_tms_dispatch_core" model="ir.ui.view">
+        <field name="name">logistics.route.planning.batch.form.tms.dispatch.core</field>
+        <field name="model">logistics.route.planning.batch</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_open_handover_orders" type="object" string="Open Handover Orders"/>
+                    <button name="action_open_dispatch_orders" type="object" string="Open Dispatch Orders"/>
+                    <button name="action_open_driver_tasks" type="object" string="Open Driver Tasks"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_open_handover_orders" type="object" class="oe_stat_button" icon="fa-handshake-o">
+                            <field name="handover_order_count" string="Handover" widget="statinfo"/>
+                        </button>
+                        <button name="action_open_dispatch_orders" type="object" class="oe_stat_button" icon="fa-random">
+                            <field name="dispatch_order_count" string="Dispatch" widget="statinfo"/>
+                        </button>
+                        <button name="action_open_driver_tasks" type="object" class="oe_stat_button" icon="fa-motorcycle">
+                            <field name="driver_task_count" string="Driver Tasks" widget="statinfo"/>
+                        </button>
+                    </div>
+                    <group>
+                        <field name="batch_no"/>
+                        <field name="delivery_date"/>
+                        <field name="route_status"/>
+                        <field name="warehouse_id"/>
+                    </group>
+                    <group>
+                        <field name="driver_profile_id"/>
+                        <field name="vehicle_profile_id"/>
+                        <field name="import_task_id"/>
+                    </group>
+                    <field name="stop_line_ids">
+                        <list>
+                            <field name="stop_seq"/>
+                            <field name="waybill_no"/>
+                            <field name="store_name"/>
+                            <field name="address_detail"/>
+                        </list>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

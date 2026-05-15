@@ -453,7 +453,43 @@ class LogisticsDispatchWaybill(models.Model):
 
     def write(self, vals):
         normalized_vals = self._normalize_partner_vals(vals)
-        return super().write(normalized_vals)
+        res = super().write(normalized_vals)
+        # P5: 状态推进自动生成留痕事件
+        if "state" in vals:
+            for waybill in self:
+                waybill._auto_create_trace_event(vals.get("state"))
+        return res
+
+    def _auto_create_trace_event(self, new_state):
+        """运单状态变化 → 自动创建 logistics.trace.event"""
+        self.ensure_one()
+        state_trace_type = {
+            "ready": "arrive",       # 到仓
+            "in_transit": "leave",   # 发车
+            "arrived": "arrive",     # 到店
+            "signed": "sign",        # 签收
+        }
+        trace_type = state_trace_type.get(new_state)
+        if not trace_type:
+            return
+        # 检查是否已有同类留痕
+        existing = self.env["logistics.trace.event"].sudo().search([
+            ("waybill_id", "=", self.id),
+            ("trace_type", "=", trace_type),
+        ], limit=1)
+        if existing:
+            return
+        self.env["logistics.trace.event"].sudo().create({
+            "biz_type": "waybill",
+            "waybill_no": self.waybill_no or self.name,
+            "batch_no": self.batch_id.batch_no if self.batch_id else "",
+            "trace_type": trace_type,
+            "waybill_id": self.id,
+            "batch_id": self.batch_id.id,
+        })
+        # 反写证据状态
+        if new_state == "signed":
+            self.write({"evidence_status": "available"})
 
     def action_open_batch(self):
         self.ensure_one()

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="seq_wms_receipt_task" model="ir.sequence">
+        <field name="name">WMS Receipt Task</field>
+        <field name="code">wms.receipt.task</field>
+        <field name="prefix">WMS-REC-</field>
+        <field name="padding">5</field>
+    </record>
+
+    <record id="seq_wms_putaway_task" model="ir.sequence">
+        <field name="name">WMS Putaway Task</field>
+        <field name="code">wms.putaway.task</field>
+        <field name="prefix">WMS-PUT-</field>
+        <field name="padding">5</field>
+    </record>
+
+    <record id="seq_wms_outbound_task" model="ir.sequence">
+        <field name="name">WMS Outbound Task</field>
+        <field name="code">wms.outbound.task</field>
+        <field name="prefix">WMS-OUT-</field>
+        <field name="padding">5</field>
+    </record>
+
+    <record id="seq_wms_pick_task" model="ir.sequence">
+        <field name="name">WMS Pick Task</field>
+        <field name="code">wms.pick.task</field>
+        <field name="prefix">WMS-PICK-</field>
+        <field name="padding">5</field>
+    </record>
+
+    <record id="seq_wms_check_task" model="ir.sequence">
+        <field name="name">WMS Check Task</field>
+        <field name="code">wms.check.task</field>
+        <field name="prefix">WMS-CHK-</field>
+        <field name="padding">5</field>
+    </record>
+
+    <record id="seq_wms_handover_order" model="ir.sequence">
+        <field name="name">WMS Handover Order</field>
+        <field name="code">wms.handover.order</field>
+        <field name="prefix">WMS-HO-</field>
+        <field name="padding">5</field>
+    </record>
+
+    <record id="seq_wms_inventory_operation" model="ir.sequence">
+        <field name="name">WMS Inventory Operation</field>
+        <field name="code">wms.inventory.operation</field>
+        <field name="prefix">WMS-INV-</field>
+        <field name="padding">5</field>
+    </record>
+</odoo>
