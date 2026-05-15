@@ -10,7 +10,6 @@
         "stock_picking_batch",
         "purchase_stock",
         "erp_base",
-        "core_operation_audit_log",
         "logistics_base",
         "logistics_dispatch",
     ],

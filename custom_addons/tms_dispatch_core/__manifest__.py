@@ -9,7 +9,6 @@
         "hr",
         "fleet",
         "erp_base",
-        "core_operation_audit_log",
         "logistics_base",
         "logistics_dispatch",
         "logistics_trace_core",

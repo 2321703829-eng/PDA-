@@ -41,26 +41,20 @@ class StockPicking(models.Model):
         self.ensure_one()
         self.write({"erp_source_type": self.erp_source_type or "purchase"})
         receipt = self.env["wms.receipt.task"].create_from_picking(self)
-        self.env["core.operation.audit.log"].log_action(
-            business_domain="wms",
-            action_code="create_receipt_task_from_picking",
-            record=receipt,
-            note=_("Receipt task created from stock picking."),
-            related_record=self,
-        )
+        if hasattr(self.env.registry, "core.operation.audit.log"):
+            self.env["core.operation.audit.log"].log_action(
+                business_domain="wms", action_code="create_receipt_task_from_picking",
+                record=receipt, note=_("Receipt task created from stock picking."), related_record=self)
         return receipt.action_open_record()
 
     def action_create_outbound_task(self):
         self.ensure_one()
         self.write({"erp_source_type": self.erp_source_type or "sale"})
         outbound = self.env["wms.outbound.task"].create_from_picking(self)
-        self.env["core.operation.audit.log"].log_action(
-            business_domain="wms",
-            action_code="create_outbound_task_from_picking",
-            record=outbound,
-            note=_("Outbound task created from stock picking."),
-            related_record=self,
-        )
+        if hasattr(self.env.registry, "core.operation.audit.log"):
+            self.env["core.operation.audit.log"].log_action(
+                business_domain="wms", action_code="create_outbound_task_from_picking",
+                record=outbound, note=_("Outbound task created from stock picking."), related_record=self)
         return outbound.action_open_record()
 
     def action_create_wms_task(self):
