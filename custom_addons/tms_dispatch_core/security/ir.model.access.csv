@@ -1,12 +1,18 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_tms_dispatch_order_user,tms.dispatch.order user,model_tms_dispatch_order,base.group_user,1,0,0,0
 access_tms_dispatch_order_dispatcher,tms.dispatch.order dispatcher,model_tms_dispatch_order,erp_base.group_tms_dispatcher,1,1,1,0
 access_tms_dispatch_order_driver,tms.dispatch.order driver,model_tms_dispatch_order,erp_base.group_tms_driver,1,0,0,0
+access_tms_driver_task_user,tms.driver.task user,model_tms_driver_task,base.group_user,1,0,0,0
 access_tms_driver_task_dispatcher,tms.driver.task dispatcher,model_tms_driver_task,erp_base.group_tms_dispatcher,1,1,1,0
 access_tms_driver_task_driver,tms.driver.task driver,model_tms_driver_task,erp_base.group_tms_driver,1,1,0,0
+access_tms_node_user,tms.driver.task.node user,model_tms_driver_task_node,base.group_user,1,0,0,0
 access_tms_driver_task_node_dispatcher,tms.driver.task.node dispatcher,model_tms_driver_task_node,erp_base.group_tms_dispatcher,1,1,1,0
 access_tms_driver_task_node_driver,tms.driver.task.node driver,model_tms_driver_task_node,erp_base.group_tms_driver,1,1,1,0
+access_tms_signoff_user,tms.signoff.receipt user,model_tms_signoff_receipt,base.group_user,1,0,0,0
 access_tms_signoff_receipt_dispatcher,tms.signoff.receipt dispatcher,model_tms_signoff_receipt,erp_base.group_tms_dispatcher,1,1,1,0
 access_tms_signoff_receipt_driver,tms.signoff.receipt driver,model_tms_signoff_receipt,erp_base.group_tms_driver,1,1,1,0
+access_tms_exception_user,tms.delivery.exception user,model_tms_delivery_exception,base.group_user,1,0,0,0
 access_tms_delivery_exception_dispatcher,tms.delivery.exception dispatcher,model_tms_delivery_exception,erp_base.group_tms_dispatcher,1,1,1,0
 access_tms_delivery_exception_driver,tms.delivery.exception driver,model_tms_delivery_exception,erp_base.group_tms_driver,1,1,1,0
+access_tms_freight_user,tms.freight.fee.line user,model_tms_freight_fee_line,base.group_user,1,0,0,0
 access_tms_freight_fee_line_dispatcher,tms.freight.fee.line dispatcher,model_tms_freight_fee_line,erp_base.group_tms_dispatcher,1,1,1,0
