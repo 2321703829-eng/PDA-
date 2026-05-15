@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- 商品表单扩展：在原生 form 中追加物流与经营字段 -->
+    <record id="product_template_form_erp" model="ir.ui.view">
+        <field name="name">product.template.form.erp</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='inventory']" position="after">
+                <group string="箱规与物流" name="erp_logistics">
+                    <group>
+                        <field name="case_qty"/>
+                        <field name="case_uom_id"/>
+                    </group>
+                    <group>
+                        <field name="volume_m3"/>
+                        <field name="weight_kg"/>
+                    </group>
+                </group>
+                <group string="经营属性" name="erp_business">
+                    <field name="min_order_qty"/>
+                    <field name="logistics_category"/>
+                    <field name="is_active_sale"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- 商品列表扩展：加入物流分类列 -->
+    <record id="product_template_tree_erp" model="ir.ui.view">
+        <field name="name">product.template.tree.erp</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_tree_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='categ_id']" position="after">
+                <field name="logistics_category" optional="show"/>
+                <field name="case_qty" optional="show"/>
+                <field name="is_active_sale" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

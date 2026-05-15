@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_cart_list" model="ir.ui.view">
+        <field name="name">b2b.cart.draft.list</field><field name="model">b2b.cart.draft</field>
+        <field name="arch" type="xml"><list><field name="partner_id"/><field name="store_id"/><field name="total_qty"/><field name="total_amount"/><field name="state"/></list></field>
+    </record>
+    <record id="view_cart_form" model="ir.ui.view">
+        <field name="name">b2b.cart.draft.form</field><field name="model">b2b.cart.draft</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group><field name="partner_id"/><field name="store_id"/><field name="state"/></group>
+                    <group><field name="total_qty"/><field name="total_amount"/></group>
+                    <field name="line_ids"><list><field name="product_id"/><field name="qty"/><field name="unit_price"/><field name="subtotal"/></list></field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

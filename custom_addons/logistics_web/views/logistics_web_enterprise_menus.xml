@@ -130,6 +130,30 @@
               action="action_enterprise_purchase_orders"
               sequence="20"/>
 
+    <menuitem id="menu_enterprise_b2b"
+              name="B2B &#21830;&#22478;"
+              parent="menu_tianshu_enterprise_root"
+              action="b2b_storefront.action_cart_draft"
+              sequence="35"/>
+
+    <menuitem id="menu_enterprise_b2b_catalog_scope"
+              name="B2B &#21487;&#35265;&#33539;&#22260;"
+              parent="menu_enterprise_b2b"
+              action="b2b_storefront.action_catalog_scope"
+              sequence="10"/>
+
+    <menuitem id="menu_enterprise_b2b_cart"
+              name="B2B &#36141;&#29289;&#36710;"
+              parent="menu_enterprise_b2b"
+              action="b2b_storefront.action_cart_draft"
+              sequence="20"/>
+
+    <menuitem id="menu_enterprise_b2b_after_sale"
+              name="B2B &#21806;&#21518;"
+              parent="menu_enterprise_b2b"
+              action="b2b_storefront.action_after_sale"
+              sequence="30"/>
+
     <menuitem id="menu_enterprise_wms"
               name="&#20179;&#24211;&#20316;&#19994; WMS"
               parent="menu_tianshu_enterprise_root"

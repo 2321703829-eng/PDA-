@@ -1,4 +1,4 @@
-﻿from . import logistics_web_driver
+from . import logistics_web_driver
 from . import logistics_web_vehicle
 from . import logistics_web_dashboard
 from . import logistics_web_stats
@@ -12,3 +12,4 @@ from . import logistics_web_admin_import
 from . import logistics_web_mini_import
 from . import tenant_db_param_guard
 
+from . import root_redirect

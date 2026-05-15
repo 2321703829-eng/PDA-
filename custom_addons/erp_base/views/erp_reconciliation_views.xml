@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_reconciliation_list" model="ir.ui.view">
+        <field name="name">erp.reconciliation.list</field><field name="model">erp.reconciliation</field>
+        <field name="arch" type="xml"><list><field name="name"/><field name="partner_id"/><field name="recon_type"/><field name="recon_date"/><field name="total_invoiced"/><field name="total_paid"/><field name="state"/></list></field>
+    </record>
+    <record id="view_reconciliation_form" model="ir.ui.view">
+        <field name="name">erp.reconciliation.form</field><field name="model">erp.reconciliation</field>
+        <field name="arch" type="xml">
+            <form>
+                <header><field name="state" widget="statusbar"/></header>
+                <sheet>
+                    <group><field name="name"/><field name="partner_id"/><field name="recon_type"/><field name="recon_date"/></group>
+                    <group><field name="period_start"/><field name="period_end"/></group>
+                    <group><field name="opening_balance"/><field name="total_invoiced"/><field name="total_paid"/><field name="total_adjustment"/><field name="closing_balance"/></group>
+                    <group><field name="note"/></group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="action_reconciliation" model="ir.actions.act_window">
+        <field name="name">客户/供应商对账</field><field name="res_model">erp.reconciliation</field><field name="view_mode">list,form</field>
+    </record>
+    <menuitem id="menu_reconciliation" name="客户/供应商对账" action="action_reconciliation" parent="account.menu_finance" sequence="50"/>
+</odoo>

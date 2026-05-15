@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_partner_form_b2b" model="ir.ui.view">
+        <field name="name">res.partner.form.b2b</field><field name="model">res.partner</field>
+        <field name="inherit_id" ref="erp_base.res_partner_form_erp"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='erp_business']" position="inside">
+                <group string="B2B" name="b2b">
+                    <field name="is_b2b_customer"/>
+                    <field name="is_b2b_store"/>
+                    <field name="b2b_enabled"/>
+                    <field name="b2b_payment_method_default"/>
+                    <field name="b2b_default_store_id"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>
