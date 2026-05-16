@@ -15,12 +15,21 @@ class B2bFrontend(http.Controller):
 
     def _get_stores(self):
         """获取可用的收货门店列表。如果没配 B2B 门店字段,退回显示所有公司类型 partner"""
-        stores = request.env["res.partner"].sudo().search(
-            [("is_b2b_store", "=", True), ("b2b_enabled", "=", True)])
-        if not stores:
-            # 退回: 显示当前登录用户的 partner 及所有公司
-            stores = request.env["res.partner"].sudo().search(
-                [("is_company", "=", True)], limit=20)
+        Partner = request.env["res.partner"].sudo()
+        stores = Partner.search(
+            [("is_b2b_store", "=", True), ("b2b_enabled", "=", True)],
+            order="logistics_store_code, name",
+        )
+        if "is_logistics_store" in Partner._fields:
+            # 兼容从物流客户档案导入的真实收货门店。
+            logistics_domain = [("is_logistics_store", "=", True)]
+            if "logistics_store_status" in Partner._fields:
+                logistics_domain.append(("logistics_store_status", "in", [False, "active"]))
+            stores = stores | Partner.search(logistics_domain, order="logistics_store_code, name")
+
+        default_store = request.env.user.partner_id.b2b_default_store_id
+        if default_store:
+            stores = default_store | stores
         if not stores:
             stores = request.env.user.partner_id
         return stores
