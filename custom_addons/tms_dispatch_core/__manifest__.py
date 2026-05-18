@@ -26,6 +26,7 @@
         "views/logistics_route_planning_form.xml",
         "views/logistics_route_planning_map.xml",
         "views/import_route_result_views.xml",
+        "views/create_station_table_views.xml",
     ],
     "installable": True,
     "application": False,
