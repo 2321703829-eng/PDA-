@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- 排线批次列表视图 -->
+    <record id="view_route_planning_batch_tree" model="ir.ui.view">
+        <field name="name">logistics.route.planning.batch.tree</field>
+        <field name="model">logistics.route.planning.batch</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="batch_no"/>
+                <field name="vehicle_no"/>
+                <field name="driver_name"/>
+                <field name="stop_count"/>
+                <field name="route_status"/>
+                <field name="delivery_date"/>
+                <field name="planning_state"/>
+                <field name="warehouse_id"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- 排线批次搜索视图 -->
+    <record id="view_route_planning_batch_search" model="ir.ui.view">
+        <field name="name">logistics.route.planning.batch.search</field>
+        <field name="model">logistics.route.planning.batch</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="batch_no"/>
+                <field name="vehicle_no"/>
+                <field name="driver_name"/>
+                <filter name="waiting_route" string="待排线" domain="[('route_status','=','waiting_route')]"/>
+                <filter name="route_planned" string="已排线" domain="[('route_status','=','route_planned')]"/>
+                <filter name="route_confirmed" string="已确认" domain="[('route_status','=','route_confirmed')]"/>
+            </search>
+        </field>
+    </record>
+</odoo>

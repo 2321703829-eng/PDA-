@@ -22,6 +22,8 @@
         "views/logistics_route_planning_views.xml",
         "views/logistics_dispatch_waybill_views.xml",
         "views/tms_dispatch_views.xml",
+        "views/logistics_route_planning_list.xml",
+        "views/logistics_route_planning_form.xml",
         "views/logistics_route_planning_map.xml",
     ],
     "installable": True,
