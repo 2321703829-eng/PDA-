@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- 排线批次完整表单(覆盖默认) -->
     <record id="view_route_planning_batch_form_full" model="ir.ui.view">
         <field name="name">logistics.route.planning.batch.form.full</field>
         <field name="model">logistics.route.planning.batch</field>

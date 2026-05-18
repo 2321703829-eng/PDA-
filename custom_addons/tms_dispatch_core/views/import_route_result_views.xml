@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- 导入排线向导表单 -->
+    <record id="view_import_route_result_form" model="ir.ui.view">
+        <field name="name">tms.import.route.result.form</field>
+        <field name="model">tms.import.route.result</field>
+        <field name="arch" type="xml">
+            <form string="导入排线结果">
+                <group>
+                    <field name="excel_file" filename="file_name"/>
+                    <field name="file_name" invisible="1"/>
+                    <field name="update_existing"/>
+                </group>
+                <footer>
+                    <button name="action_import" type="object" string="导入排线" class="btn-primary"/>
+                    <button string="取消" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- 导入 action -->
+    <record id="action_import_route_result" model="ir.actions.act_window">
+        <field name="name">导入排线结果</field>
+        <field name="res_model">tms.import.route.result</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="tms_dispatch_core.model_logistics_route_planning_batch"/>
+    </record>
+</odoo>

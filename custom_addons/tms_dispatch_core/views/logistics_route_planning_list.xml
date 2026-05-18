@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- 排线批次列表视图 -->
     <record id="view_route_planning_batch_tree" model="ir.ui.view">
         <field name="name">logistics.route.planning.batch.tree</field>
         <field name="model">logistics.route.planning.batch</field>
         <field name="arch" type="xml">
-            <list>
+            <list create="false" edit="false">
                 <field name="batch_no"/>
                 <field name="vehicle_no"/>
                 <field name="driver_name"/>
@@ -18,7 +17,6 @@
         </field>
     </record>
 
-    <!-- 排线批次搜索视图 -->
     <record id="view_route_planning_batch_search" model="ir.ui.view">
         <field name="name">logistics.route.planning.batch.search</field>
         <field name="model">logistics.route.planning.batch</field>
