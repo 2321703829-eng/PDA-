@@ -1,98 +1,109 @@
 import json
+
 from odoo import http
 from odoo.http import request
 
 
-class RouteMapController(http.Controller):
+AMAP_KEY = "f3d2d7ffa1a949b52d4735a6f014c871"
 
+
+class TmsRouteMapController(http.Controller):
     @http.route("/tms/route/<int:batch_id>/map", type="http", auth="user", website=False)
-    def route_map(self, batch_id, **kw):
-        batch = request.env["logistics.route.planning.batch"].sudo().browse(batch_id)
-        if not batch.exists():
+    def route_map(self, batch_id, **kwargs):
+        batch = request.env["logistics.route.planning.batch"].browse(batch_id).exists()
+        if not batch:
             return request.not_found()
 
         stops = []
-        for line in batch.stop_line_ids.sorted("stop_seq"):
-            if line.longitude and line.latitude:
-                stops.append({
-                    "name": line.store_name or "",
-                    "lng": line.longitude,
-                    "lat": line.latitude,
-                    "seq": line.stop_seq,
-                    "address": line.address_detail or "",
-                    "waybill_no": line.waybill_no or "",
-                })
+        for stop in batch.stop_line_ids.sorted(key=lambda s: s.stop_seq):
+            lon = stop.longitude
+            lat = stop.latitude
+            if not lon or not lat:
+                continue
+            stops.append({
+                "sequence": stop.stop_seq,
+                "name": stop.store_name or "",
+                "address": stop.address_detail or "",
+                "lng": float(lon),
+                "lat": float(lat),
+                "waybill": stop.waybill_no or "",
+            })
 
-        amap_key = "f3d2d7ffa1a949b52d4735a6f014c871"
-        stops_json = json.dumps(stops, ensure_ascii=False)
+        payload = json.dumps({
+            "batch": batch.batch_no or batch.display_name,
+            "status": batch.route_status or "",
+            "stops": stops,
+        }, ensure_ascii=False).replace("</", "<\\/")
 
-        html = f"""<!doctype html>
+        return request.make_response(self._render_html(payload),
+            headers=[("Content-Type", "text/html; charset=utf-8")])
+
+    def _render_html(self, payload):
+        return f"""<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>排线地图 - {batch.batch_no}</title>
-<style>
-  html,body,#map{{height:100%;margin:0;padding:0}}
-  #info{{position:absolute;top:10px;right:10px;z-index:999;background:rgba(255,255,255,.93);padding:12px 16px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.15);font-size:14px;max-width:320px}}
-  #info h4{{margin:0 0 8px 0;font-size:16px}}
-  #info p{{margin:2px 0;color:#555}}
-  .stop-item{{cursor:pointer;padding:4px 6px;border-radius:4px}}
-  .stop-item:hover{{background:#e8f0fe}}
-  .stop-item.active{{background:#d2e3fc;font-weight:bold}}
-</style>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>路线地图</title>
+  <style>
+    html, body, #map {{ width: 100%; height: 100%; margin: 0; }}
+    body {{ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }}
+    .panel {{
+      position: absolute; left: 24px; top: 24px; z-index: 10; width: 320px;
+      max-height: calc(100% - 48px); overflow: auto;
+      background: rgba(255,255,255,.94); border: 1px solid #d9e2ef;
+      box-shadow: 0 20px 50px rgba(15,23,42,.16); border-radius: 8px;
+    }}
+    .panel header {{ padding: 14px 18px 10px; border-bottom: 1px solid #e5edf7; }}
+    .panel h1 {{ margin: 0 0 4px; font-size: 16px; }}
+    .panel p {{ margin: 0; color: #64748b; font-size: 13px; }}
+    .stop {{ padding: 10px 18px; border-bottom: 1px solid #eef2f7; cursor: pointer; }}
+    .stop:hover {{ background: #f0f4ff; }}
+    .stop-title {{ font-weight: 700; font-size: 14px; }}
+    .stop-meta {{ color: #64748b; font-size: 12px; }}
+    .empty {{ padding: 18px; color: #b91c1c; font-weight: 700; }}
+  </style>
+  <script src="https://webapi.amap.com/maps?v=2.0&key={AMAP_KEY}"></script>
 </head>
 <body>
-<div id="info">
-  <h4>{batch.batch_no}</h4>
-  <p>车辆: {batch.vehicle_no or ''} | 司机: {batch.driver_name or ''}</p>
-  <p>站点数: {len(stops)} | 状态: {batch.route_status or ''}</p>
-  <hr style="margin:8px 0"/>
-  <div id="stopList" style="max-height:40vh;overflow:auto"></div>
-</div>
-<div id="map"></div>
-<script src="https://webapi.amap.com/maps?v=2.0&key={amap_key}"></script>
-<script>
-var stops = {stops_json};
-var map = new AMap.Map('map', {{ zoom: 11, center: stops.length ? [stops[0].lng, stops[0].lat] : [113.53, 23.08] }});
-var markers = [];
-var path = stops.map(function(s) {{ return [s.lng, s.lat]; }});
-
-// Draw route line
-if (path.length > 1) {{
-  new AMap.Polyline({{ path: path, strokeColor: '#1a56db', strokeWeight: 4, strokeOpacity: .7, showDir: true }}).setMap(map);
-}}
-
-// Draw markers
-stops.forEach(function(s, i) {{
-  var marker = new AMap.Marker({{
-    position: [s.lng, s.lat],
-    title: s.name,
-    label: {{ content: String(i+1), offset: new AMap.Pixel(0,-5) }},
-    map: map
-  }});
-  marker.on('click', function() {{ highlightStop(i); }});
-  markers.push(marker);
-  map.setFitView();
-}});
-
-// Build stop list
-var list = document.getElementById('stopList');
-stops.forEach(function(s, i) {{
-  var div = document.createElement('div');
-  div.className = 'stop-item';
-  div.id = 'stop-' + i;
-  div.innerHTML = '<b>' + (i+1) + '.</b> ' + s.name + ' <span style=color:#999;font-size:12px>' + (s.waybill_no || '') + '</span>';
-  div.onclick = function() {{ highlightStop(i); map.setCenter([s.lng, s.lat]); map.setZoom(15); }};
-  list.appendChild(div);
-}});
-
-function highlightStop(i) {{
-  document.querySelectorAll('.stop-item').forEach(function(el) {{ el.classList.remove('active'); }});
-  var el = document.getElementById('stop-' + i);
-  if (el) el.classList.add('active');
-}}
-</script>
+  <div id="map"></div>
+  <aside class="panel">
+    <header><h1 id="batch-title">路线地图</h1><p id="batch-summary"></p></header>
+    <div id="stop-list"></div>
+  </aside>
+  <script>
+    const data = {payload};
+    const map = new AMap.Map("map", {{
+      resizeEnable: true, zoom: 11,
+      center: data.stops.length ? [data.stops[0].lng, data.stops[0].lat] : [113.53, 23.08],
+      viewMode: "2D"
+    }});
+    document.getElementById("batch-title").textContent = data.batch || "路线地图";
+    document.getElementById("batch-summary").textContent = "状态：" + (data.status || "-") + " | 站点：" + data.stops.length;
+    const list = document.getElementById("stop-list");
+    if (!data.stops.length) {{
+      list.innerHTML = '<div class="empty">此批次没有经纬度坐标，请在排线完成后重新导入。</div>';
+    }} else {{
+      const path = [];
+      data.stops.forEach(function(stop) {{
+        const pos = [stop.lng, stop.lat];
+        path.push(pos);
+        new AMap.Marker({{
+          position: pos, label: {{ content: String(stop.sequence), direction: "top" }}, title: stop.name, map: map
+        }}).on("click", function() {{
+          new AMap.InfoWindow({{ content: "<b>" + stop.sequence + ". " + stop.name + "</b><br/>" + (stop.address || "") + "<br/>" + (stop.waybill || "") }}).open(map, pos);
+        }});
+        const div = document.createElement("div");
+        div.className = "stop";
+        div.innerHTML = '<div class="stop-title">' + stop.sequence + '. ' + stop.name + '</div><div class="stop-meta">' + (stop.address || "") + '</div><div class="stop-meta">运单: ' + (stop.waybill || "-") + '</div>';
+        div.onclick = function() {{ map.setCenter(pos); map.setZoom(15); }};
+        list.appendChild(div);
+      }});
+      if (path.length > 1) {{
+        new AMap.Polyline({{ path: path, strokeColor: "#1d4ed8", strokeWeight: 5, strokeOpacity: .85, lineJoin: "round", map: map }});
+      }}
+      map.setFitView();
+    }}
+  </script>
 </body>
 </html>"""
-        return request.make_response(html, headers=[("Content-Type", "text/html; charset=utf-8")])
