@@ -59,3 +59,11 @@ class LogisticsRoutePlanningBatch(models.Model):
             "view_mode": "list,form",
             "domain": [("dispatch_order_id", "in", dispatch_orders.ids)],
         }
+
+    def action_open_route_map(self):
+        self.ensure_one()
+        return {
+            "type": "ir.actions.act_url",
+            "url": "/tms/route/%s/map" % self.id,
+            "target": "self",
+        }
