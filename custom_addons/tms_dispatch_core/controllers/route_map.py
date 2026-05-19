@@ -1,5 +1,6 @@
 import json
 import os
+import re
 
 from odoo import http
 from odoo.http import request
@@ -17,7 +18,22 @@ class TmsRouteMapController(http.Controller):
         if not batch:
             return request.not_found()
 
-        # 从站点线构建 routeData
+        route_data = self._build_route_data(batch)
+
+        if os.path.exists(TEMPLATE_PATH):
+            with open(TEMPLATE_PATH, "r", encoding="utf-8") as f:
+                html = f.read()
+        else:
+            return request.make_response(self._fallback_html(json.dumps(route_data, ensure_ascii=False)),
+                headers=[("Content-Type", "text/html; charset=utf-8")])
+
+        # 替换内嵌的 routeData (const routeData = [...];  → 动态数据)
+        route_json = json.dumps(route_data, ensure_ascii=False)
+        html = re.sub(r"const routeData\s*=\s*\[.*?\];", f"const routeData = {route_json};", html, flags=re.DOTALL)
+        html = html.replace("__ROUTE_DATA_PLACEHOLDER__", route_json)
+        return request.make_response(html, headers=[("Content-Type", "text/html; charset=utf-8")])
+
+    def _build_route_data(self, batch):
         routes = []
         if batch.stop_line_ids:
             stops = batch.stop_line_ids.sorted(key=lambda s: s.stop_seq)
@@ -51,18 +67,7 @@ class TmsRouteMapController(http.Controller):
                     "start": [113.53, 23.08],
                     "points": points,
                 })
-
-        route_json = json.dumps(routes, ensure_ascii=False)
-
-        if os.path.exists(TEMPLATE_PATH):
-            with open(TEMPLATE_PATH, "r", encoding="utf-8") as f:
-                html = f.read()
-        else:
-            html = self._fallback_html(route_json)
-
-        html = html.replace("__ROUTE_DATA_PLACEHOLDER__", route_json)
-        html = html.replace('src="https://webapi.amap.com/maps?v=2.0&key=', f'src="https://webapi.amap.com/maps?v=2.0&key={AMAP_KEY}')
-        return request.make_response(html, headers=[("Content-Type", "text/html; charset=utf-8")])
+        return routes
 
     def _fallback_html(self, route_json):
         return f"""<!doctype html><html><head><meta charset="utf-8"/></head>
