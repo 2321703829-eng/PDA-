@@ -1,6 +1,5 @@
 import json
 import os
-import re
 
 from odoo import http
 from odoo.http import request
@@ -19,18 +18,32 @@ class TmsRouteMapController(http.Controller):
             return request.not_found()
 
         route_data = self._build_route_data(batch)
+        route_json = json.dumps(route_data, ensure_ascii=False)
 
         if os.path.exists(TEMPLATE_PATH):
             with open(TEMPLATE_PATH, "r", encoding="utf-8") as f:
                 html = f.read()
+            # 替换内嵌 routeData: const routeData = [...]; → const routeData = <动态数据>;
+            prefix = "const routeData = "
+            start = html.find(prefix)
+            if start != -1:
+                bracket_start = html.find("[", start)
+                depth = 0
+                end = bracket_start
+                for i in range(bracket_start, len(html)):
+                    if html[i] == "[":
+                        depth += 1
+                    elif html[i] == "]":
+                        depth -= 1
+                        if depth == 0:
+                            end = i + 1
+                            break
+                html = html[:start] + prefix + route_json + html[end + 1:]  # +1 skip ;
+            else:
+                html = html.replace("__ROUTE_DATA_PLACEHOLDER__", route_json)
         else:
-            return request.make_response(self._fallback_html(json.dumps(route_data, ensure_ascii=False)),
-                headers=[("Content-Type", "text/html; charset=utf-8")])
+            html = self._fallback_html(route_json)
 
-        # 替换内嵌的 routeData (const routeData = [...];  → 动态数据)
-        route_json = json.dumps(route_data, ensure_ascii=False)
-        html = re.sub(r"const routeData\s*=\s*\[.*?\];", f"const routeData = {route_json};", html, flags=re.DOTALL)
-        html = html.replace("__ROUTE_DATA_PLACEHOLDER__", route_json)
         return request.make_response(html, headers=[("Content-Type", "text/html; charset=utf-8")])
 
     def _build_route_data(self, batch):
