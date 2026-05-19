@@ -1,0 +1,2751 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>排线结果总览图</title>
+  <style>
+:root {
+      --panel-radius: 14px;
+      --card-radius: 12px;
+      --panel-border: #dbe6ee;
+      --panel-shadow: 0 14px 36px rgba(15, 23, 42, 0.14);
+      --soft-bg: rgba(255,255,255,.94);
+      --soft-blue: #eaf3ff;
+      --soft-blue-border: #bfd8ff;
+      --soft-danger: #fff4f4;
+      --soft-danger-border: #ffc9c7;
+      --text-main: #102a43;
+      --text-subtle: #6b7c93;
+      --btn-height: 36px;
+    }
+    html, body, #container { height: 100%; margin: 0; padding: 0; }
+    #panel {
+      position: absolute; z-index: 999; top: 10px; left: 10px; width: 360px;
+      max-width: calc(100vw - 20px); background: var(--soft-bg);
+      border: 1px solid var(--panel-border); border-radius: var(--panel-radius);
+      box-shadow: var(--panel-shadow);
+      backdrop-filter: blur(10px);
+      font-family: "Microsoft YaHei", sans-serif; font-size: 13px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      max-height: calc(100vh - 20px);
+    }
+    #panel.collapsed { height: 54px !important; }
+    #panelTop {
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      padding: 10px 12px; background: linear-gradient(180deg, #f7fbfe 0%, #f2f7fb 100%); border-bottom: 1px solid #e6edf3;
+      flex: 0 0 auto;
+    }
+    .history-toolbar { display:inline-flex; align-items:center; gap:6px; flex:0 0 auto; }
+    .history-btn {
+      width:32px; height:32px; padding:0; border-radius:10px; border:1px solid #d5e0e8;
+      background:#fff; color:#38556a; font-size:16px; font-weight:700; cursor:pointer;
+    }
+    .history-btn:disabled { opacity:.42; cursor:not-allowed; transform:none; box-shadow:none; }
+    @keyframes newPointFlash {
+      0%, 100% { transform:scale(1); opacity:1; }
+      50% { transform:scale(1.28); opacity:.72; }
+    }
+    #panelTitle { font-weight:700; font-size: 15px; color: var(--text-main); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    #togglePanel {
+      border:1px solid #d5e0e8; background:#fff; border-radius:10px;
+      padding:5px 10px; cursor:pointer; font-size:12px; color:#38556a;
+    }
+    #panelBody { padding:10px; max-height:none; overflow:auto; flex:1 1 auto; min-height:0; }
+    #panel.collapsed #panelBody { display:none; }
+    .ctl-label { display:block; color:var(--text-subtle); margin-bottom:6px; font-weight:700; }
+    #routeSelect {
+      width:100%; height:38px; border:1px solid #d7e3ea; border-radius:10px;
+      padding:6px 10px; background:#fff; color:var(--text-main);
+    }
+    #toggleLabels {
+      margin-top: 8px;
+      flex: 1;
+      height: 30px;
+      border: 1px solid #d9d9d9;
+      border-radius: 4px;
+      background: #fff;
+      cursor: pointer;
+    }
+    #exportRoutes {
+      flex: 1;
+      height: 30px;
+      border: 1px solid #d9d9d9;
+      border-radius: 4px;
+      background: #fff;
+      cursor: pointer;
+    }
+    #exportDeletedRoutes {
+      flex: 1;
+      height: 30px;
+      border: 1px solid #d9d9d9;
+      border-radius: 4px;
+      background: #fff;
+      cursor: pointer;
+    }
+    #manualPlannerBtn {
+      flex: 1;
+      height: 30px;
+      border: 1px solid #d9d9d9;
+      border-radius: 4px;
+      background: #fff;
+      cursor: pointer;
+    }
+    .tool-row {
+      margin-top: 8px;
+      display: flex;
+      gap: 8px;
+    }
+    .entry-btn {
+      flex: 1;
+      height: var(--btn-height);
+      border: 1px solid #d8e3eb;
+      border-radius: 10px;
+      background: #fff;
+      color: var(--text-main);
+      cursor: pointer;
+    }
+    .entry-btn.active {
+      border-color: #7ab0ff;
+      background: var(--soft-blue);
+      color: #0f4fbf;
+      font-weight: 700;
+    }
+    .entry-btn.delete.active {
+      border-color: var(--soft-danger-border);
+      background: var(--soft-danger);
+      color: #cf1322;
+    }
+    #editorBox {
+      margin-top: 10px;
+      padding: 8px;
+      background: #fcfcfd;
+      border: 1px solid #eceff3;
+      border-radius: 6px;
+    }
+    .editor-title {
+      color: #111827;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .editor-input {
+      width: 100%;
+      height: 36px;
+      box-sizing: border-box;
+      border: 1px solid #d9e3ea;
+      border-radius: 10px;
+      padding: 6px 10px;
+      background: #fff;
+      margin-top: 6px;
+    }
+    .editor-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 6px;
+    }
+    #addPointBtn {
+      margin-top: 8px;
+      width: 100%;
+      height: 32px;
+      border: 1px solid #1677ff;
+      border-radius: 4px;
+      background: #1677ff;
+      color: #fff;
+      cursor: pointer;
+    }
+    .minor-tip {
+      margin-top: 6px;
+      color: var(--text-subtle);
+      line-height: 1.6;
+      font-size: 12px;
+    }
+    .select-toolbar {
+      margin-top: 10px;
+      padding: 8px;
+      background: #f8fafc;
+      border: 1px solid #e5edf5;
+      border-radius: 6px;
+    }
+    .select-toolbar-title {
+      color: #111827;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .select-toolbar .tool-row {
+      margin-top: 6px;
+    }
+    .select-btn {
+      flex: 1;
+      height: 36px;
+      border: 1px solid #d8e3eb;
+      border-radius: 10px;
+      background: #fff;
+      cursor: pointer;
+    }
+    #quickStats {
+      margin-top:10px; color:#1f2937; line-height:1.7;
+      background:linear-gradient(180deg, #f8fbfd 0%, #f2f7fb 100%); border:1px solid #e4edf4; border-radius:12px; padding:10px 12px;
+      max-height:72px; overflow:auto;
+    }
+    .panel-stats-card {
+      margin-top: 12px;
+      border-radius: 14px;
+      background: linear-gradient(180deg, #173247 0%, #1f4158 100%);
+      border: 1px solid rgba(255,255,255,.08);
+      color: #f8fbff;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+    }
+    .panel-stats-card b {
+      color: #ffffff;
+    }
+    .info-actions {
+      margin-top: 8px;
+    }
+    .delete-point-btn {
+      height: 28px;
+      padding: 0 10px;
+      border: 1px solid #ff4d4f;
+      border-radius: 4px;
+      background: #fff1f0;
+      color: #cf1322;
+      cursor: pointer;
+    }
+    #selectionActionMask {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(17,24,39,.22);
+      z-index: 2300;
+    }
+    #selectionActionMask.visible {
+      display: flex;
+    }
+    #selectionActionDialog {
+      width: min(392px, calc(100vw - 32px));
+      background: rgba(255,255,255,.98);
+      border: 1px solid var(--panel-border);
+      border-radius: 16px;
+      box-shadow: var(--panel-shadow);
+      backdrop-filter: blur(12px);
+      padding: 16px;
+      font-family: "Microsoft YaHei", sans-serif;
+    }
+    #selectionActionTitle {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin: 0;
+    }
+    #selectionActionText {
+      color: var(--text-main);
+      line-height: 1.7;
+      font-size: 13px;
+    }
+    #selectionActionBtns {
+      margin-top: 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+    }
+    .selection-action-card {
+      margin-top: 10px;
+    }
+    .primary-action-btn {
+      flex: 1;
+      height: 38px;
+      border: 1px solid #1677ff;
+      border-radius: 10px;
+      background: linear-gradient(180deg, #2f86ff 0%, #1677ff 100%);
+      color: #fff;
+      cursor: pointer;
+    }
+    .warn-action-btn {
+      flex: 1;
+      height: 38px;
+      border: 1px solid #ff4d4f;
+      border-radius: 10px;
+      background: linear-gradient(180deg, #fff7f7 0%, #fff1f0 100%);
+      color: #cf1322;
+      cursor: pointer;
+    }
+    .plain-action-btn {
+      flex: 1;
+      height: 38px;
+      border: 1px solid #d9e3ea;
+      border-radius: 10px;
+      background: #fff;
+      color: var(--text-main);
+      cursor: pointer;
+    }
+    .side-tool-panel {
+      position: fixed;
+      top: 78px;
+      left: 360px;
+      width: 376px;
+      max-width: calc(100vw - 24px);
+      max-height: calc(100vh - 24px);
+      overflow: auto;
+      display: none;
+      z-index: 2090;
+      background: rgba(255,255,255,.98);
+      border: 1px solid var(--panel-border);
+      border-radius: 16px;
+      box-shadow: var(--panel-shadow);
+      backdrop-filter: blur(12px);
+      font-family: "Microsoft YaHei", sans-serif;
+    }
+    .side-tool-panel.visible {
+      display: block;
+    }
+    .side-tool-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      border-bottom: 1px solid #e5edf3;
+      background: linear-gradient(180deg, #f8fbfe 0%, #f3f8fc 100%);
+    }
+    .side-tool-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .side-tool-close {
+      width: 30px;
+      height: 30px;
+      border: 1px solid #d1d5db;
+      border-radius: 9px;
+      background: #fff;
+      cursor: pointer;
+    }
+    .side-tool-body {
+      padding: 12px;
+    }
+    .tool-panel-hero {
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: linear-gradient(180deg, #f7fbff 0%, #eef5fb 100%);
+      border: 1px solid #d9e7f2;
+      margin-bottom: 10px;
+    }
+    .tool-panel-hero-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .tool-panel-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 28px;
+      height: 28px;
+      padding: 0 8px;
+      border-radius: 999px;
+      background: #e0eeff;
+      color: #1458b3;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .2px;
+    }
+    .tool-panel-hero-desc {
+      margin-top: 8px;
+      color: var(--text-subtle);
+      line-height: 1.65;
+      font-size: 12px;
+    }
+    .tool-panel-group {
+      margin-top: 10px;
+      padding: 12px;
+      border-radius: 14px;
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+      border: 1px solid #e5edf4;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.85);
+    }
+    .tool-panel-group:first-of-type {
+      margin-top: 0;
+    }
+    .tool-panel-group.accent {
+      background: linear-gradient(180deg, #f8fbff 0%, #f2f7fd 100%);
+      border-color: #dbe9f5;
+    }
+    .tool-panel-group.warn {
+      background: linear-gradient(180deg, #fffafa 0%, #fff5f4 100%);
+      border-color: #f4d9d7;
+    }
+    .tool-panel-group-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 4px;
+    }
+    .tool-panel-group-desc {
+      color: var(--text-subtle);
+      line-height: 1.6;
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+    .panel-main-hero {
+      margin-bottom: 12px;
+    }
+    .panel-main-hero .tool-panel-badge {
+      background: #dff0ff;
+      color: #0f5eb8;
+    }
+    .panel-main-group {
+      margin-top: 12px;
+    }
+    .panel-main-group .ctl-label {
+      margin-top: 4px;
+    }
+    .panel-main-actions {
+      margin-top: 10px;
+    }
+    .panel-main-actions .entry-btn,
+    .panel-main-actions #manualPlannerBtn {
+      min-height: 38px;
+      font-weight: 700;
+    }
+    .panel-main-actions #manualPlannerBtn {
+      width: 100%;
+    }
+    .panel-btn-primary {
+      margin-top: 8px;
+      width: 100%;
+      height: 38px;
+      border: 1px solid #1677ff;
+      border-radius: 10px;
+      background: linear-gradient(180deg, #2f86ff 0%, #1677ff 100%);
+      color: #fff;
+      cursor: pointer;
+    }
+    .panel-btn-secondary {
+      margin-top: 8px;
+      width: 100%;
+      height: 38px;
+      border: 1px solid #d9e3ea;
+      border-radius: 10px;
+      background: #fff;
+      color: var(--text-main);
+      cursor: pointer;
+    }
+    .panel-btn-danger {
+      margin-top: 8px;
+      width: 100%;
+      height: 38px;
+      border: 1px solid #ff7875;
+      border-radius: 10px;
+      background: linear-gradient(180deg, #fff7f7 0%, #fff1f0 100%);
+      color: #cf1322;
+      cursor: pointer;
+    }
+    #addPointPanel #exportRoutes,
+    #deletePointPanel #exportDeletedRoutes,
+    #addPointPanel #addPointBtn {
+      width: 100%;
+      flex: none;
+      height: 34px;
+      border-radius: 6px;
+    }
+    .tool-divider {
+      margin: 10px 0;
+      height: 1px;
+      background: #eef2f6;
+    }
+    #manualPlannerPanel {
+      position: fixed;
+      top: 78px;
+      left: 360px;
+      width: 380px;
+      min-width: 280px;
+      min-height: 220px;
+      max-width: calc(100vw - 24px);
+      max-height: calc(100vh - 24px);
+      resize: both;
+      overflow: auto;
+      display: none;
+      z-index: 2100;
+      background: rgba(255,255,255,.98);
+      border: 1px solid var(--panel-border);
+      border-radius: 16px;
+      box-shadow: var(--panel-shadow);
+      backdrop-filter: blur(12px);
+      font-family: "Microsoft YaHei", sans-serif;
+    }
+    #manualPlannerPanel.visible {
+      display: block;
+    }
+    #manualPlannerHeader {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      border-bottom: 1px solid #e5edf3;
+      background: linear-gradient(180deg, #f8fbfe 0%, #f3f8fc 100%);
+      cursor: move;
+      user-select: none;
+    }
+    #manualPlannerTitle {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    #manualPlannerClose {
+      width: 30px;
+      height: 30px;
+      border: 1px solid #d1d5db;
+      border-radius: 9px;
+      background: #fff;
+      cursor: pointer;
+    }
+    #manualPlannerBody {
+      padding: 12px;
+    }
+    #manualRouteButtons {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 0;
+    }
+    .manual-route-btn {
+      position: relative;
+      width: 100%;
+      min-height: 68px;
+      border: 1px solid rgba(17,24,39,.08);
+      border-radius: 14px;
+      background: linear-gradient(135deg, #ff1493 0%, rgba(17,24,39,.92) 160%);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+      cursor: pointer;
+      text-align: left;
+      padding: 10px 70px 10px 12px;
+      color: #fff;
+      transition: transform .18s ease, filter .18s ease, box-shadow .18s ease, border-color .18s ease, opacity .18s ease;
+    }
+    .manual-route-btn.route-hidden {
+      opacity: .56;
+      filter: saturate(.52);
+    }
+    .manual-route-btn::before {
+      content: "";
+      position: absolute;
+      top: 15px;
+      right: 48px;
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      border: 2px solid rgba(255,255,255,.88);
+      box-sizing: border-box;
+    }
+    .manual-route-btn:not(.route-hidden)::before {
+      background: #fff;
+    }
+    .manual-route-btn::after {
+      content: attr(data-visible-text);
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      min-width: 42px;
+      height: 24px;
+      padding: 0 8px 0 18px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      background: rgba(255,255,255,.14);
+      border: 1px solid rgba(255,255,255,.22);
+      box-sizing: border-box;
+    }
+    .manual-route-btn.active {
+      transform: translateY(-1px);
+      filter: brightness(1.08);
+      box-shadow: 0 14px 28px rgba(15, 23, 42, 0.16);
+      border-color: rgba(255,255,255,.35);
+      font-weight: 700;
+    }
+    .manual-route-empty {
+      padding: 12px;
+      border: 1px dashed #d1d5db;
+      border-radius: 10px;
+      color: var(--text-subtle);
+      font-size: 12px;
+      line-height: 1.6;
+      background: #fafafa;
+      margin-bottom: 8px;
+    }
+    #manualPlannerActions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .manual-action-btn {
+      height: 38px;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      background: #fff;
+      cursor: pointer;
+    }
+    .manual-action-btn.active {
+      border-color: #1677ff;
+      background: #eaf3ff;
+      color: #0f4fbf;
+      font-weight: 700;
+    }
+    #manualExportAllBtn {
+      margin-top: 8px;
+      width: 100%;
+      height: 40px;
+      border: 1px solid #1677ff;
+      border-radius: 10px;
+      background: linear-gradient(180deg, #2f86ff 0%, #1677ff 100%);
+      color: #fff;
+      cursor: pointer;
+    }
+    #manualPlannerTip {
+      margin-top: 8px;
+      color: #6b7280;
+      line-height: 1.6;
+      font-size: 12px;
+    }
+    .manual-route-list-card {
+      margin-top: 10px;
+      padding: 12px;
+      border-radius: 14px;
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+      border: 1px solid #e5edf4;
+    }
+    .manual-route-actions-card {
+      margin-top: 10px;
+      padding: 12px;
+      border-radius: 14px;
+      background: linear-gradient(180deg, #f8fbff 0%, #f2f7fd 100%);
+      border: 1px solid #dbe9f5;
+    }
+    #manualRouteDetailMask {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(15,23,42,.24);
+      z-index: 2200;
+    }
+    #manualRouteDetailMask.visible {
+      display: flex;
+    }
+    #manualRouteDetailDialog {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: min(760px, calc(100vw - 32px));
+      max-height: calc(100vh - 40px);
+      overflow: auto;
+      background: rgba(255,255,255,.98);
+      border: 1px solid var(--panel-border);
+      border-radius: 16px;
+      box-shadow: var(--panel-shadow);
+      backdrop-filter: blur(12px);
+      padding: 16px;
+      font-family: "Microsoft YaHei", sans-serif;
+    }
+    #manualRouteDetailHead {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: linear-gradient(180deg, #f8fbfe 0%, #f3f8fc 100%);
+      border: 1px solid #e5edf3;
+      cursor: move;
+      user-select: none;
+    }
+    #manualRouteDetailTitle {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    #manualRouteDetailClose {
+      width: 30px;
+      height: 30px;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      background: #fff;
+      cursor: pointer;
+    }
+    #manualRouteDetailBody {
+      color: var(--text-main);
+      line-height: 1.7;
+      font-size: 13px;
+    }
+    .detail-summary-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .detail-summary-item {
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: #ffffff;
+      border: 1px solid #e6edf4;
+    }
+    .detail-summary-label {
+      color: var(--text-subtle);
+      font-size: 12px;
+      margin-bottom: 3px;
+    }
+    .detail-summary-value {
+      color: var(--text-main);
+      font-weight: 700;
+      word-break: break-all;
+    }
+    .detail-table-card {
+      margin-top: 10px;
+    }
+    #manualRouteDetailBody table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 12px;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    #manualRouteDetailBody th,
+    #manualRouteDetailBody td {
+      border: 1px solid #e5e7eb;
+      padding: 6px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    #manualRouteDetailBody th {
+      background: #f8fafc;
+    }
+    #togglePanel,
+    #toggleLabels,
+    #manualPlannerBtn,
+    #exportRoutes,
+    #exportDeletedRoutes,
+    .primary-action-btn,
+    .warn-action-btn,
+    .plain-action-btn,
+    .entry-btn,
+    .select-btn,
+    .panel-btn-primary,
+    .panel-btn-secondary,
+    .panel-btn-danger,
+    .manual-action-btn,
+    #manualExportAllBtn,
+    .side-tool-close,
+    #manualPlannerClose,
+    .delete-point-btn,
+    .manual-route-btn {
+      transition: all .18s ease;
+    }
+    #toggleLabels,
+    #manualPlannerBtn,
+    #exportRoutes,
+    #exportDeletedRoutes {
+      height: var(--btn-height);
+      border-radius: 10px;
+      border-color: #d8e3eb;
+      color: var(--text-main);
+    }
+    #manualPlannerBtn {
+      background: linear-gradient(180deg, #fdfefe 0%, #f5f9fc 100%);
+      font-weight: 700;
+    }
+    #togglePanel:hover,
+    #toggleLabels:hover,
+    #manualPlannerBtn:hover,
+    #exportRoutes:hover,
+    #exportDeletedRoutes:hover,
+    .plain-action-btn:hover,
+    .entry-btn:hover,
+    .select-btn:hover,
+    .panel-btn-secondary:hover,
+    .manual-action-btn:hover,
+    .manual-route-btn:hover,
+    .side-tool-close:hover,
+    #manualPlannerClose:hover {
+      border-color: #b9cddb;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+    }
+    .panel-btn-primary:hover,
+    .primary-action-btn:hover,
+    #manualExportAllBtn:hover,
+    .warn-action-btn:hover,
+    .panel-btn-danger:hover,
+    .delete-point-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
+    }
+    @media (max-width: 960px) {
+      #panel {
+        width: min(368px, calc(100vw - 20px));
+      }
+      #panelBody {
+        max-height: min(68vh, calc(100vh - 92px));
+      }
+      .tool-row {
+        flex-wrap: wrap;
+      }
+      .entry-btn,
+      #toggleLabels,
+      #manualPlannerBtn,
+      .select-btn {
+        min-width: calc(50% - 4px);
+      }
+      .side-tool-panel,
+      #manualPlannerPanel {
+        left: 12px !important;
+        right: 12px !important;
+        width: auto !important;
+        max-width: none;
+        max-height: calc(100vh - 24px);
+      }
+      #manualPlannerPanel {
+        resize: none;
+      }
+    }
+    @media (max-width: 640px) {
+      #panel {
+        left: 8px;
+        right: 8px;
+        top: 8px;
+        width: auto;
+        max-width: none;
+        border-radius: 16px;
+      }
+      #panelTop,
+      .side-tool-header,
+      #manualPlannerHeader {
+        padding: 12px 14px;
+      }
+      #panelBody,
+      .side-tool-body,
+      #manualPlannerBody {
+        padding: 12px;
+      }
+      #routeSelect,
+      #toggleLabels,
+      #manualPlannerBtn,
+      .entry-btn,
+      .select-btn,
+      .editor-input,
+      .panel-btn-primary,
+      .panel-btn-secondary,
+      .panel-btn-danger,
+      .manual-action-btn,
+      #manualExportAllBtn {
+        height: 40px;
+        font-size: 14px;
+      }
+      .editor-grid,
+      #manualPlannerActions {
+        grid-template-columns: 1fr;
+      }
+      .tool-row {
+        gap: 10px;
+      }
+      .entry-btn,
+      #toggleLabels,
+      #manualPlannerBtn,
+      .select-btn {
+        min-width: 100%;
+      }
+      #selectionActionBtns,
+      .detail-summary-grid {
+        grid-template-columns: 1fr;
+      }
+      .panel-main-actions {
+        margin-top: 8px;
+      }
+      #quickStats {
+        font-size: 12px;
+      }
+      .minor-tip,
+      #manualPlannerTip {
+        font-size: 11px;
+      }
+    }
+.map-common-toast {
+  position: absolute;
+  z-index: 1600;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  max-width: min(520px, calc(100vw - 28px));
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(15, 23, 42, .12);
+  background: rgba(255, 255, 255, .96);
+  color: #102a43;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, .16);
+  font-family: "Microsoft YaHei", sans-serif;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.map-common-menu {
+  position: absolute;
+  z-index: 1550;
+  min-width: 180px;
+  border-radius: 10px;
+  border: 1px solid #dbe6ee;
+  background: rgba(255, 255, 255, .98);
+  box-shadow: 0 12px 30px rgba(15, 23, 42, .16);
+  overflow: hidden;
+  font-family: "Microsoft YaHei", sans-serif;
+}
+
+.map-common-menu-item {
+  display: block;
+  width: 100%;
+  height: 34px;
+  padding: 0 12px;
+  border: 0;
+  background: transparent;
+  color: #102a43;
+  text-align: left;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.map-common-menu-item:hover {
+  background: #eef6ff;
+}
+
+.map-common-menu-item.danger {
+  color: #cf1322;
+}
+
+.map-common-detail-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.map-common-detail-card {
+  color: #102a43;
+  font-size: 12px;
+}
+
+.map-common-detail-title {
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+.map-common-detail-row {
+  margin: 1px 0;
+  overflow-wrap: anywhere;
+}
+
+.map-common-detail-row b {
+  color: #102a43;
+}
+
+.map-common-detail-action {
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid #cbd8e3;
+  background: #fff;
+  color: #102a43;
+  cursor: pointer;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.map-common-detail-action:hover {
+  border-color: #1677ff;
+  color: #1677ff;
+}
+
+.map-common-detail-action.primary {
+  border-color: #1677ff;
+  background: #1677ff;
+  color: #fff;
+}
+
+.map-common-detail-action.danger {
+  border-color: #ffb7b1;
+  background: #fff1f0;
+  color: #cf1322;
+}
+
+
+.point-search-dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 4300;
+  display: none;
+  background: rgba(15, 23, 42, .16);
+}
+.point-search-dialog.visible { display: block; }
+.point-search-dialog > .point-search-head,
+.point-search-dialog > .point-search-body {
+  width: min(380px, calc(100vw - 32px));
+  margin-left: auto;
+  margin-right: 18px;
+}
+.point-search-head {
+  margin-top: 72px;
+  border-radius: 10px 10px 0 0;
+  background: rgba(255, 255, 255, .96);
+  border: 1px solid rgba(148, 163, 184, .35);
+  border-bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  box-shadow: 0 16px 36px rgba(15, 23, 42, .16);
+}
+.point-search-title { font-weight: 700; color: #111827; }
+.point-search-close {
+  border: 0;
+  background: transparent;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  color: #64748b;
+}
+.point-search-body {
+  border-radius: 0 0 10px 10px;
+  background: rgba(255, 255, 255, .96);
+  border: 1px solid rgba(148, 163, 184, .35);
+  border-top: 0;
+  padding: 0 14px 14px;
+  box-shadow: 0 16px 36px rgba(15, 23, 42, .16);
+}
+.point-search-input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid rgba(148, 163, 184, .55);
+  border-radius: 8px;
+  padding: 9px 10px;
+  outline: none;
+}
+.point-search-input:focus {
+  border-color: #1677ff;
+  box-shadow: 0 0 0 3px rgba(22, 119, 255, .12);
+}
+.point-search-actions { display: flex; gap: 8px; margin-top: 10px; }
+.point-search-actions button {
+  border: 1px solid rgba(148, 163, 184, .45);
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #334155;
+  padding: 7px 9px;
+  cursor: pointer;
+}
+.point-search-apply { background: #1677ff !important; color: #fff !important; border-color: #1677ff !important; }
+.point-search-tip { margin-top: 8px; font-size: 12px; color: #64748b; }
+.point-search-results {
+  margin-top: 10px;
+  max-height: min(420px, calc(100vh - 240px));
+  overflow: auto;
+  display: grid;
+  gap: 7px;
+}
+.point-search-result {
+  text-align: left;
+  border: 1px solid rgba(226, 232, 240, .95);
+  border-radius: 8px;
+  background: #fff;
+  padding: 8px 10px;
+  cursor: pointer;
+}
+.point-search-result:hover { border-color: #1677ff; background: #eff6ff; }
+.point-search-result-name { font-weight: 700; color: #111827; }
+.point-search-result-sub,
+.point-search-empty { margin-top: 3px; font-size: 12px; color: #64748b; }
+
+
+.map-work-log {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 4200;
+  width: min(360px, calc(100vw - 36px));
+  max-height: min(420px, calc(100vh - 120px));
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, .42);
+  background: rgba(255, 255, 255, .96);
+  box-shadow: 0 16px 34px rgba(15, 23, 42, .18);
+  overflow: hidden;
+  font-family: "Microsoft YaHei", sans-serif;
+}
+.map-work-log.has-new { box-shadow: 0 16px 34px rgba(22, 119, 255, .24); }
+.map-work-log-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  background: #f8fafc;
+  border-bottom: 1px solid rgba(226, 232, 240, .9);
+  cursor: move;
+  user-select: none;
+}
+.map-work-log-title { font-weight: 700; color: #111827; font-size: 13px; }
+.map-work-log-toggle {
+  border: 1px solid rgba(148, 163, 184, .55);
+  background: #fff;
+  border-radius: 8px;
+  padding: 4px 8px;
+  color: #334155;
+  cursor: pointer;
+  font-size: 12px;
+}
+.map-work-log-body {
+  max-height: 350px;
+  overflow: auto;
+  padding: 8px;
+  display: grid;
+  gap: 7px;
+}
+.map-work-log.collapsed { width: min(220px, calc(100vw - 36px)); }
+.map-work-log.collapsed .map-work-log-body { display: none; }
+.map-work-log-item {
+  border: 1px solid rgba(226, 232, 240, .95);
+  border-radius: 9px;
+  background: #fff;
+  padding: 8px 9px;
+}
+.map-work-log-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  color: #475569;
+  font-size: 12px;
+}
+.map-work-log-row b { color: #0f172a; }
+.map-work-log-message {
+  margin-top: 4px;
+  color: #1f2937;
+  font-size: 12px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+.map-work-log-detail {
+  margin-top: 3px;
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.map-work-log-empty { color: #64748b; font-size: 12px; padding: 8px; }
+
+  </style>
+  <script type="text/javascript" src="https://webapi.amap.com/maps?v=2.0&key=f3d2d7ffa1a949b52d4735a6f014c871"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+<div id="panel"></div>
+  <div id="container"></div>
+  <div id="selectionActionMask">
+    <div id="selectionActionDialog">
+      <div class="tool-panel-hero">
+        <div class="tool-panel-hero-title">
+          <span class="tool-panel-badge">ACT</span>
+          <span id="selectionActionTitle">批量操作</span>
+        </div>
+        <div class="tool-panel-hero-desc">对当前圈选结果进行导出或删除处理，执行前可以先确认选中数量。</div>
+      </div>
+      <div class="tool-panel-group accent selection-action-card">
+        <div class="tool-panel-group-title">当前选中状态</div>
+        <div id="selectionActionText"></div>
+      </div>
+      <div class="tool-panel-group selection-action-card">
+        <div class="tool-panel-group-title">执行操作</div>
+        <div class="tool-panel-group-desc">建议先导出留存，再执行批量删除。</div>
+        <div id="selectionActionBtns">
+          <button id="batchExportBtn" class="primary-action-btn" type="button">批量导出</button>
+          <button id="batchDeleteBtn" class="warn-action-btn" type="button">批量删除</button>
+          <button id="batchActionCancelBtn" class="plain-action-btn" type="button">取消</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="addPointPanel" class="side-tool-panel">
+    <div class="side-tool-header">
+      <div class="side-tool-title">添加店铺点</div>
+      <button id="addPointPanelClose" class="side-tool-close" type="button">×</button>
+    </div>
+    <div class="side-tool-body">
+      <div class="tool-panel-hero">
+        <div class="tool-panel-hero-title">
+          <span class="tool-panel-badge">ADD</span>
+          <span>新增店铺点</span>
+        </div>
+        <div class="tool-panel-hero-desc">新增点位后会自动并入最近路线，适合临时补点、替换点位或手工调整排线。</div>
+      </div>
+      <div class="tool-panel-group accent">
+        <div class="tool-panel-group-title">填写信息</div>
+        <div class="tool-panel-group-desc">输入方式与原工具保持一致。</div>
+        <input id="addName" class="editor-input" type="text" placeholder="店铺名称" />
+        <div class="editor-grid">
+          <input id="addLng" class="editor-input" type="text" placeholder="经度" />
+          <input id="addLat" class="editor-input" type="text" placeholder="纬度" />
+        </div>
+        <button id="addPointBtn" class="panel-btn-primary" type="button">新增点并并入路线</button>
+      </div>
+      <div class="tool-panel-group">
+        <div class="tool-panel-group-title">结果导出</div>
+        <div class="tool-panel-group-desc">新增或调整后，可直接导出新的路线结果表。</div>
+        <button id="exportRoutes" class="panel-btn-secondary" type="button">导出新规划路线表</button>
+      </div>
+      <div class="minor-tip">新增点默认按增量最小的位置插入；如从点位右键进入，则优先插入到该点之后。</div>
+    </div>
+  </div>
+  <div id="deletePointPanel" class="side-tool-panel">
+    <div class="side-tool-header">
+      <div class="side-tool-title">选择点位</div>
+      <button id="deletePointPanelClose" class="side-tool-close" type="button">×</button>
+    </div>
+    <div class="side-tool-body">
+      <div class="tool-panel-hero">
+        <div class="tool-panel-hero-title">
+          <span class="tool-panel-badge">SEL</span>
+          <span>选择点位</span>
+        </div>
+        <div class="tool-panel-hero-desc">选择矩形、圆形或不规则区域，选中后可通过右键菜单继续删除、清除或查看列表。</div>
+      </div>
+      <div class="tool-panel-group accent">
+        <div class="tool-panel-group-title">选择方式</div>
+        <div class="tool-panel-group-desc">选择一种框选方式后面板会自动收起，当前选区会保留在地图上。</div>
+        <div class="tool-row">
+          <button id="selectRectBtn" class="select-btn" type="button">矩形选择</button>
+          <button id="selectCircleBtn" class="select-btn" type="button">圆形选择</button>
+        </div>
+        <div class="tool-row">
+          <button id="selectPolygonBtn" class="select-btn" type="button">不规则选择</button>
+          <button id="clearSelectionBtn" class="select-btn" type="button">清除选区</button>
+        </div>
+      </div>
+      <div class="tool-panel-group warn">
+        <div class="tool-panel-group-title">精准删除</div>
+        <div class="tool-panel-group-desc">可输入店铺名称，或输入经纬度做精确定位删除。</div>
+        <input id="deleteName" class="editor-input" type="text" placeholder="店铺名称（可选）" />
+        <div class="editor-grid">
+          <input id="deleteLng" class="editor-input" type="text" placeholder="经度（可选）" />
+          <input id="deleteLat" class="editor-input" type="text" placeholder="纬度（可选）" />
+        </div>
+        <button id="preciseDeleteBtn" class="panel-btn-danger" type="button">定位并删除</button>
+      </div>
+      <div class="tool-panel-group">
+        <div class="tool-panel-group-title">删除记录导出</div>
+        <div class="tool-panel-group-desc">删除后可随时导出留痕，便于后续核对。</div>
+        <button id="exportDeletedRoutes" class="panel-btn-secondary" type="button">导出被删除数据表</button>
+      </div>
+      <div class="minor-tip">左键点击空白区域只关闭详情，不清除选区；需要清除时请使用右键菜单或“清除选区”。</div>
+    </div>
+  </div>
+  <div id="selectedPointPanel" class="side-tool-panel">
+    <div class="side-tool-header">
+      <div class="side-tool-title">已选中点</div>
+      <button id="selectedPointPanelClose" class="side-tool-close" type="button">×</button>
+    </div>
+    <div class="side-tool-body">
+      <div class="tool-panel-hero">
+        <div class="tool-panel-hero-title">
+          <span class="tool-panel-badge">SEL</span>
+          <span>已选中点</span>
+        </div>
+        <div class="tool-panel-hero-desc">这里展示当前选区内的店铺，可从右键菜单批量删除或清除。</div>
+      </div>
+      <div id="selectedPointListBody"></div>
+    </div>
+  </div>
+  <div id="manualPlannerPanel">
+    <div id="manualPlannerHeader">
+      <div id="manualPlannerTitle">人工排线工具</div>
+      <button id="manualPlannerClose" type="button">×</button>
+    </div>
+    <div id="manualPlannerBody">
+      <div class="tool-panel-hero">
+        <div class="tool-panel-hero-title">
+          <span class="tool-panel-badge">MAN</span>
+          <span>人工排线工具</span>
+        </div>
+        <div class="tool-panel-hero-desc">通过圈选重组路线、查看人工线路详情，并导出人工排线汇总结果。</div>
+      </div>
+      <div class="manual-route-list-card">
+        <div class="tool-panel-group-title">人工路线列表</div>
+        <div class="tool-panel-group-desc">点击任意线路按钮可查看详情并高亮当前路线。</div>
+        <div id="manualRouteButtons"></div>
+        <div class="manual-route-empty" id="manualRouteEmpty">还没有人工生成的线路。点击“圈选线路”后，可在地图上左键单击逐点打点，双击自动闭合选区。</div>
+      </div>
+      <div class="manual-route-actions-card">
+        <div class="tool-panel-group-title">人工排线操作</div>
+        <div class="tool-panel-group-desc">先圈选生成新路线，系统会自动按更优单路线顺序排线，再按需要删除或导出人工结果。</div>
+        <div id="manualPlannerActions">
+          <button id="manualSelectRouteBtn" class="manual-action-btn" type="button">圈选线路</button>
+          <button id="manualDeleteRouteBtn" class="manual-action-btn" type="button">删除路线</button>
+        </div>
+        <button id="manualExportAllBtn" type="button">导出全部</button>
+      </div>
+      <div id="manualPlannerTip">左键按住拖动仍可移动地图。人工排线模式下，左键单击逐点打点，双击后会自动闭合起点和终点形成选区。确认导入后，圈中的点会按起点约束和单路线顺序优化自动排线，并生成新的人工线路，从当前地图线路中移除。</div>
+    </div>
+  </div>
+  <div id="manualRouteDetailMask">
+    <div id="manualRouteDetailDialog">
+      <div id="manualRouteDetailHead">
+        <div id="manualRouteDetailTitle">人工线路详情</div>
+        <button id="manualRouteDetailClose" type="button">×</button>
+      </div>
+      <div id="manualRouteDetailBody"></div>
+    </div>
+  </div>
+  <script>
+(function (window) {
+  "use strict";
+
+  const common = {};
+
+  common.createViewportTools = function createViewportTools(map) {
+    const getState = function getState() {
+      const center = map && typeof map.getCenter === "function" ? map.getCenter() : null;
+      return {
+        center: center ? [center.lng, center.lat] : null,
+        zoom: map && typeof map.getZoom === "function" ? map.getZoom() : null,
+        rotation: map && typeof map.getRotation === "function" ? map.getRotation() : 0,
+        pitch: map && typeof map.getPitch === "function" ? map.getPitch() : 0
+      };
+    };
+
+    const restore = function restore(state) {
+      if (!map || !state || !state.center) return;
+      if (typeof map.setZoomAndCenter === "function" && state.zoom !== null && state.zoom !== undefined) {
+        map.setZoomAndCenter(state.zoom, state.center, false);
+      } else if (typeof map.setCenter === "function") {
+        map.setCenter(state.center, false);
+      }
+      if (typeof map.setRotation === "function") {
+        map.setRotation(state.rotation || 0);
+      }
+      if (typeof map.setPitch === "function") {
+        map.setPitch(state.pitch || 0);
+      }
+      if (typeof map.setCenter === "function") {
+        map.setCenter(state.center, false);
+      }
+    };
+
+    const preserve = function preserve(fn) {
+      const state = getState();
+      fn();
+      restore(state);
+      window.requestAnimationFrame(function () {
+        restore(state);
+        window.setTimeout(function () { restore(state); }, 0);
+        window.setTimeout(function () { restore(state); }, 32);
+        window.setTimeout(function () { restore(state); }, 80);
+      });
+    };
+
+    const limitZoomRepeatedly = function limitZoomRepeatedly(maxZoom) {
+      const limitOnce = function limitOnce() {
+        if (!map || typeof map.getZoom !== "function" || typeof map.setZoom !== "function") return;
+        const zoom = Number(map.getZoom());
+        if (Number.isFinite(zoom) && zoom > maxZoom) {
+          map.setZoom(maxZoom, false);
+        }
+      };
+      window.requestAnimationFrame(function () {
+        limitOnce();
+        window.setTimeout(limitOnce, 0);
+        window.setTimeout(limitOnce, 80);
+      });
+    };
+
+    const fitOverlays = function fitOverlays(overlays, padding, options) {
+      const opts = options || {};
+      if (!map || !overlays || overlays.length === 0 || typeof map.setFitView !== "function") return;
+      map.setFitView(overlays, false, padding);
+      if (opts.maxZoom !== undefined && opts.maxZoom !== null) {
+        limitZoomRepeatedly(Number(opts.maxZoom));
+      }
+    };
+
+    return {
+      getState,
+      restore,
+      preserve,
+      limitZoomRepeatedly,
+      fitOverlays
+    };
+  };
+
+  common.closeFloatingElement = function closeFloatingElement(element) {
+    if (!element) return;
+    element.classList.remove("visible", "open", "active");
+    element.style.display = "none";
+  };
+
+  common.showFloatingElement = function showFloatingElement(element, x, y) {
+    if (!element) return;
+    element.style.display = "block";
+    element.style.left = `${x}px`;
+    element.style.top = `${y}px`;
+    element.classList.add("visible");
+  };
+
+  common.getEventPixel = function getEventPixel(event) {
+    const origin = event && event.originEvent ? event.originEvent : event;
+    if (!origin) return { x: 0, y: 0 };
+    return {
+      x: Number(origin.clientX || 0),
+      y: Number(origin.clientY || 0)
+    };
+  };
+
+  common.isInsideElement = function isInsideElement(event, selector) {
+    const target = event && event.originEvent ? event.originEvent.target : event && event.target;
+    return !!(target && target.closest && target.closest(selector));
+  };
+
+  common.getContextClientPoint = function getContextClientPoint(event) {
+    const original = event && (event.originEvent || event.originalEvent || event.domEvent);
+    if (original && Number.isFinite(original.clientX) && Number.isFinite(original.clientY)) {
+      return { x: original.clientX, y: original.clientY };
+    }
+    if (event && event.pixel) {
+      return { x: Number(event.pixel.x || 0), y: Number(event.pixel.y || 0) };
+    }
+    return { x: Math.round(window.innerWidth / 2), y: Math.round(window.innerHeight / 2) };
+  };
+
+  common.createContextMenuController = function createContextMenuController(menuElement, options) {
+    const opts = options || {};
+
+    const hide = function hide() {
+      if (!menuElement) return;
+      menuElement.classList.remove(opts.visibleClass || "visible");
+      menuElement.innerHTML = "";
+    };
+
+    const show = function show(html, event) {
+      if (!menuElement) return;
+      const point = common.getContextClientPoint(event);
+      menuElement.innerHTML = html;
+      menuElement.classList.add(opts.visibleClass || "visible");
+      window.requestAnimationFrame(function () {
+        const rect = menuElement.getBoundingClientRect();
+        const margin = Number(opts.margin || 8);
+        const left = Math.min(Math.max(margin, point.x), Math.max(margin, window.innerWidth - rect.width - margin));
+        const top = Math.min(Math.max(margin, point.y), Math.max(margin, window.innerHeight - rect.height - margin));
+        menuElement.style.left = `${left}px`;
+        menuElement.style.top = `${top}px`;
+      });
+    };
+
+    return { show, hide };
+  };
+
+  common.createContextMenuSeparator = function createContextMenuSeparator(options) {
+    const opts = options || {};
+    return `<div class="${opts.className || "route-context-sep"}"></div>`;
+  };
+
+  common.createContextMenuItem = function createContextMenuItem(options) {
+    const opts = options || {};
+    const tagName = opts.tagName || "button";
+    const baseClass = opts.className || "route-context-item";
+    const extraClasses = [];
+    if (opts.disabled) extraClasses.push("disabled");
+    if (opts.danger) extraClasses.push("danger");
+    if (opts.hasSubmenu) extraClasses.push("has-sub");
+    if (opts.extraClass) extraClasses.push(opts.extraClass);
+    const className = [baseClass].concat(extraClasses).filter(Boolean).join(" ");
+    const attrs = [`class="${className}"`];
+    if (tagName === "button") attrs.push('type="button"');
+    if (opts.disabled && tagName === "button") attrs.push("disabled");
+    if (opts.onclick && !opts.disabled) attrs.push(`onclick="${opts.onclick}"`);
+    if (opts.attrs) attrs.push(opts.attrs);
+    const label = opts.rawLabel ? String(opts.label || "") : common.escapeHtml(opts.label || "");
+    const submenu = opts.submenuHtml || "";
+    return `<${tagName} ${attrs.join(" ")}>${label}${submenu}</${tagName}>`;
+  };
+
+  common.createContextSubmenu = function createContextSubmenu(label, items, options) {
+    const opts = options || {};
+    const submenuClass = opts.submenuClass || "route-context-submenu";
+    const itemHtml = (items || []).map(function (item) {
+      if (typeof item === "string") return item;
+      return common.createContextMenuItem(Object.assign({ tagName: "span" }, item || {}));
+    }).join("");
+    return common.createContextMenuItem({
+      label: `${label || ""} >`,
+      hasSubmenu: true,
+      submenuHtml: `<span class="${submenuClass}">${itemHtml}</span>`
+    });
+  };
+
+  common.createContextMenuHtml = function createContextMenuHtml(items, options) {
+    const opts = options || {};
+    return (items || []).map(function (item) {
+      if (!item) return "";
+      if (typeof item === "string") return item;
+      if (item.type === "separator") return common.createContextMenuSeparator(item);
+      if (item.type === "submenu") return common.createContextSubmenu(item.label, item.items, item);
+      return common.createContextMenuItem(Object.assign({ className: opts.itemClassName || "route-context-item" }, item));
+    }).join("");
+  };
+
+  common.makePanelDraggable = function makePanelDraggable(panelEl, handleEl, options) {
+    const opts = options || {};
+    if (!panelEl || !handleEl) return null;
+    let dragState = null;
+    const skipSelector = opts.skipSelector || "button, input, textarea, select, a";
+
+    const clamp = function clamp() {
+      const rect = panelEl.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+      const margin = Number(opts.margin || 8);
+      const maxLeft = Math.max(margin, window.innerWidth - rect.width - margin);
+      const maxTop = Math.max(margin, window.innerHeight - rect.height - margin);
+      const nextLeft = Math.min(Math.max(margin, rect.left), maxLeft);
+      const nextTop = Math.min(Math.max(margin, rect.top), maxTop);
+      panelEl.style.left = `${Math.round(nextLeft)}px`;
+      panelEl.style.top = `${Math.round(nextTop)}px`;
+      panelEl.style.right = "auto";
+      panelEl.style.bottom = "auto";
+    };
+
+    const onMouseDown = function onMouseDown(event) {
+      if (opts.disableOnCompact !== false && window.innerWidth <= Number(opts.compactWidth || 720)) return;
+      if (event.target && event.target.closest && event.target.closest(skipSelector)) return;
+      const rect = panelEl.getBoundingClientRect();
+      panelEl.style.position = "fixed";
+      panelEl.style.left = `${Math.round(rect.left)}px`;
+      panelEl.style.top = `${Math.round(rect.top)}px`;
+      panelEl.style.right = "auto";
+      panelEl.style.bottom = "auto";
+      panelEl.style.transform = "none";
+      dragState = {
+        startX: event.clientX,
+        startY: event.clientY,
+        left: rect.left,
+        top: rect.top
+      };
+      event.preventDefault();
+    };
+
+    const onMouseMove = function onMouseMove(event) {
+      if (!dragState) return;
+      panelEl.style.left = `${Math.round(dragState.left + (event.clientX - dragState.startX))}px`;
+      panelEl.style.top = `${Math.round(dragState.top + (event.clientY - dragState.startY))}px`;
+    };
+
+    const onMouseUp = function onMouseUp() {
+      if (!dragState) return;
+      panelEl.dataset.dragged = "1";
+      clamp();
+      dragState = null;
+    };
+
+    handleEl.addEventListener("mousedown", onMouseDown);
+    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseup", onMouseUp);
+    handleEl.classList.add("map-common-draggable-handle");
+    return {
+      clamp,
+      destroy: function destroy() {
+        handleEl.removeEventListener("mousedown", onMouseDown);
+        document.removeEventListener("mousemove", onMouseMove);
+        document.removeEventListener("mouseup", onMouseUp);
+      }
+    };
+  };
+
+
+
+
+
+  common.createPointContextActionItems = function createPointContextActionItems(options) {
+    const opts = options || {};
+    const labels = Object.assign({
+      select: "选中此点",
+      unselect: "取消选中此点",
+      deletePoint: "删除此点"
+    }, opts.labels || {});
+    const items = [];
+    if (opts.toggleOnclick) {
+      items.push({
+        label: opts.selected ? labels.unselect : labels.select,
+        onclick: opts.toggleOnclick
+      });
+    }
+    if (opts.deleteOnclick) {
+      items.push({
+        label: labels.deletePoint,
+        onclick: opts.deleteOnclick,
+        danger: true
+      });
+    }
+    (opts.extraItems || []).forEach(function (item) {
+      if (Array.isArray(item)) {
+        item.forEach(function (subItem) { items.push(subItem); });
+      } else if (item !== undefined && item !== null && item !== "") {
+        items.push(item);
+      }
+    });
+    return items;
+  };
+
+  common.createRouteLineActionItems = function createRouteLineActionItems(actions, options) {
+    const opts = options || {};
+    const acts = actions || {};
+    const labels = Object.assign({
+      detail: "查看线路详情",
+      fit: "定位到该线路",
+      recalc: "重新计算该线路顺序",
+      reverse: "反转配送顺序",
+      exportRoute: "导出该线路",
+      deleteRoute: "释放线路点"
+    }, opts.labels || {});
+    return [
+      { key: "detail", label: labels.detail, onclick: acts.detail },
+      { key: "fit", label: labels.fit, onclick: acts.fit },
+      { key: "recalc", label: labels.recalc, onclick: acts.recalc },
+      { key: "reverse", label: labels.reverse, onclick: acts.reverse },
+      { key: "exportRoute", label: labels.exportRoute, onclick: acts.exportRoute },
+      { key: "deleteRoute", label: labels.deleteRoute, onclick: acts.deleteRoute, danger: true }
+    ].filter(function (item) {
+      return item.onclick && !(opts.hiddenKeys || []).includes(item.key);
+    });
+  };
+
+  common.createSelectionToolMenuItems = function createSelectionToolMenuItems(options) {
+    const opts = options || {};
+    const labels = Object.assign({
+      active: "\u9009\u62e9\u5de5\u5177\u8fdb\u884c\u4e2d",
+      submenu: "\u9009\u62e9\u5de5\u5177",
+      polygon: "\u4e0d\u89c4\u5219\u9009\u62e9",
+      rectangle: "\u77e9\u5f62\u6846\u9009",
+      circle: "\u5708\u9009",
+      search: "\u641c\u7d22\u70b9\u4f4d\u9009\u62e9"
+    }, opts.labels || {});
+    if (opts.activeMode) {
+      return [{ label: labels.active, disabled: true }];
+    }
+    const prefix = opts.actionPrefix || "";
+    const activateName = opts.activateName || "ActivateSelection";
+    const searchName = opts.searchName || "OpenPointSearch";
+    const action = function (name) {
+      if (opts.actions && opts.actions[name]) return opts.actions[name];
+      if (!prefix) return "";
+      if (name === "search") return `window.${prefix}${searchName}()`;
+      return `window.${prefix}${activateName}('${name}')`;
+    };
+    return [{
+      type: "submenu",
+      label: labels.submenu,
+      items: [
+        { key: "polygon", label: labels.polygon, onclick: action("polygon") },
+        { key: "rectangle", label: labels.rectangle, onclick: action("rectangle") },
+        { key: "circle", label: labels.circle, onclick: action("circle") },
+        { key: "search", label: labels.search, onclick: action("search") }
+      ].filter(function (item) { return item.onclick && !(opts.hiddenKeys || []).includes(item.key); })
+    }];
+  };
+
+  common.createSelectedPointBatchActionItems = function createSelectedPointBatchActionItems(options) {
+    const opts = options || {};
+    if (!Number(opts.count || 0)) return [];
+    const labels = Object.assign({
+      view: "\u67e5\u770b\u9009\u4e2d\u70b9\u5217\u8868",
+      createRoute: "\u9009\u4e2d\u70b9\u6210\u7ebf",
+      smartPlanSelected: "\u9009\u4e2d\u70b9\u667a\u80fd\u6392\u7ebf",
+      clear: "\u6e05\u9664\u9009\u533a",
+      releaseSelected: "\u91ca\u653e\u9009\u4e2d\u70b9",
+      deleteSelected: "\u5220\u9664\u9009\u4e2d\u70b9"
+    }, opts.labels || {});
+    const items = [{ type: "separator" }];
+    if (opts.viewOnclick) items.push({ key: "view", label: labels.view, onclick: opts.viewOnclick });
+    if (opts.createRouteOnclick) items.push({ key: "createRoute", label: labels.createRoute, onclick: opts.createRouteOnclick });
+    if (opts.smartPlanSelectedOnclick) items.push({ key: "smartPlanSelected", label: labels.smartPlanSelected, onclick: opts.smartPlanSelectedOnclick });
+    if (opts.clearOnclick) items.push({ key: "clear", label: labels.clear, onclick: opts.clearOnclick });
+    if (opts.releaseOnclick) items.push({ key: "releaseSelected", label: labels.releaseSelected, onclick: opts.releaseOnclick });
+    if (opts.deleteOnclick) items.push({ key: "deleteSelected", label: labels.deleteSelected, onclick: opts.deleteOnclick, danger: true });
+    (opts.extraItems || []).forEach(function (item) {
+      if (item) items.push(item);
+    });
+    return items.filter(function (item) {
+      return item.type === "separator" || (item.onclick && !(opts.hiddenKeys || []).includes(item.key));
+    });
+  };
+
+  common.createInteractionStateController = function createInteractionStateController(options) {
+    const opts = options || {};
+    const closeHandlers = {};
+
+    const getTarget = function getTarget(event) {
+      if (!event) return null;
+      const original = event.originEvent || event.originalEvent || event.domEvent || event;
+      return original ? original.target : null;
+    };
+
+    const isInsideSelectors = function isInsideSelectors(event, selectors) {
+      const target = getTarget(event);
+      if (!target || !target.closest) return false;
+      return (selectors || []).some(function (selector) {
+        return selector && target.closest(selector);
+      });
+    };
+
+    const registerCloser = function registerCloser(name, handler) {
+      if (!name || typeof handler !== "function") return;
+      closeHandlers[name] = handler;
+    };
+
+    const close = function close(names) {
+      const closeNames = Array.isArray(names) && names.length > 0 ? names : Object.keys(closeHandlers);
+      closeNames.forEach(function (name) {
+        const handler = closeHandlers[name];
+        if (typeof handler !== "function") return;
+        try {
+          handler();
+        } catch (error) {
+          if (opts.debug) console.warn("close handler failed", name, error);
+        }
+      });
+    };
+
+    const handleBlankClick = function handleBlankClick(event, config) {
+      const cfg = config || {};
+      const ignoreSelectors = cfg.ignoreSelectors || opts.ignoreSelectors || [];
+      if (isInsideSelectors(event, ignoreSelectors)) {
+        return false;
+      }
+      close(cfg.closeNames);
+      return true;
+    };
+
+    const resolveSelectionActivation = function resolveSelectionActivation(current, next) {
+      const currentScope = current && current.scope ? current.scope : "";
+      const currentMode = current && current.mode ? current.mode : "";
+      const nextScope = next && next.scope ? next.scope : "";
+      const nextMode = next && next.mode ? next.mode : "";
+      if (currentMode && currentMode === nextMode && currentScope === nextScope) {
+        return "toggle-off";
+      }
+      if (currentMode) {
+        return "switch";
+      }
+      return "activate";
+    };
+
+    return {
+      registerCloser,
+      close,
+      getTarget,
+      isInsideSelectors,
+      handleBlankClick,
+      resolveSelectionActivation
+    };
+  };
+
+  common.escapeHtml = function escapeHtml(value) {
+    return String(value === undefined || value === null ? "" : value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  };
+
+
+  common.colorWithOpacity = function colorWithOpacity(color, alpha) {
+    const safeAlpha = Math.max(0, Math.min(1, Number(alpha)));
+    const raw = String(color || "").trim();
+    const shortHex = raw.match(/^#([0-9a-fA-F]{3})$/);
+    let hex = "";
+    if (shortHex) {
+      hex = shortHex[1].split("").map(function (ch) { return ch + ch; }).join("");
+    } else {
+      const fullHex = raw.match(/^#([0-9a-fA-F]{6})$/);
+      if (fullHex) hex = fullHex[1];
+    }
+    if (!hex) return raw || `rgba(17,24,39,${safeAlpha})`;
+    const r = parseInt(hex.slice(0, 2), 16);
+    const g = parseInt(hex.slice(2, 4), 16);
+    const b = parseInt(hex.slice(4, 6), 16);
+    return `rgba(${r},${g},${b},${safeAlpha})`;
+  };
+
+
+  common.normalizeSearchText = function normalizeSearchText(value) {
+    return String(value === undefined || value === null ? "" : value).trim().toLowerCase();
+  };
+
+  common.pointMatchesSearch = function pointMatchesSearch(point, query) {
+    const q = common.normalizeSearchText(query);
+    if (!q) return false;
+    const p = point || {};
+    const textFields = [p.name, p.site_id, p.address, p.lng, p.lat]
+      .map(function (item) { return common.normalizeSearchText(item); })
+      .filter(Boolean);
+    if (textFields.some(function (item) { return item.indexOf(q) >= 0; })) return true;
+    const nums = q.match(/-?\d+(?:\.\d+)?/g) || [];
+    if (nums.length >= 2) {
+      const a = Number(nums[0]);
+      const b = Number(nums[1]);
+      const lng = Number(p.lng);
+      const lat = Number(p.lat);
+      if (Number.isFinite(a) && Number.isFinite(b) && Number.isFinite(lng) && Number.isFinite(lat)) {
+        const tolerance = 0.0003;
+        return (Math.abs(lng - a) <= tolerance && Math.abs(lat - b) <= tolerance)
+          || (Math.abs(lng - b) <= tolerance && Math.abs(lat - a) <= tolerance);
+      }
+    }
+    return false;
+  };
+
+  common.createPointSearchDialog = function createPointSearchDialog(options) {
+    const opts = options || {};
+    const id = opts.id || "pointSearchDialog";
+    let root = document.getElementById(id);
+    if (!root) {
+      root = document.createElement("div");
+      root.id = id;
+      root.className = "point-search-dialog";
+      root.innerHTML = `
+        <div class="point-search-head">
+          <div class="point-search-title"></div>
+          <button class="point-search-close" type="button">?</button>
+        </div>
+        <div class="point-search-body">
+          <input class="point-search-input" type="text" />
+          <div class="point-search-actions">
+            <button class="point-search-apply" type="button">选中全部匹配</button>
+            <button class="point-search-clear" type="button">清空并关闭</button>
+          </div>
+          <div class="point-search-tip">支持店铺名、店铺编号、地址、经纬度搜索。</div>
+          <div class="point-search-results"></div>
+        </div>`;
+      document.body.appendChild(root);
+    }
+    const titleEl = root.querySelector(".point-search-title");
+    const inputEl = root.querySelector(".point-search-input");
+    const resultEl = root.querySelector(".point-search-results");
+    const closeBtn = root.querySelector(".point-search-close");
+    const applyBtn = root.querySelector(".point-search-apply");
+    const clearBtn = root.querySelector(".point-search-clear");
+    if (titleEl) titleEl.textContent = opts.title || "搜索点位选择";
+    if (inputEl) inputEl.placeholder = opts.placeholder || "输入店铺名、编号、地址或经纬度";
+
+    const getPoints = function getPoints() {
+      const points = typeof opts.getPoints === "function" ? opts.getPoints() : [];
+      return Array.isArray(points) ? points : [];
+    };
+    const getMatches = function getMatches() {
+      const query = inputEl ? inputEl.value : "";
+      if (!String(query || "").trim()) return [];
+      return getPoints().filter(function (point) {
+        return common.pointMatchesSearch(point, query);
+      }).slice(0, Number(opts.limit || 80));
+    };
+    const describePoint = function describePoint(point) {
+      if (typeof opts.describePoint === "function") return opts.describePoint(point);
+      const name = common.escapeHtml(point && point.name ? point.name : "未命名点");
+      const lng = point && Number.isFinite(Number(point.lng)) ? Number(point.lng).toFixed(6) : "";
+      const lat = point && Number.isFinite(Number(point.lat)) ? Number(point.lat).toFixed(6) : "";
+      return `<div class="point-search-result-name">${name}</div><div class="point-search-result-sub">${lng}, ${lat}</div>`;
+    };
+    const render = function render() {
+      if (!resultEl) return;
+      const matches = getMatches();
+      if (!String((inputEl && inputEl.value) || "").trim()) {
+        resultEl.innerHTML = `<div class="point-search-empty">请输入关键词后搜索。</div>`;
+        return;
+      }
+      if (matches.length === 0) {
+        resultEl.innerHTML = `<div class="point-search-empty">没有找到匹配点位。</div>`;
+        return;
+      }
+      resultEl.innerHTML = matches.map(function (point, index) {
+        return `<button class="point-search-result" type="button" data-index="${index}">${describePoint(point)}</button>`;
+      }).join("");
+      resultEl.querySelectorAll("[data-index]").forEach(function (btn) {
+        btn.onclick = function () {
+          const point = matches[Number(btn.dataset.index || 0)];
+          if (point && typeof opts.onSelect === "function") opts.onSelect(point, matches);
+        };
+      });
+    };
+    const open = function open() {
+      root.classList.add("visible");
+      render();
+      window.setTimeout(function () {
+        if (inputEl) inputEl.focus();
+      }, 0);
+    };
+    const close = function close() {
+      root.classList.remove("visible");
+    };
+    if (inputEl) inputEl.oninput = render;
+    if (closeBtn) closeBtn.onclick = close;
+    if (clearBtn) clearBtn.onclick = function () {
+      if (inputEl) inputEl.value = "";
+      render();
+      close();
+    };
+    if (applyBtn) applyBtn.onclick = function () {
+      const matches = getMatches();
+      if (typeof opts.onSelectMany === "function") opts.onSelectMany(matches);
+    };
+    root.addEventListener("click", function (event) {
+      if (event.target === root) close();
+    });
+    render();
+    return { open, close, render, element: root };
+  };
+
+
+  common.createWorkLogPanel = function createWorkLogPanel(options) {
+    const opts = options || {};
+    const id = opts.id || "mapWorkLogPanel";
+    let root = document.getElementById(id);
+    if (!root) {
+      root = document.createElement("div");
+      root.id = id;
+      root.className = "map-work-log collapsed";
+      root.innerHTML = `
+        <div class="map-work-log-head">
+          <div class="map-work-log-title">工作记录</div>
+          <button class="map-work-log-toggle" type="button">展开</button>
+        </div>
+        <div class="map-work-log-body"></div>`;
+      document.body.appendChild(root);
+    }
+    const body = root.querySelector(".map-work-log-body");
+    const head = root.querySelector(".map-work-log-head");
+    const toggleBtn = root.querySelector(".map-work-log-toggle");
+    const titleEl = root.querySelector(".map-work-log-title");
+    const records = [];
+    const limit = Number(opts.limit || 40);
+    if (!root.dataset.draggableBound && common.makePanelDraggable) {
+      common.makePanelDraggable(root, head, { compactWidth: 720 });
+      root.dataset.draggableBound = "1";
+    }
+
+    const render = function render() {
+      if (titleEl) titleEl.textContent = `${opts.title || "\u5de5\u4f5c\u8bb0\u5f55"}\uFF08${records.length}\uFF09`;
+      if (toggleBtn) toggleBtn.textContent = root.classList.contains("collapsed") ? "展开" : "收起";
+      if (!body) return;
+      if (records.length === 0) {
+        body.innerHTML = `<div class="map-work-log-empty">暂无操作记录</div>`;
+        return;
+      }
+      body.innerHTML = records.slice().reverse().map(function (item) {
+        const type = common.escapeHtml(item.type || "工作记录");
+        const message = common.escapeHtml(item.message || "");
+        const detail = item.detail ? `<div class="map-work-log-detail">${common.escapeHtml(item.detail)}</div>` : "";
+        const time = common.escapeHtml(item.time || "");
+        return `<div class="map-work-log-item"><div class="map-work-log-row"><b>${type}</b><span>${time}</span></div><div class="map-work-log-message">${message}</div>${detail}</div>`;
+      }).join("");
+    };
+
+    const record = function record(type, message, detail) {
+      records.push({
+        time: new Date().toLocaleTimeString(),
+        type: type || "工作记录",
+        message: message || "",
+        detail: detail || ""
+      });
+      while (records.length > limit) records.shift();
+      render();
+      root.classList.add("has-new");
+      window.setTimeout(function () { root.classList.remove("has-new"); }, 900);
+    };
+
+    const clear = function clear() {
+      records.length = 0;
+      render();
+    };
+
+    if (toggleBtn) {
+      toggleBtn.onclick = function () {
+        root.classList.toggle("collapsed");
+        render();
+      };
+    }
+    render();
+    return { record, clear, render, element: root, records };
+  };
+
+
+
+  common.clonePlain = function clonePlain(value) {
+    if (value === undefined) return undefined;
+    return JSON.parse(JSON.stringify(value));
+  };
+
+  common.makePointUid = function makePointUid(seed, prefix) {
+    const safePrefix = prefix || "pt";
+    if (seed !== undefined && seed !== null && seed !== "") {
+      return `${safePrefix}-${seed}`;
+    }
+    return `${safePrefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  };
+
+  common.createLngLat = function createLngLat(point, amapRef) {
+    const AMapRef = amapRef || window.AMap;
+    if (!point || !AMapRef || !AMapRef.LngLat) return null;
+    return new AMapRef.LngLat(point.lng, point.lat);
+  };
+
+  common.toLngLatPair = function toLngLatPair(value) {
+    if (!value) return null;
+    if (Array.isArray(value) && value.length >= 2) {
+      const lng = Number(value[0]);
+      const lat = Number(value[1]);
+      return Number.isFinite(lng) && Number.isFinite(lat) ? [lng, lat] : null;
+    }
+    if (typeof value.getLng === "function" && typeof value.getLat === "function") {
+      const lng = Number(value.getLng());
+      const lat = Number(value.getLat());
+      return Number.isFinite(lng) && Number.isFinite(lat) ? [lng, lat] : null;
+    }
+    const lng = Number(value.lng);
+    const lat = Number(value.lat);
+    return Number.isFinite(lng) && Number.isFinite(lat) ? [lng, lat] : null;
+  };
+
+  common.getOverlayPathPairs = function getOverlayPathPairs(overlay) {
+    if (!overlay || typeof overlay.getPath !== "function") return [];
+    let path = overlay.getPath() || [];
+    if (Array.isArray(path) && path.length > 0 && Array.isArray(path[0]) && path[0].length > 0 && !Number.isFinite(Number(path[0][0]))) {
+      path = path[0];
+    }
+    return (path || []).map(common.toLngLatPair).filter(Boolean);
+  };
+
+  common.pointInPolygonPairs = function pointInPolygonPairs(lng, lat, polygon) {
+    const x = Number(lng);
+    const y = Number(lat);
+    if (!Number.isFinite(x) || !Number.isFinite(y) || !Array.isArray(polygon) || polygon.length < 3) return false;
+    let inside = false;
+    for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+      const xi = Number(polygon[i][0]);
+      const yi = Number(polygon[i][1]);
+      const xj = Number(polygon[j][0]);
+      const yj = Number(polygon[j][1]);
+      const intersect = ((yi > y) !== (yj > y))
+        && (x < (xj - xi) * (y - yi) / ((yj - yi) || 1e-12) + xi);
+      if (intersect) inside = !inside;
+    }
+    return inside;
+  };
+
+  common.calcStraightDistanceKm = function calcStraightDistanceKm(lng1, lat1, lng2, lat2) {
+    const toRad = function toRad(deg) { return Number(deg) * Math.PI / 180; };
+    const earthRadiusKm = 6371.0088;
+    const dLat = toRad(Number(lat2) - Number(lat1));
+    const dLng = toRad(Number(lng2) - Number(lng1));
+    const a = Math.sin(dLat / 2) ** 2
+      + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return earthRadiusKm * c;
+  };
+
+  common.overlayContainsPoint = function overlayContainsPoint(overlay, point, amapRef) {
+    if (!overlay || !point) return false;
+    const AMapRef = amapRef || window.AMap;
+    const pointPair = common.toLngLatPair(point);
+    if (!pointPair) return false;
+    const pointLngLat = common.createLngLat({ lng: pointPair[0], lat: pointPair[1] }, AMapRef);
+
+    if (typeof overlay.contains === "function" && pointLngLat) {
+      try {
+        if (overlay.contains(pointLngLat)) return true;
+      } catch (err) {}
+    }
+
+    if (typeof overlay.getCenter === "function" && typeof overlay.getRadius === "function") {
+      const centerPair = common.toLngLatPair(overlay.getCenter());
+      const radius = Number(overlay.getRadius());
+      if (centerPair && Number.isFinite(radius)) {
+        return common.calcStraightDistanceKm(centerPair[0], centerPair[1], pointPair[0], pointPair[1]) * 1000 <= radius + 0.001;
+      }
+    }
+
+    const pathPairs = common.getOverlayPathPairs(overlay);
+    if (pathPairs.length >= 3) {
+      return common.pointInPolygonPairs(pointPair[0], pointPair[1], pathPairs);
+    }
+
+    if (typeof overlay.getBounds === "function" && pointLngLat) {
+      const bounds = overlay.getBounds();
+      if (bounds && typeof bounds.contains === "function") {
+        try {
+          return !!bounds.contains(pointLngLat);
+        } catch (err) {}
+      }
+    }
+    return false;
+  };
+
+  common.createStartMarkerHtml = function createStartMarkerHtml(label, color, options) {
+    const opts = options || {};
+    const mode = opts.mode || "normal";
+    const active = opts.active !== false;
+    const rawLabel = String(label || "").trim();
+    const safeLabel = common.escapeHtml(rawLabel);
+    const showLabel = opts.showLabel !== false && !!safeLabel;
+    const mainColor = String(color || "#111111").trim() || "#111111";
+    const iconColor = opts.iconColor || (mode === "departure" ? "#111111" : mainColor);
+    const size = Number.isFinite(Number(opts.size)) ? Number(opts.size) : (active ? 28 : 24);
+    const truckSize = Math.max(14, Math.round(size * 0.68));
+    const opacity = Math.max(0.35, Math.min(1, Number(opts.opacity === undefined ? 0.62 : opts.opacity)));
+    const wrapperWidth = showLabel ? Math.min(260, Math.max(104, safeLabel.length * 12 + 56)) : size;
+    const labelBackground = opts.labelBackground || "#ffffff";
+    const labelBorder = opts.labelBorder || common.colorWithOpacity(mainColor, 0.28);
+    const labelColor = opts.labelColor || "#111827";
+    const borderColor = common.colorWithOpacity(iconColor, active ? 0.72 : 0.56);
+    const truckColor = common.colorWithOpacity(iconColor, active ? 0.82 : 0.66);
+    const shadow = active
+      ? "0 0 0 3px rgba(17,17,17,.10), 0 7px 15px rgba(15,23,42,.13)"
+      : "0 0 0 2px rgba(255,255,255,.70), 0 5px 11px rgba(15,23,42,.10)";
+    const labelHtml = showLabel ? `
+        <div style="
+          position:absolute;left:${Math.max(22, size - 5)}px;top:4px;max-width:${Math.max(72, wrapperWidth - size + 7)}px;height:20px;padding:0 8px 0 11px;
+          border-radius:999px;background:${labelBackground};border:1px solid ${labelBorder};color:${labelColor};
+          display:flex;align-items:center;gap:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+          box-shadow:0 3px 8px rgba(15,23,42,.08);font-size:11px;font-weight:700;
+        " title="${safeLabel} 起点">
+          <span style="flex:none;font-size:9px;line-height:1;opacity:.9;">起</span>
+          <span style="min-width:0;overflow:hidden;text-overflow:ellipsis;">${safeLabel}</span>
+        </div>` : "";
+    return `
+      <div style="position:relative;width:${wrapperWidth}px;height:${Math.max(32, size)}px;pointer-events:auto;font-family:'Microsoft YaHei',sans-serif;opacity:${opacity};">
+        <div style="
+          position:absolute;left:0;top:0;width:${size}px;height:${size}px;
+          border-radius:50%;background:rgba(255,255,255,.72);border:2px solid ${borderColor};
+          box-shadow:${shadow};display:flex;align-items:center;justify-content:center;
+        ">
+          <svg width="${truckSize}" height="${truckSize}" viewBox="0 0 24 24" aria-hidden="true" style="display:block">
+            <path fill="${truckColor}" d="M3 6.5A1.5 1.5 0 0 1 4.5 5h8A1.5 1.5 0 0 1 14 6.5V8h2.8c.47 0 .92.22 1.2.6l2.33 3.1c.2.27.3.59.3.93V16a1 1 0 0 1-1 1h-.83a2.8 2.8 0 0 1-5.48 0H9.63a2.8 2.8 0 0 1-5.48 0H3.5a1 1 0 0 1-1-1v-8.5Zm11 3v3h4.26l-1.5-2a.5.5 0 0 0-.4-.2H14ZM6.9 18.6a1.4 1.4 0 1 0 0-2.8 1.4 1.4 0 0 0 0 2.8Zm9.8 0a1.4 1.4 0 1 0 0-2.8 1.4 1.4 0 0 0 0 2.8Z"/>
+          </svg>
+        </div>
+        ${labelHtml}
+      </div>
+    `;
+  };
+
+  common.createActionButton = function createActionButton(options) {
+    const opts = options || {};
+    const label = common.escapeHtml(opts.label || "");
+    const type = opts.type || "button";
+    const className = opts.className || "map-common-detail-action";
+    const style = opts.style || "";
+    const onclick = opts.onclick ? ` onclick="${opts.onclick}"` : "";
+    const extraClass = opts.variant ? ` ${opts.variant}` : "";
+    return `<button class="${className}${extraClass}" type="${type}"${onclick} style="${style}">${label}</button>`;
+  };
+
+  common.createActionButtons = function createActionButtons(actions, options) {
+    const opts = options || {};
+    return (actions || [])
+      .filter(function (action) {
+        return action && (action.show === undefined || action.show);
+      })
+      .map(function (action) {
+        return common.createActionButton(Object.assign({}, opts.buttonOptions || {}, action));
+      })
+      .join(opts.separator === undefined ? "" : opts.separator);
+  };
+
+  common.findPointLocation = function findPointLocation(pointUid, options) {
+    const opts = options || {};
+    const unplannedPoints = opts.unplannedPoints || [];
+    const routes = opts.routes || [];
+    const routePointsField = opts.routePointsField || "points";
+    const unplannedSourceType = opts.unplannedSourceType || "unplanned";
+    const routeSourceType = opts.routeSourceType || "manual_route";
+
+    const unplannedIndex = unplannedPoints.findIndex(function (point) {
+      return point && point.uid === pointUid;
+    });
+    if (unplannedIndex >= 0) {
+      return {
+        sourceType: unplannedSourceType,
+        pointIndex: unplannedIndex,
+        point: unplannedPoints[unplannedIndex]
+      };
+    }
+
+    for (let routeIndex = 0; routeIndex < routes.length; routeIndex += 1) {
+      const route = routes[routeIndex];
+      const points = route && route[routePointsField] ? route[routePointsField] : [];
+      const pointIndex = points.findIndex(function (point) {
+        return point && point.uid === pointUid;
+      });
+      if (pointIndex >= 0) {
+        return {
+          sourceType: routeSourceType,
+          routeIndex,
+          route,
+          pointIndex,
+          point: points[pointIndex]
+        };
+      }
+    }
+    return null;
+  };
+
+  common.removePointByLocation = function removePointByLocation(found, options) {
+    const opts = options || {};
+    if (!found || !found.point) return { removed: false };
+    const routes = opts.routes || [];
+    const unplannedPoints = opts.unplannedPoints || [];
+    const routePointsField = opts.routePointsField || "points";
+    const unplannedSourceType = opts.unplannedSourceType || "unplanned";
+    const routeSourceType = opts.routeSourceType || "manual_route";
+
+    if (found.sourceType === unplannedSourceType) {
+      unplannedPoints.splice(found.pointIndex, 1);
+      return { removed: true, sourceType: found.sourceType, removedPoint: found.point };
+    }
+
+    if (found.sourceType === routeSourceType && found.route) {
+      const points = found.route[routePointsField] || [];
+      points.splice(found.pointIndex, 1);
+      if (points.length === 0) {
+        const routeIndex = found.routeIndex !== undefined
+          ? found.routeIndex
+          : routes.findIndex(function (route) { return route === found.route; });
+        if (routeIndex >= 0) routes.splice(routeIndex, 1);
+        return {
+          removed: true,
+          sourceType: found.sourceType,
+          removedPoint: found.point,
+          removedRoute: true,
+          route: found.route
+        };
+      }
+      if (typeof opts.recalcRoute === "function") {
+        opts.recalcRoute(found.route);
+      }
+      return {
+        removed: true,
+        sourceType: found.sourceType,
+        removedPoint: found.point,
+        removedRoute: false,
+        route: found.route
+      };
+    }
+
+    return { removed: false };
+  };
+
+  common.summarizeRoute = function summarizeRoute(route, options) {
+    const opts = options || {};
+    const getPoints = typeof opts.getPoints === "function"
+      ? opts.getPoints
+      : function (targetRoute) { return targetRoute && targetRoute.points ? targetRoute.points : []; };
+    const points = getPoints(route) || [];
+    const distanceField = opts.distanceField || "distance_from_prev_km";
+    const totalDistance = points.reduce(function (sum, point) {
+      return sum + (common.toFiniteNumber(point && point[distanceField]) || 0);
+    }, 0);
+    return {
+      points,
+      pointCount: points.length,
+      totalDistance
+    };
+  };
+
+  common.clonePointForPool = function clonePointForPool(point, options) {
+    const opts = options || {};
+    const makeUid = typeof opts.makeUid === "function" ? opts.makeUid : function () {
+      return `pt-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    };
+    return {
+      uid: makeUid(),
+      source_type: opts.sourceType || "imported_unplanned",
+      site_id: point && point.site_id || "",
+      name: point && point.name || "",
+      address: point && point.address || "",
+      lng: point && point.lng,
+      lat: point && point.lat,
+      weight: point && point.weight || "0",
+      volume: point && point.volume || "0",
+      piece_count: point && point.piece_count || "0",
+      pallet_count: point && point.pallet_count || "0",
+      start_receive_time: point && point.start_receive_time || "0",
+      end_receive_time: point && point.end_receive_time || "0",
+      full_piece_count: point && point.full_piece_count || "",
+      loose_piece_count: point && point.loose_piece_count || "",
+      source_file: point && point.source_file || "",
+      remark: point && point.remark || "",
+      route_name: opts.routeName || "",
+      edit_status: opts.status || "路线回流"
+    };
+  };
+
+  common.removeRouteToUnplanned = function removeRouteToUnplanned(route, options) {
+    const opts = options || {};
+    if (!route) return { removed: false, movedCount: 0 };
+    const routes = opts.routes || [];
+    const unplannedPoints = opts.unplannedPoints || [];
+    const routePointsField = opts.routePointsField || "points";
+    const points = route[routePointsField] || [];
+
+    points.forEach(function (point) {
+      unplannedPoints.push(common.clonePointForPool(point, {
+        makeUid: opts.makeUid,
+        sourceType: opts.sourceType || "imported_unplanned",
+        status: opts.status || "路线回流",
+        routeName: ""
+      }));
+    });
+
+    const routeIndex = routes.findIndex(function (item) { return item === route || item.id === route.id; });
+    if (routeIndex >= 0) routes.splice(routeIndex, 1);
+    return {
+      removed: routeIndex >= 0,
+      movedCount: points.length,
+      route
+    };
+  };
+
+  common.createDetailRow = function createDetailRow(label, value, options) {
+    const opts = options || {};
+    const safeLabel = common.escapeHtml(label || "");
+    const displayValue = value === undefined || value === null || value === "" ? (opts.emptyText || "-") : value;
+    const safeValue = opts.rawValue ? String(displayValue) : common.escapeHtml(displayValue);
+    const className = opts.className || "map-common-detail-row";
+    return `<div class="${className}"><b>${safeLabel}:</b> ${safeValue}</div>`;
+  };
+
+  common.createDetailRows = function createDetailRows(rows, options) {
+    const opts = options || {};
+    return (rows || [])
+      .filter(function (row) {
+        return row && (row.show === undefined || row.show);
+      })
+      .map(function (row) {
+        return common.createDetailRow(row.label, row.value, {
+          rawValue: !!row.rawValue,
+          emptyText: row.emptyText || opts.emptyText,
+          className: row.className || opts.className
+        });
+      })
+      .join("");
+  };
+
+  common.createDetailTitle = function createDetailTitle(value, options) {
+    const opts = options || {};
+    const className = opts.className || "map-common-detail-title";
+    const style = opts.style ? ` style="${opts.style}"` : "";
+    return `<div class="${className}"${style}>${opts.rawValue ? String(value || "") : common.escapeHtml(value || "")}</div>`;
+  };
+
+  common.createSummaryGrid = function createSummaryGrid(items, options) {
+    const opts = options || {};
+    const gridClass = opts.gridClass || "detail-summary-grid";
+    const itemClass = opts.itemClass || "detail-summary-item";
+    const labelClass = opts.labelClass || "detail-summary-label";
+    const valueClass = opts.valueClass || "detail-summary-value";
+    return `<div class="${gridClass}">${(items || [])
+      .filter(function (item) {
+        return item && (item.show === undefined || item.show);
+      })
+      .map(function (item) {
+        const label = common.escapeHtml(item.label || "");
+        const displayValue = item.value === undefined || item.value === null || item.value === "" ? (item.emptyText || opts.emptyText || "-") : item.value;
+        const value = item.rawValue ? String(displayValue) : common.escapeHtml(displayValue);
+        return `<div class="${itemClass}"><div class="${labelClass}">${label}</div><div class="${valueClass}">${value}</div></div>`;
+      })
+      .join("")}</div>`;
+  };
+
+  common.createDetailTable = function createDetailTable(columns, rows, options) {
+    const opts = options || {};
+    const tableClass = opts.tableClass ? ` class="${opts.tableClass}"` : "";
+    const headerHtml = (columns || []).map(function (column) {
+      return `<th>${common.escapeHtml(column.label || column.key || "")}</th>`;
+    }).join("");
+    const bodyHtml = (rows || []).map(function (row) {
+      const cells = (columns || []).map(function (column) {
+        const rawValue = typeof column.value === "function"
+          ? column.value(row)
+          : row ? row[column.key] : "";
+        const displayValue = rawValue === undefined || rawValue === null || rawValue === "" ? (column.emptyText || opts.emptyText || "") : rawValue;
+        const value = column.rawValue ? String(displayValue) : common.escapeHtml(displayValue);
+        return `<td>${value}</td>`;
+      }).join("");
+      return `<tr>${cells}</tr>`;
+    }).join("");
+    return `<table${tableClass}><thead><tr>${headerHtml}</tr></thead><tbody>${bodyHtml}</tbody></table>`;
+  };
+
+  common.buildTimestampText = function buildTimestampText(dateValue) {
+    const now = dateValue ? new Date(dateValue) : new Date();
+    const pad = function pad(num) {
+      return String(num).padStart(2, "0");
+    };
+    return `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+  };
+
+  common.ensureFileExtension = function ensureFileExtension(fileName, extension) {
+    const safeExtension = extension || ".xlsx";
+    const text = String(fileName || "").trim();
+    if (!text) return `导出文件${safeExtension}`;
+    return text.toLowerCase().endsWith(safeExtension.toLowerCase()) ? text : `${text}${safeExtension}`;
+  };
+
+  common.downloadBlob = function downloadBlob(blob, fileName) {
+    const link = document.createElement("a");
+    const objectUrl = URL.createObjectURL(blob);
+    link.href = objectUrl;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(objectUrl);
+  };
+
+  common.saveBlobWithPicker = async function saveBlobWithPicker(blob, options) {
+    const opts = options || {};
+    const defaultName = common.ensureFileExtension(opts.defaultName || "导出文件.xlsx", opts.extension || ".xlsx");
+    const mimeType = opts.mimeType || "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+    if (window.showSaveFilePicker) {
+      try {
+        const handle = await window.showSaveFilePicker({
+          suggestedName: defaultName,
+          types: [{
+            description: opts.description || "Excel 文件",
+            accept: { [mimeType]: [opts.extension || ".xlsx"] }
+          }]
+        });
+        const writable = await handle.createWritable();
+        await writable.write(blob);
+        await writable.close();
+        if (opts.successMessage) window.alert(opts.successMessage);
+        return true;
+      } catch (err) {
+        if (err && err.name === "AbortError") return false;
+        if (opts.warnOnPickerFailure !== false) {
+          console.warn("showSaveFilePicker 保存失败，改用下载方式。", err);
+        }
+      }
+    }
+    const promptText = opts.promptText || "当前浏览器不支持选择保存位置，请输入 Excel 文件名：";
+    const fileNameInput = window.prompt(promptText, defaultName);
+    if (!fileNameInput) return false;
+    const fileName = common.ensureFileExtension(fileNameInput, opts.extension || ".xlsx");
+    common.downloadBlob(blob, fileName);
+    if (opts.successMessage) window.alert(opts.successMessage);
+    return true;
+  };
+
+  common.saveWorkbookWithPicker = async function saveWorkbookWithPicker(workbook, options) {
+    const opts = options || {};
+    if (!window.XLSX) {
+      window.alert(opts.missingXlsxMessage || "当前页面未成功加载 Excel 导出组件，请检查网络后刷新页面再试。");
+      return false;
+    }
+    const xlsxArray = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    const blob = new Blob([xlsxArray], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    });
+    return common.saveBlobWithPicker(blob, Object.assign({ extension: ".xlsx" }, opts));
+  };
+
+  common.exportRowsAsWorkbook = async function exportRowsAsWorkbook(rows, sheetName, options) {
+    const opts = options || {};
+    if (!window.XLSX) {
+      window.alert(opts.missingXlsxMessage || "当前页面未成功加载 Excel 导出组件，请检查网络后刷新页面再试。");
+      return false;
+    }
+    if (!rows || rows.length === 0) {
+      window.alert(opts.emptyMessage || "当前没有可导出的数据。");
+      return false;
+    }
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.json_to_sheet(rows, opts.sheetOptions || {});
+    if (opts.columns) {
+      worksheet["!cols"] = opts.columns;
+    }
+    XLSX.utils.book_append_sheet(workbook, worksheet, sheetName || "导出数据");
+    return common.saveWorkbookWithPicker(workbook, opts);
+  };
+
+  common.createDetailCard = function createDetailCard(options) {
+    const opts = options || {};
+    const classes = [
+      opts.className || "map-common-detail-card",
+      opts.mode ? `${opts.className || "map-common-detail-card"}-${opts.mode}` : "",
+      opts.extraClass || ""
+    ].filter(Boolean).join(" ");
+    const attrs = [];
+    if (opts.pointUid !== undefined && opts.pointUid !== null) {
+      attrs.push(`data-point-uid="${common.escapeHtml(opts.pointUid)}"`);
+    }
+    const minWidth = Number(opts.minWidth || 0);
+    const styleParts = [];
+    if (minWidth > 0) styleParts.push(`min-width:${minWidth}px`);
+    styleParts.push("line-height:1.65");
+    if (opts.style) styleParts.push(opts.style);
+    const title = opts.title ? `<div class="map-common-detail-title">${common.escapeHtml(opts.title)}</div>` : "";
+    const content = opts.content || "";
+    const actions = opts.actionsHtml
+      ? `<div class="map-common-detail-actions">${opts.actionsHtml}</div>`
+      : "";
+    return `<div class="${classes}" ${attrs.join(" ")} style="${styleParts.join(";")}">${title}${content}${actions}</div>`;
+  };
+
+  common.toFiniteNumber = function toFiniteNumber(value) {
+    if (value === undefined || value === null || value === "") return null;
+    if (typeof value === "number") {
+      return Number.isFinite(value) ? value : null;
+    }
+    const normalized = String(value).trim().replace(/,/g, "");
+    if (!normalized) return null;
+    const numberValue = Number(normalized);
+    return Number.isFinite(numberValue) ? numberValue : null;
+  };
+
+  common.formatCountValue = function formatCountValue(value) {
+    const num = common.toFiniteNumber(value);
+    if (num === null) return "0";
+    return Number.isInteger(num) ? String(num) : num.toFixed(2).replace(/\.00$/, "");
+  };
+
+  common.formatMetricValue = function formatMetricValue(value, digits, suffix) {
+    const num = common.toFiniteNumber(value);
+    if (num === null) return "-";
+    return `${num.toFixed(digits === undefined ? 2 : digits)}${suffix || ""}`;
+  };
+
+  const normalizeFieldList = function normalizeFieldList(customFields, fallbackFields) {
+    const fields = [];
+    const append = function append(value) {
+      if (!value) return;
+      if (Array.isArray(value)) {
+        value.forEach(append);
+      } else if (!fields.includes(value)) {
+        fields.push(value);
+      }
+    };
+    append(customFields);
+    append(fallbackFields);
+    return fields;
+  };
+
+  const readFirstNumericField = function readFirstNumericField(point, fields) {
+    for (let i = 0; i < fields.length; i += 1) {
+      const value = point ? point[fields[i]] : null;
+      const num = common.toFiniteNumber(value);
+      if (num !== null) return num;
+    }
+    return 0;
+  };
+
+  common.summarizePointList = function summarizePointList(points, options) {
+    const opts = options || {};
+    const fields = opts.fields || opts;
+    const fieldMap = {
+      piece: normalizeFieldList(fields.piece || fields.pieceCount, ["piece_count", "converted_piece_count", "折算件数", "总折算件数"]),
+      wholePiece: normalizeFieldList(fields.wholePiece || fields.wholePieceCount, ["whole_piece_count", "full_piece_count", "整件数"]),
+      loosePiece: normalizeFieldList(fields.loosePiece || fields.loosePieceCount, ["loose_piece_count", "散件数"]),
+      weight: normalizeFieldList(fields.weight, ["weight", "总重量", "重量"]),
+      volume: normalizeFieldList(fields.volume, ["volume", "总体积", "体积"])
+    };
+
+    return (points || []).reduce(function (summary, point) {
+      summary.count += 1;
+      summary.pieceCount += readFirstNumericField(point, fieldMap.piece);
+      summary.wholePieceCount += readFirstNumericField(point, fieldMap.wholePiece);
+      summary.loosePieceCount += readFirstNumericField(point, fieldMap.loosePiece);
+      summary.weight += readFirstNumericField(point, fieldMap.weight);
+      summary.volume += readFirstNumericField(point, fieldMap.volume);
+      return summary;
+    }, {
+      count: 0,
+      pieceCount: 0,
+      wholePieceCount: 0,
+      loosePieceCount: 0,
+      weight: 0,
+      volume: 0
+    });
+  };
+
+  common.createSelectionSummaryHtml = function createSelectionSummaryHtml(summary, options) {
+    const opts = options || {};
+    const formatCount = opts.formatCount || common.formatCountValue;
+    const formatMetric = opts.formatMetric || common.formatMetricValue;
+    const rows = [
+      `<div>已选中 <b>${formatCount(summary.count)}</b> 个门店</div>`,
+      `<div>折算件数 <b>${formatCount(summary.pieceCount)}</b></div>`,
+      `<div>整件数 <b>${formatCount(summary.wholePieceCount)}</b>；散件数 <b>${formatCount(summary.loosePieceCount)}</b></div>`,
+      `<div>总重量 <b>${formatMetric(summary.weight, 1, "kg")}</b></div>`,
+      `<div>总体积 <b>${formatMetric(summary.volume, 1, "方")}</b></div>`
+    ];
+    if (opts.estimatedRoutes !== undefined && opts.estimatedRoutes !== null) {
+      rows.push(`<div>预计可生成 <b>${formatCount(opts.estimatedRoutes)}</b> 条线路</div>`);
+    }
+    return rows.join("");
+  };
+
+  common.createSelectionButtonController = function createSelectionButtonController(buttonMap, options) {
+    const opts = options || {};
+    const activeClass = opts.activeClass || "active";
+
+    const setActive = function setActive(mode) {
+      Object.keys(buttonMap || {}).forEach(function (key) {
+        const button = buttonMap[key];
+        if (!button || !button.classList) return;
+        button.classList.toggle(activeClass, !!mode && mode === key);
+      });
+    };
+
+    const clear = function clear() {
+      setActive("");
+    };
+
+    const bind = function bind(callback) {
+      Object.keys(buttonMap || {}).forEach(function (key) {
+        const button = buttonMap[key];
+        if (!button) return;
+        button.onclick = function () {
+          callback(key, button);
+        };
+      });
+    };
+
+    return { setActive, clear, bind };
+  };
+
+  common.buildPointExportRow = function buildPointExportRow(point, options) {
+    const opts = options || {};
+    const row = {};
+    const getValue = function (key) {
+      if (!point || point[key] === undefined || point[key] === null) return "";
+      return point[key];
+    };
+    const indexValue = opts.index !== undefined && opts.index !== null ? opts.index + 1 : "";
+    if (opts.indexLabel) row[opts.indexLabel] = indexValue;
+    if (opts.status !== undefined) row[opts.statusLabel || "状态"] = opts.status || "";
+    if (opts.sourceType !== undefined) row[opts.sourceTypeLabel || "来源类型"] = opts.sourceType || "";
+    if (opts.routeName !== undefined) row[opts.routeNameLabel || "人工路线"] = opts.routeName || "";
+    if (opts.sequence !== undefined) row[opts.sequenceLabel || "顺序"] = opts.sequence || "";
+    if (opts.extraBefore) Object.assign(row, opts.extraBefore);
+
+    Object.assign(row, {
+      "店铺编号": getValue("site_id"),
+      "店铺名称": getValue("name"),
+      "店铺地址": getValue("address"),
+      "经度": getValue("lng"),
+      "纬度": getValue("lat"),
+      "重量": getValue("weight"),
+      "体积": getValue("volume"),
+      "整件数": getValue("full_piece_count"),
+      "散件数": getValue("loose_piece_count"),
+      "折算件数": getValue("piece_count"),
+      "估算托盘数": getValue("pallet_count"),
+      "开始收货时间": getValue("start_receive_time"),
+      "截止收货时间": getValue("end_receive_time"),
+      "来源文件": getValue("source_file"),
+      "备注": getValue("remark"),
+      "编辑状态": getValue("edit_status")
+    });
+
+    if (opts.distanceFromPrev !== undefined) {
+      row[opts.distanceLabel || "与上一点直线距离_km"] = opts.distanceFromPrev !== null && opts.distanceFromPrev !== undefined ? opts.distanceFromPrev : "";
+    }
+    if (opts.durationText !== undefined) row[opts.durationLabel || "预计行驶时间"] = opts.durationText || "";
+    if (opts.createdAt !== undefined) row[opts.createdAtLabel || "创建时间"] = opts.createdAt || "";
+    if (opts.extra) Object.assign(row, opts.extra);
+    return row;
+  };
+
+  common.buildDeletedRecord = function buildDeletedRecord(found, editStatus, options) {
+    const opts = options || {};
+    const point = found && found.point ? found.point : {};
+    const route = found && found.route ? found.route : null;
+    const sourceType = found && found.sourceType ? found.sourceType : "";
+    const nowText = opts.nowText || new Date().toLocaleString();
+    return {
+      source_type: sourceType,
+      route_name: sourceType === "manual_route" && route ? route.name || "" : "",
+      site_id: point.site_id || "",
+      name: point.name || "",
+      address: point.address || "",
+      lng: point.lng,
+      lat: point.lat,
+      weight: point.weight || "",
+      volume: point.volume || "",
+      piece_count: point.piece_count || "",
+      full_piece_count: point.full_piece_count || "",
+      loose_piece_count: point.loose_piece_count || "",
+      pallet_count: point.pallet_count || "",
+      source_file: point.source_file || "",
+      remark: point.remark || "",
+      edit_status: editStatus || "",
+      deleted_id: opts.deletedId || `deleted-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+      deleted_at: nowText
+    };
+  };
+
+  common.restoreDeletedRecordToPoint = function restoreDeletedRecordToPoint(record, options) {
+    const opts = options || {};
+    const makeUid = typeof opts.makeUid === "function" ? opts.makeUid : function () {
+      return `pt-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    };
+    return {
+      uid: makeUid(),
+      source_type: opts.sourceType || "restored_deleted",
+      site_id: record && record.site_id || "",
+      name: record && record.name || "",
+      address: record && record.address || "",
+      lng: record && record.lng,
+      lat: record && record.lat,
+      weight: record && record.weight || "0",
+      volume: record && record.volume || "0",
+      piece_count: record && record.piece_count || "0",
+      full_piece_count: record && record.full_piece_count || "",
+      loose_piece_count: record && record.loose_piece_count || "",
+      pallet_count: record && record.pallet_count || "0",
+      source_file: record && record.source_file || "",
+      remark: record && record.remark || "",
+      edit_status: opts.status || "恢复删除点"
+    };
+  };
+
+  common.buildDeletedExportRows = function buildDeletedExportRows(records) {
+    return (records || []).map(function (item, index) {
+      const row = common.buildPointExportRow(item, {
+        index,
+        indexLabel: "删除序号",
+        sourceType: item && item.source_type || "",
+        routeName: item && item.route_name || ""
+      });
+      row["删除时间"] = item && item.deleted_at || "";
+      return row;
+    });
+  };
+
+  window.MapInteractionCommon = common;
+  window["配送地图公共"] = common;
+})(window);
+
+  </script>
+const routeData = __ROUTE_DATA_PLACEHOLDER__;
