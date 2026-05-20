@@ -1,26 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
+    <!-- ===== 全局 CSS: 隐藏不需要的元素 ===== -->
+    <template id="kebi_custom_css" inherit_id="website.layout" name="Kebi Custom CSS">
+        <xpath expr="//head" position="inside">
+            <style>
+                /* 隐藏搜索按钮 */
+                .o_search_button, .search-query, [data-bs-toggle=\"search\"],
+                #search, .header-search, .te_header_search { display: none !important; }
+                /* 隐藏购物车 */
+                .o_wsale_my_cart, #my_cart, .my_cart, .o_my_cart,
+                .header-cart, [href=\"/shop/cart\"] { display: none !important; }
+                /* 隐藏登录页英文文本 */
+                .oe_login_form a[href*=\"reset\"] ~ *,
+                .oe_login_form .oe_reset_password { font-size:14px; }
+                /* 隐藏 Footer 社交图标区 */
+                .o_footer_social, .footer_social, .js_language_selector ~ div:has(a[href*=\"facebook\"]),
+                footer .fa-facebook, footer .fa-twitter, footer .fa-instagram,
+                footer .fa-linkedin, footer .fa-youtube, footer .fa-github,
+                footer a[href*=\"facebook\"], footer a[href*=\"twitter\"],
+                footer a[href*=\"instagram\"], footer a[href*=\"linkedin\"],
+                footer a[href*=\"youtube\"], footer a[href*=\"github\"] { display: none !important; }
+                /* 隐藏语言选择器旁边多余的社交文本 */
+                footer .js_language_selector + div { display: none !important; }
+            </style>
+        </xpath>
+    </template>
+
     <!-- ===== 登录页中文化 ===== -->
     <template id="login_custom" inherit_id="auth_signup.login" name="Kebi Login Custom">
         <xpath expr="//a[contains(@href,'reset')]" position="replace">
             <a t-attf-href="/web/reset_password?db={{dbname}}" class="btn btn-link btn-sm">忘记密码?</a>
         </xpath>
-        <xpath expr="//a[contains(text(),'account') or contains(text(),'Account') or contains(@href,'signup')]" position="replace">
-        </xpath>
-        <xpath expr="//div[contains(@class,'alert') or contains(text(),'使用密码')]" position="replace">
-            <div class="alert alert-info text-center mb-0">
-                <small>使用您的天枢科技账号登录</small>
-            </div>
-        </xpath>
     </template>
 
-    <!-- ===== Footer 清理 ===== -->
-    <template id="footer_custom" inherit_id="website.footer_custom" name="Kebi Footer Custom">
-        <!-- 删除社交链接 -->
-        <xpath expr="//div[contains(@class,'social') or contains(@class,'footer_social')]" position="replace"/>
-        <xpath expr="//a[contains(@href,'facebook') or contains(@href,'twitter') or contains(@href,'instagram') or contains(@href,'linkedin') or contains(@href,'youtube') or contains(@href,'github')]" position="replace"/>
-        <!-- 删除语言选择器(保留但移到底部) -->
+    <!-- ===== Footer: 删除社交 ===== -->
+    <template id="footer_clean" inherit_id="website.footer_custom" name="Kebi Footer Clean">
+        <xpath expr="//div[contains(@class,'o_footer_copyright')]/.." position="replace"/>
+        <xpath expr="//div[@class='o_footer_copyright']/.." position="replace"/>
+    </template>
+
+    <!-- ===== Footer: 语言选择器简化 + 社交链接删除 ===== -->
+    <template id="footer_lang_clean" inherit_id="website.layout" name="Kebi Footer Lang" primary="False">
+        <xpath expr="//footer//div[contains(@class,'js_language_selector')]" position="after">
+            <div style="text-align:center;padding:15px 0;color:#999;font-size:13px">
+                © 天枢科技 | 联系电话: 18438369520 | 联系邮箱: 2542127368@qq.com
+            </div>
+        </xpath>
     </template>
 
     <!-- ===== 关于我们页 ===== -->
