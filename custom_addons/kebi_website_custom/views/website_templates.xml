@@ -5,17 +5,27 @@
     <template id="kebi_custom_css" inherit_id="website.layout" name="Kebi Custom CSS">
         <xpath expr="//head" position="inside">
             <style>
+                /* ── 登录页: 完全移除Odoo默认header/footer,只保留蓝色登录界面 ── */
+                body.kebi-login-body > header,
+                body.kebi-login-body > nav,
+                body.kebi-login-body #wrapwrap > header,
+                body.kebi-login-body #wrapwrap > nav,
+                body.kebi-login-body .o_main_navbar,
+                body.kebi-login-body #o_header,
+                body.kebi-login-body header#top { display: none !important; }
+                body.kebi-login-body footer,
+                body.kebi-login-body #footer,
+                body.kebi-login-body .o_footer_copyright { display: none !important; }
+                /* 移除Odoo默认的白色背景容器 */
+                body.kebi-login-body { background: transparent !important; }
+                body.kebi-login-body #wrapwrap { background: transparent !important; }
                 /* 隐藏搜索按钮 */
                 .o_search_button, .search-query, [data-bs-toggle=\"search\"],
                 #search, .header-search, .te_header_search { display: none !important; }
                 /* 隐藏购物车 */
                 .o_wsale_my_cart, #my_cart, .my_cart, .o_my_cart,
                 .header-cart, [href=\"/shop/cart\"] { display: none !important; }
-                /* 隐藏登录页英文文本 */
-                .oe_login_form a[href*=\"reset\"] ~ *,
-                .oe_login_form .oe_reset_password { font-size:14px; }
                 /* 隐藏 Footer 社交图标区 */
-                .o_footer_social, .footer_social, .js_language_selector ~ div:has(a[href*=\"facebook\"]),
                 footer .fa-facebook, footer .fa-twitter, footer .fa-instagram,
                 footer .fa-linkedin, footer .fa-youtube, footer .fa-github,
                 footer a[href*=\"facebook\"], footer a[href*=\"twitter\"],
@@ -99,6 +109,7 @@
             </style>
         </xpath>
         <xpath expr="//div[contains(@class,'oe_login_form') or contains(@class,'container')]" position="replace">
+            <script>document.body.classList.add('kebi-login-body');</script>
             <t t-set="dbname" t-value="dbname if 'dbname' in dir() else request.env.cr.dbname"/>
             <div class="kebi-login-page">
                 <div class="kebi-lang-selector">
@@ -118,7 +129,8 @@
                         </ul>
                         <div class="kebi-brand-contact">
                             📞 18438369520<br/>
-                            📧 2542127368@qq.com
+                            📧 2542127368@qq.com<br/>
+                            <span style="font-size:11px;color:rgba(255,255,255,.3)">© 2026 天枢科技</span>
                         </div>
                     </div>
                     <!-- 右侧登录表单 -->
@@ -160,9 +172,6 @@
                         </form>
                     </div>
                 </div>
-            </div>
-            <div class="o_footer_copyright" style="text-align:center;padding:16px;background:#f3f4f6;font-size:13px;color:#9ca3af">
-                © 天枢科技 | 联系电话: 18438369520 | 联系邮箱: 2542127368@qq.com
             </div>
         </xpath>
     </template>
