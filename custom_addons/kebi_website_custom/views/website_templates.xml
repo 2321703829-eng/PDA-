@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ===== 登录页中文化 ===== -->
+    <template id="login_custom" inherit_id="auth_signup.login" name="Kebi Login Custom">
+        <xpath expr="//a[contains(@href,'reset')]" position="replace">
+            <a t-attf-href="/web/reset_password?db={{dbname}}" class="btn btn-link btn-sm">忘记密码?</a>
+        </xpath>
+        <xpath expr="//a[contains(text(),'account') or contains(text(),'Account') or contains(@href,'signup')]" position="replace">
+        </xpath>
+        <xpath expr="//div[contains(@class,'alert') or contains(text(),'使用密码')]" position="replace">
+            <div class="alert alert-info text-center mb-0">
+                <small>使用您的天枢科技账号登录</small>
+            </div>
+        </xpath>
+    </template>
+
+    <!-- ===== Footer 清理 ===== -->
+    <template id="footer_custom" inherit_id="website.footer_custom" name="Kebi Footer Custom">
+        <!-- 删除社交链接 -->
+        <xpath expr="//div[contains(@class,'social') or contains(@class,'footer_social')]" position="replace"/>
+        <xpath expr="//a[contains(@href,'facebook') or contains(@href,'twitter') or contains(@href,'instagram') or contains(@href,'linkedin') or contains(@href,'youtube') or contains(@href,'github')]" position="replace"/>
+        <!-- 删除语言选择器(保留但移到底部) -->
+    </template>
+
+    <!-- ===== 关于我们页 ===== -->
+    <template id="aboutus_custom" inherit_id="website.aboutus" name="Kebi About Us">
+        <xpath expr="//section[1]" position="after">
+            <section class="container mt-5 mb-5">
+                <h2 class="text-center mb-4">关于天枢科技</h2>
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+                        <p class="lead text-center" style="font-size:1.1rem;line-height:2">
+                        天枢科技是一家专注于城市供应链全链路数字化解决方案的科技企业。
+                        我们通过 ERP、WMS、TMS、BI 等系统模块，帮助客户实现从订单、
+                        仓储、配送到结算的全流程智能化管理，致力于让每一件货物的流转都
+                        更加高效、透明、可追溯。
+                        </p>
+                        <div class="text-center mt-4">
+                            <p>📞 联系电话：18438369520</p>
+                            <p>📧 联系邮箱：2542127368@qq.com</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </xpath>
+    </template>
+
+</odoo>
