@@ -27,6 +27,7 @@
         "views/logistics_route_planning_map.xml",
         "views/import_route_result_views.xml",
         "views/create_station_table_views.xml",
+        "views/tms_dashboard_template.xml",
     ],
     "installable": True,
     "application": False,
