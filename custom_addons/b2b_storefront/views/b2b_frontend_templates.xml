@@ -17,7 +17,7 @@
   --b2b-radius: 8px;
 }
 .b2b-wrap { min-height:100vh; background:var(--b2b-bg); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-.b2b-nav { background:var(--b2b-primary); padding:0 24px; height:56px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
+.b2b-nav { background:linear-gradient(135deg, #0f1f3d 0%, #1a3a5c 50%, #1a56db 100%); padding:0 24px; height:56px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
 .b2b-nav a { color:#fff; text-decoration:none; font-size:15px; font-weight:500; padding:8px 12px; border-radius:6px; transition:background .15s; }
 .b2b-nav a:hover { background:rgba(255,255,255,.15); }
 .b2b-nav .nav-right { display:flex; align-items:center; gap:4px; }

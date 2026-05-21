@@ -50,4 +50,23 @@
             </form>
         </field>
     </record>
+
+    <!-- 隐藏"执行排线"按钮(暂时不用) -->
+    <record id="hide_execute_route_planning_btn" model="ir.ui.view">
+        <field name="name">logistics.route.planning.batch.form.hide.execute</field>
+        <field name="model">logistics.route.planning.batch</field>
+        <field name="inherit_id" ref="tms_dispatch_core.view_logistics_route_planning_batch_form_tms_dispatch_core"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='action_run_route_planning']" position="replace"/>
+        </field>
+    </record>
+
+    <!-- 隐藏"执行排线"按钮(Peinan版本的form) -->
+    <record id="hide_execute_btn_v2" model="ir.ui.view">
+        <field name="name">logistics.route.planning.batch.form.hide.execute.v2</field>
+        <field name="model">logistics.route.planning.batch</field>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='action_run_route_planning']" position="replace"/>
+        </field>
+    </record>
 </odoo>

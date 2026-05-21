@@ -23,6 +23,7 @@
         "views/purchase_order_views.xml",
         "views/logistics_dispatch_waybill_views.xml",
         "views/wms_task_views.xml",
+        "views/wms_dashboard_template.xml",
     ],
     "installable": True,
     "application": False,
