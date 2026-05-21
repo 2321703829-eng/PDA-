@@ -130,7 +130,10 @@
                         <div class="kebi-brand-contact">
                             📞 18438369520<br/>
                             📧 2542127368@qq.com<br/>
-                            <span style="font-size:11px;color:rgba(255,255,255,.3)">© 2026 天枢科技</span>
+                            <a href="/my/profile" style="color:rgba(255,255,255,.7);font-size:13px;text-decoration:none;
+                               display:inline-block;margin-top:8px;padding:4px 12px;border:1px solid rgba(255,255,255,.3);
+                               border-radius:6px">👤 个人中心</a>
+                            <br/><span style="font-size:11px;color:rgba(255,255,255,.3)">© 2026 天枢科技</span>
                         </div>
                     </div>
                     <!-- 右侧登录表单 -->
@@ -189,6 +192,34 @@
                 © 天枢科技 | 联系电话: 18438369520 | 联系邮箱: 2542127368@qq.com
             </div>
         </xpath>
+    </template>
+
+    <!-- ===== 个人中心 ===== -->
+    <template id="profile_template" name="Kebi Profile">
+        <t t-call="website.layout">
+            <div id="wrap"><div class="container" style="max-width:720px;margin-top:30px">
+                <h3>个人中心</h3>
+                <t t-if="msg == 'saved'"><div class="alert alert-success">保存成功</div></t>
+                <div class="card" style="margin-top:16px">
+                    <div class="card-body">
+                        <form method="post" action="/my/profile/save">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <div class="form-group"><label class="font-weight-bold">联系人</label><input class="form-control" t-att-value="partner.name" readonly="readonly" style="background:#f9fafb"/></div>
+                            <div class="form-group"><label>联系电话</label><input type="text" name="phone" class="form-control" t-att-value="phone" placeholder="请输入联系电话"/></div>
+                            <div class="form-group"><label>联系邮箱</label><input type="email" name="email" class="form-control" t-att-value="email" placeholder="请输入邮箱"/></div>
+                            <div class="form-group"><label>默认收货门店</label>
+                                <select name="default_store_id" class="form-control">
+                                    <option value="">请选择</option>
+                                    <t t-foreach="stores" t-as="s"><option t-att-value="s.id" t-att-selected="'selected' if str(default_store_id) == str(s.id) else None"><t t-esc="s.name"/></option></t>
+                                </select>
+                            </div>
+                            <div class="form-group"><label>常用配送备注</label><textarea name="delivery_note" class="form-control" rows="2" placeholder="如: 工作日收货、需提前联系、放前台"><t t-esc="delivery_note or ''"/></textarea></div>
+                            <button type="submit" class="btn btn-primary">保存设置</button>
+                        </form>
+                    </div>
+                </div>
+            </div></div>
+        </t>
     </template>
 
     <!-- ===== 关于我们页 ===== -->
