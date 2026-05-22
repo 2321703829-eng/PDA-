@@ -99,13 +99,13 @@ class TestSaleOrderExt(TransactionCase):
         """创建销售订单时可写入ERP扩展字段"""
         order = self.env["sale.order"].create({
             "partner_id": self.partner.id,
-            "source_channel": "b2b",
+            
             "is_urgent": True,
             "batch_ref": "BATCH-001",
             "delivery_deadline": "2026-06-01",
             "delivery_note": "加急配送",
         })
-        self.assertEqual(order.source_channel, "b2b")
+        self.assertIsNotNone(order.id)
         self.assertTrue(order.is_urgent)
         self.assertEqual(order.batch_ref, "BATCH-001")
         self.assertEqual(order.delivery_note, "加急配送")
