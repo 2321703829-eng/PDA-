@@ -28,6 +28,7 @@
         "views/erp_delivery_plan_views.xml",
         "views/erp_finance_views.xml",
         "views/sale_purchase_ext_views.xml",
+        "views/erp_dashboard_template.xml",
     ],
     "installable": True,
     "application": True,
