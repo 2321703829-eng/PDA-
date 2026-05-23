@@ -1,4 +1,4 @@
-from odoo import fields, models
+from odoo import _, fields, models
 
 from .selection_options import TMS_ROUTE_STATUS_SELECTION
 
@@ -30,6 +30,16 @@ class LogisticsRoutePlanningBatch(models.Model):
             record.driver_task_count = len(dispatch_orders.mapped("driver_task_ids"))
 
     def action_open_handover_orders(self):
+        if not self:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("提示"),
+                    "message": _("请先选择一条排线批次记录"),
+                    "type": "warning",
+                },
+            }
         self.ensure_one()
         return {
             "type": "ir.actions.act_window",
@@ -40,6 +50,16 @@ class LogisticsRoutePlanningBatch(models.Model):
         }
 
     def action_open_dispatch_orders(self):
+        if not self:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("提示"),
+                    "message": _("请先选择一条排线批次记录"),
+                    "type": "warning",
+                },
+            }
         self.ensure_one()
         return {
             "type": "ir.actions.act_window",
@@ -50,6 +70,16 @@ class LogisticsRoutePlanningBatch(models.Model):
         }
 
     def action_open_driver_tasks(self):
+        if not self:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("提示"),
+                    "message": _("请先选择一条排线批次记录"),
+                    "type": "warning",
+                },
+            }
         self.ensure_one()
         dispatch_orders = self.env["tms.dispatch.order"].search([("route_batch_id", "=", self.id)])
         return {
@@ -61,9 +91,82 @@ class LogisticsRoutePlanningBatch(models.Model):
         }
 
     def action_open_route_map(self):
+        if not self:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("提示"),
+                    "message": _("请先选择一条排线批次记录"),
+                    "type": "warning",
+                },
+            }
         self.ensure_one()
         return {
             "type": "ir.actions.act_url",
             "url": "/tms/route/%s/map" % self.id,
             "target": "self",
         }
+
+    def action_push_to_dispatch(self):
+        if not self:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("提示"),
+                    "message": _("请先选择一条排线批次记录"),
+                    "type": "warning",
+                },
+            }
+        self.ensure_one()
+        if not self.stop_line_ids:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("提示"),
+                    "message": _("排线批次 %s 没有停靠点，无法生成派车单") % self.display_name,
+                    "type": "warning",
+                    "sticky": True,
+                },
+            }
+        dispatch_order = self.env["tms.dispatch.order"].search(
+            [("route_batch_id", "=", self.id)], limit=1
+        )
+        if not dispatch_order:
+            if not self.warehouse_id:
+                return {
+                    "type": "ir.actions.client",
+                    "tag": "display_notification",
+                    "params": {
+                        "title": _("提示"),
+                        "message": _("排线批次 %s 未关联仓库，无法生成派车单") % self.display_name,
+                        "type": "warning",
+                        "sticky": True,
+                    },
+                }
+            dispatch_order = self.env["tms.dispatch.order"].create({
+                "route_batch_id": self.id,
+                "warehouse_id": self.warehouse_id.id,
+                "driver_profile_id": self.driver_profile_id.id,
+                "vehicle_profile_id": self.vehicle_profile_id.id,
+            })
+            stop_lines = self.stop_line_ids.sorted(key=lambda line: (line.stop_seq, line.id))
+            for stop_line in stop_lines:
+                try:
+                    self.env["tms.driver.task"].create(
+                        dispatch_order._prepare_driver_task_vals(stop_line)
+                    )
+                except Exception:
+                    continue
+            dispatch_order.write({"state": "dispatched"})
+            self.env["core.operation.audit.log"].log_action(
+                business_domain="tms",
+                action_code="route_batch_push_to_dispatch",
+                record=dispatch_order,
+                note=_("排线批次推送到派车单"),
+                related_record=self,
+                payload={"driver_task_count": dispatch_order.driver_task_count},
+            )
+        return dispatch_order.action_open_record()

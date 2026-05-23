@@ -18,6 +18,16 @@ class LogisticsDispatchWaybill(models.Model):
             record.tms_exception_count = self.env["tms.delivery.exception"].search_count([("driver_task_id", "in", driver_tasks.ids)])
 
     def action_open_related_dispatch_orders(self):
+        if not self:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("提示"),
+                    "message": _("请先选择一条运单记录"),
+                    "type": "warning",
+                },
+            }
         self.ensure_one()
         driver_tasks = self.env["tms.driver.task"].search([("waybill_id", "=", self.id)])
         return {
@@ -29,6 +39,16 @@ class LogisticsDispatchWaybill(models.Model):
         }
 
     def action_open_related_driver_tasks(self):
+        if not self:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("提示"),
+                    "message": _("请先选择一条运单记录"),
+                    "type": "warning",
+                },
+            }
         self.ensure_one()
         return {
             "type": "ir.actions.act_window",
@@ -39,6 +59,16 @@ class LogisticsDispatchWaybill(models.Model):
         }
 
     def action_open_related_signoff_receipts(self):
+        if not self:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("提示"),
+                    "message": _("请先选择一条运单记录"),
+                    "type": "warning",
+                },
+            }
         self.ensure_one()
         driver_tasks = self.env["tms.driver.task"].search([("waybill_id", "=", self.id)])
         return {
@@ -50,6 +80,16 @@ class LogisticsDispatchWaybill(models.Model):
         }
 
     def action_open_related_delivery_exceptions(self):
+        if not self:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("提示"),
+                    "message": _("请先选择一条运单记录"),
+                    "type": "warning",
+                },
+            }
         self.ensure_one()
         driver_tasks = self.env["tms.driver.task"].search([("waybill_id", "=", self.id)])
         return {

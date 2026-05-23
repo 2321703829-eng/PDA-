@@ -186,3 +186,13 @@ class LogisticsDispatchBatch(models.Model):
 
     def action_logistics_archive(self):
         return self.action_logistics_delete()
+
+    def action_open_record(self):
+        self.ensure_one()
+        return {
+            "type": "ir.actions.act_window",
+            "name": "物流批次",
+            "res_model": "logistics.dispatch.batch",
+            "view_mode": "form",
+            "res_id": self.id,
+        }

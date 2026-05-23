@@ -125,9 +125,30 @@ class TmsDispatchOrder(models.Model):
                 record.state = "dispatched"
 
     def action_dispatch(self):
+        if not self:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("提示"),
+                    "message": _("请先选择一条派车单记录"),
+                    "type": "warning",
+                },
+            }
         for record in self:
             if not record.driver_task_ids:
                 stop_lines = record.route_batch_id.stop_line_ids.sorted(key=lambda line: (line.stop_seq, line.id))
+                if not stop_lines:
+                    return {
+                        "type": "ir.actions.client",
+                        "tag": "display_notification",
+                        "params": {
+                            "title": _("提示"),
+                            "message": _("排线批次 %s 没有停靠点，无法生成司机任务") % record.route_batch_id.display_name,
+                            "type": "warning",
+                            "sticky": True,
+                        },
+                    }
                 for stop_line in stop_lines:
                     record.env["tms.driver.task"].create(record._prepare_driver_task_vals(stop_line))
             record.write({"state": "dispatched"})
@@ -142,6 +163,16 @@ class TmsDispatchOrder(models.Model):
         return True
 
     def action_depart(self):
+        if not self:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("提示"),
+                    "message": _("请先选择一条派车单记录"),
+                    "type": "warning",
+                },
+            }
         for record in self:
             record.write({"state": "departed"})
             for driver_task in record.driver_task_ids:
@@ -157,6 +188,16 @@ class TmsDispatchOrder(models.Model):
         return True
 
     def action_generate_freight_lines(self):
+        if not self:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("提示"),
+                    "message": _("请先选择一条派车单记录"),
+                    "type": "warning",
+                },
+            }
         for record in self:
             if not record.freight_fee_line_ids:
                 for driver_task in record.driver_task_ids:
@@ -194,6 +235,16 @@ class TmsDispatchOrder(models.Model):
         return True
 
     def action_open_related_waybills(self):
+        if not self:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("提示"),
+                    "message": _("请先选择一条派车单记录"),
+                    "type": "warning",
+                },
+            }
         self.ensure_one()
         return {
             "type": "ir.actions.act_window",
@@ -204,6 +255,16 @@ class TmsDispatchOrder(models.Model):
         }
 
     def action_open_freight_lines(self):
+        if not self:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("提示"),
+                    "message": _("请先选择一条派车单记录"),
+                    "type": "warning",
+                },
+            }
         self.ensure_one()
         return {
             "type": "ir.actions.act_window",
@@ -214,6 +275,16 @@ class TmsDispatchOrder(models.Model):
         }
 
     def action_open_record(self):
+        if not self:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("提示"),
+                    "message": _("请先选择一条派车单记录"),
+                    "type": "warning",
+                },
+            }
         self.ensure_one()
         return {
             "type": "ir.actions.act_window",
@@ -224,6 +295,16 @@ class TmsDispatchOrder(models.Model):
         }
 
     def action_open_operation_logs(self):
+        if not self:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("提示"),
+                    "message": _("请先选择一条派车单记录"),
+                    "type": "warning",
+                },
+            }
         self.ensure_one()
         return self.env["core.operation.audit.log"].action_open_logs_for_record(self)
 
@@ -281,6 +362,16 @@ class TmsDriverTask(models.Model):
             })
 
     def action_arrive_warehouse(self):
+        if not self:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("提示"),
+                    "message": _("请先选择一条司机任务记录"),
+                    "type": "warning",
+                },
+            }
         self._log_node("driver_arrived_warehouse", note=_("Driver arrived at warehouse."))
         for record in self:
             self.env["core.operation.audit.log"].log_action(
@@ -292,11 +383,32 @@ class TmsDriverTask(models.Model):
         return True
 
     def action_start_delivery(self):
-        self.write({"state": "in_transit"})
-        self._log_node("departed", note=_("Vehicle departed from warehouse."))
-        self._log_node("in_transit", note=_("Vehicle is in transit."))
-        self.mapped("dispatch_order_id")._sync_state_from_tasks()
-        for record in self:
+        if not self:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("提示"),
+                    "message": _("请先选择一条司机任务记录"),
+                    "type": "warning",
+                },
+            }
+        allowed = self.filtered(lambda t: t.state not in ("signed_full", "signed_partial", "delivery_exception"))
+        if not allowed:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("提示"),
+                    "message": _("所选任务已签收或异常，无法重新开始配送"),
+                    "type": "warning",
+                },
+            }
+        allowed.write({"state": "in_transit"})
+        allowed._log_node("departed", note=_("Vehicle departed from warehouse."))
+        allowed._log_node("in_transit", note=_("Vehicle is in transit."))
+        allowed.mapped("dispatch_order_id")._sync_state_from_tasks()
+        for record in allowed:
             self.env["core.operation.audit.log"].log_action(
                 business_domain="tms",
                 action_code="driver_task_start_delivery",
@@ -307,10 +419,31 @@ class TmsDriverTask(models.Model):
         return True
 
     def action_arrive_store(self):
-        self.write({"state": "arrived_store"})
-        self._log_node("arrived_store")
-        self.mapped("dispatch_order_id")._sync_state_from_tasks()
-        for record in self:
+        if not self:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("提示"),
+                    "message": _("请先选择一条司机任务记录"),
+                    "type": "warning",
+                },
+            }
+        allowed = self.filtered(lambda t: t.state in ("in_transit", "departed"))
+        if not allowed:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("提示"),
+                    "message": _("所选任务尚未开始配送，无法标记到店"),
+                    "type": "warning",
+                },
+            }
+        allowed.write({"state": "arrived_store"})
+        allowed._log_node("arrived_store")
+        allowed.mapped("dispatch_order_id")._sync_state_from_tasks()
+        for record in allowed:
             self.env["core.operation.audit.log"].log_action(
                 business_domain="tms",
                 action_code="driver_task_arrive_store",
@@ -320,6 +453,16 @@ class TmsDriverTask(models.Model):
         return True
 
     def action_mark_delivering(self):
+        if not self:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("提示"),
+                    "message": _("请先选择一条司机任务记录"),
+                    "type": "warning",
+                },
+            }
         self._log_node("delivering", note=_("Driver is delivering at store."))
         for record in self:
             self.env["core.operation.audit.log"].log_action(
@@ -331,6 +474,16 @@ class TmsDriverTask(models.Model):
         return True
 
     def action_log_in_transit(self):
+        if not self:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("提示"),
+                    "message": _("请先选择一条司机任务记录"),
+                    "type": "warning",
+                },
+            }
         self.write({"state": "in_transit"})
         self._log_node("in_transit", note=_("In-transit checkpoint updated."))
         self.dispatch_order_id._sync_state_from_tasks()
@@ -349,6 +502,16 @@ class TmsDriverTask(models.Model):
         return True
 
     def action_create_signoff_receipt(self):
+        if not self:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("提示"),
+                    "message": _("请先选择一条司机任务记录"),
+                    "type": "warning",
+                },
+            }
         self.ensure_one()
         receipt = self.env["tms.signoff.receipt"].search([("driver_task_id", "=", self.id)], limit=1)
         if not receipt:
@@ -368,6 +531,16 @@ class TmsDriverTask(models.Model):
         return receipt.action_open_record()
 
     def action_create_exception(self):
+        if not self:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("提示"),
+                    "message": _("请先选择一条司机任务记录"),
+                    "type": "warning",
+                },
+            }
         self.ensure_one()
         exception = self.env["tms.delivery.exception"].create({
             "driver_task_id": self.id,
@@ -389,10 +562,31 @@ class TmsDriverTask(models.Model):
         return exception.action_open_record()
 
     def action_mark_signed_full(self):
-        self.write({"state": "signed_full"})
-        self._log_node("delivering", note=_("Signoff completed in full."))
-        self.dispatch_order_id._sync_state_from_tasks()
-        for record in self:
+        if not self:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("提示"),
+                    "message": _("请先选择一条司机任务记录"),
+                    "type": "warning",
+                },
+            }
+        allowed = self.filtered(lambda t: t.state == "arrived_store")
+        if not allowed:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("提示"),
+                    "message": _("所选任务尚未到店，无法全签"),
+                    "type": "warning",
+                },
+            }
+        allowed.write({"state": "signed_full"})
+        allowed._log_node("delivering", note=_("Signoff completed in full."))
+        allowed.mapped("dispatch_order_id")._sync_state_from_tasks()
+        for record in allowed:
             self.env["core.operation.audit.log"].log_action(
                 business_domain="tms",
                 action_code="driver_task_signed_full",
@@ -402,10 +596,31 @@ class TmsDriverTask(models.Model):
         return True
 
     def action_mark_signed_partial(self):
-        self.write({"state": "signed_partial"})
-        self._log_node("delivering", note=_("Signoff completed partially."))
-        self.dispatch_order_id._sync_state_from_tasks()
-        for record in self:
+        if not self:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("提示"),
+                    "message": _("请先选择一条司机任务记录"),
+                    "type": "warning",
+                },
+            }
+        allowed = self.filtered(lambda t: t.state == "arrived_store")
+        if not allowed:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("提示"),
+                    "message": _("所选任务尚未到店，无法部分签收"),
+                    "type": "warning",
+                },
+            }
+        allowed.write({"state": "signed_partial"})
+        allowed._log_node("delivering", note=_("Signoff completed partially."))
+        allowed.mapped("dispatch_order_id")._sync_state_from_tasks()
+        for record in allowed:
             self.env["core.operation.audit.log"].log_action(
                 business_domain="tms",
                 action_code="driver_task_signed_partial",
@@ -415,6 +630,16 @@ class TmsDriverTask(models.Model):
         return True
 
     def action_open_signoff_receipts(self):
+        if not self:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("提示"),
+                    "message": _("请先选择一条司机任务记录"),
+                    "type": "warning",
+                },
+            }
         self.ensure_one()
         return {
             "type": "ir.actions.act_window",
@@ -425,6 +650,16 @@ class TmsDriverTask(models.Model):
         }
 
     def action_open_delivery_exceptions(self):
+        if not self:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("提示"),
+                    "message": _("请先选择一条司机任务记录"),
+                    "type": "warning",
+                },
+            }
         self.ensure_one()
         return {
             "type": "ir.actions.act_window",
@@ -435,6 +670,16 @@ class TmsDriverTask(models.Model):
         }
 
     def action_open_waybill(self):
+        if not self:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("提示"),
+                    "message": _("请先选择一条司机任务记录"),
+                    "type": "warning",
+                },
+            }
         self.ensure_one()
         if not self.waybill_id:
             raise ValidationError(_("Waybill is not available for this driver task."))
@@ -447,6 +692,16 @@ class TmsDriverTask(models.Model):
         }
 
     def action_open_record(self):
+        if not self:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("提示"),
+                    "message": _("请先选择一条司机任务记录"),
+                    "type": "warning",
+                },
+            }
         self.ensure_one()
         return {
             "type": "ir.actions.act_window",
@@ -457,6 +712,16 @@ class TmsDriverTask(models.Model):
         }
 
     def action_open_operation_logs(self):
+        if not self:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("提示"),
+                    "message": _("请先选择一条司机任务记录"),
+                    "type": "warning",
+                },
+            }
         self.ensure_one()
         return self.env["core.operation.audit.log"].action_open_logs_for_record(self)
 
@@ -500,6 +765,16 @@ class TmsSignoffReceipt(models.Model):
     note = fields.Text(string="Note")
 
     def action_confirm_signoff(self):
+        if not self:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("提示"),
+                    "message": _("请先选择一条签收单记录"),
+                    "type": "warning",
+                },
+            }
         for record in self:
             record.signed_at = record.signed_at or fields.Datetime.now()
             total_qty = record.driver_task_id.waybill_id.total_goods_qty or 0.0
@@ -520,6 +795,16 @@ class TmsSignoffReceipt(models.Model):
         return True
 
     def action_open_record(self):
+        if not self:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("提示"),
+                    "message": _("请先选择一条签收单记录"),
+                    "type": "warning",
+                },
+            }
         self.ensure_one()
         return {
             "type": "ir.actions.act_window",
@@ -555,6 +840,16 @@ class TmsDeliveryException(models.Model):
     note = fields.Text(string="Note")
 
     def action_open_record(self):
+        if not self:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("提示"),
+                    "message": _("请先选择一条配送异常记录"),
+                    "type": "warning",
+                },
+            }
         self.ensure_one()
         return {
             "type": "ir.actions.act_window",

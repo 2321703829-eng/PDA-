@@ -5,6 +5,16 @@ class WmsHandoverOrder(models.Model):
     _inherit = "wms.handover.order"
 
     def action_create_dispatch_order(self):
+        if not self:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("提示"),
+                    "message": _("请先选择一条交接单记录"),
+                    "type": "warning",
+                },
+            }
         self.ensure_one()
         dispatch_order = self.env["tms.dispatch.order"].search([("handover_order_id", "=", self.id)], limit=1)
         if not dispatch_order:
@@ -19,6 +29,16 @@ class WmsHandoverOrder(models.Model):
         return dispatch_order.action_open_record()
 
     def action_open_dispatch_orders(self):
+        if not self:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("提示"),
+                    "message": _("请先选择一条交接单记录"),
+                    "type": "warning",
+                },
+            }
         self.ensure_one()
         return {
             "type": "ir.actions.act_window",
