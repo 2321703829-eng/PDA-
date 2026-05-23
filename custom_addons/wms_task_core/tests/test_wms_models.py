@@ -121,13 +121,10 @@ class TestWmsInventoryOperation(TransactionCase):
 class TestWmsInventoryLedger(TransactionCase):
     """库存台账"""
 
-    def test_01_create_entry(self):
-        wh = self.env["stock.warehouse"].search([], limit=1)
-        loc = self.env["stock.location"].search([("usage", "=", "internal")], limit=1)
-        product = self.env["product.product"].create({"name": "台账测试品"})
-        ledger = self.env["wms.inventory.ledger"].create({
-            "warehouse_id": wh.id,
-            "location_id": loc.id,
-            "product_id": product.id,
-        })
-        self.assertEqual(ledger.warehouse_id, wh)
+    def test_01_model_exists(self):
+        """台账模型可正常访问(数据库视图,只读)"""
+        model = self.env["wms.inventory.ledger"]
+        self.assertTrue(model._auto is False)
+        # 确认模型可被搜索
+        found = self.env["ir.model"].search([("model", "=", "wms.inventory.ledger")], limit=1)
+        self.assertTrue(found)

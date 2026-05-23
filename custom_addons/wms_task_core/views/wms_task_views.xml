@@ -358,11 +358,11 @@
                 <field name="location_id"/>
                 <field name="product_id"/>
                 <field name="lot_id"/>
-                <field name="movement_type"/>
-                <field name="qty_in" sum="Qty In"/>
-                <field name="qty_out" sum="Qty Out"/>
-                <field name="qty_balance" sum="Balance"/>
-                <field name="event_time"/>
+                <field name="quantity_on_hand" sum="On Hand"/>
+                <field name="reserved_quantity" sum="Reserved"/>
+                <field name="available_quantity" sum="Available"/>
+                <field name="quant_count"/>
+                <field name="last_count_date"/>
             </list>
         </field>
     </record>
@@ -375,9 +375,9 @@
                 <field name="warehouse_id" type="row"/>
                 <field name="location_id" type="row"/>
                 <field name="product_id" type="row"/>
-                <field name="qty_in" type="measure"/>
-                <field name="qty_out" type="measure"/>
-                <field name="qty_balance" type="measure"/>
+                <field name="quantity_on_hand" type="measure"/>
+                <field name="reserved_quantity" type="measure"/>
+                <field name="available_quantity" type="measure"/>
             </pivot>
         </field>
     </record>
