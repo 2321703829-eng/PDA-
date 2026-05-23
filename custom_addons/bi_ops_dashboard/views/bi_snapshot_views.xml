@@ -1,0 +1,418 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_bi_ops_dashboard_board_form" model="ir.ui.view">
+        <field name="name">bi.ops.dashboard.board.form</field>
+        <field name="model">bi.ops.dashboard.board</field>
+        <field name="arch" type="xml">
+            <form create="false" delete="false" edit="false">
+                <header>
+                    <button name="action_refresh_board" type="object" string="Refresh Today"/>
+                    <button name="action_open_kpi_report" type="object" string="KPI Daily Report"/>
+                    <button name="action_open_exception_ledger" type="object" string="Exception Ledger"/>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="snapshot_date"/>
+                    </group>
+                    <group string="Operations Overview" col="4">
+                        <field name="order_count"/>
+                        <field name="warehouse_task_count"/>
+                        <field name="dispatch_count"/>
+                        <field name="exception_count"/>
+                    </group>
+                    <group string="Warehouse &amp; Dispatch" col="4">
+                        <field name="receipt_count"/>
+                        <field name="outbound_count"/>
+                        <field name="handover_count"/>
+                        <field name="driver_task_count"/>
+                    </group>
+                    <group string="Delivery Result" col="4">
+                        <field name="signoff_count"/>
+                        <field name="signed_count"/>
+                        <field name="in_transit_count"/>
+                    </group>
+                    <group string="Cost Snapshot" col="4">
+                        <field name="revenue_amount"/>
+                        <field name="cost_amount"/>
+                        <field name="freight_amount"/>
+                        <field name="gross_profit_amount"/>
+                    </group>
+                    <group string="Drilldown Entry" col="3">
+                        <button name="action_open_order_dashboard" type="object" string="Open Order Dashboard"/>
+                        <button name="action_open_warehouse_dashboard" type="object" string="Open Warehouse Dashboard"/>
+                        <button name="action_open_dispatch_dashboard" type="object" string="Open Dispatch Dashboard"/>
+                        <button name="action_open_cost_dashboard" type="object" string="Open Cost Dashboard"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_bi_daily_kpi_snapshot_tree" model="ir.ui.view">
+        <field name="name">bi.daily.kpi.snapshot.tree</field>
+        <field name="model">bi.daily.kpi.snapshot</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="snapshot_date"/>
+                <field name="order_count"/>
+                <field name="warehouse_task_count"/>
+                <field name="dispatch_count"/>
+                <field name="signoff_count"/>
+                <field name="exception_count"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_bi_daily_kpi_snapshot_form" model="ir.ui.view">
+        <field name="name">bi.daily.kpi.snapshot.form</field>
+        <field name="model">bi.daily.kpi.snapshot</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_generate_today_snapshot" type="object" string="Generate Today"/>
+                    <button name="action_generate_all_today_snapshots" type="object" string="Generate All"/>
+                    <button name="action_open_order_details" type="object" string="Open Orders"/>
+                    <button name="action_open_exception_details" type="object" string="Open Exceptions"/>
+                </header>
+                <sheet>
+                    <notebook>
+                        <page string="Summary">
+                            <group>
+                                <field name="snapshot_date"/>
+                                <field name="order_count"/>
+                                <field name="warehouse_task_count"/>
+                                <field name="dispatch_count"/>
+                                <field name="signoff_count"/>
+                                <field name="exception_count"/>
+                            </group>
+                            <group string="Drilldown">
+                                <button name="action_open_warehouse_snapshot" type="object" string="Open Warehouse Dashboard"/>
+                                <button name="action_open_dispatch_snapshot" type="object" string="Open Dispatch Dashboard"/>
+                                <button name="action_open_cost_snapshot" type="object" string="Open Cost Dashboard"/>
+                            </group>
+                        </page>
+                        <page string="Operation Logs" groups="erp_base.group_bi_viewer,erp_base.group_system_admin">
+                            <field name="operation_audit_log_ids" nolabel="1">
+                                <list create="false" delete="false" edit="false">
+                                    <field name="action_time"/>
+                                    <field name="action_code"/>
+                                    <field name="action_result"/>
+                                    <field name="operator_id"/>
+                                    <field name="note"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_bi_exception_snapshot_tree" model="ir.ui.view">
+        <field name="name">bi.exception.snapshot.tree</field>
+        <field name="model">bi.exception.snapshot</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="snapshot_date"/>
+                <field name="exception_type"/>
+                <field name="exception_count"/>
+                <field name="open_count"/>
+                <field name="closed_count"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_bi_exception_snapshot_form" model="ir.ui.view">
+        <field name="name">bi.exception.snapshot.form</field>
+        <field name="model">bi.exception.snapshot</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_open_exception_details" type="object" string="Open Exceptions"/>
+                    <button name="action_open_snapshot_day" type="object" string="Open Snapshot Day"/>
+                </header>
+                <sheet>
+                    <notebook>
+                        <page string="Summary">
+                            <group>
+                                <field name="snapshot_date"/>
+                                <field name="exception_type"/>
+                                <field name="exception_count"/>
+                                <field name="open_count"/>
+                                <field name="closed_count"/>
+                            </group>
+                        </page>
+                        <page string="Operation Logs" groups="erp_base.group_bi_viewer,erp_base.group_system_admin">
+                            <field name="operation_audit_log_ids" nolabel="1">
+                                <list create="false" delete="false" edit="false">
+                                    <field name="action_time"/>
+                                    <field name="action_code"/>
+                                    <field name="action_result"/>
+                                    <field name="operator_id"/>
+                                    <field name="note"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_bi_order_dashboard_snapshot_tree" model="ir.ui.view">
+        <field name="name">bi.order.dashboard.snapshot.tree</field>
+        <field name="model">bi.order.dashboard.snapshot</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="snapshot_date"/>
+                <field name="waybill_count"/>
+                <field name="customer_line_count"/>
+                <field name="goods_line_count"/>
+                <field name="order_line_count"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_bi_order_dashboard_snapshot_form" model="ir.ui.view">
+        <field name="name">bi.order.dashboard.snapshot.form</field>
+        <field name="model">bi.order.dashboard.snapshot</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_generate_today_snapshot" type="object" string="Generate Today"/>
+                    <button name="action_open_waybills" type="object" string="Open Waybills"/>
+                </header>
+                <sheet>
+                    <notebook>
+                        <page string="Summary">
+                            <group>
+                                <field name="snapshot_date"/>
+                                <field name="waybill_count"/>
+                                <field name="customer_line_count"/>
+                                <field name="goods_line_count"/>
+                                <field name="order_line_count"/>
+                            </group>
+                        </page>
+                        <page string="Operation Logs" groups="erp_base.group_bi_viewer,erp_base.group_system_admin">
+                            <field name="operation_audit_log_ids" nolabel="1">
+                                <list create="false" delete="false" edit="false">
+                                    <field name="action_time"/>
+                                    <field name="action_code"/>
+                                    <field name="action_result"/>
+                                    <field name="operator_id"/>
+                                    <field name="note"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_bi_warehouse_dashboard_snapshot_tree" model="ir.ui.view">
+        <field name="name">bi.warehouse.dashboard.snapshot.tree</field>
+        <field name="model">bi.warehouse.dashboard.snapshot</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="snapshot_date"/>
+                <field name="receipt_count"/>
+                <field name="putaway_count"/>
+                <field name="outbound_count"/>
+                <field name="pick_count"/>
+                <field name="check_count"/>
+                <field name="handover_count"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_bi_warehouse_dashboard_snapshot_form" model="ir.ui.view">
+        <field name="name">bi.warehouse.dashboard.snapshot.form</field>
+        <field name="model">bi.warehouse.dashboard.snapshot</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_generate_today_snapshot" type="object" string="Generate Today"/>
+                    <button name="action_open_receipt_tasks" type="object" string="Open Receipts"/>
+                    <button name="action_open_outbound_tasks" type="object" string="Open Outbound Tasks"/>
+                    <button name="action_open_inventory_operations" type="object" string="Open Inventory Ops"/>
+                </header>
+                <sheet>
+                    <notebook>
+                        <page string="Summary">
+                            <group>
+                                <field name="snapshot_date"/>
+                                <field name="receipt_count"/>
+                                <field name="putaway_count"/>
+                                <field name="outbound_count"/>
+                                <field name="pick_count"/>
+                                <field name="check_count"/>
+                                <field name="handover_count"/>
+                            </group>
+                        </page>
+                        <page string="Operation Logs" groups="erp_base.group_bi_viewer,erp_base.group_system_admin">
+                            <field name="operation_audit_log_ids" nolabel="1">
+                                <list create="false" delete="false" edit="false">
+                                    <field name="action_time"/>
+                                    <field name="action_code"/>
+                                    <field name="action_result"/>
+                                    <field name="operator_id"/>
+                                    <field name="note"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_bi_dispatch_dashboard_snapshot_tree" model="ir.ui.view">
+        <field name="name">bi.dispatch.dashboard.snapshot.tree</field>
+        <field name="model">bi.dispatch.dashboard.snapshot</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="snapshot_date"/>
+                <field name="dispatch_count"/>
+                <field name="driver_task_count"/>
+                <field name="in_transit_count"/>
+                <field name="signed_count"/>
+                <field name="exception_count"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_bi_dispatch_dashboard_snapshot_form" model="ir.ui.view">
+        <field name="name">bi.dispatch.dashboard.snapshot.form</field>
+        <field name="model">bi.dispatch.dashboard.snapshot</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_generate_today_snapshot" type="object" string="Generate Today"/>
+                    <button name="action_open_dispatch_orders" type="object" string="Open Dispatch Orders"/>
+                    <button name="action_open_driver_tasks" type="object" string="Open Driver Tasks"/>
+                    <button name="action_open_delivery_exceptions" type="object" string="Open Exceptions"/>
+                </header>
+                <sheet>
+                    <notebook>
+                        <page string="Summary">
+                            <group>
+                                <field name="snapshot_date"/>
+                                <field name="dispatch_count"/>
+                                <field name="driver_task_count"/>
+                                <field name="in_transit_count"/>
+                                <field name="signed_count"/>
+                                <field name="exception_count"/>
+                            </group>
+                        </page>
+                        <page string="Operation Logs" groups="erp_base.group_bi_viewer,erp_base.group_system_admin">
+                            <field name="operation_audit_log_ids" nolabel="1">
+                                <list create="false" delete="false" edit="false">
+                                    <field name="action_time"/>
+                                    <field name="action_code"/>
+                                    <field name="action_result"/>
+                                    <field name="operator_id"/>
+                                    <field name="note"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_bi_cost_profit_snapshot_tree" model="ir.ui.view">
+        <field name="name">bi.cost.profit.snapshot.tree</field>
+        <field name="model">bi.cost.profit.snapshot</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="snapshot_date"/>
+                <field name="revenue_amount"/>
+                <field name="cost_amount"/>
+                <field name="freight_amount"/>
+                <field name="gross_profit_amount"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_bi_cost_profit_snapshot_form" model="ir.ui.view">
+        <field name="name">bi.cost.profit.snapshot.form</field>
+        <field name="model">bi.cost.profit.snapshot</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_generate_today_snapshot" type="object" string="Generate Today"/>
+                    <button name="action_open_freight_lines" type="object" string="Open Freight Lines"/>
+                </header>
+                <sheet>
+                    <notebook>
+                        <page string="Summary">
+                            <group>
+                                <field name="snapshot_date"/>
+                                <field name="revenue_amount"/>
+                                <field name="cost_amount"/>
+                                <field name="freight_amount"/>
+                                <field name="gross_profit_amount"/>
+                            </group>
+                        </page>
+                        <page string="Operation Logs" groups="erp_base.group_bi_viewer,erp_base.group_system_admin">
+                            <field name="operation_audit_log_ids" nolabel="1">
+                                <list create="false" delete="false" edit="false">
+                                    <field name="action_time"/>
+                                    <field name="action_code"/>
+                                    <field name="action_result"/>
+                                    <field name="operator_id"/>
+                                    <field name="note"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_bi_ops_dashboard_board" model="ir.actions.act_window">
+        <field name="name">BI Ops Dashboard</field>
+        <field name="res_model">bi.ops.dashboard.board</field>
+        <field name="view_mode">form</field>
+        <field name="target">current</field>
+    </record>
+
+    <record id="action_bi_daily_kpi_snapshot" model="ir.actions.act_window">
+        <field name="name">KPI Daily Report</field>
+        <field name="res_model">bi.daily.kpi.snapshot</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_bi_order_dashboard_snapshot" model="ir.actions.act_window">
+        <field name="name">BI Order Dashboard Snapshots</field>
+        <field name="res_model">bi.order.dashboard.snapshot</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_bi_warehouse_dashboard_snapshot" model="ir.actions.act_window">
+        <field name="name">BI Warehouse Dashboard Snapshots</field>
+        <field name="res_model">bi.warehouse.dashboard.snapshot</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_bi_dispatch_dashboard_snapshot" model="ir.actions.act_window">
+        <field name="name">BI Dispatch Dashboard Snapshots</field>
+        <field name="res_model">bi.dispatch.dashboard.snapshot</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_bi_exception_snapshot" model="ir.actions.act_window">
+        <field name="name">Exception Ledger</field>
+        <field name="res_model">bi.exception.snapshot</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_bi_cost_profit_snapshot" model="ir.actions.act_window">
+        <field name="name">BI Cost Profit Snapshots</field>
+        <field name="res_model">bi.cost.profit.snapshot</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>
