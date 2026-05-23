@@ -24,9 +24,7 @@ class BiOpsDashboardBoard(models.TransientModel):
 
     def default_get(self, fields_list):
         values = super().default_get(fields_list)
-        record = self.env["bi.ops.dashboard.board"].new(values)
-        record._load_snapshot_metrics()
-        return {field_name: record[field_name] for field_name in fields_list if field_name in record}
+        return values
 
     def _load_snapshot_metrics(self):
         self.ensure_one()
