@@ -137,6 +137,72 @@ class TestRouteStopLine(TransactionCase):
         self.assertAlmostEqual(stop.latitude, 39.90)
 
 
+class TestRouteBatchActions(TransactionCase):
+    """排线批次 action 方法"""
+
+    def setUp(self):
+        super().setUp()
+        self.batch = self.env["logistics.route.planning.batch"].create({
+            "batch_no": "PC-ACT-TEST",
+            "delivery_date": "2026-06-01",
+            "entry_mode": "manual",
+            "planning_state": "result_ready",
+            "route_status": "route_planned",
+        })
+
+    def test_01_action_open_route_map_returns_action(self):
+        """路线地图 action 返回正确的窗口动作"""
+        action = self.batch.action_open_route_map()
+        self.assertEqual(action["type"], "ir.actions.act_url")
+        self.assertIn("/tms/route/", action["url"])
+
+    def test_02_action_open_handover_orders_returns_action(self):
+        """Open Handover Orders 返回窗口动作"""
+        action = self.batch.action_open_handover_orders()
+        self.assertEqual(action["type"], "ir.actions.act_window")
+        self.assertEqual(action["res_model"], "wms.handover.order")
+
+    def test_03_action_open_dispatch_orders_returns_action(self):
+        """Open Dispatch Orders 返回窗口动作"""
+        action = self.batch.action_open_dispatch_orders()
+        self.assertEqual(action["type"], "ir.actions.act_window")
+        self.assertEqual(action["res_model"], "tms.dispatch.order")
+
+    def test_04_action_open_driver_tasks_returns_action(self):
+        """Open Driver Tasks 返回窗口动作"""
+        action = self.batch.action_open_driver_tasks()
+        self.assertEqual(action["type"], "ir.actions.act_window")
+        self.assertEqual(action["res_model"], "tms.driver.task")
+
+
+class TestWaybillTmsLinks(TransactionCase):
+    """运单 TMS 联动查询"""
+
+    def setUp(self):
+        super().setUp()
+        self.waybill = self.env["logistics.dispatch.waybill"].search([], limit=1)
+        if not self.waybill:
+            self.skipTest("无运单数据,跳过")
+
+    def test_01_action_open_dispatch_orders(self):
+        """运单→派车单查询动作"""
+        action = self.waybill.action_open_related_dispatch_orders()
+        if action:  # 可能返回空
+            self.assertIn("type", action)
+
+    def test_02_action_open_driver_tasks(self):
+        """运单→司机任务查询动作"""
+        action = self.waybill.action_open_related_driver_tasks()
+        if action:
+            self.assertIn("type", action)
+
+    def test_03_action_open_signoff_receipts(self):
+        """运单→签收回单查询动作"""
+        action = self.waybill.action_open_related_signoff_receipts()
+        if action:
+            self.assertIn("type", action)
+
+
 class TestTmsDispatchOrder(TransactionCase):
     """TMS 派车单"""
 
