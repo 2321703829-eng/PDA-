@@ -7,7 +7,6 @@
     "depends": [
         "mail",
         "erp_base",
-        "core_operation_audit_log",
         "logistics_base",
         "wms_task_core",
         "tms_dispatch_core",
