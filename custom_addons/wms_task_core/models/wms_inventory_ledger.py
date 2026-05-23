@@ -4,6 +4,7 @@ from odoo import fields, models
 class WmsInventoryLedger(models.Model):
     _name = "wms.inventory.ledger"
     _description = "WMS Inventory Ledger"
+    _auto = False
     _order = "event_time desc, id desc"
 
     warehouse_id = fields.Many2one("stock.warehouse", string="Warehouse", index=True, ondelete="cascade")
