@@ -91,17 +91,6 @@
                                 <button name="action_open_cost_snapshot" type="object" string="Open Cost Dashboard"/>
                             </group>
                         </page>
-                        <page string="Operation Logs" groups="erp_base.group_bi_viewer,erp_base.group_system_admin">
-                            <field name="operation_audit_log_ids" nolabel="1">
-                                <list create="false" delete="false" edit="false">
-                                    <field name="action_time"/>
-                                    <field name="action_code"/>
-                                    <field name="action_result"/>
-                                    <field name="operator_id"/>
-                                    <field name="note"/>
-                                </list>
-                            </field>
-                        </page>
                     </notebook>
                 </sheet>
             </form>
@@ -142,17 +131,6 @@
                                 <field name="closed_count"/>
                             </group>
                         </page>
-                        <page string="Operation Logs" groups="erp_base.group_bi_viewer,erp_base.group_system_admin">
-                            <field name="operation_audit_log_ids" nolabel="1">
-                                <list create="false" delete="false" edit="false">
-                                    <field name="action_time"/>
-                                    <field name="action_code"/>
-                                    <field name="action_result"/>
-                                    <field name="operator_id"/>
-                                    <field name="note"/>
-                                </list>
-                            </field>
-                        </page>
                     </notebook>
                 </sheet>
             </form>
@@ -192,17 +170,6 @@
                                 <field name="goods_line_count"/>
                                 <field name="order_line_count"/>
                             </group>
-                        </page>
-                        <page string="Operation Logs" groups="erp_base.group_bi_viewer,erp_base.group_system_admin">
-                            <field name="operation_audit_log_ids" nolabel="1">
-                                <list create="false" delete="false" edit="false">
-                                    <field name="action_time"/>
-                                    <field name="action_code"/>
-                                    <field name="action_result"/>
-                                    <field name="operator_id"/>
-                                    <field name="note"/>
-                                </list>
-                            </field>
                         </page>
                     </notebook>
                 </sheet>
@@ -250,17 +217,6 @@
                                 <field name="handover_count"/>
                             </group>
                         </page>
-                        <page string="Operation Logs" groups="erp_base.group_bi_viewer,erp_base.group_system_admin">
-                            <field name="operation_audit_log_ids" nolabel="1">
-                                <list create="false" delete="false" edit="false">
-                                    <field name="action_time"/>
-                                    <field name="action_code"/>
-                                    <field name="action_result"/>
-                                    <field name="operator_id"/>
-                                    <field name="note"/>
-                                </list>
-                            </field>
-                        </page>
                     </notebook>
                 </sheet>
             </form>
@@ -305,17 +261,6 @@
                                 <field name="exception_count"/>
                             </group>
                         </page>
-                        <page string="Operation Logs" groups="erp_base.group_bi_viewer,erp_base.group_system_admin">
-                            <field name="operation_audit_log_ids" nolabel="1">
-                                <list create="false" delete="false" edit="false">
-                                    <field name="action_time"/>
-                                    <field name="action_code"/>
-                                    <field name="action_result"/>
-                                    <field name="operator_id"/>
-                                    <field name="note"/>
-                                </list>
-                            </field>
-                        </page>
                     </notebook>
                 </sheet>
             </form>
@@ -355,17 +300,6 @@
                                 <field name="freight_amount"/>
                                 <field name="gross_profit_amount"/>
                             </group>
-                        </page>
-                        <page string="Operation Logs" groups="erp_base.group_bi_viewer,erp_base.group_system_admin">
-                            <field name="operation_audit_log_ids" nolabel="1">
-                                <list create="false" delete="false" edit="false">
-                                    <field name="action_time"/>
-                                    <field name="action_code"/>
-                                    <field name="action_result"/>
-                                    <field name="operator_id"/>
-                                    <field name="note"/>
-                                </list>
-                            </field>
                         </page>
                     </notebook>
                 </sheet>
