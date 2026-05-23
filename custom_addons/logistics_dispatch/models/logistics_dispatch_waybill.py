@@ -466,6 +466,9 @@ class LogisticsDispatchWaybill(models.Model):
     def _auto_create_trace_event(self, new_state):
         """运单状态变化 → 自动创建 logistics.trace.event"""
         self.ensure_one()
+        # 如果 logistics_trace_core 模块未加载,跳过
+        if "logistics.trace.event" not in self.env.registry:
+            return
         state_trace_type = {
             "ready": "arrive",       # 到仓
             "in_transit": "leave",   # 发车
