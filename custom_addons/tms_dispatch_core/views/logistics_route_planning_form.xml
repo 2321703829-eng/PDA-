@@ -24,7 +24,6 @@
                             <field name="batch_no"/>
                             <field name="delivery_date"/>
                             <field name="route_status"/>
-                            <field name="entry_mode"/>
                         </group>
                         <group>
                             <field name="vehicle_no"/>
