@@ -24,7 +24,6 @@
                             <field name="batch_no"/>
                             <field name="delivery_date"/>
                             <field name="route_status"/>
-                            <field name="planning_state"/>
                             <field name="entry_mode"/>
                         </group>
                         <group>
