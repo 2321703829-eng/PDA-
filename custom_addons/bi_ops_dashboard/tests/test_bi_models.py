@@ -58,7 +58,7 @@ class TestBiSnapshotModels(TransactionCase):
 
     def test_01_order_snapshot(self):
         """订单快照模型存在"""
-        self.assertTrue(hasattr(self.env, "bi.daily.kpi.snapshot"))
+        self.assertIn("bi.daily.kpi.snapshot", self.env)
         # 确保模型可被搜索
         model = self.env["ir.model"].search([("model", "=", "bi.daily.kpi.snapshot")], limit=1)
         self.assertTrue(model)
