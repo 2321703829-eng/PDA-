@@ -11,7 +11,6 @@
                 <field name="stop_count"/>
                 <field name="route_status"/>
                 <field name="delivery_date"/>
-                <field name="planning_state"/>
                 <field name="warehouse_id"/>
             </list>
         </field>

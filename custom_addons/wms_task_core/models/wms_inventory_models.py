@@ -93,13 +93,14 @@ class WmsInventoryOperation(models.Model):
     def action_cancel(self):
         for record in self:
             record.write({"state": "cancelled"})
-            self.env["core.operation.audit.log"].log_action(
-                business_domain="wms",
-                action_code="inventory_operation_cancel",
-                action_result="cancelled",
-                record=record,
-                note=_("Inventory operation cancelled."),
-            )
+            if "core.operation.audit.log" in self.env.registry:
+                self.env["core.operation.audit.log"].log_action(
+                    business_domain="wms",
+                    action_code="inventory_operation_cancel",
+                    action_result="cancelled",
+                    record=record,
+                    note=_("Inventory operation cancelled."),
+                )
         return True
 
     def action_load_location_quants(self):

@@ -63,7 +63,6 @@ class TestWmsPickTask(TransactionCase):
         outbound = self.env["wms.outbound.task"].create({"warehouse_id": wh.id})
         task = self.env["wms.pick.task"].create({
             "warehouse_id": wh.id, "outbound_task_id": outbound.id,
-            "source_location_id": wh.view_location_id.id
         })
         self.assertEqual(task.state, "waiting_pick")
 
@@ -72,7 +71,6 @@ class TestWmsPickTask(TransactionCase):
         outbound = self.env["wms.outbound.task"].create({"warehouse_id": wh.id})
         task = self.env["wms.pick.task"].create({
             "warehouse_id": wh.id, "outbound_task_id": outbound.id,
-            "source_location_id": wh.view_location_id.id
         })
         task.action_start_pick()
         self.assertEqual(task.state, "picking")
@@ -126,10 +124,10 @@ class TestWmsInventoryLedger(TransactionCase):
     def test_01_create_entry(self):
         wh = self.env["stock.warehouse"].search([], limit=1)
         loc = self.env["stock.location"].search([("usage", "=", "internal")], limit=1)
-        product = self.env["product.template"].create({"name": "台账测试品"})
+        product = self.env["product.product"].create({"name": "台账测试品"})
         ledger = self.env["wms.inventory.ledger"].create({
             "warehouse_id": wh.id,
             "location_id": loc.id,
-            "product_tmpl_id": product.id,
+            "product_id": product.id,
         })
         self.assertEqual(ledger.warehouse_id, wh)
