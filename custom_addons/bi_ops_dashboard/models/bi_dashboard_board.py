@@ -59,12 +59,13 @@ class BiOpsDashboardBoard(models.TransientModel):
     def action_refresh_board(self):
         self.ensure_one()
         self._load_snapshot_metrics()
-        self.env["core.operation.audit.log"].log_action(
-            business_domain="bi",
-            action_code="bi_open_ops_dashboard_board",
-            note=_("BI operations dashboard board refreshed."),
-            payload={"snapshot_date": str(self.snapshot_date)},
-        )
+        if "core.operation.audit.log" in self.env.registry:
+            self.env["core.operation.audit.log"].log_action(
+                business_domain="bi",
+                action_code="bi_open_ops_dashboard_board",
+                note=_("BI operations dashboard board refreshed."),
+                payload={"snapshot_date": str(self.snapshot_date)},
+            )
         return {
             "type": "ir.actions.act_window",
             "name": _("BI Ops Dashboard"),

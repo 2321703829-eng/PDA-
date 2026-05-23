@@ -6,13 +6,22 @@ from odoo import _, api, fields, models
 class BiSnapshotMixin(models.AbstractModel):
     _name = "bi.snapshot.mixin"
     _description = "BI Snapshot Mixin"
-    _inherit = "core.operation.audit.mixin"
 
     @api.model
     def _day_range(self, snapshot_date):
         start = datetime.combine(fields.Date.to_date(snapshot_date), time.min)
         end = datetime.combine(fields.Date.to_date(snapshot_date), time.max)
         return fields.Datetime.to_string(start), fields.Datetime.to_string(end)
+
+    def _log_audit(self, action_code, record=None, note="", payload=None):
+        if "core.operation.audit.log" in self.env.registry:
+            self.env["core.operation.audit.log"].log_action(
+                business_domain="bi",
+                action_code=action_code,
+                record=record or self,
+                note=note,
+                payload=payload or {},
+            )
 
 
 class BiDailyKpiSnapshot(models.Model):
@@ -59,13 +68,9 @@ class BiDailyKpiSnapshot(models.Model):
 
     def action_generate_today_snapshot(self):
         snapshot = self.generate_snapshot()
-        self.env["core.operation.audit.log"].log_action(
-            business_domain="bi",
-            action_code="bi_generate_daily_kpi_snapshot",
-            record=snapshot,
-            note=_("Daily KPI snapshot generated."),
-            payload={"snapshot_date": str(snapshot.snapshot_date)},
-        )
+        self._log_audit("bi_generate_daily_kpi_snapshot", record=snapshot,
+                        note=_("Daily KPI snapshot generated."),
+                        payload={"snapshot_date": str(snapshot.snapshot_date)})
         return snapshot.action_open_record()
 
     def action_generate_all_today_snapshots(self):
@@ -77,13 +82,9 @@ class BiDailyKpiSnapshot(models.Model):
         self.env["bi.dispatch.dashboard.snapshot"].generate_snapshot(snapshot_date=snapshot_date)
         self.env["bi.exception.snapshot"].generate_snapshot(snapshot_date=snapshot_date)
         self.env["bi.cost.profit.snapshot"].generate_snapshot(snapshot_date=snapshot_date)
-        self.env["core.operation.audit.log"].log_action(
-            business_domain="bi",
-            action_code="bi_generate_all_snapshots",
-            record=self,
-            note=_("All BI snapshots generated."),
-            payload={"snapshot_date": str(snapshot_date)},
-        )
+        self._log_audit("bi_generate_all_snapshots",
+                        note=_("All BI snapshots generated."),
+                        payload={"snapshot_date": str(snapshot_date)})
         return self.action_open_record()
 
     def action_open_record(self):
@@ -169,13 +170,9 @@ class BiExceptionSnapshot(models.Model):
     def action_generate_today_snapshot(self):
         snapshots = self.generate_snapshot()
         if snapshots:
-            self.env["core.operation.audit.log"].log_action(
-                business_domain="bi",
-                action_code="bi_generate_exception_snapshot",
-                record=snapshots[0],
-                note=_("Exception snapshots generated."),
-                payload={"snapshot_date": str(snapshots[0].snapshot_date), "row_count": len(snapshots)},
-            )
+            self._log_audit("bi_generate_exception_snapshot", record=snapshots[0],
+                            note=_("Exception snapshots generated."),
+                            payload={"snapshot_date": str(snapshots[0].snapshot_date), "row_count": len(snapshots)})
         action = self.env.ref("bi_ops_dashboard.action_bi_exception_snapshot").read()[0]
         action["domain"] = [("id", "in", snapshots.ids)]
         return action
@@ -233,13 +230,9 @@ class BiOrderDashboardSnapshot(models.Model):
 
     def action_generate_today_snapshot(self):
         snapshot = self.generate_snapshot()
-        self.env["core.operation.audit.log"].log_action(
-            business_domain="bi",
-            action_code="bi_generate_order_dashboard_snapshot",
-            record=snapshot,
-            note=_("Order dashboard snapshot generated."),
-            payload={"snapshot_date": str(snapshot.snapshot_date)},
-        )
+        self._log_audit("bi_generate_order_dashboard_snapshot", record=snapshot,
+                        note=_("Order dashboard snapshot generated."),
+                        payload={"snapshot_date": str(snapshot.snapshot_date)})
         return snapshot.action_open_record()
 
     def action_open_record(self):
@@ -299,13 +292,9 @@ class BiWarehouseDashboardSnapshot(models.Model):
 
     def action_generate_today_snapshot(self):
         snapshot = self.generate_snapshot()
-        self.env["core.operation.audit.log"].log_action(
-            business_domain="bi",
-            action_code="bi_generate_warehouse_dashboard_snapshot",
-            record=snapshot,
-            note=_("Warehouse dashboard snapshot generated."),
-            payload={"snapshot_date": str(snapshot.snapshot_date)},
-        )
+        self._log_audit("bi_generate_warehouse_dashboard_snapshot", record=snapshot,
+                        note=_("Warehouse dashboard snapshot generated."),
+                        payload={"snapshot_date": str(snapshot.snapshot_date)})
         return snapshot.action_open_record()
 
     def action_open_record(self):
@@ -387,13 +376,9 @@ class BiDispatchDashboardSnapshot(models.Model):
 
     def action_generate_today_snapshot(self):
         snapshot = self.generate_snapshot()
-        self.env["core.operation.audit.log"].log_action(
-            business_domain="bi",
-            action_code="bi_generate_dispatch_dashboard_snapshot",
-            record=snapshot,
-            note=_("Dispatch dashboard snapshot generated."),
-            payload={"snapshot_date": str(snapshot.snapshot_date)},
-        )
+        self._log_audit("bi_generate_dispatch_dashboard_snapshot", record=snapshot,
+                        note=_("Dispatch dashboard snapshot generated."),
+                        payload={"snapshot_date": str(snapshot.snapshot_date)})
         return snapshot.action_open_record()
 
     def action_open_record(self):
@@ -474,13 +459,9 @@ class BiCostProfitSnapshot(models.Model):
 
     def action_generate_today_snapshot(self):
         snapshot = self.generate_snapshot()
-        self.env["core.operation.audit.log"].log_action(
-            business_domain="bi",
-            action_code="bi_generate_cost_profit_snapshot",
-            record=snapshot,
-            note=_("Cost profit snapshot generated."),
-            payload={"snapshot_date": str(snapshot.snapshot_date)},
-        )
+        self._log_audit("bi_generate_cost_profit_snapshot", record=snapshot,
+                        note=_("Cost profit snapshot generated."),
+                        payload={"snapshot_date": str(snapshot.snapshot_date)})
         return snapshot.action_open_record()
 
     def action_open_record(self):

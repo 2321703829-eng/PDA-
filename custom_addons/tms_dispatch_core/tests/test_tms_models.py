@@ -11,62 +11,27 @@ class TestRoutePlanningBatch(TransactionCase):
         batch = self.env["logistics.route.planning.batch"].create({
             "batch_no": "PC-TEST-001",
             "delivery_date": "2026-06-01",
-            "entry_mode": "manual",
-            "planning_state": "waiting_route",
             "route_status": "waiting_route",
         })
         self.assertEqual(batch.batch_no, "PC-TEST-001")
-        self.assertEqual(batch.planning_state, "waiting_route")
+        self.assertEqual(batch.route_status, "waiting_route")
 
-    def test_02_planning_state_selection(self):
-        """排线计划状态枚举"""
-        batch = self.env["logistics.route.planning.batch"].create({
-            "batch_no": "PC-STATE-TEST",
-            "delivery_date": "2026-06-01",
-            "entry_mode": "manual",
-            "planning_state": "waiting_route",
-            "route_status": "waiting_route",
-        })
-        valid_states = ["waiting_route", "result_ready", "first_reviewed",
-                        "backfilled", "second_reviewed", "resource_assigned",
-                        "pushed_dispatch", "returned_replan"]
-        for state in valid_states:
-            batch.planning_state = state
-            self.assertEqual(batch.planning_state, state)
-
-    def test_03_route_status_selection(self):
+    def test_02_route_status_selection(self):
         """路线状态枚举"""
         batch = self.env["logistics.route.planning.batch"].create({
             "batch_no": "PC-ROUTE-TEST",
             "delivery_date": "2026-06-01",
-            "entry_mode": "manual",
-            "planning_state": "waiting_route",
             "route_status": "waiting_route",
         })
         for status in ("waiting_route", "route_planned", "route_confirmed"):
             batch.route_status = status
             self.assertEqual(batch.route_status, status)
 
-    def test_04_entry_mode_selection(self):
-        """入口模式枚举"""
-        batch = self.env["logistics.route.planning.batch"].create({
-            "batch_no": "PC-ENTRY-TEST",
-            "delivery_date": "2026-06-01",
-            "entry_mode": "manual",
-            "planning_state": "waiting_route",
-            "route_status": "waiting_route",
-        })
-        for mode in ("handover_pool", "import_sheet", "manual"):
-            batch.entry_mode = mode
-            self.assertEqual(batch.entry_mode, mode)
-
-    def test_05_vehicle_and_driver_binding(self):
+    def test_03_vehicle_and_driver_binding(self):
         """排线批次绑定车牌和司机"""
         batch = self.env["logistics.route.planning.batch"].create({
             "batch_no": "PC-DRIVER-TEST",
             "delivery_date": "2026-06-01",
-            "entry_mode": "manual",
-            "planning_state": "result_ready",
             "route_status": "route_planned",
             "vehicle_no": "粤AAJ2702",
             "driver_name": "测试司机",
@@ -84,8 +49,6 @@ class TestRouteStopLine(TransactionCase):
         self.batch = self.env["logistics.route.planning.batch"].create({
             "batch_no": "PC-STOPLINE",
             "delivery_date": "2026-06-01",
-            "entry_mode": "manual",
-            "planning_state": "waiting_route",
             "route_status": "waiting_route",
         })
 
@@ -145,8 +108,6 @@ class TestRouteBatchActions(TransactionCase):
         self.batch = self.env["logistics.route.planning.batch"].create({
             "batch_no": "PC-ACT-TEST",
             "delivery_date": "2026-06-01",
-            "entry_mode": "manual",
-            "planning_state": "result_ready",
             "route_status": "route_planned",
         })
 
@@ -211,8 +172,6 @@ class TestTmsDispatchOrder(TransactionCase):
         self.batch = self.env["logistics.route.planning.batch"].create({
             "batch_no": "PC-DISPATCH",
             "delivery_date": "2026-06-01",
-            "entry_mode": "manual",
-            "planning_state": "result_ready",
             "route_status": "route_planned",
         })
 
