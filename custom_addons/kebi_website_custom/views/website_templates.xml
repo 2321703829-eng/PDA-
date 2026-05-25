@@ -154,7 +154,7 @@
                     }
                 </style>
             </xpath>
-            <xpath expr="//div[contains(@class,'oe_login_form') or contains(@class,'container')]" position="replace">
+            <xpath expr="//div[hasclass('oe_login_form') or hasclass('container')]" position="replace">
                 <script>document.body.classList.add('kebi-login-body');</script>
                 <t t-set="dbname" t-value="dbname if 'dbname' in dir() else request.env.cr.dbname"/>
                 <div class="kebi-login-page">
@@ -240,8 +240,7 @@
         <field name="name">Kebi Footer Clean</field>
         <field name="inherit_id" ref="website.footer_custom"/>
         <field name="arch" type="xml">
-            <xpath expr="//div[contains(@class,'o_footer_copyright')]/.." position="replace"/>
-            <xpath expr="//div[@class='o_footer_copyright']/.." position="replace"/>
+            <xpath expr="//div[hasclass('o_footer_copyright')]/.." position="replace"/>
         </field>
     </record>
 
@@ -251,9 +250,9 @@
         <field name="inherit_id" ref="website.layout"/>
         <field name="priority" eval="99"/>
         <field name="arch" type="xml">
-            <xpath expr="//footer//div[contains(@class,'js_language_selector')]" position="after">
+            <xpath expr="//footer//div[hasclass('js_language_selector')]" position="after">
                 <div style="text-align:center;padding:15px 0;color:#999;font-size:13px">
-                    (C) 天枢科技 | 联系电话: 18438369520 | 联系邮箱: 2542127368@qq.com
+                    © 天枢科技 | 联系电话: 18438369520 | 联系邮箱: 2542127368@qq.com
                 </div>
             </xpath>
         </field>
