@@ -151,7 +151,7 @@
         <field name="name">Kebi Login Redesign</field>
         <field name="inherit_id" ref="auth_signup.login"/>
         <field name="arch" type="xml">
-            <xpath expr="//div[hasclass('oe_login_form') or hasclass('container')]" position="replace">
+            <xpath expr="." position="replace">
                 <script>document.body.classList.add('kebi-login-body');</script>
                 <t t-set="dbname" t-value="dbname if 'dbname' in dir() else request.env.cr.dbname"/>
                 <div class="kebi-login-page">
