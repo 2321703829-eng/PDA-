@@ -142,92 +142,64 @@
                         .kebi-form-side { padding: 40px 32px; }
                     }
                 </style>
-            </xpath>
-        </field>
-    </record>
-
-    <!-- ===== 登录页重设计(TRUMUV工业物流风格) ===== -->
-    <record id="kebi_login_redesign" model="ir.ui.view">
-        <field name="name">Kebi Login Redesign</field>
-        <field name="inherit_id" ref="auth_signup.login"/>
-        <field name="arch" type="xml">
-            <xpath expr="." position="replace">
-                <script>document.body.classList.add('kebi-login-body');</script>
-                <t t-set="dbname" t-value="dbname if 'dbname' in dir() else request.env.cr.dbname"/>
-                <div class="kebi-login-page">
-                    <div class="kebi-lang-selector">
-                        <t t-call="portal.language_select"/>
-                    </div>
-                    <div class="kebi-login-card">
-                        <div class="kebi-brand-side">
-                            <div class="kebi-brand-logo">TIAN<span>SHU</span></div>
-                            <div class="kebi-brand-divider"/>
-                            <div class="kebi-brand-tagline">城市供应链全链路数字化解决方案</div>
-                            <div class="kebi-stats-row">
-                                <div class="kebi-stat-item">
-                                    <div class="stat-number">99.7%</div>
-                                    <div class="stat-label">系统可用率</div>
-                                </div>
-                                <div class="kebi-stat-item">
-                                    <div class="stat-number">5</div>
-                                    <div class="stat-label">核心模块</div>
-                                </div>
-                                <div class="kebi-stat-item">
-                                    <div class="stat-number">1K+</div>
-                                    <div class="stat-label">日均运单</div>
-                                </div>
-                            </div>
-                            <div class="kebi-service-tags">
-                                <span class="kebi-service-tag">ERP 经营管理</span>
-                                <span class="kebi-service-tag">WMS 仓储管理</span>
-                                <span class="kebi-service-tag">TMS 运输调度</span>
-                                <span class="kebi-service-tag">BI 数据控制塔</span>
-                                <span class="kebi-service-tag">B2B 订货商城</span>
-                            </div>
-                            <div class="kebi-brand-contact">
-                                天枢科技 · Tianshu Technology<br/>
-                                <a href="/my/profile">个人中心</a>
-                                <span style="margin:0 8px;color:rgba(255,255,255,.2)">|</span>
-                                <a href="/aboutus">关于我们</a>
-                            </div>
-                        </div>
-                        <div class="kebi-form-side">
-                            <h2>登录系统</h2>
-                            <p class="subtitle">Sign in to your account</p>
-                            <t t-if="error">
-                                <div class="alert alert-danger" style="font-size:13px;border-radius:0"><t t-esc="error"/></div>
-                            </t>
-                            <form method="post" t-att-action="action or '/web/login'" role="form">
-                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                                <input type="hidden" name="redirect" t-att-value="redirect or ''"/>
-                                <div class="form-group">
-                                    <label class="form-label" for="login">账号</label>
-                                    <input type="text" name="login" id="login" class="form-control"
-                                        t-att-value="login" autofocus="autofocus" placeholder="请输入账号" required="required"/>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label" for="password">密码</label>
-                                    <input type="password" name="password" id="password" class="form-control"
-                                        placeholder="请输入密码" required="required"/>
-                                </div>
-                                <div class="form-group" t-if="dblist and databases">
-                                    <label class="form-label" for="db">数据库</label>
-                                    <select name="db" id="db" class="form-control">
-                                        <option value="">选择数据库</option>
-                                        <t t-foreach="databases" t-as="db">
-                                            <option t-att-value="db" t-att-selected="db == dbname and 'selected' or None"><t t-esc="db"/></option>
-                                        </t>
-                                    </select>
-                                </div>
-                                <button type="submit" class="kebi-btn-login">登 录</button>
-                                <div style="text-align:right;margin-top:14px">
-                                    <t t-set="reset_url" t-value="'/web/reset_password?db=%s' % request.env.cr.dbname"/>
-                                    <a t-att-href="reset_url" class="kebi-forgot-link">忘记密码?</a>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
+                <script>
+                    (function(){
+                        if (!document.location.pathname.match(/^\/web\/login/)) return;
+                        document.body.classList.add('kebi-login-body');
+                        var dbname = (document.querySelector('select[name="db"] option[selected]') || {}).value || '';
+                        var loginVal = (document.querySelector('input[name="login"]') || {}).value || '';
+                        var formAction = (document.querySelector('form.oe_login_form') || {}).action || '/web/login';
+                        var csrf = (document.querySelector('input[name="csrf_token"]') || {}).value || '';
+                        var redirect = (document.querySelector('input[name="redirect"]') || {}).value || '';
+                        var errorEl = document.querySelector('.alert-danger');
+                        var errorMsg = errorEl ? errorEl.textContent.trim() : '';
+                        var dbSelect = document.querySelector('select[name="db"]');
+                        var dbOptions = '';
+                        if (dbSelect) {
+                            Array.from(dbSelect.options).forEach(function(o){
+                                dbOptions += '<option value="'+o.value+'"'+(o.value===dbname?' selected':'')+'>'+o.textContent+'</option>';
+                            });
+                        }
+                        var html = '';
+                        html += '<div class="kebi-login-page">';
+                        html += '<div class="kebi-login-card">';
+                        html += '<div class="kebi-brand-side">';
+                        html += '<div class="kebi-brand-logo">TIAN<span>SHU</span></div>';
+                        html += '<div class="kebi-brand-divider"></div>';
+                        html += '<div class="kebi-brand-tagline">城市供应链全链路数字化解决方案</div>';
+                        html += '<div class="kebi-stats-row">';
+                        html += '<div class="kebi-stat-item"><div class="stat-number">99.7%</div><div class="stat-label">系统可用率</div></div>';
+                        html += '<div class="kebi-stat-item"><div class="stat-number">5</div><div class="stat-label">核心模块</div></div>';
+                        html += '<div class="kebi-stat-item"><div class="stat-number">1K+</div><div class="stat-label">日均运单</div></div>';
+                        html += '</div>';
+                        html += '<div class="kebi-service-tags">';
+                        html += '<span class="kebi-service-tag">ERP 经营管理</span>';
+                        html += '<span class="kebi-service-tag">WMS 仓储管理</span>';
+                        html += '<span class="kebi-service-tag">TMS 运输调度</span>';
+                        html += '<span class="kebi-service-tag">BI 数据控制塔</span>';
+                        html += '<span class="kebi-service-tag">B2B 订货商城</span>';
+                        html += '</div>';
+                        html += '<div class="kebi-brand-contact">天枢科技 | Tianshu Technology<br/><a href="/my/profile">个人中心</a> <span style="margin:0 8px;color:rgba(255,255,255,.2)">|</span> <a href="/aboutus">关于我们</a></div>';
+                        html += '</div>';
+                        html += '<div class="kebi-form-side">';
+                        html += '<h2>登录系统</h2>';
+                        html += '<p class="subtitle">Sign in to your account</p>';
+                        if (errorMsg) html += '<div class="alert alert-danger" style="font-size:13px;border-radius:0">'+errorMsg+'</div>';
+                        html += '<form method="post" action="'+formAction+'" role="form">';
+                        html += '<input type="hidden" name="csrf_token" value="'+csrf+'"/>';
+                        html += '<input type="hidden" name="redirect" value="'+redirect+'"/>';
+                        html += '<div class="form-group"><label class="form-label" for="login">账号</label><input type="text" name="login" id="login" class="form-control" value="'+loginVal+'" autofocus="autofocus" placeholder="请输入账号" required="required"/></div>';
+                        html += '<div class="form-group"><label class="form-label" for="password">密码</label><input type="password" name="password" id="password" class="form-control" placeholder="请输入密码" required="required"/></div>';
+                        if (dbOptions) html += '<div class="form-group"><label class="form-label" for="db">数据库</label><select name="db" id="db" class="form-control"><option value="">选择数据库</option>'+dbOptions+'</select></div>';
+                        html += '<button type="submit" class="kebi-btn-login">登 录</button>';
+                        html += '<div style="text-align:right;margin-top:14px"><a href="/web/reset_password" class="kebi-forgot-link">忘记密码?</a></div>';
+                        html += '</form>';
+                        html += '</div>';
+                        html += '</div>';
+                        html += '</div>';
+                        document.body.innerHTML = html;
+                    })();
+                </script>
             </xpath>
         </field>
     </record>
