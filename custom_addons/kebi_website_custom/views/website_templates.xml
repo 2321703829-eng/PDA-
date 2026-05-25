@@ -204,28 +204,6 @@
         </field>
     </record>
 
-    <!-- ===== Footer: 删除社交 ===== -->
-    <record id="footer_clean" model="ir.ui.view">
-        <field name="name">Kebi Footer Clean</field>
-        <field name="inherit_id" ref="website.footer_custom"/>
-        <field name="arch" type="xml">
-            <xpath expr="//div[hasclass('o_footer_copyright')]/.." position="replace"/>
-        </field>
-    </record>
-
-    <!-- ===== Footer: 语言选择器简化 + 社交链接删除 ===== -->
-    <record id="footer_lang_clean" model="ir.ui.view">
-        <field name="name">Kebi Footer Lang</field>
-        <field name="inherit_id" ref="website.layout"/>
-        <field name="priority" eval="99"/>
-        <field name="arch" type="xml">
-            <xpath expr="//footer//div[hasclass('js_language_selector')]" position="after">
-                <div style="text-align:center;padding:15px 0;color:#999;font-size:13px">
-                    © 天枢科技 | 联系电话: 18438369520 | 联系邮箱: 2542127368@qq.com
-                </div>
-            </xpath>
-        </field>
-    </record>
 
     <!-- ===== 个人中心 ===== -->
     <record id="profile_template" model="ir.ui.view">
