@@ -1,315 +1,321 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <data>
 
     <!-- ===== 全局 CSS: 隐藏不需要的元素 ===== -->
-    <template id="kebi_custom_css" inherit_id="website.layout" name="Kebi Custom CSS">
-        <xpath expr="//head" position="inside">
-            <style>
-                /* ── 登录页: 完全移除Odoo默认header/footer,只保留蓝色登录界面 ── */
-                body.kebi-login-body > header,
-                body.kebi-login-body > nav,
-                body.kebi-login-body #wrapwrap > header,
-                body.kebi-login-body #wrapwrap > nav,
-                body.kebi-login-body .o_main_navbar,
-                body.kebi-login-body #o_header,
-                body.kebi-login-body header#top { display: none !important; }
-                body.kebi-login-body footer,
-                body.kebi-login-body #footer,
-                body.kebi-login-body .o_footer_copyright { display: none !important; }
-                /* 移除Odoo默认的白色背景容器 */
-                body.kebi-login-body { background: transparent !important; }
-                body.kebi-login-body #wrapwrap { background: transparent !important; }
-                /* 隐藏搜索按钮 */
-                .o_search_button, .search-query, [data-bs-toggle=\"search\"],
-                #search, .header-search, .te_header_search { display: none !important; }
-                /* 隐藏购物车 */
-                .o_wsale_my_cart, #my_cart, .my_cart, .o_my_cart,
-                .header-cart, [href=\"/shop/cart\"] { display: none !important; }
-                /* 隐藏 Footer 社交图标区 */
-                footer .fa-facebook, footer .fa-twitter, footer .fa-instagram,
-                footer .fa-linkedin, footer .fa-youtube, footer .fa-github,
-                footer a[href*=\"facebook\"], footer a[href*=\"twitter\"],
-                footer a[href*=\"instagram\"], footer a[href*=\"linkedin\"],
-                footer a[href*=\"youtube\"], footer a[href*=\"github\"] { display: none !important; }
-                /* 隐藏语言选择器旁边多余的社交文本 */
-                footer .js_language_selector + div { display: none !important; }
-            </style>
-        </xpath>
-    </template>
+    <record id="kebi_custom_css" model="ir.ui.view">
+        <field name="name">Kebi Custom CSS</field>
+        <field name="inherit_id" ref="website.layout"/>
+        <field name="arch" type="xml">
+            <xpath expr="//head" position="inside">
+                <style>
+                    body.kebi-login-body > header,
+                    body.kebi-login-body > nav,
+                    body.kebi-login-body #wrapwrap > header,
+                    body.kebi-login-body #wrapwrap > nav,
+                    body.kebi-login-body .o_main_navbar,
+                    body.kebi-login-body #o_header,
+                    body.kebi-login-body header#top { display: none !important; }
+                    body.kebi-login-body footer,
+                    body.kebi-login-body #footer,
+                    body.kebi-login-body .o_footer_copyright { display: none !important; }
+                    body.kebi-login-body { background: transparent !important; }
+                    body.kebi-login-body #wrapwrap { background: transparent !important; }
+                    .o_search_button, .search-query, [data-bs-toggle="search"],
+                    #search, .header-search, .te_header_search { display: none !important; }
+                    .o_wsale_my_cart, #my_cart, .my_cart, .o_my_cart,
+                    .header-cart, [href="/shop/cart"] { display: none !important; }
+                    footer .fa-facebook, footer .fa-twitter, footer .fa-instagram,
+                    footer .fa-linkedin, footer .fa-youtube, footer .fa-github,
+                    footer a[href*="facebook"], footer a[href*="twitter"],
+                    footer a[href*="instagram"], footer a[href*="linkedin"],
+                    footer a[href*="youtube"], footer a[href*="github"] { display: none !important; }
+                    footer .js_language_selector + div { display: none !important; }
+                </style>
+            </xpath>
+        </field>
+    </record>
 
     <!-- ===== 登录页重设计(TRUMUV工业物流风格) ===== -->
-    <template id="kebi_login_redesign" inherit_id="auth_signup.login" name="Kebi Login Redesign">
-        <xpath expr="//head" position="inside">
-            <style>
-                :root {
-                    --kebi-navy: #2C3E50;
-                    --kebi-blue: #3498DB;
-                    --kebi-bg: #F5F5F7;
-                    --kebi-block: #E8E9EB;
-                    --kebi-text: #222222;
-                    --kebi-muted: #6B7280;
-                    --kebi-border: #DDDDDD;
-                }
-                .kebi-login-page {
-                    min-height: 100vh; display: flex; align-items: center; justify-content: center;
-                    background: var(--kebi-bg);
-                    font-family: "Montserrat", "Poppins", "PingFang SC", "Microsoft YaHei", sans-serif;
-                    padding: 24px;
-                }
-                .kebi-login-card {
-                    display: flex; max-width: 960px; width: 100%; background: #fff;
-                    border-radius: 8px; overflow: hidden;
-                    box-shadow: 0 1px 3px rgba(0,0,0,.04), 0 12px 40px rgba(0,0,0,.08);
-                }
-                /* ── 左侧品牌面板 ── */
-                .kebi-brand-side {
-                    flex: 1; background: var(--kebi-navy);
-                    padding: 56px 48px; display: flex; flex-direction: column; justify-content: center;
-                    color: #fff; position: relative;
-                }
-                .kebi-brand-logo {
-                    font-size: 38px; font-weight: 800; letter-spacing: 3px;
-                    margin-bottom: 10px; font-family: "Montserrat", sans-serif;
-                }
-                .kebi-brand-logo span { color: var(--kebi-blue); }
-                .kebi-brand-divider {
-                    width: 48px; height: 3px; background: var(--kebi-blue); margin: 28px 0;
-                }
-                .kebi-brand-tagline {
-                    font-size: 14px; color: rgba(255,255,255,.55);
-                    line-height: 1.8; margin-bottom: 44px; font-weight: 400;
-                }
-                /* 数据统计卡片 */
-                .kebi-stats-row { display: flex; gap: 0; margin-bottom: 44px; }
-                .kebi-stat-item { flex: 1; position: relative; }
-                .kebi-stat-item + .kebi-stat-item { border-left: 1px solid rgba(255,255,255,.15); padding-left: 16px; margin-left: 16px; }
-                .kebi-stat-item .stat-number {
-                    font-size: 22px; font-weight: 700; letter-spacing: .5px;
-                    font-family: "Montserrat", sans-serif;
-                }
-                .kebi-stat-item .stat-label {
-                    font-size: 10px; color: rgba(255,255,255,.35);
-                    text-transform: uppercase; letter-spacing: 2px; margin-top: 4px;
-                }
-                /* 服务标签 */
-                .kebi-service-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 40px; }
-                .kebi-service-tag {
-                    font-size: 11px; padding: 6px 14px;
-                    border: 1px solid rgba(255,255,255,.2); border-radius: 4px;
-                    color: rgba(255,255,255,.7); letter-spacing: .5px;
-                }
-                .kebi-brand-contact {
-                    font-size: 12px; color: rgba(255,255,255,.35); line-height: 1.8;
-                    border-top: 1px solid rgba(255,255,255,.1); padding-top: 24px;
-                }
-                .kebi-brand-contact a {
-                    color: rgba(255,255,255,.5); text-decoration: none;
-                    font-weight: 500; transition: color .2s;
-                }
-                .kebi-brand-contact a:hover { color: #fff; }
-                /* ── 右侧表单面板 ── */
-                .kebi-form-side {
-                    flex: 1.05; padding: 56px 56px; display: flex; flex-direction: column; justify-content: center;
-                }
-                .kebi-form-side h2 {
-                    font-size: 24px; font-weight: 700; color: var(--kebi-text);
-                    margin-bottom: 6px; font-family: "Montserrat", sans-serif;
-                }
-                .kebi-form-side .subtitle {
-                    font-size: 13px; color: var(--kebi-muted); margin-bottom: 36px; line-height: 1.6;
-                }
-                .kebi-form-side .form-group { margin-bottom: 20px; }
-                .kebi-form-side .form-label {
-                    font-size: 11px; font-weight: 600; color: var(--kebi-muted);
-                    margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px;
-                }
-                .kebi-form-side .form-control {
-                    height: 46px; border: 1px solid var(--kebi-border); border-radius: 6px;
-                    padding: 0 16px; font-size: 14px; background: #fff;
-                    transition: border-color .2s, box-shadow .2s;
-                }
-                .kebi-form-side .form-control:focus {
-                    border-color: var(--kebi-blue); box-shadow: 0 0 0 3px rgba(52,152,219,.1);
-                    outline: none;
-                }
-                .kebi-btn-login {
-                    width: 100%; height: 48px; border: none; border-radius: 6px;
-                    background: var(--kebi-navy); color: #fff;
-                    font-size: 14px; font-weight: 600; letter-spacing: 1px;
-                    cursor: pointer; transition: background .2s, transform .1s;
-                    font-family: "Montserrat", sans-serif;
-                }
-                .kebi-btn-login:hover {
-                    background: #1a2a3a; transform: translateY(-1px);
-                    box-shadow: 0 4px 16px rgba(44,62,80,.25);
-                }
-                .kebi-forgot-link {
-                    font-size: 12px; color: var(--kebi-muted); text-decoration: none;
-                    transition: color .15s;
-                }
-                .kebi-forgot-link:hover { color: var(--kebi-navy); }
-                .kebi-lang-selector {
-                    position: absolute; top: 24px; right: 24px; font-size: 12px;
-                }
-                @media (max-width: 768px) {
-                    .kebi-login-card { flex-direction: column; max-width: 420px; }
-                    .kebi-brand-side { padding: 40px 32px; }
-                    .kebi-form-side { padding: 40px 32px; }
-                }
-            </style>
-        </xpath>
-        <xpath expr="//div[contains(@class,'oe_login_form') or contains(@class,'container')]" position="replace">
-            <script>document.body.classList.add('kebi-login-body');</script>
-            <t t-set="dbname" t-value="dbname if 'dbname' in dir() else request.env.cr.dbname"/>
-            <div class="kebi-login-page">
-                <div class="kebi-lang-selector">
-                    <t t-call="portal.language_select"/>
-                </div>
-                <div class="kebi-login-card">
-                    <!-- 左侧品牌区 -->
-                    <div class="kebi-brand-side">
-                        <div class="kebi-brand-logo">TIAN<span>SHU</span></div>
-                        <div class="kebi-brand-divider"/>
-                        <div class="kebi-brand-tagline">
-                            城市供应链全链路数字化解决方案
-                        </div>
-                        <div class="kebi-stats-row">
-                            <div class="kebi-stat-item">
-                                <div class="stat-number">99.7%</div>
-                                <div class="stat-label">系统可用率</div>
+    <record id="kebi_login_redesign" model="ir.ui.view">
+        <field name="name">Kebi Login Redesign</field>
+        <field name="inherit_id" ref="auth_signup.login"/>
+        <field name="arch" type="xml">
+            <xpath expr="//head" position="inside">
+                <style>
+                    :root {
+                        --kebi-navy: #2C3E50;
+                        --kebi-blue: #3498DB;
+                        --kebi-bg: #F5F5F7;
+                        --kebi-text: #222222;
+                        --kebi-muted: #6B7280;
+                        --kebi-border: #DDDDDD;
+                    }
+                    .kebi-login-page {
+                        min-height: 100vh; display: flex; align-items: center; justify-content: center;
+                        background: var(--kebi-bg);
+                        font-family: "Montserrat", "Poppins", "PingFang SC", "Microsoft YaHei", sans-serif;
+                        padding: 24px;
+                    }
+                    .kebi-login-card {
+                        display: flex; max-width: 960px; width: 100%; background: #fff;
+                        border-radius: 8px; overflow: hidden;
+                        box-shadow: 0 1px 3px rgba(0,0,0,.04), 0 12px 40px rgba(0,0,0,.08);
+                    }
+                    .kebi-brand-side {
+                        flex: 1; background: var(--kebi-navy);
+                        padding: 56px 48px; display: flex; flex-direction: column; justify-content: center;
+                        color: #fff; position: relative;
+                    }
+                    .kebi-brand-logo {
+                        font-size: 38px; font-weight: 800; letter-spacing: 3px;
+                        margin-bottom: 10px; font-family: "Montserrat", sans-serif;
+                    }
+                    .kebi-brand-logo span { color: var(--kebi-blue); }
+                    .kebi-brand-divider {
+                        width: 48px; height: 3px; background: var(--kebi-blue); margin: 28px 0;
+                    }
+                    .kebi-brand-tagline {
+                        font-size: 14px; color: rgba(255,255,255,.55);
+                        line-height: 1.8; margin-bottom: 44px; font-weight: 400;
+                    }
+                    .kebi-stats-row { display: flex; gap: 0; margin-bottom: 44px; }
+                    .kebi-stat-item { flex: 1; position: relative; }
+                    .kebi-stat-item + .kebi-stat-item { border-left: 1px solid rgba(255,255,255,.15); padding-left: 16px; margin-left: 16px; }
+                    .kebi-stat-item .stat-number {
+                        font-size: 22px; font-weight: 700; letter-spacing: .5px;
+                        font-family: "Montserrat", sans-serif;
+                    }
+                    .kebi-stat-item .stat-label {
+                        font-size: 10px; color: rgba(255,255,255,.35);
+                        text-transform: uppercase; letter-spacing: 2px; margin-top: 4px;
+                    }
+                    .kebi-service-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 40px; }
+                    .kebi-service-tag {
+                        font-size: 11px; padding: 6px 14px;
+                        border: 1px solid rgba(255,255,255,.2); border-radius: 4px;
+                        color: rgba(255,255,255,.7); letter-spacing: .5px;
+                    }
+                    .kebi-brand-contact {
+                        font-size: 12px; color: rgba(255,255,255,.35); line-height: 1.8;
+                        border-top: 1px solid rgba(255,255,255,.1); padding-top: 24px;
+                    }
+                    .kebi-brand-contact a {
+                        color: rgba(255,255,255,.5); text-decoration: none;
+                        font-weight: 500; transition: color .2s;
+                    }
+                    .kebi-brand-contact a:hover { color: #fff; }
+                    .kebi-form-side {
+                        flex: 1.05; padding: 56px 56px; display: flex; flex-direction: column; justify-content: center;
+                    }
+                    .kebi-form-side h2 {
+                        font-size: 24px; font-weight: 700; color: var(--kebi-text);
+                        margin-bottom: 6px; font-family: "Montserrat", sans-serif;
+                    }
+                    .kebi-form-side .subtitle {
+                        font-size: 13px; color: var(--kebi-muted); margin-bottom: 36px; line-height: 1.6;
+                    }
+                    .kebi-form-side .form-group { margin-bottom: 20px; }
+                    .kebi-form-side .form-label {
+                        font-size: 11px; font-weight: 600; color: var(--kebi-muted);
+                        margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px;
+                    }
+                    .kebi-form-side .form-control {
+                        height: 46px; border: 1px solid var(--kebi-border); border-radius: 6px;
+                        padding: 0 16px; font-size: 14px; background: #fff;
+                        transition: border-color .2s, box-shadow .2s;
+                    }
+                    .kebi-form-side .form-control:focus {
+                        border-color: var(--kebi-blue); box-shadow: 0 0 0 3px rgba(52,152,219,.1);
+                        outline: none;
+                    }
+                    .kebi-btn-login {
+                        width: 100%; height: 48px; border: none; border-radius: 6px;
+                        background: var(--kebi-navy); color: #fff;
+                        font-size: 14px; font-weight: 600; letter-spacing: 1px;
+                        cursor: pointer; transition: background .2s, transform .1s;
+                        font-family: "Montserrat", sans-serif;
+                    }
+                    .kebi-btn-login:hover {
+                        background: #1a2a3a; transform: translateY(-1px);
+                        box-shadow: 0 4px 16px rgba(44,62,80,.25);
+                    }
+                    .kebi-forgot-link {
+                        font-size: 12px; color: var(--kebi-muted); text-decoration: none;
+                        transition: color .15s;
+                    }
+                    .kebi-forgot-link:hover { color: var(--kebi-navy); }
+                    .kebi-lang-selector {
+                        position: absolute; top: 24px; right: 24px; font-size: 12px;
+                    }
+                    @media (max-width: 768px) {
+                        .kebi-login-card { flex-direction: column; max-width: 420px; }
+                        .kebi-brand-side { padding: 40px 32px; }
+                        .kebi-form-side { padding: 40px 32px; }
+                    }
+                </style>
+            </xpath>
+            <xpath expr="//div[contains(@class,'oe_login_form') or contains(@class,'container')]" position="replace">
+                <script>document.body.classList.add('kebi-login-body');</script>
+                <t t-set="dbname" t-value="dbname if 'dbname' in dir() else request.env.cr.dbname"/>
+                <div class="kebi-login-page">
+                    <div class="kebi-lang-selector">
+                        <t t-call="portal.language_select"/>
+                    </div>
+                    <div class="kebi-login-card">
+                        <div class="kebi-brand-side">
+                            <div class="kebi-brand-logo">TIAN<span>SHU</span></div>
+                            <div class="kebi-brand-divider"/>
+                            <div class="kebi-brand-tagline">城市供应链全链路数字化解决方案</div>
+                            <div class="kebi-stats-row">
+                                <div class="kebi-stat-item">
+                                    <div class="stat-number">99.7%</div>
+                                    <div class="stat-label">系统可用率</div>
+                                </div>
+                                <div class="kebi-stat-item">
+                                    <div class="stat-number">5</div>
+                                    <div class="stat-label">核心模块</div>
+                                </div>
+                                <div class="kebi-stat-item">
+                                    <div class="stat-number">1K+</div>
+                                    <div class="stat-label">日均运单</div>
+                                </div>
                             </div>
-                            <div class="kebi-stat-item">
-                                <div class="stat-number">5</div>
-                                <div class="stat-label">核心模块</div>
+                            <div class="kebi-service-tags">
+                                <span class="kebi-service-tag">ERP 经营管理</span>
+                                <span class="kebi-service-tag">WMS 仓储管理</span>
+                                <span class="kebi-service-tag">TMS 运输调度</span>
+                                <span class="kebi-service-tag">BI 数据控制塔</span>
+                                <span class="kebi-service-tag">B2B 订货商城</span>
                             </div>
-                            <div class="kebi-stat-item">
-                                <div class="stat-number">1K+</div>
-                                <div class="stat-label">日均运单</div>
+                            <div class="kebi-brand-contact">
+                                天枢科技 · Tianshu Technology<br/>
+                                <a href="/my/profile">个人中心</a>
+                                <span style="margin:0 8px;color:rgba(255,255,255,.2)">|</span>
+                                <a href="/aboutus">关于我们</a>
                             </div>
                         </div>
-                        <div class="kebi-service-tags">
-                            <span class="kebi-service-tag">ERP 经营管理</span>
-                            <span class="kebi-service-tag">WMS 仓储管理</span>
-                            <span class="kebi-service-tag">TMS 运输调度</span>
-                            <span class="kebi-service-tag">BI 数据控制塔</span>
-                            <span class="kebi-service-tag">B2B 订货商城</span>
-                        </div>
-                        <div class="kebi-brand-contact">
-                            天枢科技 · Tianshu Technology<br/>
-                            <a href="/my/profile">个人中心</a>
-                            <span style="margin:0 8px;color:rgba(255,255,255,.2)">|</span>
-                            <a href="/aboutus">关于我们</a>
+                        <div class="kebi-form-side">
+                            <h2>登录系统</h2>
+                            <p class="subtitle">Sign in to your account</p>
+                            <t t-if="error">
+                                <div class="alert alert-danger" style="font-size:13px;border-radius:0"><t t-esc="error"/></div>
+                            </t>
+                            <form method="post" t-att-action="action or '/web/login'" role="form">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                <input type="hidden" name="redirect" t-att-value="redirect or ''"/>
+                                <div class="form-group">
+                                    <label class="form-label" for="login">账号</label>
+                                    <input type="text" name="login" id="login" class="form-control"
+                                        t-att-value="login" autofocus="autofocus" placeholder="请输入账号" required="required"/>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="password">密码</label>
+                                    <input type="password" name="password" id="password" class="form-control"
+                                        placeholder="请输入密码" required="required"/>
+                                </div>
+                                <div class="form-group" t-if="dblist and databases">
+                                    <label class="form-label" for="db">数据库</label>
+                                    <select name="db" id="db" class="form-control">
+                                        <option value="">选择数据库</option>
+                                        <t t-foreach="databases" t-as="db">
+                                            <option t-att-value="db" t-att-selected="db == dbname and 'selected' or None"><t t-esc="db"/></option>
+                                        </t>
+                                    </select>
+                                </div>
+                                <button type="submit" class="kebi-btn-login">登 录</button>
+                                <div style="text-align:right;margin-top:14px">
+                                    <t t-set="reset_url" t-value="'/web/reset_password?db=%s' % request.env.cr.dbname"/>
+                                    <a t-att-href="reset_url" class="kebi-forgot-link">忘记密码?</a>
+                                </div>
+                            </form>
                         </div>
                     </div>
-                    <!-- 右侧登录表单 -->
-                    <div class="kebi-form-side">
-                        <h2>登录系统</h2>
-                        <p class="subtitle">Sign in to your account</p>
-                        <t t-if="error">
-                            <div class="alert alert-danger" style="font-size:13px;border-radius:0"><t t-esc="error"/></div>
-                        </t>
-                        <form method="post" t-att-action="action or '/web/login'" role="form">
-                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                            <input type="hidden" name="redirect" t-att-value="redirect or ''"/>
-                            <div class="form-group">
-                                <label class="form-label" for="login">账号</label>
-                                <input type="text" name="login" id="login" class="form-control"
-                                    t-att-value="login" autofocus="autofocus" placeholder="请输入账号" required="required"/>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="password">密码</label>
-                                <input type="password" name="password" id="password" class="form-control"
-                                    placeholder="请输入密码" required="required"/>
-                            </div>
-                            <div class="form-group" t-if="dblist and databases">
-                                <label class="form-label" for="db">数据库</label>
-                                <select name="db" id="db" class="form-control">
-                                    <option value="">选择数据库</option>
-                                    <t t-foreach="databases" t-as="db">
-                                        <option t-att-value="db" t-att-selected="db == dbname and 'selected' or None">
-                                            <t t-esc="db"/>
-                                        </option>
-                                    </t>
-                                </select>
-                            </div>
-                            <button type="submit" class="kebi-btn-login">登 录</button>
-                            <div style="text-align:right;margin-top:14px">
-                                <t t-set="reset_url" t-value="'/web/reset_password?db=%s' % request.env.cr.dbname"/>
-                                <a t-att-href="reset_url" class="kebi-forgot-link">忘记密码?</a>
-                            </div>
-                        </form>
-                    </div>
                 </div>
-            </div>
-        </xpath>
-    </template>
+            </xpath>
+        </field>
+    </record>
 
     <!-- ===== Footer: 删除社交 ===== -->
-    <template id="footer_clean" inherit_id="website.footer_custom" name="Kebi Footer Clean">
-        <xpath expr="//div[contains(@class,'o_footer_copyright')]/.." position="replace"/>
-        <xpath expr="//div[@class='o_footer_copyright']/.." position="replace"/>
-    </template>
+    <record id="footer_clean" model="ir.ui.view">
+        <field name="name">Kebi Footer Clean</field>
+        <field name="inherit_id" ref="website.footer_custom"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[contains(@class,'o_footer_copyright')]/.." position="replace"/>
+            <xpath expr="//div[@class='o_footer_copyright']/.." position="replace"/>
+        </field>
+    </record>
 
     <!-- ===== Footer: 语言选择器简化 + 社交链接删除 ===== -->
-    <template id="footer_lang_clean" inherit_id="website.layout" name="Kebi Footer Lang" primary="False">
-        <xpath expr="//footer//div[contains(@class,'js_language_selector')]" position="after">
-            <div style="text-align:center;padding:15px 0;color:#999;font-size:13px">
-                © 天枢科技 | 联系电话: 18438369520 | 联系邮箱: 2542127368@qq.com
-            </div>
-        </xpath>
-    </template>
+    <record id="footer_lang_clean" model="ir.ui.view">
+        <field name="name">Kebi Footer Lang</field>
+        <field name="inherit_id" ref="website.layout"/>
+        <field name="priority" eval="99"/>
+        <field name="arch" type="xml">
+            <xpath expr="//footer//div[contains(@class,'js_language_selector')]" position="after">
+                <div style="text-align:center;padding:15px 0;color:#999;font-size:13px">
+                    (C) 天枢科技 | 联系电话: 18438369520 | 联系邮箱: 2542127368@qq.com
+                </div>
+            </xpath>
+        </field>
+    </record>
 
     <!-- ===== 个人中心 ===== -->
-    <template id="profile_template" name="Kebi Profile">
-        <t t-call="website.layout">
-            <div id="wrap"><div class="container" style="max-width:720px;margin-top:30px">
-                <h3>个人中心</h3>
-                <t t-if="msg == 'saved'"><div class="alert alert-success">保存成功</div></t>
-                <div class="card" style="margin-top:16px">
-                    <div class="card-body">
-                        <form method="post" action="/my/profile/save">
-                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                            <div class="form-group"><label class="font-weight-bold">联系人</label><input class="form-control" t-att-value="partner.name" readonly="readonly" style="background:#f9fafb"/></div>
-                            <div class="form-group"><label>联系电话</label><input type="text" name="phone" class="form-control" t-att-value="phone" placeholder="请输入联系电话"/></div>
-                            <div class="form-group"><label>联系邮箱</label><input type="email" name="email" class="form-control" t-att-value="email" placeholder="请输入邮箱"/></div>
-                            <div class="form-group"><label>默认收货门店</label>
-                                <select name="default_store_id" class="form-control">
-                                    <option value="">请选择</option>
-                                    <t t-foreach="stores" t-as="s"><option t-att-value="s.id" t-att-selected="'selected' if str(default_store_id) == str(s.id) else None"><t t-esc="s.name"/></option></t>
-                                </select>
-                            </div>
-                            <div class="form-group"><label>常用配送备注</label><textarea name="delivery_note" class="form-control" rows="2" placeholder="如: 工作日收货、需提前联系、放前台"><t t-esc="delivery_note or ''"/></textarea></div>
-                            <button type="submit" class="btn btn-primary">保存设置</button>
-                        </form>
-                    </div>
-                </div>
-            </div></div>
-        </t>
-    </template>
-
-    <!-- ===== 关于我们页 ===== -->
-    <template id="aboutus_custom" inherit_id="website.aboutus" name="Kebi About Us">
-        <xpath expr="//section[1]" position="after">
-            <section class="container mt-5 mb-5">
-                <h2 class="text-center mb-4">关于天枢科技</h2>
-                <div class="row justify-content-center">
-                    <div class="col-lg-8">
-                        <p class="lead text-center" style="font-size:1.1rem;line-height:2">
-                        天枢科技是一家专注于城市供应链全链路数字化解决方案的科技企业。
-                        我们通过 ERP、WMS、TMS、BI 等系统模块，帮助客户实现从订单、
-                        仓储、配送到结算的全流程智能化管理，致力于让每一件货物的流转都
-                        更加高效、透明、可追溯。
-                        </p>
-                        <div class="text-center mt-4">
-                            <p>📞 联系电话：18438369520</p>
-                            <p>📧 联系邮箱：2542127368@qq.com</p>
+    <record id="profile_template" model="ir.ui.view">
+        <field name="name">Kebi Profile</field>
+        <field name="type">qweb</field>
+        <field name="arch" type="xml">
+            <t t-call="website.layout">
+                <div id="wrap"><div class="container" style="max-width:720px;margin-top:30px">
+                    <h3>个人中心</h3>
+                    <t t-if="msg == 'saved'"><div class="alert alert-success">保存成功</div></t>
+                    <div class="card" style="margin-top:16px">
+                        <div class="card-body">
+                            <form method="post" action="/my/profile/save">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                <div class="form-group"><label class="font-weight-bold">联系人</label><input class="form-control" t-att-value="partner.name" readonly="readonly" style="background:#f9fafb"/></div>
+                                <div class="form-group"><label>联系电话</label><input type="text" name="phone" class="form-control" t-att-value="phone" placeholder="请输入联系电话"/></div>
+                                <div class="form-group"><label>联系邮箱</label><input type="email" name="email" class="form-control" t-att-value="email" placeholder="请输入邮箱"/></div>
+                                <div class="form-group"><label>默认收货门店</label>
+                                    <select name="default_store_id" class="form-control">
+                                        <option value="">请选择</option>
+                                        <t t-foreach="stores" t-as="s"><option t-att-value="s.id" t-att-selected="'selected' if str(default_store_id) == str(s.id) else None"><t t-esc="s.name"/></option></t>
+                                    </select>
+                                </div>
+                                <div class="form-group"><label>常用配送备注</label><textarea name="delivery_note" class="form-control" rows="2" placeholder="如: 工作日收货、需提前联系、放前台"><t t-esc="delivery_note or ''"/></textarea></div>
+                                <button type="submit" class="btn btn-primary">保存设置</button>
+                            </form>
                         </div>
                     </div>
-                </div>
-            </section>
-        </xpath>
-    </template>
+                </div></div>
+            </t>
+        </field>
+    </record>
 
-    </data>
+    <!-- ===== 关于我们页 ===== -->
+    <record id="aboutus_custom" model="ir.ui.view">
+        <field name="name">Kebi About Us</field>
+        <field name="inherit_id" ref="website.aboutus"/>
+        <field name="arch" type="xml">
+            <xpath expr="//section[1]" position="after">
+                <section class="container mt-5 mb-5">
+                    <h2 class="text-center mb-4">关于天枢科技</h2>
+                    <div class="row justify-content-center">
+                        <div class="col-lg-8">
+                            <p class="lead text-center" style="font-size:1.1rem;line-height:2">
+                            天枢科技是一家专注于城市供应链全链路数字化解决方案的科技企业。
+                            我们通过 ERP、WMS、TMS、BI 等系统模块，帮助客户实现从订单、
+                            仓储、配送到结算的全流程智能化管理，致力于让每一件货物的流转都
+                            更加高效、透明、可追溯。
+                            </p>
+                            <div class="text-center mt-4">
+                                <p>联系电话：18438369520</p>
+                                <p>联系邮箱：2542127368@qq.com</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </xpath>
+        </field>
+    </record>
+
 </odoo>
