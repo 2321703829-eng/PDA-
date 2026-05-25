@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <data>
 
     <!-- ===== 全局 CSS: 隐藏不需要的元素 ===== -->
     <template id="kebi_custom_css" inherit_id="website.layout" name="Kebi Custom CSS">
@@ -310,4 +311,5 @@
         </xpath>
     </template>
 
+    </data>
 </odoo>
