@@ -37,72 +37,113 @@
         </xpath>
     </template>
 
-    <!-- ===== 登录页全面重设计(UI Pro Max B2B风格) ===== -->
+    <!-- ===== 登录页重设计(TRUMUV工业物流风格) ===== -->
     <template id="kebi_login_redesign" inherit_id="auth_signup.login" name="Kebi Login Redesign">
         <xpath expr="//head" position="inside">
             <style>
-                /* ── 重置Odoo登录页为B2B专业风格 ── */
+                :root {
+                    --kebi-black: #1A1A1A;
+                    --kebi-blue: #1E3A8A;
+                    --kebi-gray-50: #F5F5F5;
+                    --kebi-gray-100: #E5E7EB;
+                    --kebi-gray-400: #9CA3AF;
+                    --kebi-gray-500: #6B7280;
+                    --kebi-gray-700: #374151;
+                    --kebi-gray-900: #111827;
+                }
                 .kebi-login-page {
                     min-height: 100vh; display: flex; align-items: center; justify-content: center;
-                    background: linear-gradient(135deg, #0f1f3d 0%, #1a3a5c 40%, #1e4d7b 70%, #1a56db 100%);
-                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
-                    padding: 20px;
+                    background: var(--kebi-gray-50);
+                    font-family: "Inter", "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+                    padding: 24px;
                 }
                 .kebi-login-card {
-                    display: flex; max-width: 960px; width: 100%; background: #fff;
-                    border-radius: 16px; overflow: hidden;
-                    box-shadow: 0 24px 80px rgba(0,0,0,.25), 0 8px 24px rgba(0,0,0,.15);
+                    display: flex; max-width: 900px; width: 100%; background: #fff;
+                    border: 1px solid var(--kebi-gray-100);
+                    box-shadow: 0 1px 3px rgba(0,0,0,.04), 0 8px 32px rgba(0,0,0,.06);
                 }
                 .kebi-brand-side {
-                    flex: 1; background: linear-gradient(160deg, #0d1b33 0%, #132744 50%, #0f2744 100%);
-                    padding: 60px 48px; display: flex; flex-direction: column; justify-content: center;
-                    color: #fff; position: relative; overflow: hidden;
-                }
-                .kebi-brand-side::before {
-                    content: ''; position: absolute; top: -100px; right: -100px;
-                    width: 300px; height: 300px; border-radius: 50%;
-                    background: rgba(26,86,219,.15); pointer-events: none;
+                    flex: 1; background: var(--kebi-black);
+                    padding: 56px 48px; display: flex; flex-direction: column; justify-content: center;
+                    color: #fff; position: relative;
                 }
                 .kebi-brand-side::after {
-                    content: ''; position: absolute; bottom: -60px; left: -60px;
-                    width: 200px; height: 200px; border-radius: 50%;
-                    background: rgba(26,86,219,.1); pointer-events: none;
+                    content: ''; position: absolute; left: 0; bottom: 0;
+                    width: 100%; height: 3px; background: var(--kebi-blue);
                 }
-                .kebi-brand-side > * { position: relative; z-index: 1; }
-                .kebi-brand-logo { font-size: 40px; font-weight: 800; letter-spacing: 2px; margin-bottom: 12px; }
-                .kebi-brand-tagline { font-size: 15px; color: rgba(255,255,255,.7); margin-bottom: 40px; line-height: 1.6; }
-                .kebi-brand-features { list-style: none; padding: 0; margin: 0 0 48px 0; }
-                .kebi-brand-features li { padding: 10px 0; font-size: 14px; color: rgba(255,255,255,.8);
-                    display: flex; align-items: center; gap: 10px; }
-                .kebi-brand-features li::before { content: '◆'; color: #3b82f6; font-size: 8px; }
-                .kebi-brand-contact { font-size: 13px; color: rgba(255,255,255,.5); line-height: 1.8; }
+                .kebi-brand-logo {
+                    font-size: 36px; font-weight: 800; letter-spacing: 4px;
+                    margin-bottom: 8px; text-transform: uppercase;
+                }
+                .kebi-brand-logo span { color: var(--kebi-blue); }
+                .kebi-brand-divider {
+                    width: 40px; height: 2px; background: rgba(255,255,255,.3); margin: 24px 0;
+                }
+                .kebi-brand-tagline {
+                    font-size: 14px; color: rgba(255,255,255,.55); margin-bottom: 40px;
+                    line-height: 1.7; letter-spacing: .5px;
+                }
+                .kebi-brand-stat { margin-bottom: 40px; }
+                .kebi-brand-stat .number {
+                    font-size: 18px; font-weight: 700; letter-spacing: 1px;
+                }
+                .kebi-brand-stat .label {
+                    font-size: 11px; color: rgba(255,255,255,.4);
+                    text-transform: uppercase; letter-spacing: 2px; margin-top: 4px;
+                }
+                .kebi-brand-contact {
+                    font-size: 12px; color: rgba(255,255,255,.35); line-height: 1.8;
+                    border-top: 1px solid rgba(255,255,255,.1); padding-top: 24px;
+                }
+                .kebi-brand-contact a {
+                    color: rgba(255,255,255,.5); text-decoration: none;
+                    transition: color .2s;
+                }
+                .kebi-brand-contact a:hover { color: #fff; }
                 .kebi-form-side {
-                    flex: 1; padding: 60px 48px; display: flex; flex-direction: column; justify-content: center;
+                    flex: 1.1; padding: 56px 56px; display: flex; flex-direction: column; justify-content: center;
                 }
-                .kebi-form-side h2 { font-size: 24px; font-weight: 700; color: #111827; margin-bottom: 6px; }
-                .kebi-form-side .subtitle { font-size: 14px; color: #6b7280; margin-bottom: 32px; }
+                .kebi-form-side h2 {
+                    font-size: 22px; font-weight: 700; color: var(--kebi-gray-900);
+                    margin-bottom: 4px; letter-spacing: -.3px;
+                }
+                .kebi-form-side .subtitle {
+                    font-size: 13px; color: var(--kebi-gray-500); margin-bottom: 36px;
+                }
+                .kebi-form-side .form-group { margin-bottom: 20px; }
+                .kebi-form-side .form-label {
+                    font-size: 12px; font-weight: 600; color: var(--kebi-gray-700);
+                    margin-bottom: 6px; text-transform: uppercase; letter-spacing: .5px;
+                }
                 .kebi-form-side .form-control {
-                    height: 48px; border: 1.5px solid #e5e7eb; border-radius: 10px;
-                    padding: 0 16px; font-size: 15px; transition: border-color .2s, box-shadow .2s;
+                    height: 44px; border: 1px solid var(--kebi-gray-100);
+                    border-radius: 0; padding: 0 14px; font-size: 14px;
+                    background: var(--kebi-gray-50); transition: border-color .2s;
                 }
                 .kebi-form-side .form-control:focus {
-                    border-color: #1a56db; box-shadow: 0 0 0 4px rgba(26,86,219,.12); outline: none;
+                    border-color: var(--kebi-gray-900); box-shadow: none; outline: none;
+                    background: #fff;
                 }
-                .kebi-form-side .btn-primary {
-                    height: 50px; border-radius: 10px; font-size: 16px; font-weight: 600;
-                    background: linear-gradient(135deg, #1a56db 0%, #1e40af 100%);
-                    border: none; width: 100%; transition: transform .15s, box-shadow .15s;
+                .kebi-btn-login {
+                    width: 100%; height: 46px; border: 1px solid var(--kebi-gray-900);
+                    background: var(--kebi-gray-900); color: #fff;
+                    font-size: 13px; font-weight: 600; letter-spacing: 1px;
+                    text-transform: uppercase; cursor: pointer;
+                    transition: background .15s, border-color .15s;
                 }
-                .kebi-form-side .btn-primary:hover {
-                    transform: translateY(-1px); box-shadow: 0 8px 24px rgba(26,86,219,.35);
+                .kebi-btn-login:hover {
+                    background: var(--kebi-black); border-color: var(--kebi-black);
                 }
-                .kebi-form-side .form-label { font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 6px; }
-                .kebi-form-side .form-group { margin-bottom: 20px; }
-                .kebi-form-side .forgot-link { font-size: 13px; color: #6b7280; text-decoration: none; }
-                .kebi-form-side .forgot-link:hover { color: #1a56db; }
-                .kebi-lang-selector { position: absolute; top: 20px; right: 20px; font-size: 12px; }
+                .kebi-forgot-link {
+                    font-size: 12px; color: var(--kebi-gray-400); text-decoration: none;
+                    transition: color .15s;
+                }
+                .kebi-forgot-link:hover { color: var(--kebi-gray-900); }
+                .kebi-lang-selector {
+                    position: absolute; top: 24px; right: 24px; font-size: 12px;
+                }
                 @media (max-width: 768px) {
-                    .kebi-login-card { flex-direction: column; max-width: 420px; }
+                    .kebi-login-card { flex-direction: column; max-width: 400px; }
                     .kebi-brand-side { padding: 40px 32px; }
                     .kebi-form-side { padding: 40px 32px; }
                 }
@@ -118,30 +159,32 @@
                 <div class="kebi-login-card">
                     <!-- 左侧品牌区 -->
                     <div class="kebi-brand-side">
-                        <div class="kebi-brand-logo">天枢科技</div>
-                        <div class="kebi-brand-tagline">城市供应链全链路数字化解决方案</div>
-                        <ul class="kebi-brand-features">
-                            <li>ERP 经营管理系统</li>
-                            <li>WMS 仓储管理系统</li>
-                            <li>TMS 运输管理系统</li>
-                            <li>BI 数据控制塔</li>
-                            <li>B2B 订货商城</li>
-                        </ul>
+                        <div class="kebi-brand-logo">TIAN<span>SHU</span></div>
+                        <div class="kebi-brand-divider"/>
+                        <div class="kebi-brand-tagline">
+                            城市供应链全链路数字化解决方案
+                        </div>
+                        <div class="kebi-brand-stat">
+                            <div class="number">ERP + WMS + TMS + BI</div>
+                            <div class="label">全模块覆盖</div>
+                        </div>
+                        <div class="kebi-brand-stat">
+                            <div class="number">端到端可追溯</div>
+                            <div class="label">留痕与证据</div>
+                        </div>
                         <div class="kebi-brand-contact">
-                            📞 18438369520<br/>
-                            📧 2542127368@qq.com<br/>
-                            <a href="/my/profile" style="color:rgba(255,255,255,.7);font-size:13px;text-decoration:none;
-                               display:inline-block;margin-top:8px;padding:4px 12px;border:1px solid rgba(255,255,255,.3);
-                               border-radius:6px">👤 个人中心</a>
-                            <br/><span style="font-size:11px;color:rgba(255,255,255,.3)">© 2026 天枢科技</span>
+                            天枢科技 · Tianshu Technology<br/>
+                            <a href="/my/profile">个人中心</a>
+                            <span style="margin:0 8px;color:rgba(255,255,255,.2)">|</span>
+                            <a href="/aboutus">关于我们</a>
                         </div>
                     </div>
                     <!-- 右侧登录表单 -->
                     <div class="kebi-form-side">
-                        <h2>欢迎回来</h2>
-                        <p class="subtitle">请使用您的账号登录系统</p>
+                        <h2>登录系统</h2>
+                        <p class="subtitle">Sign in to your account</p>
                         <t t-if="error">
-                            <div class="alert alert-danger" style="font-size:14px"><t t-esc="error"/></div>
+                            <div class="alert alert-danger" style="font-size:13px;border-radius:0"><t t-esc="error"/></div>
                         </t>
                         <form method="post" t-att-action="action or '/web/login'" role="form">
                             <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
@@ -167,10 +210,10 @@
                                     </t>
                                 </select>
                             </div>
-                            <button type="submit" class="btn btn-primary">登 录</button>
-                            <div style="text-align:right;margin-top:12px">
+                            <button type="submit" class="kebi-btn-login">登 录</button>
+                            <div style="text-align:right;margin-top:14px">
                                 <t t-set="reset_url" t-value="'/web/reset_password?db=%s' % request.env.cr.dbname"/>
-                                <a t-att-href="reset_url" class="forgot-link">忘记密码?</a>
+                                <a t-att-href="reset_url" class="kebi-forgot-link">忘记密码?</a>
                             </div>
                         </form>
                     </div>
