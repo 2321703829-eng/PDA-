@@ -30,18 +30,7 @@
                     footer a[href*="instagram"], footer a[href*="linkedin"],
                     footer a[href*="youtube"], footer a[href*="github"] { display: none !important; }
                     footer .js_language_selector + div { display: none !important; }
-                </style>
-            </xpath>
-        </field>
-    </record>
-
-    <!-- ===== 登录页重设计(TRUMUV工业物流风格) ===== -->
-    <record id="kebi_login_redesign" model="ir.ui.view">
-        <field name="name">Kebi Login Redesign</field>
-        <field name="inherit_id" ref="auth_signup.login"/>
-        <field name="arch" type="xml">
-            <xpath expr="//head" position="inside">
-                <style>
+                    /* ── 登录页 TRUMUV 风格 ── */
                     :root {
                         --kebi-navy: #2C3E50;
                         --kebi-blue: #3498DB;
@@ -154,6 +143,14 @@
                     }
                 </style>
             </xpath>
+        </field>
+    </record>
+
+    <!-- ===== 登录页重设计(TRUMUV工业物流风格) ===== -->
+    <record id="kebi_login_redesign" model="ir.ui.view">
+        <field name="name">Kebi Login Redesign</field>
+        <field name="inherit_id" ref="auth_signup.login"/>
+        <field name="arch" type="xml">
             <xpath expr="//div[hasclass('oe_login_form') or hasclass('container')]" position="replace">
                 <script>document.body.classList.add('kebi-login-body');</script>
                 <t t-set="dbname" t-value="dbname if 'dbname' in dir() else request.env.cr.dbname"/>
