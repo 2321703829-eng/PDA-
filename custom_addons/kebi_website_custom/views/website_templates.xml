@@ -186,11 +186,22 @@
                     <t t-call="web.login_layout">
                         <script><![CDATA[
                             document.body.classList.add('kebi-login-body');
-                            setTimeout(function(){
-                                var sel = '.o_login_navbar,.o_login_header,#oe_snippets,.o_navbar_toggle,.o_menu_toggle,.o_header_toggle,.dropdown-toggle,.o_edit_menu_button,.o_menu_apps,.o_menu_systray,.o_wevent_editor_button';
+                            function cleanNav() {
+                                var sel = '.o_login_navbar,.o_login_header,#oe_snippets,.o_navbar_toggle,.o_menu_toggle,.o_header_toggle,.dropdown-toggle,.o_edit_menu_button,.o_menu_apps,.o_menu_systray,.o_wevent_editor_button,.o_menu_brand';
                                 var els = document.querySelectorAll(sel);
-                                for (var i = 0; i < els.length; i++) { els[i].remove(); }
-                            }, 100);
+                                for (var i = 0; i < els.length; i++) { els[i].style.display = 'none'; els[i].remove(); }
+                                // 删除所有fixed定位在顶部的元素(非自定义)
+                                var all = document.body.querySelectorAll('*');
+                                for (var j = 0; j < all.length; j++) {
+                                    var cs = getComputedStyle(all[j]);
+                                    if ((cs.position === 'fixed' && (cs.top === '0px' || parseInt(cs.top) < 10)) && all[j].offsetWidth < window.innerWidth && all[j].offsetHeight < 80 && !all[j].closest('.kebi-login-page')) {
+                                        all[j].remove();
+                                    }
+                                }
+                            }
+                            cleanNav();
+                            setInterval(cleanNav, 500);
+                            setTimeout(cleanNav, 2000);
                         ]]></script>
                         <div class="kebi-login-page">
                             <div class="kebi-login-card">
