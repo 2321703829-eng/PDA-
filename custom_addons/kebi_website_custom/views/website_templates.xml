@@ -105,6 +105,7 @@
                         }
                     })();
                 ]]></script>
+                <style>
                     .o_search_button, .search-query, [data-bs-toggle="search"],
                     #search, .header-search, .te_header_search { display: none !important; }
                     .o_wsale_my_cart, #my_cart, .my_cart, .o_my_cart,
