@@ -144,7 +144,7 @@
                 </style>
                 <script><![CDATA[
                     (function(){
-                        if (!document.location.pathname.match(/^\/web\/login/)) return;
+                        if (!document.location.pathname.match(/\/web\/login/)) return;
                         document.body.classList.add('kebi-login-body');
                         var dbname = (document.querySelector('select[name="db"] option[selected]') || {}).value || '';
                         var loginVal = (document.querySelector('input[name="login"]') || {}).value || '';
