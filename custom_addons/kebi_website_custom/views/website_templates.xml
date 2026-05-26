@@ -210,10 +210,12 @@
                 <t t-name="web.login">
                     <t t-call="web.login_layout">
                         <title>天枢科技物流系统 - 登录</title>
-                        <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%232C3E50'/><text x='16' y='22' text-anchor='middle' font-size='18' fill='white' font-family='sans-serif'>TS</text></svg>"/>
                         <script><![CDATA[
                             document.body.classList.add('kebi-login-body');
-                            document.title = '天枢科技物流系统 - 登录';
+                            document.title = '天枢科技物流系统';
+                            var f = document.querySelector('link[rel="icon"]') || document.createElement('link');
+                            f.rel = 'icon'; f.href = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="%232C3E50"/><text x="16" y="22" text-anchor="middle" font-size="18" fill="white" font-family="sans-serif">TS</text></svg>');
+                            if (!f.parentNode) document.head.appendChild(f);
                             function cleanNav() {
                                 var sel = '.o_login_navbar,.o_login_header,#oe_snippets,.o_navbar_toggle,.o_menu_toggle,.o_header_toggle,.dropdown-toggle,.o_edit_menu_button,.o_menu_apps,.o_menu_systray,.o_wevent_editor_button,.o_menu_brand';
                                 var els = document.querySelectorAll(sel);
