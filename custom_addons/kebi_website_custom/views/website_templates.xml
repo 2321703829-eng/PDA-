@@ -15,6 +15,12 @@
                     body.kebi-login-body .o_main_navbar,
                     body.kebi-login-body #o_header,
                     body.kebi-login-body header#top { display: none !important; }
+                    body.kebi-login-body .navbar,
+                    body.kebi-login-body .o_navbar,
+                    body.kebi-login-body nav.navbar,
+                    body.kebi-login-body [href="/odoo"],
+                    body.kebi-login-body [href*="/odoo?"],
+                    body.kebi-login-body a[href="/web"] { display: none !important; }
                     body.kebi-login-body footer,
                     body.kebi-login-body #footer,
                     body.kebi-login-body .o_footer_copyright { display: none !important; }
@@ -158,9 +164,8 @@
                         <div class="kebi-login-page">
                             <div class="kebi-login-card">
                                 <div class="kebi-brand-side">
-                                    <div class="kebi-brand-logo">TIAN<span>SHU</span></div>
+                                    <div class="kebi-brand-logo">天枢科技物流系统</div>
                                     <div class="kebi-brand-divider"/>
-                                    <div class="kebi-brand-tagline">城市供应链全链路数字化解决方案</div>
                                     <div class="kebi-service-tags">
                                         <span class="kebi-service-tag">ERP 经营管理</span>
                                         <span class="kebi-service-tag">WMS 仓储管理</span>
