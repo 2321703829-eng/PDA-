@@ -161,20 +161,6 @@
                                     <div class="kebi-brand-logo">TIAN<span>SHU</span></div>
                                     <div class="kebi-brand-divider"/>
                                     <div class="kebi-brand-tagline">城市供应链全链路数字化解决方案</div>
-                                    <div class="kebi-stats-row">
-                                        <div class="kebi-stat-item">
-                                            <div class="stat-number">99.7%</div>
-                                            <div class="stat-label">系统可用率</div>
-                                        </div>
-                                        <div class="kebi-stat-item">
-                                            <div class="stat-number">5</div>
-                                            <div class="stat-label">核心模块</div>
-                                        </div>
-                                        <div class="kebi-stat-item">
-                                            <div class="stat-number">1K+</div>
-                                            <div class="stat-label">日均运单</div>
-                                        </div>
-                                    </div>
                                     <div class="kebi-service-tags">
                                         <span class="kebi-service-tag">ERP 经营管理</span>
                                         <span class="kebi-service-tag">WMS 仓储管理</span>
@@ -184,8 +170,6 @@
                                     </div>
                                     <div class="kebi-brand-contact">
                                         天枢科技 | Tianshu Technology<br/>
-                                        <a href="/my/profile">个人中心</a>
-                                        <span style="margin:0 8px;color:rgba(255,255,255,.2)">|</span>
                                         <a href="/aboutus">关于我们</a>
                                     </div>
                                 </div>
