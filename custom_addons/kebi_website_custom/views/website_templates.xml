@@ -21,6 +21,21 @@
                     body.kebi-login-body [href="/odoo"],
                     body.kebi-login-body [href*="/odoo?"],
                     body.kebi-login-body a[href="/web"] { display: none !important; }
+                    /* Odoo 19 登录页顶部浮动按钮 */
+                    body.kebi-login-body .o_login_navbar,
+                    body.kebi-login-body .o_login_header,
+                    body.kebi-login-body #oe_snippets,
+                    body.kebi-login-body .o_wevent_editor_button,
+                    body.kebi-login-body [data-action="app_drawer_toggle"],
+                    body.kebi-login-body .o_menu_systray,
+                    body.kebi-login-body .o_mail_systray_item,
+                    body.kebi-login-body .o_navbar_apps_menu,
+                    body.kebi-login-body .o_menu_apps,
+                    body.kebi-login-body [aria-label*="应用"],
+                    body.kebi-login-body [aria-label*="编辑"],
+                    body.kebi-login-body [title*="应用"],
+                    body.kebi-login-body [title*="编辑"],
+                    body.kebi-login-body .o_edit_menu { display: none !important; }
                     body.kebi-login-body footer,
                     body.kebi-login-body #footer,
                     body.kebi-login-body .o_footer_copyright { display: none !important; }
