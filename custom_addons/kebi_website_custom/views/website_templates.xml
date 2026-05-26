@@ -392,6 +392,7 @@
         <field name="key">kebi_website_custom.aboutus_page</field>
         <field name="arch" type="xml">
             <t t-call="website.layout">
+                <script>document.body.classList.add('kebi-login-body');document.title='天枢科技物流系统 - 关于我们';</script>
                 <div class="kebi-reset-page">
                     <div class="kebi-reset-card" style="text-align:left;max-width:640px">
                         <div class="kebi-reset-logo" style="font-size:28px;margin-bottom:8px">天枢科技物流系统</div>
