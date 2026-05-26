@@ -50,6 +50,29 @@
                     body.kebi-login-body .o_footer_copyright { display: none !important; }
                     body.kebi-login-body { background: transparent !important; }
                     body.kebi-login-body #wrapwrap { background: transparent !important; }
+                    body.kebi-login-body * { box-sizing: border-box; }
+                    /* 全局隐藏所有Odoo头部/导航/工具栏/侧边栏/Footer */
+                    body.kebi-login-body header,
+                    body.kebi-login-body #wrapwrap > header,
+                    body.kebi-login-body #wrapwrap > div:first-child:not(.kebi-login-page):not(.kebi-reset-page),
+                    body.kebi-login-body .o_main_navbar,
+                    body.kebi-login-body .o_header_standard,
+                    body.kebi-login-body .o_frontend_to_backend_nav,
+                    body.kebi-login-body #o_menu_toggle,
+                    body.kebi-login-body [id*="header"],
+                    body.kebi-login-body [class*="header"][class*="o_"],
+                    body.kebi-login-body [class*="navbar"],
+                    body.kebi-login-body [class*="o_navbar"],
+                    body.kebi-login-body .fixed-top,
+                    body.kebi-login-body .o_control_panel,
+                    body.kebi-login-body .o_action_manager,
+                    body.kebi-login-body .o_web_client,
+                    body.kebi-login-body [class*="o_menu"],
+                    body.kebi-login-body [class*="o_side"],
+                    body.kebi-login-body [class*="o_toolbar"],
+                    body.kebi-login-body [class*="o_edit"],
+                    body.kebi-login-body #oe_snippets,
+                    body.kebi-login-body [id*="oe_snippet"] { display: none !important; visibility: hidden !important; height: 0 !important; overflow: hidden !important; }
                     .o_search_button, .search-query, [data-bs-toggle="search"],
                     #search, .header-search, .te_header_search { display: none !important; }
                     .o_wsale_my_cart, #my_cart, .my_cart, .o_my_cart,
@@ -296,6 +319,7 @@
                 <t t-name="auth_signup.reset_password">
                     <t t-call="web.login_layout">
                         <title>天枢科技物流系统 - 重置密码</title>
+                        <script>document.body.classList.add('kebi-login-body'); document.title='天枢科技物流系统 - 重置密码';</script>
                         <div class="kebi-reset-page">
                             <div class="kebi-reset-card">
                                 <div class="kebi-reset-header">
