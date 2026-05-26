@@ -166,10 +166,35 @@
                     .kebi-lang-selector {
                         position: absolute; top: 24px; right: 24px; font-size: 12px;
                     }
+                    .kebi-reset-page {
+                        min-height: 100vh; display: flex; align-items: center; justify-content: center;
+                        background: var(--kebi-bg);
+                        font-family: "Montserrat", "Poppins", "PingFang SC", "Microsoft YaHei", sans-serif;
+                        padding: 24px;
+                    }
+                    .kebi-reset-card {
+                        width: 420px; background: #fff; border-radius: 8px;
+                        padding: 48px 40px; box-shadow: 0 1px 3px rgba(0,0,0,.04), 0 12px 40px rgba(0,0,0,.08);
+                    }
+                    .kebi-reset-header { text-align: center; margin-bottom: 28px; }
+                    .kebi-reset-logo { font-size: 24px; font-weight: 700; color: var(--kebi-navy); margin-bottom: 16px; font-family: "Montserrat", sans-serif; }
+                    .kebi-reset-card h3 { font-size: 20px; font-weight: 700; color: var(--kebi-text); margin-bottom: 6px; }
+                    .kebi-reset-card p { font-size: 13px; color: var(--kebi-muted); margin-bottom: 0; }
+                    .kebi-reset-card .form-group { margin-bottom: 18px; }
+                    .kebi-reset-card .form-label { font-size: 11px; font-weight: 600; color: var(--kebi-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; }
+                    .kebi-reset-card .form-control {
+                        height: 46px; border: 1px solid var(--kebi-border); border-radius: 6px;
+                        padding: 0 16px; font-size: 14px; background: #fff;
+                        transition: border-color .2s, box-shadow .2s;
+                    }
+                    .kebi-reset-card .form-control:focus {
+                        border-color: var(--kebi-blue); box-shadow: 0 0 0 3px rgba(52,152,219,.1); outline: none;
+                    }
                     @media (max-width: 768px) {
                         .kebi-login-card { flex-direction: column; max-width: 420px; }
                         .kebi-brand-side { padding: 40px 32px; }
                         .kebi-form-side { padding: 40px 32px; }
+                        .kebi-reset-card { width: 90%; padding: 36px 28px; }
                     }
                 </style>
             </xpath>
@@ -184,8 +209,11 @@
             <xpath expr="." position="replace">
                 <t t-name="web.login">
                     <t t-call="web.login_layout">
+                        <title>天枢科技物流系统 - 登录</title>
+                        <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%232C3E50'/><text x='16' y='22' text-anchor='middle' font-size='18' fill='white' font-family='sans-serif'>TS</text></svg>"/>
                         <script><![CDATA[
                             document.body.classList.add('kebi-login-body');
+                            document.title = '天枢科技物流系统 - 登录';
                             function cleanNav() {
                                 var sel = '.o_login_navbar,.o_login_header,#oe_snippets,.o_navbar_toggle,.o_menu_toggle,.o_header_toggle,.dropdown-toggle,.o_edit_menu_button,.o_menu_apps,.o_menu_systray,.o_wevent_editor_button,.o_menu_brand';
                                 var els = document.querySelectorAll(sel);
@@ -257,6 +285,91 @@
     </record>
 
 
+    <!-- ===== 密码重置页(统一TRUMUV风格) ===== -->
+    <record id="kebi_reset_password" model="ir.ui.view">
+        <field name="name">Kebi Reset Password</field>
+        <field name="inherit_id" ref="auth_signup.reset_password"/>
+        <field name="arch" type="xml">
+            <xpath expr="." position="replace">
+                <t t-name="auth_signup.reset_password">
+                    <t t-call="web.login_layout">
+                        <title>天枢科技物流系统 - 重置密码</title>
+                        <div class="kebi-reset-page">
+                            <div class="kebi-reset-card">
+                                <div class="kebi-reset-header">
+                                    <div class="kebi-reset-logo">天枢科技</div>
+                                    <h3>重置密码</h3>
+                                    <p>输入您的邮箱，我们将发送重置链接</p>
+                                </div>
+                                <t t-if="error">
+                                    <p class="alert alert-danger" role="alert"><t t-esc="error"/></p>
+                                </t>
+                                <t t-if="message">
+                                    <p class="alert alert-success" role="status"><t t-esc="message"/></p>
+                                </t>
+                                <form method="post" t-attf-action="/web/reset_password" role="form" class="mb-0">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                    <div class="form-group">
+                                        <label class="form-label">邮箱</label>
+                                        <input type="email" name="login" class="form-control" placeholder="请输入您的邮箱" required="required"/>
+                                    </div>
+                                    <button type="submit" class="kebi-btn-login" style="margin-top:8px">重置密码</button>
+                                </form>
+                                <div style="text-align:center;margin-top:20px">
+                                    <a href="/web/login" class="kebi-forgot-link">← 返回登录</a>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ===== 关于我们页(统一TRUMUV风格) ===== -->
+    <record id="kebi_aboutus_v2" model="ir.ui.view">
+        <field name="name">Kebi About Us V2</field>
+        <field name="inherit_id" ref="website.aboutus"/>
+        <field name="arch" type="xml">
+            <xpath expr="." position="replace">
+                <t t-name="website.aboutus">
+                    <t t-call="web.login_layout">
+                        <script><![CDATA[
+                            document.body.classList.add('kebi-login-body');
+                            document.title = '天枢科技物流系统 - 关于我们';
+                            function cleanNav() {
+                                var sel = '.o_login_navbar,.o_login_header,#oe_snippets,.o_navbar_toggle,.o_menu_toggle,.o_header_toggle,.dropdown-toggle,.o_edit_menu_button,.o_menu_apps,.o_menu_systray,.o_wevent_editor_button,.o_menu_brand';
+                                var els = document.querySelectorAll(sel);
+                                for (var i = 0; i < els.length; i++) { els[i].style.display = 'none'; els[i].remove(); }
+                            }
+                            cleanNav();
+                            setInterval(cleanNav, 500);
+                        ]]></script>
+                        <div class="kebi-reset-page">
+                            <div class="kebi-reset-card" style="text-align:left">
+                                <div class="kebi-reset-logo">天枢科技物流系统</div>
+                                <div class="kebi-brand-divider" style="margin:20px 0"/>
+                                <p style="font-size:15px;line-height:2;color:#374151">
+                                天枢科技是一家专注于城市供应链全链路数字化解决方案的科技企业。
+                                我们通过 ERP、WMS、TMS、BI 等系统模块，帮助客户实现从订单、
+                                仓储、配送到结算的全流程智能化管理，致力于让每一件货物的流转都
+                                更加高效、透明、可追溯。
+                                </p>
+                                <div style="margin-top:24px;font-size:14px;color:#6B7280">
+                                    <p>联系电话：18438369520</p>
+                                    <p>联系邮箱：2542127368@qq.com</p>
+                                </div>
+                                <div style="margin-top:24px">
+                                    <a href="/web/login" class="kebi-forgot-link">← 返回登录</a>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </xpath>
+        </field>
+    </record>
+
     <!-- ===== 个人中心 ===== -->
     <record id="profile_template" model="ir.ui.view">
         <field name="name">Kebi Profile</field>
@@ -286,33 +399,6 @@
                     </div>
                 </div></div>
             </t>
-        </field>
-    </record>
-
-    <!-- ===== 关于我们页 ===== -->
-    <record id="aboutus_custom" model="ir.ui.view">
-        <field name="name">Kebi About Us</field>
-        <field name="inherit_id" ref="website.aboutus"/>
-        <field name="arch" type="xml">
-            <xpath expr="//section[1]" position="after">
-                <section class="container mt-5 mb-5">
-                    <h2 class="text-center mb-4">关于天枢科技</h2>
-                    <div class="row justify-content-center">
-                        <div class="col-lg-8">
-                            <p class="lead text-center" style="font-size:1.1rem;line-height:2">
-                            天枢科技是一家专注于城市供应链全链路数字化解决方案的科技企业。
-                            我们通过 ERP、WMS、TMS、BI 等系统模块，帮助客户实现从订单、
-                            仓储、配送到结算的全流程智能化管理，致力于让每一件货物的流转都
-                            更加高效、透明、可追溯。
-                            </p>
-                            <div class="text-center mt-4">
-                                <p>联系电话：18438369520</p>
-                                <p>联系邮箱：2542127368@qq.com</p>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-            </xpath>
         </field>
     </record>
 
