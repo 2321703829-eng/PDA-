@@ -36,6 +36,15 @@
                     body.kebi-login-body [title*="应用"],
                     body.kebi-login-body [title*="编辑"],
                     body.kebi-login-body .o_edit_menu { display: none !important; }
+                    /* 收缩/展开箭头 */
+                    body.kebi-login-body .o_login_navbar_toggle,
+                    body.kebi-login-body .o_navbar_toggle,
+                    body.kebi-login-body .o_menu_toggle,
+                    body.kebi-login-body [aria-label*="导航栏"],
+                    body.kebi-login-body [aria-label*="菜单"],
+                    body.kebi-login-body .dropdown-toggle,
+                    body.kebi-login-body .o_header_toggle,
+                    body.kebi-login-body #o_header_toggle { display: none !important; }
                     body.kebi-login-body footer,
                     body.kebi-login-body #footer,
                     body.kebi-login-body .o_footer_copyright { display: none !important; }
@@ -175,7 +184,23 @@
             <xpath expr="." position="replace">
                 <t t-name="web.login">
                     <t t-call="web.login_layout">
-                        <script>document.body.classList.add('kebi-login-body');</script>
+                        <script>
+                            document.body.classList.add('kebi-login-body');
+                            setTimeout(function(){
+                                // 删除登录页所有Odoo原生导航/工具栏元素
+                                var selectors = [
+                                    '.o_login_navbar','.o_login_header','#oe_snippets',
+                                    '.o_navbar_toggle','.o_menu_toggle','.o_header_toggle',
+                                    '.dropdown-toggle','.o_edit_menu_button',
+                                    '[data-action*="toggle"]','[aria-label*="导航"]',
+                                    '.o_wevent_editor_button','.o_menu_apps','.o_menu_systray'
+                                ];
+                                selectors.forEach(function(s){
+                                    var els = document.querySelectorAll(s);
+                                    for (var i = 0; i < els.length; i++) { els[i].remove(); }
+                                });
+                            }, 100);
+                        </script>
                         <div class="kebi-login-page">
                             <div class="kebi-login-card">
                                 <div class="kebi-brand-side">
