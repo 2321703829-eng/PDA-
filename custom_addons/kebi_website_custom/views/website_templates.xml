@@ -193,7 +193,7 @@
                                     <h2>登录系统</h2>
                                     <p class="subtitle">Sign in to your account</p>
                                     <p class="alert alert-danger" t-if="error" role="alert" style="font-size:13px;border-radius:0"><t t-esc="error"/></p>
-                                    <form t-attf-class="oe_login_form #{'' if login else 'd-none'}" role="form" t-attf-action="/web/login" method="post" onsubmit="this.action = '/web/login' + location.hash" data-captcha="login">
+                                    <form class="oe_login_form" role="form" t-attf-action="/web/login" method="post" onsubmit="this.action = '/web/login' + location.hash" data-captcha="login">
                                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                                         <input type="hidden" name="redirect" t-att-value="redirect"/>
                                         <input type="hidden" name="type" value="password"/>
