@@ -386,10 +386,10 @@
     </record>
 
     <!-- ===== 关于我们页 ===== -->
-    <record id="page_aboutus" model="website.page">
-        <field name="name">关于我们</field>
-        <field name="url">/aboutus</field>
-        <field name="is_published" eval="True"/>
+    <record id="kebi_aboutus_view" model="ir.ui.view">
+        <field name="name">Kebi About Us Page</field>
+        <field name="type">qweb</field>
+        <field name="key">kebi_website_custom.aboutus_page</field>
         <field name="arch" type="xml">
             <t t-call="website.layout">
                 <div class="kebi-reset-page">
@@ -418,6 +418,13 @@
                 </div>
             </t>
         </field>
+    </record>
+
+    <record id="page_aboutus" model="website.page">
+        <field name="name">关于我们</field>
+        <field name="url">/aboutus</field>
+        <field name="is_published" eval="True"/>
+        <field name="view_id" ref="kebi_aboutus_view"/>
     </record>
 
     <!-- ===== 个人中心 ===== -->
