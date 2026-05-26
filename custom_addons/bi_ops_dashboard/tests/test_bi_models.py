@@ -67,3 +67,67 @@ class TestBiSnapshotModels(TransactionCase):
         """仪表盘模型存在"""
         model = self.env["ir.model"].search([("model", "=", "bi.ops.dashboard.board")], limit=1)
         self.assertTrue(model)
+
+    def test_03_warehouse_snapshot(self):
+        """仓库快照模型可访问"""
+        self.assertIn("bi.warehouse.dashboard.snapshot", self.env)
+
+    def test_04_dispatch_snapshot(self):
+        """调度快照模型可访问"""
+        self.assertIn("bi.dispatch.dashboard.snapshot", self.env)
+
+    def test_05_order_dashboard_snapshot(self):
+        """订单看板快照模型可访问"""
+        self.assertIn("bi.order.dashboard.snapshot", self.env)
+
+    def test_06_cost_profit_snapshot(self):
+        """成本利润快照模型可访问"""
+        self.assertIn("bi.cost.profit.snapshot", self.env)
+
+    def test_07_exception_snapshot(self):
+        """异常快照模型可访问"""
+        self.assertIn("bi.exception.snapshot", self.env)
+
+
+class TestBiSnapshotGeneration(TransactionCase):
+    """快照数据生成"""
+
+    def test_01_warehouse_snapshot_generate(self):
+        """仓库快照生成"""
+        snap = self.env["bi.warehouse.dashboard.snapshot"].generate_snapshot()
+        self.assertTrue(snap)
+        self.assertTrue(hasattr(snap, 'snapshot_date'))
+
+    def test_02_dispatch_snapshot_generate(self):
+        """调度快照生成"""
+        snap = self.env["bi.dispatch.dashboard.snapshot"].generate_snapshot()
+        self.assertTrue(snap)
+        self.assertTrue(hasattr(snap, 'snapshot_date'))
+
+    def test_03_order_dashboard_snapshot_generate(self):
+        """订单看板快照生成"""
+        snap = self.env["bi.order.dashboard.snapshot"].generate_snapshot()
+        self.assertTrue(snap)
+        self.assertTrue(hasattr(snap, 'snapshot_date'))
+
+    def test_04_cost_profit_snapshot_generate(self):
+        """成本利润快照生成"""
+        snap = self.env["bi.cost.profit.snapshot"].generate_snapshot()
+        self.assertTrue(snap)
+        self.assertTrue(hasattr(snap, 'snapshot_date'))
+
+    def test_05_dashboard_board_refresh(self):
+        """仪表盘刷新"""
+        board = self.env["bi.ops.dashboard.board"].create({})
+        if hasattr(board, 'action_refresh_board'):
+            action = board.action_refresh_board()
+            self.assertIn("type", action)
+
+    def test_06_kpi_snapshot_callback(self):
+        """KPI快照 action_generate_today 可调用"""
+        snap = self.env["bi.daily.kpi.snapshot"].create({
+            "snapshot_date": date.today(),
+        })
+        if hasattr(snap, 'action_generate_today_snapshot'):
+            result = snap.action_generate_today_snapshot()
+            self.assertIn("type", result)

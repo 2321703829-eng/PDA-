@@ -193,3 +193,234 @@ class TestTmsDispatchOrder(TransactionCase):
         for state in valid_states:
             dispatch.state = state
             self.assertEqual(dispatch.state, state)
+
+    def test_03_empty_input_guard_action_dispatch(self):
+        """空输入派车返回通知而非异常"""
+        result = self.env["tms.dispatch.order"].action_dispatch()
+        self.assertEqual(result["type"], "ir.actions.client")
+        self.assertEqual(result["tag"], "display_notification")
+        self.assertIn("请先选择", result["params"]["message"])
+
+    def test_04_empty_input_guard_action_depart(self):
+        """空输入发车返回通知"""
+        result = self.env["tms.dispatch.order"].action_depart()
+        self.assertEqual(result["type"], "ir.actions.client")
+        self.assertIn("请先选择", result["params"]["message"])
+
+    def test_05_empty_input_guard_action_generate_freight(self):
+        """空输入生成运费返回通知"""
+        result = self.env["tms.dispatch.order"].action_generate_freight_lines()
+        self.assertEqual(result["type"], "ir.actions.client")
+        self.assertIn("请先选择", result["params"]["message"])
+
+    def test_06_empty_input_guard_open_record(self):
+        """空输入打开派车单记录返回通知"""
+        result = self.env["tms.dispatch.order"].action_open_record()
+        self.assertEqual(result["type"], "ir.actions.client")
+        self.assertIn("请先选择", result["params"]["message"])
+
+    def test_07_action_dispatch_no_stops(self):
+        """无停靠点时派车返回业务提示"""
+        wh = self.env["stock.warehouse"].search([], limit=1)
+        batch = self.env["logistics.route.planning.batch"].create({
+            "batch_no": "PC-NOSTOP", "delivery_date": "2026-06-01",
+            "route_status": "route_planned", "warehouse_id": wh.id,
+        })
+        dispatch = self.env["tms.dispatch.order"].create({"route_batch_id": batch.id})
+        result = dispatch.action_dispatch()
+        self.assertEqual(result["type"], "ir.actions.client")
+        self.assertIn("没有停靠点", result["params"]["message"])
+
+
+class TestTmsDriverTaskGuards(TransactionCase):
+    """司机任务空输入守卫+状态校验"""
+
+    def setUp(self):
+        super().setUp()
+        wh = self.env["stock.warehouse"].search([], limit=1)
+        self.batch = self.env["logistics.route.planning.batch"].create({
+            "batch_no": "PC-GUARD", "delivery_date": "2026-06-01",
+            "route_status": "route_planned", "warehouse_id": wh.id,
+        })
+        self.dispatch = self.env["tms.dispatch.order"].create({"route_batch_id": self.batch.id})
+        self.task = self.env["tms.driver.task"].create({
+            "dispatch_order_id": self.dispatch.id,
+        })
+
+    def test_01_empty_input_start_delivery(self):
+        """空输入开始配送返回通知"""
+        result = self.env["tms.driver.task"].action_start_delivery()
+        self.assertEqual(result["type"], "ir.actions.client")
+        self.assertIn("请先选择", result["params"]["message"])
+
+    def test_02_empty_input_arrive_store(self):
+        """空输入到店返回通知"""
+        result = self.env["tms.driver.task"].action_arrive_store()
+        self.assertEqual(result["type"], "ir.actions.client")
+        self.assertIn("请先选择", result["params"]["message"])
+
+    def test_03_empty_input_signed_full(self):
+        """空输入全签返回通知"""
+        result = self.env["tms.driver.task"].action_mark_signed_full()
+        self.assertEqual(result["type"], "ir.actions.client")
+        self.assertIn("请先选择", result["params"]["message"])
+
+    def test_04_empty_input_signed_partial(self):
+        """空输入部分签收返回通知"""
+        result = self.env["tms.driver.task"].action_mark_signed_partial()
+        self.assertEqual(result["type"], "ir.actions.client")
+        self.assertIn("请先选择", result["params"]["message"])
+
+    def test_05_empty_input_create_signoff(self):
+        """空输入创建签收单返回通知"""
+        result = self.env["tms.driver.task"].action_create_signoff_receipt()
+        self.assertEqual(result["type"], "ir.actions.client")
+        self.assertIn("请先选择", result["params"]["message"])
+
+    def test_06_empty_input_create_exception(self):
+        """空输入创建异常返回通知"""
+        result = self.env["tms.driver.task"].action_create_exception()
+        self.assertEqual(result["type"], "ir.actions.client")
+        self.assertIn("请先选择", result["params"]["message"])
+
+    def test_07_empty_input_open_record(self):
+        """空输入打开司机任务记录返回通知"""
+        result = self.env["tms.driver.task"].action_open_record()
+        self.assertEqual(result["type"], "ir.actions.client")
+        self.assertIn("请先选择", result["params"]["message"])
+
+    def test_08_empty_input_arrive_warehouse(self):
+        """空输入到达仓库返回通知"""
+        result = self.env["tms.driver.task"].action_arrive_warehouse()
+        self.assertEqual(result["type"], "ir.actions.client")
+        self.assertIn("请先选择", result["params"]["message"])
+
+    def test_09_empty_input_mark_delivering(self):
+        """空输入标记配送中返回通知"""
+        result = self.env["tms.driver.task"].action_mark_delivering()
+        self.assertEqual(result["type"], "ir.actions.client")
+        self.assertIn("请先选择", result["params"]["message"])
+
+    def test_10_empty_input_log_in_transit(self):
+        """空输入记录在途返回通知"""
+        result = self.env["tms.driver.task"].action_log_in_transit()
+        self.assertEqual(result["type"], "ir.actions.client")
+        self.assertIn("请先选择", result["params"]["message"])
+
+    def test_11_signed_task_cannot_start_delivery(self):
+        """已签收任务不能重新开始配送"""
+        self.task.state = "signed_full"
+        result = self.task.action_start_delivery()
+        self.assertEqual(result["type"], "ir.actions.client")
+        self.assertIn("已签收", result["params"]["message"])
+
+    def test_12_not_in_transit_cannot_arrive_store(self):
+        """未在途任务不能到店"""
+        self.task.state = "waiting_dispatch"
+        result = self.task.action_arrive_store()
+        self.assertEqual(result["type"], "ir.actions.client")
+        self.assertIn("尚未开始配送", result["params"]["message"])
+
+    def test_13_not_arrived_cannot_sign_full(self):
+        """未到店任务不能全签"""
+        self.task.state = "dispatched"
+        result = self.task.action_mark_signed_full()
+        self.assertEqual(result["type"], "ir.actions.client")
+        self.assertIn("尚未到店", result["params"]["message"])
+
+    def test_14_not_arrived_cannot_sign_partial(self):
+        """未到店任务不能部分签收"""
+        self.task.state = "in_transit"
+        result = self.task.action_mark_signed_partial()
+        self.assertEqual(result["type"], "ir.actions.client")
+        self.assertIn("尚未到店", result["params"]["message"])
+
+    def test_15_state_flow_arrive_then_sign(self):
+        """正常到店→全签流程可通过状态校验"""
+        self.task.state = "departed"
+        r1 = self.task.action_start_delivery()
+        self.assertNotEqual(r1.get("type"), "ir.actions.client")
+        self.task.state = "arrived_store"
+        r2 = self.task.action_mark_signed_full()
+        self.assertNotEqual(r2.get("type"), "ir.actions.client")
+
+
+class TestTmsSignoffExceptionGuards(TransactionCase):
+    """签收单+配送异常空输入守卫"""
+
+    def test_01_empty_input_confirm_signoff(self):
+        """空输入确认签收返回通知"""
+        result = self.env["tms.signoff.receipt"].action_confirm_signoff()
+        self.assertEqual(result["type"], "ir.actions.client")
+        self.assertIn("请先选择", result["params"]["message"])
+
+    def test_02_empty_input_signoff_open_record(self):
+        """空输入打开签收单返回通知"""
+        result = self.env["tms.signoff.receipt"].action_open_record()
+        self.assertEqual(result["type"], "ir.actions.client")
+        self.assertIn("请先选择", result["params"]["message"])
+
+    def test_03_empty_input_exception_open_record(self):
+        """空输入打开配送异常返回通知"""
+        result = self.env["tms.delivery.exception"].action_open_record()
+        self.assertEqual(result["type"], "ir.actions.client")
+        self.assertIn("请先选择", result["params"]["message"])
+
+
+class TestTmsPushToDispatch(TransactionCase):
+    """排线批次推送派车"""
+
+    def setUp(self):
+        super().setUp()
+        self.wh = self.env["stock.warehouse"].search([], limit=1)
+
+    def test_01_empty_input_push(self):
+        """空输入推送返回通知"""
+        result = self.env["logistics.route.planning.batch"].action_push_to_dispatch()
+        self.assertEqual(result["type"], "ir.actions.client")
+        self.assertIn("请先选择", result["params"]["message"])
+
+    def test_02_push_no_stops(self):
+        """无停靠点推送返回提示"""
+        batch = self.env["logistics.route.planning.batch"].create({
+            "batch_no": "PC-PUSH-NOSTOP", "delivery_date": "2026-06-01",
+            "route_status": "route_planned", "warehouse_id": self.wh.id,
+        })
+        result = batch.action_push_to_dispatch()
+        self.assertEqual(result["type"], "ir.actions.client")
+        self.assertIn("没有停靠点", result["params"]["message"])
+
+    def test_03_push_creates_dispatch_order(self):
+        """正常推送创建派车单"""
+        batch = self.env["logistics.route.planning.batch"].create({
+            "batch_no": "PC-PUSH-OK", "delivery_date": "2026-06-01",
+            "route_status": "route_planned", "warehouse_id": self.wh.id,
+        })
+        self.env["logistics.route.planning.stop.line"].create({
+            "batch_id": batch.id, "stop_seq": 1,
+            "store_name": "门店A", "waybill_no": "YD-PUSH-001",
+            "longitude": 113.5, "latitude": 23.1, "address_detail": "测试",
+        })
+        result = batch.action_push_to_dispatch()
+        self.assertEqual(result["type"], "ir.actions.act_window")
+        dispatch_order = self.env["tms.dispatch.order"].search([("route_batch_id", "=", batch.id)], limit=1)
+        self.assertTrue(dispatch_order)
+        self.assertEqual(dispatch_order.state, "dispatched")
+
+    def test_04_push_idempotent(self):
+        """重复推送返回已有派车单"""
+        batch = self.env["logistics.route.planning.batch"].create({
+            "batch_no": "PC-PUSH-DUP", "delivery_date": "2026-06-01",
+            "route_status": "route_planned", "warehouse_id": self.wh.id,
+        })
+        self.env["logistics.route.planning.stop.line"].create({
+            "batch_id": batch.id, "stop_seq": 1,
+            "store_name": "门店B", "waybill_no": "YD-PUSH-DUP",
+            "longitude": 113.5, "latitude": 23.1, "address_detail": "测试",
+        })
+        r1 = batch.action_push_to_dispatch()
+        r2 = batch.action_push_to_dispatch()
+        self.assertEqual(r1["type"], "ir.actions.act_window")
+        self.assertEqual(r2["type"], "ir.actions.act_window")
+        dispatch_count = self.env["tms.dispatch.order"].search_count([("route_batch_id", "=", batch.id)])
+        self.assertEqual(dispatch_count, 1)
