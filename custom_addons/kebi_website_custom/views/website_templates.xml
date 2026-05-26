@@ -390,40 +390,32 @@
         <field name="name">关于我们</field>
         <field name="url">/aboutus</field>
         <field name="is_published" eval="True"/>
-    </record>
-
-    <record id="kebi_aboutus_view" model="ir.ui.view">
-        <field name="name">Kebi About Us Page</field>
-        <field name="type">qweb</field>
-        <field name="key">kebi_website_custom.page_aboutus</field>
         <field name="arch" type="xml">
-            <t t-name="kebi_website_custom.page_aboutus">
-                <t t-call="website.layout">
-                    <div class="kebi-reset-page">
-                        <div class="kebi-reset-card" style="text-align:left;max-width:640px">
-                            <div class="kebi-reset-logo" style="font-size:28px;margin-bottom:8px">天枢科技物流系统</div>
-                            <div class="kebi-brand-divider" style="margin:20px 0"/>
-                            <p style="font-size:15px;line-height:2.2;color:#374151;margin-bottom:20px">
-                                天枢科技是一家专注于城市供应链全链路数字化解决方案的科技企业。
-                            </p>
-                            <p style="font-size:15px;line-height:2.2;color:#374151;margin-bottom:20px">
-                                我们的系统覆盖订单管理、仓储作业、运输调度、BI数据分析与B2B订货商城，
-                                帮助企业实现从采购到配送到结算的全流程数字化闭环。
-                            </p>
-                            <p style="font-size:15px;line-height:2.2;color:#374151;margin-bottom:20px">
-                                日均处理运单超过 1,000 笔，服务覆盖城市仓储、干线运输及末端配送，
-                                致力于让每一件货物的流转更加高效、透明、可追溯。
-                            </p>
-                            <div style="margin-top:32px;padding-top:24px;border-top:1px solid #E5E7EB;font-size:14px;color:#6B7280">
-                                <p style="margin-bottom:8px">联系电话：18438369520</p>
-                                <p style="margin-bottom:8px">联系邮箱：2542127368@qq.com</p>
-                            </div>
-                            <div style="margin-top:28px">
-                                <a href="/web/login" class="kebi-forgot-link">← 返回登录</a>
-                            </div>
+            <t t-call="website.layout">
+                <div class="kebi-reset-page">
+                    <div class="kebi-reset-card" style="text-align:left;max-width:640px">
+                        <div class="kebi-reset-logo" style="font-size:28px;margin-bottom:8px">天枢科技物流系统</div>
+                        <div class="kebi-brand-divider" style="margin:20px 0"/>
+                        <p style="font-size:15px;line-height:2.2;color:#374151;margin-bottom:20px">
+                            天枢科技是一家专注于城市供应链全链路数字化解决方案的科技企业。
+                        </p>
+                        <p style="font-size:15px;line-height:2.2;color:#374151;margin-bottom:20px">
+                            我们的系统覆盖订单管理、仓储作业、运输调度、BI数据分析与B2B订货商城，
+                            帮助企业实现从采购到配送到结算的全流程数字化闭环。
+                        </p>
+                        <p style="font-size:15px;line-height:2.2;color:#374151;margin-bottom:20px">
+                            日均处理运单超过 1,000 笔，服务覆盖城市仓储、干线运输及末端配送，
+                            致力于让每一件货物的流转更加高效、透明、可追溯。
+                        </p>
+                        <div style="margin-top:32px;padding-top:24px;border-top:1px solid #E5E7EB;font-size:14px;color:#6B7280">
+                            <p style="margin-bottom:8px">联系电话：18438369520</p>
+                            <p style="margin-bottom:8px">联系邮箱：2542127368@qq.com</p>
+                        </div>
+                        <div style="margin-top:28px">
+                            <a href="/web/login" class="kebi-forgot-link">← 返回登录</a>
                         </div>
                     </div>
-                </t>
+                </div>
             </t>
         </field>
     </record>
