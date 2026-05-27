@@ -92,47 +92,57 @@ class TestB2bCatalogScope(TransactionCase):
 
 
 class TestB2bCartDraft(TransactionCase):
-    """B2B 购物车"""
+    """B2B 购物车 — 验证 cart 级别 compute 字段"""
 
     def setUp(self):
         super().setUp()
         self.partner = self.env["res.partner"].create({"name": "购物车客户", "is_b2b_customer": True})
-        self.product = self.env["product.template"].create({"name": "购物车商品", "list_price": 50.0})
+        self.p1 = self.env["product.template"].create({"name": "商品A", "list_price": 100.0})
+        self.p2 = self.env["product.template"].create({"name": "商品B", "list_price": 200.0})
 
-    def test_01_create_cart(self):
-        """创建购物车草稿"""
+    def _create_cart_with_lines(self):
+        cart = self.env["b2b.cart.draft"].create({"partner_id": self.partner.id})
+        self.env["b2b.cart.draft.line"].create({"cart_id": cart.id, "product_id": self.p1.id, "qty": 2, "unit_price": 100.0})
+        self.env["b2b.cart.draft.line"].create({"cart_id": cart.id, "product_id": self.p2.id, "qty": 1, "unit_price": 200.0})
+        return cart
+
+    def test_01_empty_cart_total_zero(self):
+        """空购物车 total=0"""
+        cart = self.env["b2b.cart.draft"].create({"partner_id": self.partner.id})
+        cart.invalidate_recordset()
+        self.assertEqual(cart.total_qty, 0)
+        self.assertEqual(cart.total_amount, 0)
+
+    def test_02_cart_total_computes_from_lines(self):
+        """cart.total_qty和total_amount应由所有line汇总"""
+        cart = self._create_cart_with_lines()
+        cart.invalidate_recordset()
+        self.assertEqual(cart.total_qty, 3)
+        self.assertAlmostEqual(cart.total_amount, 400.0)
+
+    def test_03_modify_line_updates_cart_total(self):
+        """修改line数量后cart合计联动更新"""
+        cart = self._create_cart_with_lines()
+        line = cart.line_ids[0]
+        line.qty = 5
+        cart.invalidate_recordset()
+        self.assertEqual(cart.total_qty, 6)
+        self.assertAlmostEqual(cart.total_amount, 700.0)
+
+    def test_04_delete_line_updates_cart_total(self):
+        """删除line后cart合计联动更新"""
+        cart = self._create_cart_with_lines()
+        cart.line_ids[0].unlink()
+        cart.invalidate_recordset()
+        self.assertEqual(cart.total_qty, 1)
+        self.assertAlmostEqual(cart.total_amount, 200.0)
+
+    def test_05_create_cart_state_default(self):
+        """新建购物车默认为draft"""
         cart = self.env["b2b.cart.draft"].create({"partner_id": self.partner.id})
         self.assertEqual(cart.state, "draft")
 
-    def test_02_add_cart_line(self):
-        """加商品到购物车"""
-        cart = self.env["b2b.cart.draft"].create({"partner_id": self.partner.id})
-        line = self.env["b2b.cart.draft.line"].create({
-            "cart_id": cart.id, "product_id": self.product.id,
-            "qty": 3, "unit_price": 50.0
-        })
-        # 手动计算验证: qty * unit_price
-        expected = line.qty * line.unit_price
-        self.assertEqual(line.qty, 3)
-        self.assertAlmostEqual(expected, 150.0)
-
-    def test_03_cart_total_compute(self):
-        """购物车合计自动计算"""
-        cart = self.env["b2b.cart.draft"].create({"partner_id": self.partner.id})
-        line1 = self.env["b2b.cart.draft.line"].create({
-            "cart_id": cart.id, "product_id": self.product.id,
-            "qty": 2, "unit_price": 100.0
-        })
-        line2 = self.env["b2b.cart.draft.line"].create({
-            "cart_id": cart.id,
-            "product_id": self.env["product.template"].create({"name": "商品2", "list_price": 200.0}).id,
-            "qty": 1, "unit_price": 200.0
-        })
-        # 手动验证业务逻辑: line.subtotal = qty * unit_price
-        self.assertAlmostEqual(line1.qty * line1.unit_price, 200.0)
-        self.assertAlmostEqual(line2.qty * line2.unit_price, 200.0)
-
-    def test_04_cart_store_selection(self):
+    def test_06_cart_store_selection(self):
         """购物车可选择收货门店"""
         store = self.env["res.partner"].create({"name": "收货门店", "is_b2b_store": True})
         cart = self.env["b2b.cart.draft"].create({"partner_id": self.partner.id, "store_id": store.id})
