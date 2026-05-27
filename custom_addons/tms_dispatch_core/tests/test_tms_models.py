@@ -11,7 +11,7 @@ class TestDispatchOrderFlow(TransactionCase):
 
     def setUp(self):
         super().setUp()
-        self.wh = self.env["stock.warehouse"].create({"name": "WH-TMS", "code": "WT"})
+        self.wh = self.env["stock.warehouse"].search([], limit=1) or self.env["stock.warehouse"].create({"name": "WH-TMS", "code": "WT"})
         self.batch = self.env["logistics.route.planning.batch"].create({
             "batch_no": "PC-TMS-FLOW", "delivery_date": "2026-06-01",
             "route_status": "route_planned", "warehouse_id": self.wh.id,
@@ -28,7 +28,7 @@ class TestDispatchOrderFlow(TransactionCase):
             "longitude": 113.45, "latitude": 23.12, "address_detail": "佛山",
         })
         # 创建与stop1匹配的运单
-        self.wh2 = self.env["stock.warehouse"].create({"name": "WH-WAYBILL", "code": "WW"})
+        self.wh2 = self.env["stock.warehouse"].search([], limit=1) or self.env["stock.warehouse"].create({"name": "WH-WAYBILL", "code": "WW"})
         self.waybill = self.env["logistics.dispatch.waybill"].create({
             "name": "YD-TMS-001", "warehouse_id": self.wh2.id,
         })
@@ -78,7 +78,7 @@ class TestSyncStateFromTasks(TransactionCase):
 
     def setUp(self):
         super().setUp()
-        self.wh = self.env["stock.warehouse"].create({"name": "WH-SYNC", "code": "WS"})
+        self.wh = self.env["stock.warehouse"].search([], limit=1) or self.env["stock.warehouse"].create({"name": "WH-SYNC", "code": "WS"})
         self.batch = self.env["logistics.route.planning.batch"].create({
             "batch_no": "PC-SYNC", "delivery_date": "2026-06-01",
             "route_status": "route_planned", "warehouse_id": self.wh.id,
@@ -137,7 +137,7 @@ class TestDriverTaskStateValidation(TransactionCase):
 
     def setUp(self):
         super().setUp()
-        self.wh = self.env["stock.warehouse"].create({"name": "WH-VAL", "code": "WV"})
+        self.wh = self.env["stock.warehouse"].search([], limit=1) or self.env["stock.warehouse"].create({"name": "WH-VAL", "code": "WV"})
         self.batch = self.env["logistics.route.planning.batch"].create({
             "batch_no": "PC-VAL", "delivery_date": "2026-06-01",
             "route_status": "route_planned", "warehouse_id": self.wh.id,
@@ -195,7 +195,7 @@ class TestPushToDispatch(TransactionCase):
 
     def setUp(self):
         super().setUp()
-        self.wh = self.env["stock.warehouse"].create({"name": "WH-PUSH", "code": "WP"})
+        self.wh = self.env["stock.warehouse"].search([], limit=1) or self.env["stock.warehouse"].create({"name": "WH-PUSH", "code": "WP"})
 
     def test_push_creates_dispatch_with_driver_tasks(self):
         """推送应创建派车单+司机任务"""

@@ -13,8 +13,9 @@ class TestWaybillConstraints(TransactionCase):
 
     def setUp(self):
         super().setUp()
-        self.wh = self.env["stock.warehouse"].create({"name": "WH-TEST", "code": "WHT"})
-        self.wh2 = self.env["stock.warehouse"].create({"name": "WH-TEST2", "code": "WHT2"})
+        self.wh = self.env["stock.warehouse"].search([], limit=1)
+        warehouses = self.env["stock.warehouse"].search([], limit=2)
+        self.wh2 = warehouses[1] if len(warehouses) > 1 else self.wh
         self.batch = self.env["logistics.dispatch.batch"].create({
             "name": "BATCH-CONST", "warehouse_id": self.wh.id,
         })
@@ -71,7 +72,7 @@ class TestWaybillCompute(TransactionCase):
 
     def setUp(self):
         super().setUp()
-        self.wh = self.env["stock.warehouse"].create({"name": "WH-COMP", "code": "WHC"})
+        self.wh = self.env["stock.warehouse"].search([], limit=1) or self.env["stock.warehouse"].create({"name": "WH-COMP", "code": "WHC"})
         self.batch = self.env["logistics.dispatch.batch"].create({
             "name": "BATCH-COMP", "warehouse_id": self.wh.id,
         })
@@ -145,7 +146,7 @@ class TestWaybillCreateNormalization(TransactionCase):
 
     def setUp(self):
         super().setUp()
-        self.wh = self.env["stock.warehouse"].create({"name": "WH-NORM", "code": "WHN"})
+        self.wh = self.env["stock.warehouse"].search([], limit=1) or self.env["stock.warehouse"].create({"name": "WH-NORM", "code": "WHN"})
         self.batch = self.env["logistics.dispatch.batch"].create({
             "name": "BATCH-NORM", "warehouse_id": self.wh.id,
         })
@@ -193,7 +194,7 @@ class TestWaybillWriteSideEffects(TransactionCase):
 
     def setUp(self):
         super().setUp()
-        self.wh = self.env["stock.warehouse"].create({"name": "WH-SIDE", "code": "WHS"})
+        self.wh = self.env["stock.warehouse"].search([], limit=1) or self.env["stock.warehouse"].create({"name": "WH-SIDE", "code": "WHS"})
         self.wb = self.env["logistics.dispatch.waybill"].create({
             "name": "YD-SIDE", "warehouse_id": self.wh.id,
         })
@@ -243,7 +244,7 @@ class TestOrderLineConstraints(TransactionCase):
 
     def setUp(self):
         super().setUp()
-        self.wh = self.env["stock.warehouse"].create({"name": "WH-ORD", "code": "WHO"})
+        self.wh = self.env["stock.warehouse"].search([], limit=1) or self.env["stock.warehouse"].create({"name": "WH-ORD", "code": "WHO"})
         self.wb = self.env["logistics.dispatch.waybill"].create({
             "name": "YD-ORD", "warehouse_id": self.wh.id,
         })
@@ -285,7 +286,7 @@ class TestGoodsLineConstraints(TransactionCase):
 
     def setUp(self):
         super().setUp()
-        self.wh = self.env["stock.warehouse"].create({"name": "WH-GL", "code": "WHG"})
+        self.wh = self.env["stock.warehouse"].search([], limit=1) or self.env["stock.warehouse"].create({"name": "WH-GL", "code": "WHG"})
         self.wb = self.env["logistics.dispatch.waybill"].create({
             "name": "YD-GL", "warehouse_id": self.wh.id,
         })
@@ -363,7 +364,7 @@ class TestDeleteChain(TransactionCase):
 
     def setUp(self):
         super().setUp()
-        self.wh = self.env["stock.warehouse"].create({"name": "WH-DEL", "code": "WHD"})
+        self.wh = self.env["stock.warehouse"].search([], limit=1) or self.env["stock.warehouse"].create({"name": "WH-DEL", "code": "WHD"})
 
     def test_batch_delete_cleans_waybills(self):
         """批次删除时应级联删除运单"""
@@ -401,7 +402,7 @@ class TestBatchOpenRecord(TransactionCase):
 
     def setUp(self):
         super().setUp()
-        self.wh = self.env["stock.warehouse"].create({"name": "WH-OPEN", "code": "WHO"})
+        self.wh = self.env["stock.warehouse"].search([], limit=1) or self.env["stock.warehouse"].create({"name": "WH-OPEN", "code": "WHO"})
 
     def test_action_open_record(self):
         """打开批次记录返回form视图"""

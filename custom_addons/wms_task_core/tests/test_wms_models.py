@@ -9,7 +9,7 @@ class TestWmsReceiptTask(TransactionCase):
 
     def setUp(self):
         super().setUp()
-        self.wh = self.env["stock.warehouse"].create({"name": "WH-REC", "code": "WR"})
+        self.wh = self.env["stock.warehouse"].search([], limit=1) or self.env["stock.warehouse"].create({"name": "WH-REC", "code": "WR"})
 
     def test_status_flow_receipt_to_received(self):
         """收货→标记完成→状态变更"""
@@ -31,7 +31,7 @@ class TestWmsPutawayTask(TransactionCase):
 
     def setUp(self):
         super().setUp()
-        self.wh = self.env["stock.warehouse"].create({"name": "WH-PUT", "code": "WP"})
+        self.wh = self.env["stock.warehouse"].search([], limit=1) or self.env["stock.warehouse"].create({"name": "WH-PUT", "code": "WP"})
 
     def test_status_flow_putaway_to_done(self):
         task = self.env["wms.putaway.task"].create({"warehouse_id": self.wh.id})
@@ -46,7 +46,7 @@ class TestWmsPickTask(TransactionCase):
 
     def setUp(self):
         super().setUp()
-        self.wh = self.env["stock.warehouse"].create({"name": "WH-PICK", "code": "WK"})
+        self.wh = self.env["stock.warehouse"].search([], limit=1) or self.env["stock.warehouse"].create({"name": "WH-PICK", "code": "WK"})
         self.outbound = self.env["wms.outbound.task"].create({"warehouse_id": self.wh.id})
 
     def test_pick_task_status_flow(self):
@@ -78,7 +78,7 @@ class TestWmsCheckTask(TransactionCase):
 
     def setUp(self):
         super().setUp()
-        self.wh = self.env["stock.warehouse"].create({"name": "WH-CHK", "code": "WC"})
+        self.wh = self.env["stock.warehouse"].search([], limit=1) or self.env["stock.warehouse"].create({"name": "WH-CHK", "code": "WC"})
         self.outbound = self.env["wms.outbound.task"].create({"warehouse_id": self.wh.id})
 
     def test_check_mark_checked_creates_handover(self):
@@ -96,7 +96,7 @@ class TestWmsHandoverOrder(TransactionCase):
 
     def setUp(self):
         super().setUp()
-        self.wh = self.env["stock.warehouse"].create({"name": "WH-HO", "code": "WH"})
+        self.wh = self.env["stock.warehouse"].search([], limit=1) or self.env["stock.warehouse"].create({"name": "WH-HO", "code": "WH"})
         self.outbound = self.env["wms.outbound.task"].create({"warehouse_id": self.wh.id})
 
     def test_handover_full_flow(self):
@@ -115,7 +115,7 @@ class TestWmsOutboundFullFlow(TransactionCase):
 
     def setUp(self):
         super().setUp()
-        self.wh = self.env["stock.warehouse"].create({"name": "WH-OUT", "code": "WO"})
+        self.wh = self.env["stock.warehouse"].search([], limit=1) or self.env["stock.warehouse"].create({"name": "WH-OUT", "code": "WO"})
 
     def test_outbound_state_flow(self):
         task = self.env["wms.outbound.task"].create({"warehouse_id": self.wh.id})
@@ -130,7 +130,7 @@ class TestWmsInventoryOperation(TransactionCase):
 
     def setUp(self):
         super().setUp()
-        self.wh = self.env["stock.warehouse"].create({"name": "WH-INV", "code": "WI"})
+        self.wh = self.env["stock.warehouse"].search([], limit=1) or self.env["stock.warehouse"].create({"name": "WH-INV", "code": "WI"})
         self.loc = self.env["stock.location"].search([("usage", "=", "internal")], limit=1)
         if not self.loc:
             self.loc = self.env["stock.location"].create({
