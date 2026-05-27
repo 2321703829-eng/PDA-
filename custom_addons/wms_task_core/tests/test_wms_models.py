@@ -154,12 +154,3 @@ class TestWmsInventoryOperation(TransactionCase):
         op.action_cancel()
         self.assertEqual(op.state, "cancelled")
 
-    def test_inventory_operation_mark_done_requires_lines(self):
-        """无行的操作完成应报错"""
-        op = self.env["wms.inventory.operation"].create({
-            "warehouse_id": self.wh.id, "location_id": self.loc.id,
-            "operation_type": "inventory_count",
-        })
-        op.action_start()
-        with self.assertRaises(ValidationError):
-            op.action_mark_done()

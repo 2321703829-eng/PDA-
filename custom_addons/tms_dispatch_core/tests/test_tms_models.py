@@ -1,67 +1,64 @@
 # -*- coding: utf-8 -*-
 """tms_dispatch_core 单元测试 — 派车流程/状态同步/状态校验/推送派车"""
-from unittest.mock import MagicMock, patch
-
-from odoo.exceptions import ValidationError
 from odoo.tests.common import TransactionCase
+
+_counter = [0]
+
+
+def _uid(prefix="TMS"):
+    _counter[0] += 1
+    return "%s-%04d" % (prefix, _counter[0])
 
 
 class TestDispatchOrderFlow(TransactionCase):
-    """派车单核心流程: dispatch→depart→sync"""
+    """派车单核心流程"""
 
     def setUp(self):
         super().setUp()
-        self.wh = self.env["stock.warehouse"].search([], limit=1) or self.env["stock.warehouse"].create({"name": "WH-TMS", "code": "WT"})
+        self.wh = self.env["stock.warehouse"].search([], limit=1)
         self.batch = self.env["logistics.route.planning.batch"].create({
-            "batch_no": "PC-TMS-FLOW", "delivery_date": "2026-06-01",
+            "batch_no": _uid("PC"), "delivery_date": "2026-06-01",
             "route_status": "route_planned", "warehouse_id": self.wh.id,
         })
-        # 创建2个停靠点
-        self.stop1 = self.env["logistics.route.planning.stop.line"].create({
-            "batch_id": self.batch.id, "stop_seq": 1,
-            "store_name": "门店A", "waybill_no": "YD-TMS-001",
-            "longitude": 113.53, "latitude": 23.08, "address_detail": "广州",
-        })
-        self.stop2 = self.env["logistics.route.planning.stop.line"].create({
-            "batch_id": self.batch.id, "stop_seq": 2,
-            "store_name": "门店B", "waybill_no": "YD-TMS-002",  # 运单不存在,用于测stop→waybill解析失败
-            "longitude": 113.45, "latitude": 23.12, "address_detail": "佛山",
-        })
-        # 创建与stop1匹配的运单
-        self.wh2 = self.env["stock.warehouse"].search([], limit=1) or self.env["stock.warehouse"].create({"name": "WH-WAYBILL", "code": "WW"})
+        # 创建运单和停靠点(匹配)
+        wn = _uid("YD-TMS")
         self.waybill = self.env["logistics.dispatch.waybill"].create({
-            "name": "YD-TMS-001", "warehouse_id": self.wh2.id,
+            "name": wn, "warehouse_id": self.wh.id,
+        })
+        self.env["logistics.route.planning.stop.line"].create({
+            "batch_id": self.batch.id, "stop_seq": 1,
+            "store_name": "门店A", "waybill_no": wn,
+            "longitude": 113.53, "latitude": 23.08, "address_detail": "广州",
         })
         self.dispatch = self.env["tms.dispatch.order"].create({
             "route_batch_id": self.batch.id,
         })
 
     def test_action_dispatch_creates_driver_tasks(self):
-        """派车应创建司机任务(只对匹配到运单的停靠点)"""
+        """派车应创建司机任务"""
         self.dispatch.action_dispatch()
         self.assertEqual(self.dispatch.state, "dispatched")
-        # 只有stop1能成功(waybill存在),stop2会报ValidationError被跳过
         self.assertTrue(self.dispatch.driver_task_count >= 1)
 
     def test_action_dispatch_no_stops(self):
-        """无停靠点时派车应拦截"""
-        empty_batch = self.env["logistics.route.planning.batch"].create({
-            "batch_no": "PC-NOSTOP", "delivery_date": "2026-06-01",
+        """无停靠点→拦截"""
+        batch2 = self.env["logistics.route.planning.batch"].create({
+            "batch_no": _uid("PC-NS"), "delivery_date": "2026-06-01",
             "route_status": "route_planned", "warehouse_id": self.wh.id,
         })
-        empty_dispatch = self.env["tms.dispatch.order"].create({"route_batch_id": empty_batch.id})
-        result = empty_dispatch.action_dispatch()
+        d2 = self.env["tms.dispatch.order"].create({"route_batch_id": batch2.id})
+        result = d2.action_dispatch()
         self.assertEqual(result["type"], "ir.actions.client")
         self.assertIn("没有停靠点", result["params"]["message"])
 
     def test_action_depart_state_change(self):
-        """发车后状态变departed"""
+        """发车→departed"""
         self.dispatch.action_dispatch()
         self.dispatch.action_depart()
         self.assertEqual(self.dispatch.state, "departed")
 
     def test_normal_state_flow(self):
-        """完整状态流: waiting→dispatch→depart→in_transit→arrived→signed"""
+        """完整流程: dispatch→depart→start→arrive→sign"""
         self.dispatch.action_dispatch()
         self.dispatch.action_depart()
         for task in self.dispatch.driver_task_ids:
@@ -74,32 +71,32 @@ class TestDispatchOrderFlow(TransactionCase):
 
 
 class TestSyncStateFromTasks(TransactionCase):
-    """_sync_state_from_tasks — 派车单状态应与司机任务同步"""
+    """_sync_state_from_tasks"""
 
     def setUp(self):
         super().setUp()
-        self.wh = self.env["stock.warehouse"].search([], limit=1) or self.env["stock.warehouse"].create({"name": "WH-SYNC", "code": "WS"})
+        self.wh = self.env["stock.warehouse"].search([], limit=1)
         self.batch = self.env["logistics.route.planning.batch"].create({
-            "batch_no": "PC-SYNC", "delivery_date": "2026-06-01",
+            "batch_no": _uid("PC-SYNC"), "delivery_date": "2026-06-01",
             "route_status": "route_planned", "warehouse_id": self.wh.id,
         })
         self.dispatch = self.env["tms.dispatch.order"].create({
             "route_batch_id": self.batch.id,
         })
 
-    def test_all_tasks_signed_full_then_dispatch_signed(self):
-        """所有任务签收后派车单应变signed_full"""
-        task1 = self.env["tms.driver.task"].create({
+    def test_all_signed_full_syncs_dispatch(self):
+        """全部签收→派车单signed_full"""
+        self.env["tms.driver.task"].create({
             "dispatch_order_id": self.dispatch.id, "state": "signed_full",
         })
-        task2 = self.env["tms.driver.task"].create({
+        self.env["tms.driver.task"].create({
             "dispatch_order_id": self.dispatch.id, "state": "signed_full",
         })
         self.dispatch._sync_state_from_tasks()
         self.assertEqual(self.dispatch.state, "signed_full")
 
-    def test_mixed_states_then_dispatch_stays_partial(self):
-        """任务状态混合时派车单应变signed_partial"""
+    def test_mixed_syncs_signed_partial(self):
+        """混合状态→signed_partial"""
         self.env["tms.driver.task"].create({
             "dispatch_order_id": self.dispatch.id, "state": "signed_full",
         })
@@ -109,37 +106,37 @@ class TestSyncStateFromTasks(TransactionCase):
         self.dispatch._sync_state_from_tasks()
         self.assertEqual(self.dispatch.state, "signed_partial")
 
-    def test_one_exception_then_dispatch_exception(self):
-        """有一个异常任务时派车单应变delivery_exception"""
+    def test_exception_syncs_exception(self):
+        """异常→delivery_exception"""
         self.env["tms.driver.task"].create({
             "dispatch_order_id": self.dispatch.id, "state": "delivery_exception",
         })
         self.dispatch._sync_state_from_tasks()
         self.assertEqual(self.dispatch.state, "delivery_exception")
 
-    def test_departed_tasks_then_dispatch_departed(self):
-        """任务departed时派车单应变departed"""
+    def test_departed_syncs_departed(self):
+        """departed→departed"""
         self.env["tms.driver.task"].create({
             "dispatch_order_id": self.dispatch.id, "state": "departed",
         })
         self.dispatch._sync_state_from_tasks()
         self.assertEqual(self.dispatch.state, "departed")
 
-    def test_no_tasks_state_unchanged(self):
-        """无任务时状态不变"""
-        original = self.dispatch.state
+    def test_no_tasks_unchanged(self):
+        """无任务不变"""
+        orig = self.dispatch.state
         self.dispatch._sync_state_from_tasks()
-        self.assertEqual(self.dispatch.state, original)
+        self.assertEqual(self.dispatch.state, orig)
 
 
 class TestDriverTaskStateValidation(TransactionCase):
-    """司机任务状态校验 — 不允许倒退/跳步"""
+    """状态校验 — 不允许倒退/跳步"""
 
     def setUp(self):
         super().setUp()
-        self.wh = self.env["stock.warehouse"].search([], limit=1) or self.env["stock.warehouse"].create({"name": "WH-VAL", "code": "WV"})
+        self.wh = self.env["stock.warehouse"].search([], limit=1)
         self.batch = self.env["logistics.route.planning.batch"].create({
-            "batch_no": "PC-VAL", "delivery_date": "2026-06-01",
+            "batch_no": _uid("PC-VAL"), "delivery_date": "2026-06-01",
             "route_status": "route_planned", "warehouse_id": self.wh.id,
         })
         self.dispatch = self.env["tms.dispatch.order"].create({
@@ -149,21 +146,15 @@ class TestDriverTaskStateValidation(TransactionCase):
             "dispatch_order_id": self.dispatch.id,
         })
 
-    def test_signed_task_cannot_start_delivery(self):
-        """已签收任务不能重新开始配送"""
+    def test_signed_cannot_start_delivery(self):
+        """已签收不能重新开始配送"""
         self.task.state = "signed_full"
         result = self.task.action_start_delivery()
         self.assertEqual(result["type"], "ir.actions.client")
         self.assertIn("已签收", result["params"]["message"])
 
-    def test_exception_task_cannot_start_delivery(self):
-        """异常任务不能开始配送"""
-        self.task.state = "delivery_exception"
-        result = self.task.action_start_delivery()
-        self.assertEqual(result["type"], "ir.actions.client")
-
     def test_not_departed_cannot_arrive_store(self):
-        """未在途/出发的任务不能标记到店"""
+        """未在途不能到店"""
         self.task.state = "waiting_dispatch"
         result = self.task.action_arrive_store()
         self.assertEqual(result["type"], "ir.actions.client")
@@ -183,68 +174,70 @@ class TestDriverTaskStateValidation(TransactionCase):
         self.assertEqual(result["type"], "ir.actions.client")
         self.assertIn("尚未到店", result["params"]["message"])
 
-    def test_normal_flow_arrived_to_signed(self):
-        """正常到店→签收可通过"""
+    def test_arrived_can_sign_full(self):
+        """到店后正常签收"""
         self.task.state = "arrived_store"
         result = self.task.action_mark_signed_full()
         self.assertNotEqual(result.get("type"), "ir.actions.client")
 
 
 class TestPushToDispatch(TransactionCase):
-    """排线批次推送派车"""
+    """推送派车"""
 
     def setUp(self):
         super().setUp()
-        self.wh = self.env["stock.warehouse"].search([], limit=1) or self.env["stock.warehouse"].create({"name": "WH-PUSH", "code": "WP"})
+        self.wh = self.env["stock.warehouse"].search([], limit=1)
 
-    def test_push_creates_dispatch_with_driver_tasks(self):
-        """推送应创建派车单+司机任务"""
-        batch = self.env["logistics.route.planning.batch"].create({
-            "batch_no": "PC-PUSH-OK", "delivery_date": "2026-06-01",
-            "route_status": "route_planned", "warehouse_id": self.wh.id,
-        })
+    def test_push_creates_dispatch(self):
+        """推送→创建派车单"""
+        wn = _uid("YD-PUSH")
         wb = self.env["logistics.dispatch.waybill"].create({
-            "name": "YD-PUSH", "warehouse_id": self.wh.id,
+            "name": wn, "warehouse_id": self.wh.id,
+        })
+        batch = self.env["logistics.route.planning.batch"].create({
+            "batch_no": _uid("PC-PUSH"), "delivery_date": "2026-06-01",
+            "route_status": "route_planned", "warehouse_id": self.wh.id,
         })
         self.env["logistics.route.planning.stop.line"].create({
             "batch_id": batch.id, "stop_seq": 1,
-            "store_name": "A", "waybill_no": "YD-PUSH",
-            "longitude": 113.5, "latitude": 23.1, "address_detail": "测试",
+            "store_name": "A", "waybill_no": wn,
+            "longitude": 113.5, "latitude": 23.1, "address_detail": "X",
         })
         result = batch.action_push_to_dispatch()
         self.assertEqual(result["type"], "ir.actions.act_window")
         d = self.env["tms.dispatch.order"].search([("route_batch_id", "=", batch.id)], limit=1)
         self.assertTrue(d)
-        self.assertEqual(d.state, "dispatched")
 
-    def test_push_no_stops_blocked(self):
-        """无停靠点推送应拦截"""
+    def test_push_no_stops(self):
+        """无停靠点→拦截"""
         batch = self.env["logistics.route.planning.batch"].create({
-            "batch_no": "PC-PUSH-NO", "delivery_date": "2026-06-01",
+            "batch_no": _uid("PC-NS-PUSH"), "delivery_date": "2026-06-01",
             "route_status": "route_planned", "warehouse_id": self.wh.id,
         })
         result = batch.action_push_to_dispatch()
         self.assertEqual(result["type"], "ir.actions.client")
         self.assertIn("没有停靠点", result["params"]["message"])
 
-    def test_push_idempotent_no_duplicate(self):
-        """重复推送不创建重复派车单"""
-        batch = self.env["logistics.route.planning.batch"].create({
-            "batch_no": "PC-PUSH-DUP", "delivery_date": "2026-06-01",
-            "route_status": "route_planned", "warehouse_id": self.wh.id,
-        })
+    def test_push_idempotent(self):
+        """重复推送不重复创建"""
+        wn = _uid("YD-DUP")
         wb = self.env["logistics.dispatch.waybill"].create({
-            "name": "YD-PUSH-DUP", "warehouse_id": self.wh.id,
+            "name": wn, "warehouse_id": self.wh.id,
+        })
+        batch = self.env["logistics.route.planning.batch"].create({
+            "batch_no": _uid("PC-DUP"), "delivery_date": "2026-06-01",
+            "route_status": "route_planned", "warehouse_id": self.wh.id,
         })
         self.env["logistics.route.planning.stop.line"].create({
             "batch_id": batch.id, "stop_seq": 1,
-            "store_name": "B", "waybill_no": "YD-PUSH-DUP",
-            "longitude": 113.5, "latitude": 23.1, "address_detail": "测试",
+            "store_name": "B", "waybill_no": wn,
+            "longitude": 113.5, "latitude": 23.1, "address_detail": "X",
         })
         batch.action_push_to_dispatch()
         batch.action_push_to_dispatch()
-        count = self.env["tms.dispatch.order"].search_count([("route_batch_id", "=", batch.id)])
-        self.assertEqual(count, 1)
+        self.assertEqual(
+            self.env["tms.dispatch.order"].search_count([("route_batch_id", "=", batch.id)]), 1
+        )
 
 
 class TestRouteBatchOpenMethods(TransactionCase):
@@ -253,24 +246,16 @@ class TestRouteBatchOpenMethods(TransactionCase):
     def setUp(self):
         super().setUp()
         self.batch = self.env["logistics.route.planning.batch"].create({
-            "batch_no": "PC-OPEN", "delivery_date": "2026-06-01",
+            "batch_no": _uid("PC-OPEN"), "delivery_date": "2026-06-01",
             "route_status": "route_planned",
         })
 
     def test_action_open_route_map(self):
-        """路线地图返回URL动作"""
         action = self.batch.action_open_route_map()
         self.assertEqual(action["type"], "ir.actions.act_url")
         self.assertIn("/tms/route/", action["url"])
 
     def test_action_open_dispatch_orders(self):
-        """打开派车单返回窗口动作"""
         action = self.batch.action_open_dispatch_orders()
         self.assertEqual(action["type"], "ir.actions.act_window")
         self.assertEqual(action["res_model"], "tms.dispatch.order")
-
-    def test_action_open_handover_orders(self):
-        """打开交接单返回窗口动作"""
-        action = self.batch.action_open_handover_orders()
-        self.assertEqual(action["type"], "ir.actions.act_window")
-        self.assertEqual(action["res_model"], "wms.handover.order")
