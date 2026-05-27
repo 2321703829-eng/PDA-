@@ -52,10 +52,10 @@ class TestDispatchOrderFlow(TransactionCase):
         self.assertIn("没有停靠点", result["params"]["message"])
 
     def test_action_depart_state_change(self):
-        """发车→departed"""
+        """发车→in_transit(因自动推进司机任务)"""
         self.dispatch.action_dispatch()
         self.dispatch.action_depart()
-        self.assertEqual(self.dispatch.state, "departed")
+        self.assertEqual(self.dispatch.state, "in_transit")
 
     def test_normal_state_flow(self):
         """完整流程: dispatch→depart→start→arrive→sign"""
