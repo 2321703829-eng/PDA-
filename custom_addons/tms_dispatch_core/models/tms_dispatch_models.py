@@ -100,7 +100,7 @@ class TmsDispatchOrder(models.Model):
         return {
             "dispatch_order_id": self.id,
             "waybill_id": waybill.id,
-            "store_profile_id": store_profile.id,
+            "store_profile_id": store_profile.id if store_profile else False,
             "note": stop_line.address_detail or stop_line.store_name,
         }
 
