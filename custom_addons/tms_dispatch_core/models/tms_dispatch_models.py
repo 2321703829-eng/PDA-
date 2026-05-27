@@ -152,14 +152,15 @@ class TmsDispatchOrder(models.Model):
                 for stop_line in stop_lines:
                     record.env["tms.driver.task"].create(record._prepare_driver_task_vals(stop_line))
             record.write({"state": "dispatched"})
-            self.env["core.operation.audit.log"].log_action(
-                business_domain="tms",
-                action_code="dispatch_order_dispatch",
-                record=record,
-                note=_("Dispatch order dispatched."),
-                payload={"driver_task_count": record.driver_task_count},
-                related_record=record.route_batch_id,
-            )
+            if "core.operation.audit.log" in self.env.registry:
+                self.env["core.operation.audit.log"].log_action(
+                    business_domain="tms",
+                    action_code="dispatch_order_dispatch",
+                    record=record,
+                    note=_("Dispatch order dispatched."),
+                    payload={"driver_task_count": record.driver_task_count},
+                    related_record=record.route_batch_id,
+                )
         return True
 
     def action_depart(self):
@@ -178,13 +179,14 @@ class TmsDispatchOrder(models.Model):
             for driver_task in record.driver_task_ids:
                 driver_task.action_arrive_warehouse()
                 driver_task.action_start_delivery()
-            self.env["core.operation.audit.log"].log_action(
-                business_domain="tms",
-                action_code="dispatch_order_depart",
-                record=record,
-                note=_("Dispatch order departed from warehouse."),
-                payload={"driver_task_count": record.driver_task_count},
-            )
+            if "core.operation.audit.log" in self.env.registry:
+                self.env["core.operation.audit.log"].log_action(
+                    business_domain="tms",
+                    action_code="dispatch_order_depart",
+                    record=record,
+                    note=_("Dispatch order departed from warehouse."),
+                    payload={"driver_task_count": record.driver_task_count},
+                )
         return True
 
     def action_generate_freight_lines(self):

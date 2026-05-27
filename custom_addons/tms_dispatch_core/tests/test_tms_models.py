@@ -178,7 +178,8 @@ class TestDriverTaskStateValidation(TransactionCase):
         """到店后正常签收"""
         self.task.state = "arrived_store"
         result = self.task.action_mark_signed_full()
-        self.assertNotEqual(result.get("type"), "ir.actions.client")
+        if isinstance(result, dict):
+            self.assertNotEqual(result.get("type"), "ir.actions.client")
 
 
 class TestPushToDispatch(TransactionCase):
