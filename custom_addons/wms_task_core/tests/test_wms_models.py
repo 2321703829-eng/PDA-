@@ -154,3 +154,70 @@ class TestWmsInventoryOperation(TransactionCase):
         op.action_cancel()
         self.assertEqual(op.state, "cancelled")
 
+
+class TestWmsOutboundFullChain(TransactionCase):
+    """出库完整链路: picking→outbound→pick→check→handover"""
+
+    def setUp(self):
+        super().setUp()
+        self.wh = self.env["stock.warehouse"].search([], limit=1)
+        self.product = self.env["product.product"].create({"name": "全链路品"})
+        loc_src = self.env["stock.location"].search([("usage", "=", "internal")], limit=1)
+        loc_dest = self.wh.lot_stock_id
+        picking_type = self.env["stock.picking.type"].search([("code", "=", "outgoing")], limit=1)
+        if not picking_type:
+            self.skipTest("无出库作业类型")
+            return
+        self.picking = self.env["stock.picking"].create({
+            "picking_type_id": picking_type.id,
+            "location_id": loc_src.id,
+            "location_dest_id": loc_dest.id,
+            "origin": "TEST-OUTBOUND-FLOW",
+        })
+        self.env["stock.move"].create({
+            "name": self.product.display_name,
+            "product_id": self.product.id,
+            "product_uom_qty": 5,
+            "product_uom": self.product.uom_id.id,
+            "picking_id": self.picking.id,
+            "location_id": loc_src.id,
+            "location_dest_id": loc_dest.id,
+        })
+
+    def test_full_outbound_chain(self):
+        """出库→拣货→复核→交接完整链"""
+        # 1. 创建出库任务
+        outbound = self.env["wms.outbound.task"].create({
+            "warehouse_id": self.wh.id, "stock_picking_id": self.picking.id,
+        })
+        outbound.action_start_outbound()
+        self.assertEqual(outbound.state, "task_processing")
+
+        # 2. 生成拣货任务 (action_generate_pick_task)
+        result = outbound.action_generate_pick_task()
+        self.assertEqual(result["type"], "ir.actions.act_window")
+        pick_task = outbound.pick_task_ids[0]
+        self.assertTrue(pick_task)
+        self.assertTrue(len(pick_task.line_ids) >= 1)
+
+        # 3. 拣货→完成
+        pick_task.action_start_pick()
+        self.assertEqual(pick_task.state, "picking")
+        pick_task.action_mark_picked()
+        self.assertEqual(pick_task.state, "picked")
+
+        # 4. 复核→完成→交接单创建
+        check_task = outbound.check_task_ids[0]
+        self.assertTrue(check_task)
+        check_task.action_mark_checked()
+        self.assertEqual(check_task.state, "checked")
+        self.assertTrue(outbound.handover_order_ids)
+
+        # 5. 交接→完成→出库done
+        handover = outbound.handover_order_ids[0]
+        handover.action_start_handover()
+        self.assertEqual(handover.state, "handover_ing")
+        handover.action_mark_done()
+        self.assertEqual(handover.state, "handover_done")
+        self.assertEqual(outbound.state, "task_done")
+
