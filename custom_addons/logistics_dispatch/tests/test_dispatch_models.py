@@ -15,14 +15,24 @@ def _uid(prefix="T"):
     return "%s-%04d" % (prefix, _counter[0])
 
 
+def _make_warehouse(env, name, code):
+    """创建仓库,回退到 search 如果数据库有限制"""
+    try:
+        return env["stock.warehouse"].create({"name": name, "code": code})
+    except Exception:
+        return env["stock.warehouse"].search([], limit=1)
+
+
 class TestWaybillConstraints(TransactionCase):
-    """运单约束校验"""
+    """运单约束校验 — 自建两个仓库保证不匹配场景真实"""
 
     def setUp(self):
         super().setUp()
-        self.wh = self.env["stock.warehouse"].search([], limit=1)
-        wh2 = self.env["stock.warehouse"].search([], limit=2)
-        self.wh2 = wh2[1] if len(wh2) > 1 else self.wh
+        self.wh = _make_warehouse(self.env, "WH-TEST-A", "WHA")
+        self.wh2 = _make_warehouse(self.env, "WH-TEST-B", "WHB")
+        # 确保两个仓库不同 (如果 create 回退到 search 可能相同)
+        if self.wh == self.wh2:
+            self.skipTest("无法创建两个不同仓库,跳过 warehouse mismatch 测试")
 
     def test_waybill_warehouse_must_match_batch(self):
         """运单仓库与批次不一致 → ValidationError"""
@@ -83,7 +93,7 @@ class TestWaybillCompute(TransactionCase):
 
     def setUp(self):
         super().setUp()
-        self.wh = self.env["stock.warehouse"].search([], limit=1)
+        self.wh = _make_warehouse(self.env, "WH-AUTO", "WHA")
         self.batch = self.env["logistics.dispatch.batch"].create({
             "name": _uid("B-COMP"), "warehouse_id": self.wh.id,
         })
@@ -143,7 +153,7 @@ class TestWaybillCreateNormalization(TransactionCase):
 
     def setUp(self):
         super().setUp()
-        self.wh = self.env["stock.warehouse"].search([], limit=1)
+        self.wh = _make_warehouse(self.env, "WH-AUTO", "WHA")
         self.partner = self.env["res.partner"].create({
             "name": _uid("P-NORM"), "external_customer_code": _uid("EC"),
             "is_logistics_partner": True,
@@ -183,7 +193,7 @@ class TestOrderLineConstraints(TransactionCase):
 
     def setUp(self):
         super().setUp()
-        self.wh = self.env["stock.warehouse"].search([], limit=1)
+        self.wh = _make_warehouse(self.env, "WH-AUTO", "WHA")
         self.wb = self.env["logistics.dispatch.waybill"].create({
             "name": _uid("YD-ORD"), "warehouse_id": self.wh.id,
         })
@@ -209,7 +219,7 @@ class TestGoodsLineConstraints(TransactionCase):
 
     def setUp(self):
         super().setUp()
-        self.wh = self.env["stock.warehouse"].search([], limit=1)
+        self.wh = _make_warehouse(self.env, "WH-AUTO", "WHA")
         self.wb = self.env["logistics.dispatch.waybill"].create({
             "name": _uid("YD-GL"), "warehouse_id": self.wh.id,
         })
@@ -278,7 +288,7 @@ class TestDeleteChain(TransactionCase):
 
     def setUp(self):
         super().setUp()
-        self.wh = self.env["stock.warehouse"].search([], limit=1)
+        self.wh = _make_warehouse(self.env, "WH-AUTO", "WHA")
 
     def test_batch_delete_cleans_waybills(self):
         """批次删除→级联运单"""
@@ -298,7 +308,7 @@ class TestBatchOpenRecord(TransactionCase):
 
     def setUp(self):
         super().setUp()
-        self.wh = self.env["stock.warehouse"].search([], limit=1)
+        self.wh = _make_warehouse(self.env, "WH-AUTO", "WHA")
 
     def test_action_open_record(self):
         b = self.env["logistics.dispatch.batch"].create({

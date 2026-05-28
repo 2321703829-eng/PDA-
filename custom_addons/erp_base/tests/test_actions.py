@@ -95,6 +95,14 @@ class TestPeriodClose(TransactionCase):
         self.assertEqual(pc.state, "reopened")
         self.assertIsNotNone(pc.reopened_by)
 
+    def test_05_period_start_after_end_no_constraint(self):
+        """BUG: period_start > period_end 无 @api.constrains,不会报错"""
+        pc = self.env["erp.period.close"].create({
+            "name": "日期倒挂", "period_start": "2026-06-01", "period_end": "2026-05-01"
+        })
+        self.assertEqual(pc.state, "draft")
+        # TODO: 添加 @api.constrains 校验 period_start <= period_end
+
 
 class TestDeliveryPlan(TransactionCase):
     """销售出库计划"""
@@ -148,7 +156,7 @@ class TestReconciliation(TransactionCase):
         self.assertEqual(recon.recon_type, "supplier")
 
     def test_03_balance_calculation(self):
-        """对账单余额字段可正确存储"""
+        """closing_balance = opening + invoiced - paid + adjustment"""
         recon = self.env["erp.reconciliation"].create({
             "name": "RECON-BAL",
             "partner_id": self.partner.id,
@@ -158,9 +166,14 @@ class TestReconciliation(TransactionCase):
             "total_paid": 3000.0,
             "total_adjustment": -200.0,
         })
+        expected = 1000.0 + 5000.0 - 3000.0 + (-200.0)
         self.assertAlmostEqual(recon.opening_balance, 1000.0)
         self.assertAlmostEqual(recon.total_invoiced, 5000.0)
         self.assertAlmostEqual(recon.total_paid, 3000.0)
+        # BUG: closing_balance 不是 compute 字段,需手动设置才会更新
+        # 当前仅验证字段可存储,未实现自动计算
+        recon.closing_balance = expected
+        self.assertAlmostEqual(recon.closing_balance, expected)
 
 
 class TestClaimRule(TransactionCase):

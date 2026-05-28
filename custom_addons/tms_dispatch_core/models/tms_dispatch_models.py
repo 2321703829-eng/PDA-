@@ -153,6 +153,7 @@ class TmsDispatchOrder(models.Model):
                     record.env["tms.driver.task"].create(record._prepare_driver_task_vals(stop_line))
             record.write({"state": "dispatched"})
             if "core.operation.audit.log" in self.env.registry:
+                if "core.operation.audit.log" in self.env.registry:
                 self.env["core.operation.audit.log"].log_action(
                     business_domain="tms",
                     action_code="dispatch_order_dispatch",
@@ -180,6 +181,7 @@ class TmsDispatchOrder(models.Model):
                 driver_task.action_arrive_warehouse()
                 driver_task.action_start_delivery()
             if "core.operation.audit.log" in self.env.registry:
+                if "core.operation.audit.log" in self.env.registry:
                 self.env["core.operation.audit.log"].log_action(
                     business_domain="tms",
                     action_code="dispatch_order_depart",
@@ -227,7 +229,8 @@ class TmsDispatchOrder(models.Model):
                         "note": note,
                     }
                 )
-            self.env["core.operation.audit.log"].log_action(
+            if "core.operation.audit.log" in self.env.registry:
+                self.env["core.operation.audit.log"].log_action(
                 business_domain="tms",
                 action_code="dispatch_order_generate_freight_lines",
                 record=record,
@@ -376,7 +379,8 @@ class TmsDriverTask(models.Model):
             }
         self._log_node("driver_arrived_warehouse", note=_("Driver arrived at warehouse."))
         for record in self:
-            self.env["core.operation.audit.log"].log_action(
+            if "core.operation.audit.log" in self.env.registry:
+                self.env["core.operation.audit.log"].log_action(
                 business_domain="tms",
                 action_code="driver_task_arrive_warehouse",
                 record=record,
@@ -411,7 +415,8 @@ class TmsDriverTask(models.Model):
         allowed._log_node("in_transit", note=_("Vehicle is in transit."))
         allowed.mapped("dispatch_order_id")._sync_state_from_tasks()
         for record in allowed:
-            self.env["core.operation.audit.log"].log_action(
+            if "core.operation.audit.log" in self.env.registry:
+                self.env["core.operation.audit.log"].log_action(
                 business_domain="tms",
                 action_code="driver_task_start_delivery",
                 record=record,
@@ -446,7 +451,8 @@ class TmsDriverTask(models.Model):
         allowed._log_node("arrived_store")
         allowed.mapped("dispatch_order_id")._sync_state_from_tasks()
         for record in allowed:
-            self.env["core.operation.audit.log"].log_action(
+            if "core.operation.audit.log" in self.env.registry:
+                self.env["core.operation.audit.log"].log_action(
                 business_domain="tms",
                 action_code="driver_task_arrive_store",
                 record=record,
@@ -467,7 +473,8 @@ class TmsDriverTask(models.Model):
             }
         self._log_node("delivering", note=_("Driver is delivering at store."))
         for record in self:
-            self.env["core.operation.audit.log"].log_action(
+            if "core.operation.audit.log" in self.env.registry:
+                self.env["core.operation.audit.log"].log_action(
                 business_domain="tms",
                 action_code="driver_task_mark_delivering",
                 record=record,
@@ -490,7 +497,8 @@ class TmsDriverTask(models.Model):
         self._log_node("in_transit", note=_("In-transit checkpoint updated."))
         self.dispatch_order_id._sync_state_from_tasks()
         for record in self:
-            self.env["core.operation.audit.log"].log_action(
+            if "core.operation.audit.log" in self.env.registry:
+                self.env["core.operation.audit.log"].log_action(
                 business_domain="tms",
                 action_code="driver_task_update_transit",
                 record=record,
@@ -523,7 +531,8 @@ class TmsDriverTask(models.Model):
                 "signer_name": self.store_profile_id.customer_name or self.store_profile_id.partner_id.name,
                 "note": self.note,
             })
-            self.env["core.operation.audit.log"].log_action(
+            if "core.operation.audit.log" in self.env.registry:
+                self.env["core.operation.audit.log"].log_action(
                 business_domain="tms",
                 action_code="driver_task_create_signoff",
                 record=self,
@@ -589,7 +598,8 @@ class TmsDriverTask(models.Model):
         allowed._log_node("delivering", note=_("Signoff completed in full."))
         allowed.mapped("dispatch_order_id")._sync_state_from_tasks()
         for record in allowed:
-            self.env["core.operation.audit.log"].log_action(
+            if "core.operation.audit.log" in self.env.registry:
+                self.env["core.operation.audit.log"].log_action(
                 business_domain="tms",
                 action_code="driver_task_signed_full",
                 record=record,
@@ -623,7 +633,8 @@ class TmsDriverTask(models.Model):
         allowed._log_node("delivering", note=_("Signoff completed partially."))
         allowed.mapped("dispatch_order_id")._sync_state_from_tasks()
         for record in allowed:
-            self.env["core.operation.audit.log"].log_action(
+            if "core.operation.audit.log" in self.env.registry:
+                self.env["core.operation.audit.log"].log_action(
                 business_domain="tms",
                 action_code="driver_task_signed_partial",
                 record=record,
@@ -786,7 +797,8 @@ class TmsSignoffReceipt(models.Model):
             else:
                 record.write({"state": "signed_full"})
                 record.driver_task_id.action_mark_signed_full()
-            self.env["core.operation.audit.log"].log_action(
+            if "core.operation.audit.log" in self.env.registry:
+                self.env["core.operation.audit.log"].log_action(
                 business_domain="tms",
                 action_code="signoff_receipt_confirm",
                 record=record,
