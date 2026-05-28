@@ -153,7 +153,6 @@ class TmsDispatchOrder(models.Model):
                     record.env["tms.driver.task"].create(record._prepare_driver_task_vals(stop_line))
             record.write({"state": "dispatched"})
             if "core.operation.audit.log" in self.env.registry:
-                if "core.operation.audit.log" in self.env.registry:
                 self.env["core.operation.audit.log"].log_action(
                     business_domain="tms",
                     action_code="dispatch_order_dispatch",
@@ -181,7 +180,6 @@ class TmsDispatchOrder(models.Model):
                 driver_task.action_arrive_warehouse()
                 driver_task.action_start_delivery()
             if "core.operation.audit.log" in self.env.registry:
-                if "core.operation.audit.log" in self.env.registry:
                 self.env["core.operation.audit.log"].log_action(
                     business_domain="tms",
                     action_code="dispatch_order_depart",
