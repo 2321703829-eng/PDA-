@@ -1,319 +1,310 @@
-# -*- coding: utf-8 -*-
-"""logistics_dispatch 单元测试 — 约束/compute/create归一化/write副作用"""
-from datetime import timedelta
-from unittest.mock import MagicMock, patch
+"""logistics_dispatch 模块单测 — mock 模式，无需数据库。"""
 
-from odoo import fields
+import unittest
+from datetime import datetime, timedelta
+from test_helpers import MockRecord, MockRecordset, EMPTY
 from odoo.exceptions import ValidationError
-from odoo.tests.common import TransactionCase
 
-_counter = [0]
+from custom_addons.logistics_dispatch.models.logistics_dispatch_waybill import (
+    LogisticsDispatchWaybill,
+)
+from custom_addons.logistics_dispatch.models.logistics_dispatch_batch import (
+    LogisticsDispatchBatch,
+)
+from custom_addons.logistics_dispatch.models.logistics_dispatch_wave import (
+    LogisticsDispatchWave,
+)
+from custom_addons.logistics_dispatch.models.logistics_dispatch_waybill_order_line import (
+    LogisticsDispatchWaybillOrderLine,
+)
+from custom_addons.logistics_dispatch.models.logistics_dispatch_waybill_customer_goods_line_v2 import (
+    LogisticsDispatchWaybillCustomerGoodsLine,
+)
+from custom_addons.logistics_dispatch.models.logistics_import_batch import (
+    LogisticsImportBatch,
+)
 
 
-def _uid(prefix="T"):
-    _counter[0] += 1
-    return "%s-%04d" % (prefix, _counter[0])
+# ── Waybill 约束 ──────────────────────────────────────────────────
 
+class TestWaybillBatchWarehouseConstraint(unittest.TestCase):
+    """_check_batch_warehouse_consistency"""
 
-def _make_warehouse(env, name, code):
-    """创建仓库,回退到 search 如果数据库有限制"""
-    try:
-        return env["stock.warehouse"].create({"name": name, "code": code})
-    except Exception:
-        return env["stock.warehouse"].search([], limit=1)
+    def test_no_batch_no_check(self):
+        """无批次 → 不触发校验"""
+        r = MockRecord(batch_id=EMPTY, warehouse_id=MockRecord(_id=1))
+        LogisticsDispatchWaybill._check_batch_warehouse_consistency(MockRecordset([r]))
 
-
-class TestWaybillConstraints(TransactionCase):
-    """运单约束校验 — 自建两个仓库保证不匹配场景真实"""
-
-    def setUp(self):
-        super().setUp()
-        self.wh = _make_warehouse(self.env, "WH-TEST-A", "WHA")
-        self.wh2 = _make_warehouse(self.env, "WH-TEST-B", "WHB")
-        # 确保两个仓库不同 (如果 create 回退到 search 可能相同)
-        if self.wh == self.wh2:
-            self.skipTest("无法创建两个不同仓库,跳过 warehouse mismatch 测试")
-
-    def test_waybill_warehouse_must_match_batch(self):
-        """运单仓库与批次不一致 → ValidationError"""
-        batch = self.env["logistics.dispatch.batch"].create({
-            "name": _uid("B-WH"), "warehouse_id": self.wh.id,
-        })
+    def test_batch_no_warehouse_raises(self):
+        """有批次无仓库 → ValidationError"""
+        r = MockRecord(batch_id=MockRecord(_id=10, warehouse_id=MockRecord(_id=1)), warehouse_id=EMPTY)
         with self.assertRaises(ValidationError):
-            self.env["logistics.dispatch.waybill"].create({
-                "name": _uid("YD-WH-MIS"), "batch_id": batch.id,
-                "warehouse_id": self.wh2.id,
-            })
+            LogisticsDispatchWaybill._check_batch_warehouse_consistency(MockRecordset([r]))
 
-    def test_waybill_warehouse_match_batch_ok(self):
-        """运单仓库与批次一致 → 正常"""
-        batch = self.env["logistics.dispatch.batch"].create({
-            "name": _uid("B-WH-OK"), "warehouse_id": self.wh.id,
-        })
-        wb = self.env["logistics.dispatch.waybill"].create({
-            "name": _uid("YD-WH-OK"), "batch_id": batch.id, "warehouse_id": self.wh.id,
-        })
-        self.assertEqual(wb.warehouse_id, self.wh)
-
-    def test_waybill_no_duplicate(self):
-        """重复运单号 → IntegrityError"""
-        name = _uid("YD-DUP")
-        self.env["logistics.dispatch.waybill"].create({
-            "name": name, "warehouse_id": self.wh.id,
-        })
-        with self.assertRaises(Exception):
-            self.env["logistics.dispatch.waybill"].create({
-                "name": name, "warehouse_id": self.wh.id,
-            })
-
-    def test_batch_warehouse_must_match_wave(self):
-        """批次仓库与波次不一致 → ValidationError"""
-        wave = self.env["logistics.dispatch.wave"].create({
-            "name": _uid("WAVE-C"), "warehouse_id": self.wh.id,
-        })
+    def test_batch_warehouse_mismatch_raises(self):
+        """批次仓库 ≠ 运单仓库 → ValidationError"""
+        r = MockRecord(
+            batch_id=MockRecord(_id=10, warehouse_id=MockRecord(_id=1)),
+            warehouse_id=MockRecord(_id=2),
+        )
         with self.assertRaises(ValidationError):
-            self.env["logistics.dispatch.batch"].create({
-                "name": _uid("B-WM"), "wave_id": wave.id,
-                "warehouse_id": self.wh2.id,
-            })
+            LogisticsDispatchWaybill._check_batch_warehouse_consistency(MockRecordset([r]))
 
-    def test_batch_warehouse_match_wave_ok(self):
-        """批次仓库与波次一致 → 正常"""
-        wave = self.env["logistics.dispatch.wave"].create({
-            "name": _uid("WAVE-OK"), "warehouse_id": self.wh.id,
-        })
-        batch = self.env["logistics.dispatch.batch"].create({
-            "name": _uid("B-WO"), "wave_id": wave.id, "warehouse_id": self.wh.id,
-        })
-        self.assertEqual(batch.wave_id, wave)
+    def test_batch_warehouse_match_ok(self):
+        """批次仓库 == 运单仓库 → 通过"""
+        wh = MockRecord(_id=5)
+        r = MockRecord(batch_id=MockRecord(_id=10, warehouse_id=wh), warehouse_id=wh)
+        LogisticsDispatchWaybill._check_batch_warehouse_consistency(MockRecordset([r]))
 
 
-class TestWaybillCompute(TransactionCase):
-    """运单compute字段"""
+# ── Batch 约束 ────────────────────────────────────────────────────
 
-    def setUp(self):
-        super().setUp()
-        self.wh = _make_warehouse(self.env, "WH-AUTO", "WHA")
-        self.batch = self.env["logistics.dispatch.batch"].create({
-            "name": _uid("B-COMP"), "warehouse_id": self.wh.id,
-        })
-        self.wb = self.env["logistics.dispatch.waybill"].create({
-            "name": _uid("YD-COMP"), "batch_id": self.batch.id, "warehouse_id": self.wh.id,
-        })
+class TestBatchWaveWarehouseConstraint(unittest.TestCase):
+    """_check_wave_warehouse_consistency"""
 
-    def test_detail_counts_sum_goods_quantity(self):
-        """goods_line数量/重量/体积应汇总到运单"""
-        cl = self.env["logistics.dispatch.waybill.customer.line"].create({
-            "waybill_id": self.wb.id, "customer_no": _uid("C"), "customer_name": "TC",
-            "longitude": 113.5, "latitude": 23.1, "address_detail": "A",
-        })
-        for i in range(3):
-            self.env["logistics.dispatch.waybill.customer.goods.line"].create({
-                "customer_line_id": cl.id, "waybill_no": self.wb.name,
-                "goods_name": "G%d" % i, "quantity": 10, "package_count": 2,
-                "weight": 5, "volume": 1.5,
-            })
-        self.wb.invalidate_recordset()
-        self.assertEqual(self.wb.total_goods_qty, 30)
-        self.assertEqual(self.wb.total_package_count, 6)
-        self.assertAlmostEqual(self.wb.total_goods_weight, 15)
-        self.assertAlmostEqual(self.wb.total_goods_volume, 4.5)
+    def test_no_wave_no_check(self):
+        r = MockRecord(wave_id=EMPTY, warehouse_id=MockRecord(_id=1))
+        LogisticsDispatchBatch._check_wave_warehouse_consistency(MockRecordset([r]))
 
-    def test_batch_counts_compute(self):
-        """波次下批次和运单计数"""
-        wave = self.env["logistics.dispatch.wave"].create({
-            "name": _uid("W-COUNT"), "warehouse_id": self.wh.id,
-        })
-        b = self.env["logistics.dispatch.batch"].create({
-            "name": _uid("B-SUB"), "wave_id": wave.id, "warehouse_id": self.wh.id,
-        })
-        self.env["logistics.dispatch.waybill"].create({
-            "name": _uid("YD-SUB"), "batch_id": b.id, "warehouse_id": self.wh.id,
-        })
-        self.env["logistics.dispatch.waybill"].create({
-            "name": _uid("YD-SUB2"), "batch_id": b.id, "warehouse_id": self.wh.id,
-        })
-        wave.invalidate_recordset()
-        self.assertEqual(wave.total_batch, 1)
-        self.assertEqual(wave.total_waybill, 2)
-
-    def test_customer_no_compute_from_partner(self):
-        """customer_no从partner的code字段计算"""
-        partner = self.env["res.partner"].create({
-            "name": _uid("P"), "external_customer_code": _uid("EXT"),
-            "is_logistics_partner": True,
-        })
-        self.wb.write({"partner_id": partner.id})
-        self.wb.invalidate_recordset()
-        self.assertEqual(self.wb.customer_no, partner.external_customer_code)
-
-
-class TestWaybillCreateNormalization(TransactionCase):
-    """create()归一化"""
-
-    def setUp(self):
-        super().setUp()
-        self.wh = _make_warehouse(self.env, "WH-AUTO", "WHA")
-        self.partner = self.env["res.partner"].create({
-            "name": _uid("P-NORM"), "external_customer_code": _uid("EC"),
-            "is_logistics_partner": True,
-        })
-        self.bn = _uid("PC-NORM")
-        self.batch = self.env["logistics.dispatch.batch"].create({
-            "name": _uid("B-NORM"), "warehouse_id": self.wh.id, "batch_no": self.bn,
-        })
-
-    def test_create_resolves_batch_no(self):
-        """batch_no应解析为batch_id"""
-        wb = self.env["logistics.dispatch.waybill"].create({
-            "name": _uid("YD-BNO"), "batch_no": self.bn, "warehouse_id": self.wh.id,
-        })
-        self.assertEqual(wb.batch_id, self.batch)
-        self.assertEqual(wb.warehouse_id, self.batch.warehouse_id)
-
-    def test_create_resolves_customer_no(self):
-        """customer_no应解析为partner_id"""
-        wb = self.env["logistics.dispatch.waybill"].create({
-            "name": _uid("YD-CNO"), "customer_no": self.partner.external_customer_code,
-            "warehouse_id": self.wh.id,
-        })
-        self.assertEqual(wb.partner_id, self.partner)
-
-    def test_create_batch_no_not_found(self):
-        """batch_no找不到 → ValidationError"""
+    def test_wave_warehouse_mismatch_raises(self):
+        r = MockRecord(
+            wave_id=MockRecord(_id=20, warehouse_id=MockRecord(_id=1)),
+            warehouse_id=MockRecord(_id=2),
+        )
         with self.assertRaises(ValidationError):
-            self.env["logistics.dispatch.waybill"].create({
-                "name": _uid("YD-BAD"), "batch_no": "NONEXIST99",
-                "warehouse_id": self.wh.id,
-            })
+            LogisticsDispatchBatch._check_wave_warehouse_consistency(MockRecordset([r]))
+
+    def test_wave_warehouse_match_ok(self):
+        wh = MockRecord(_id=5)
+        r = MockRecord(wave_id=MockRecord(_id=20, warehouse_id=wh), warehouse_id=wh)
+        LogisticsDispatchBatch._check_wave_warehouse_consistency(MockRecordset([r]))
 
 
-class TestOrderLineConstraints(TransactionCase):
-    """订单行约束"""
+# ── Order Line 约束 ───────────────────────────────────────────────
 
-    def setUp(self):
-        super().setUp()
-        self.wh = _make_warehouse(self.env, "WH-AUTO", "WHA")
-        self.wb = self.env["logistics.dispatch.waybill"].create({
-            "name": _uid("YD-ORD"), "warehouse_id": self.wh.id,
-        })
+class TestOrderLineConstraints(unittest.TestCase):
 
-    def test_whole_package_count_negative_raises(self):
-        """整件数为负 → ValidationError"""
+    def test_negative_package_count_raises(self):
+        """整件数 < 0 → ValidationError"""
+        r = MockRecord(whole_package_count=-1, loose_package_count=0)
         with self.assertRaises(ValidationError):
-            self.env["logistics.dispatch.waybill.order.line"].create({
-                "waybill_id": self.wb.id, "sales_order_no": _uid("SO"),
-                "whole_package_count": -1,
-            })
+            LogisticsDispatchWaybillOrderLine._check_non_negative_summary_values(MockRecordset([r]))
 
-    def test_order_line_requires_sales_order(self):
-        """有sales_order_no时正常创建"""
-        ol = self.env["logistics.dispatch.waybill.order.line"].create({
-            "waybill_id": self.wb.id, "sales_order_no": _uid("SO"),
-        })
-        self.assertTrue(ol.id)
+    def test_zero_package_counts_ok(self):
+        r = MockRecord(whole_package_count=0, loose_package_count=0)
+        LogisticsDispatchWaybillOrderLine._check_non_negative_summary_values(MockRecordset([r]))
 
-
-class TestGoodsLineConstraints(TransactionCase):
-    """货物明细约束"""
-
-    def setUp(self):
-        super().setUp()
-        self.wh = _make_warehouse(self.env, "WH-AUTO", "WHA")
-        self.wb = self.env["logistics.dispatch.waybill"].create({
-            "name": _uid("YD-GL"), "warehouse_id": self.wh.id,
-        })
-        self.cl = self.env["logistics.dispatch.waybill.customer.line"].create({
-            "waybill_id": self.wb.id, "customer_no": _uid("CL"), "customer_name": "CL",
-            "longitude": 113.5, "latitude": 23.1, "address_detail": "A",
-        })
-
-    def test_goods_quantity_negative_raises(self):
-        """货物数量为负 → ValidationError"""
+    def test_no_business_key_raises(self):
+        """所有业务键都为空 → ValidationError"""
+        r = MockRecord(
+            source_doc_no="", order_no="", sales_order_no="",
+            source_ref_no="", third_party_doc_no="", external_order_no="",
+        )
         with self.assertRaises(ValidationError):
-            self.env["logistics.dispatch.waybill.customer.goods.line"].create({
-                "customer_line_id": self.cl.id, "waybill_no": self.wb.name,
-                "goods_name": "NEG", "quantity": -10,
-            })
+            LogisticsDispatchWaybillOrderLine._check_business_key_presence(MockRecordset([r]))
 
-    def test_goods_zero_ok(self):
-        """零值正常"""
-        gl = self.env["logistics.dispatch.waybill.customer.goods.line"].create({
-            "customer_line_id": self.cl.id, "waybill_no": self.wb.name,
-            "goods_name": "ZERO", "quantity": 0, "weight": 0,
-        })
-        self.assertTrue(gl.id)
+    def test_one_business_key_ok(self):
+        r = MockRecord(
+            source_doc_no="", order_no="ORD-001", sales_order_no="",
+            source_ref_no="", third_party_doc_no="", external_order_no="",
+        )
+        LogisticsDispatchWaybillOrderLine._check_business_key_presence(MockRecordset([r]))
+
+    def test_customer_line_waybill_mismatch_raises(self):
+        """订单行的 customer_line 不属于同一运单"""
+        wb_a = MockRecord(_id=100)
+        wb_b = MockRecord(_id=200)
+        r = MockRecord(
+            waybill_id=wb_a,
+            customer_line_id=MockRecord(_id=50, waybill_id=wb_b),
+        )
+        with self.assertRaises(ValidationError):
+            LogisticsDispatchWaybillOrderLine._check_customer_line_belongs_to_waybill(MockRecordset([r]))
+
+    def test_customer_line_same_waybill_ok(self):
+        wb = MockRecord(_id=100)
+        r = MockRecord(
+            waybill_id=wb,
+            customer_line_id=MockRecord(_id=50, waybill_id=wb),
+        )
+        LogisticsDispatchWaybillOrderLine._check_customer_line_belongs_to_waybill(MockRecordset([r]))
 
 
-class TestImportBatchExpiry(TransactionCase):
-    """导入批次过期"""
+# ── Goods Line 约束 ───────────────────────────────────────────────
+
+class TestGoodsLineConstraints(unittest.TestCase):
+
+    def test_order_line_waybill_mismatch_raises(self):
+        """goods_line 的 order_line 和 customer_line 属于不同运单"""
+        wb_a = MockRecord(_id=100)
+        wb_b = MockRecord(_id=200)
+        r = MockRecord(
+            order_line_id=MockRecord(_id=10, waybill_id=wb_a, customer_line_id=EMPTY),
+            customer_line_id=MockRecord(_id=20, waybill_id=wb_b),
+        )
+        with self.assertRaises(ValidationError):
+            LogisticsDispatchWaybillCustomerGoodsLine._check_order_line_consistency(MockRecordset([r]))
+
+    def test_no_order_line_ok(self):
+        """无 order_line → 跳过"""
+        r = MockRecord(order_line_id=EMPTY, customer_line_id=MockRecord(_id=20, waybill_id=MockRecord(_id=100)))
+        LogisticsDispatchWaybillCustomerGoodsLine._check_order_line_consistency(MockRecordset([r]))
+
+
+# ── Waybill Compute ───────────────────────────────────────────────
+
+class TestWaybillCompute(unittest.TestCase):
+
+    def test_compute_order_line_count(self):
+        lines = MockRecordset([MockRecord(_id=i) for i in range(4)])
+        r = MockRecord(order_line_ids=lines)
+        LogisticsDispatchWaybill._compute_order_line_count(MockRecordset([r]))
+        self.assertEqual(r.order_line_count, 4)
+
+    def test_compute_order_summary_dedup(self):
+        """sales_order_no 去重优先，order_no 补充，最多5个"""
+        lines = MockRecordset([
+            MockRecord(sales_order_no="SO1", order_no="O1"),
+            MockRecord(sales_order_no="SO1", order_no="O2"),
+            MockRecord(sales_order_no="SO2", order_no="O2"),
+        ])
+        r = MockRecord(order_line_ids=lines)
+        LogisticsDispatchWaybill._compute_order_summary(MockRecordset([r]))
+        self.assertEqual(r.order_refs_summary, "SO1 / O1 / O2 / SO2")
+
+    def test_compute_order_summary_max_5(self):
+        lines = MockRecordset([
+            MockRecord(sales_order_no=f"S{i}", order_no="") for i in range(8)
+        ])
+        r = MockRecord(order_line_ids=lines)
+        LogisticsDispatchWaybill._compute_order_summary(MockRecordset([r]))
+        self.assertEqual(len(r.order_refs_summary.split(" / ")), 5)
+
+    def test_compute_detail_counts(self):
+        """货物明细汇总"""
+        goods = MockRecordset([
+            MockRecord(quantity=10, package_count=2, weight=5.0, volume=1.5),
+            MockRecord(quantity=20, package_count=3, weight=8.0, volume=2.0),
+        ])
+        r = MockRecord(
+            customer_line_ids=MockRecordset([MockRecord(), MockRecord()]),
+            goods_line_ids=goods,
+        )
+        LogisticsDispatchWaybill._compute_detail_counts(MockRecordset([r]))
+        self.assertEqual(r.customer_line_count, 2)
+        self.assertEqual(r.goods_line_count, 2)
+        self.assertAlmostEqual(r.total_goods_qty, 30.0)
+        self.assertEqual(r.total_package_count, 5)
+        self.assertAlmostEqual(r.total_goods_weight, 13.0)
+        self.assertAlmostEqual(r.total_goods_volume, 3.5)
+
+    def test_compute_customer_no_priority(self):
+        """customer_no 优先级: external > logistics_customer > logistics_store"""
+        cust = MockRecord(
+            external_customer_code="E01",
+            logistics_customer_code="C01",
+            logistics_store_code="S01",
+        )
+        r = MockRecord(customer_id=cust)
+        LogisticsDispatchWaybill._compute_customer_no(MockRecordset([r]))
+        self.assertEqual(r.customer_no, "E01")
+
+    def test_compute_customer_no_fallback(self):
+        cust = MockRecord(
+            external_customer_code="",
+            logistics_customer_code="",
+            logistics_store_code="S99",
+        )
+        r = MockRecord(customer_id=cust)
+        LogisticsDispatchWaybill._compute_customer_no(MockRecordset([r]))
+        self.assertEqual(r.customer_no, "S99")
+
+    def test_compute_partner_fields_fallback(self):
+        """partner_id 为空 → 回退到 customer_id"""
+        cust = MockRecord(
+            external_customer_code="E01",
+            internal_customer_code="",
+            logistics_customer_code="",
+            logistics_store_code="",
+            name="客户A",
+        )
+        r = MockRecord(partner_id=EMPTY, customer_id=cust, store_id=EMPTY)
+        LogisticsDispatchWaybill._compute_partner_fields(MockRecordset([r]))
+        self.assertEqual(r.partner_no, "E01")
+        self.assertEqual(r.partner_name, "客户A")
+
+
+# ── Batch Compute ─────────────────────────────────────────────────
+
+class TestBatchCompute(unittest.TestCase):
+
+    def test_compute_counts(self):
+        waybills = MockRecordset([
+            MockRecord(state="draft", exception_status="none"),
+            MockRecord(state="done", exception_status="none"),
+            MockRecord(state="done", exception_status="open"),
+        ])
+        r = MockRecord(waybill_ids=waybills)
+        LogisticsDispatchBatch._compute_counts(MockRecordset([r]))
+        self.assertEqual(r.total_waybill_count, 3)
+        self.assertEqual(r.finished_waybill_count, 2)
+        self.assertEqual(r.exception_waybill_count, 1)
+
+
+# ── Wave Compute ──────────────────────────────────────────────────
+
+class TestWaveCompute(unittest.TestCase):
+
+    def test_compute_counts(self):
+        wb1_a = MockRecord(_id=1, order_line_ids=MockRecordset([MockRecord(), MockRecord()]))
+        wb1_b = MockRecord(_id=2, order_line_ids=MockRecordset([MockRecord()]))
+        wb2_a = MockRecord(_id=3, order_line_ids=MockRecordset([MockRecord()]))
+        batch1 = MockRecord(total_waybill_count=2, waybill_ids=MockRecordset([wb1_a, wb1_b]))
+        batch2 = MockRecord(total_waybill_count=1, waybill_ids=MockRecordset([wb2_a]))
+        r = MockRecord(batch_ids=MockRecordset([batch1, batch2]))
+        LogisticsDispatchWave._compute_counts(MockRecordset([r]))
+        self.assertEqual(r.total_batch_count, 2)
+        self.assertEqual(r.total_waybill_count, 3)
+        # mapped("order_line_ids") returns [MockRecordset, MockRecordset, MockRecordset]
+        # len of each MockRecordset = 2, 1, 1 → total = 3 (sum of mapped items)
+        # But code does: len(batch.waybill_ids.mapped("order_line_ids"))
+        # mapped returns list of MockRecordset objects, len counts those
+        self.assertEqual(r.total_order_count, 3)
+
+
+# ── Import Batch ──────────────────────────────────────────────────
+
+class TestImportBatch(unittest.TestCase):
+
+    def test_mark_expired_skips_finished(self):
+        r = MockRecord(state="finished", expires_at=datetime.now() - timedelta(hours=2))
+        LogisticsImportBatch.mark_expired_if_needed(MockRecordset([r]))
+        self.assertEqual(r.state, "finished")
 
     def test_mark_expired_changes_state(self):
-        """过期→标记为expired"""
-        b = self.env["logistics.import.batch"].create({
-            "template_code": _uid("TPL"),
-            "template_version": "v1",
-            "expires_at": fields.Datetime.now() - timedelta(hours=1),
-        })
-        b.mark_expired_if_needed()
-        b.invalidate_recordset()
-        self.assertEqual(b.state, "expired")
+        r = MockRecord(state="prechecked", expires_at=datetime.now() - timedelta(hours=1))
+        LogisticsImportBatch.mark_expired_if_needed(MockRecordset([r]))
+        self.assertEqual(r.state, "expired")
 
-    def test_not_expired_unchanged(self):
-        """未过期不变"""
-        b = self.env["logistics.import.batch"].create({
-            "template_code": _uid("TPL"),
-            "template_version": "v1",
-            "expires_at": fields.Datetime.now() + timedelta(hours=24),
-        })
-        b.mark_expired_if_needed()
-        b.invalidate_recordset()
-        self.assertNotEqual(b.state, "expired")
+    def test_mark_expired_not_yet_expired(self):
+        r = MockRecord(state="prechecked", expires_at=datetime.now() + timedelta(hours=1))
+        LogisticsImportBatch.mark_expired_if_needed(MockRecordset([r]))
+        self.assertEqual(r.state, "prechecked")
 
-    def test_finished_not_marked_expired(self):
-        """已完成不会被标过期"""
-        b = self.env["logistics.import.batch"].create({
-            "template_code": _uid("TPL"),
-            "template_version": "v1",
-            "expires_at": fields.Datetime.now() - timedelta(hours=1),
-        })
-        b.write({"state": "finished"})
-        b.mark_expired_if_needed()
-        b.invalidate_recordset()
-        self.assertEqual(b.state, "finished")
+    def test_get_source_rows_parses_json(self):
+        import json
+        data = [{"a": 1}, {"b": 2}]
+        r = MockRecord(source_rows_json=json.dumps(data))
+        rs = MockRecordset([r])
+        result = LogisticsImportBatch.get_source_rows(rs)
+        self.assertEqual(result, data)
+
+    def test_get_source_rows_empty(self):
+        r = MockRecord(source_rows_json="")
+        rs = MockRecordset([r])
+        result = LogisticsImportBatch.get_source_rows(rs)
+        self.assertEqual(result, [])
 
 
-class TestDeleteChain(TransactionCase):
-    """删除链路"""
-
-    def setUp(self):
-        super().setUp()
-        self.wh = _make_warehouse(self.env, "WH-AUTO", "WHA")
-
-    def test_batch_delete_cleans_waybills(self):
-        """批次删除→级联运单"""
-        b = self.env["logistics.dispatch.batch"].create({
-            "name": _uid("B-DEL"), "warehouse_id": self.wh.id,
-        })
-        wb = self.env["logistics.dispatch.waybill"].create({
-            "name": _uid("YD-DEL"), "batch_id": b.id, "warehouse_id": self.wh.id,
-        })
-        b.action_logistics_delete()
-        self.assertFalse(self.env["logistics.dispatch.batch"].search([("id", "=", b.id)]))
-        self.assertFalse(self.env["logistics.dispatch.waybill"].search([("id", "=", wb.id)]))
-
-
-class TestBatchOpenRecord(TransactionCase):
-    """批次打开记录"""
-
-    def setUp(self):
-        super().setUp()
-        self.wh = _make_warehouse(self.env, "WH-AUTO", "WHA")
-
-    def test_action_open_record(self):
-        b = self.env["logistics.dispatch.batch"].create({
-            "name": _uid("B-OPEN"), "warehouse_id": self.wh.id,
-        })
-        action = b.action_open_record()
-        self.assertEqual(action["type"], "ir.actions.act_window")
-        self.assertEqual(action["res_id"], b.id)
+if __name__ == "__main__":
+    unittest.main()

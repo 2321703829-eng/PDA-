@@ -1,1 +1,1 @@
-from . import test_profiles
+from . import test_logistics_base_models

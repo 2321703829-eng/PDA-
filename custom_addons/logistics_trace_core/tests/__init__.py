@@ -1,1 +1,1 @@
-from . import test_trace_event
+from . import test_trace_core_models
