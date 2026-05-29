@@ -3,6 +3,11 @@
     <template id="dashboard_template" name="TMS Dashboard">
         <t t-call="web.html_container">
             <t t-call="web.external_layout">
+                <style>
+                    .o_main_navbar, .o_menu_systray, .o_navbar_apps_menu,
+                    .o_menu_brand, .o_control_panel, .o_form_statusbar,
+                    header.o_top_menu, nav.navbar, .o_header_standard { display:none !important; }
+                </style>
                 <div class="container-fluid" style="padding:24px 32px">
                     <h3 style="margin-bottom:4px;font-weight:700;color:#111827">配送调度工作台</h3>
                     <p style="color:#6b7280;margin-bottom:24px">物流配送全流程管理中心</p>
