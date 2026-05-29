@@ -28,6 +28,7 @@ export class EnterpriseHomeSystray extends Component {
         return menus.find((menu) => menu.xmlid === "logistics_web.menu_logistics_web_home")
             || menus.find((menu) => menu.xmlid === "logistics_web.menu_tianshu_enterprise_root")
             || menus.find((menu) => menu.name === "首页" && menu.actionID)
+            || menus.find((menu) => menu.name === "天枢科技物流系统" && menu.actionID)
             || menus.find((menu) => menu.name === "天枢科技企业系统" && menu.actionID)
             || null;
     }

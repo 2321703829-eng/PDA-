@@ -2,7 +2,7 @@
 
 import { registry } from "@web/core/registry";
 
-const SYSTEM_TITLE = "天枢科技企业系统";
+const SYSTEM_TITLE = "天枢科技物流系统";
 
 export const tianshuTitleService = {
     dependencies: ["title"],

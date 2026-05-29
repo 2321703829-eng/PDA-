@@ -17,6 +17,8 @@
         "data/base_import_mapping_data.xml",
         "views/logistics_web_actions.xml",
         "views/logistics_web_menus.xml",
+        "views/logistics_web_enterprise_menus.xml",
+        "data/logistics_web_native_menu_cleanup.xml",
         "views/logistics_web_templates.xml",
         "views/logistics_web_batch_views.xml",
         "views/logistics_web_waybill_views.xml",

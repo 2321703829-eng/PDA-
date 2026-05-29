@@ -79,7 +79,7 @@ class IrUiMenu(models.Model):
         menu_specs = (
             {
                 "xmlid": enterprise_root_xmlid,
-                "label": "天枢科技企业系统",
+                "label": "天枢科技物流系统",
                 "parent_xmlid": False,
                 "sequence": 5,
                 "action_xmlid": "logistics_web.action_logistics_web_home",

@@ -2,7 +2,7 @@
 <odoo>
     <menuitem
         id="menu_tianshu_enterprise_root"
-        name="天枢科技企业系统"
+        name="天枢科技物流系统"
         action="action_logistics_web_home"
         sequence="5"/>
 

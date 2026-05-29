@@ -7,6 +7,8 @@
         <field name="inherit_id" ref="website.layout"/>
         <field name="arch" type="xml">
             <xpath expr="//head" position="inside">
+                <link rel="icon" type="image/svg+xml" href="/kebi_website_custom/static/src/img/ts-favicon.svg"/>
+                <link rel="shortcut icon" type="image/svg+xml" href="/kebi_website_custom/static/src/img/ts-favicon.svg"/>
                 <style>
                     body.kebi-login-body > header,
                     body.kebi-login-body > nav,
@@ -74,37 +76,6 @@
                     body.kebi-login-body #oe_snippets,
                     body.kebi-login-body [id*="oe_snippet"] { display: none !important; visibility: hidden !important; height: 0 !important; overflow: hidden !important; }
                 </style>
-                <script><![CDATA[
-                    (function(){
-                        var path = document.location.pathname;
-                        if (path.match(/\/aboutus/) || path.match(/\/about/)) {
-                            document.body.classList.add('kebi-login-body');
-                            document.title = '天枢科技物流系统 - 关于我们';
-                            document.body.innerHTML = '\
-                            <div class="kebi-reset-page">\
-                                <div class="kebi-reset-card" style="text-align:left;max-width:640px">\
-                                    <div class="kebi-reset-logo" style="font-size:28px;margin-bottom:8px">天枢科技物流系统</div>\
-                                    <div class="kebi-brand-divider" style="margin:20px 0"/>\
-                                    <p style="font-size:15px;line-height:2.2;color:#374151;margin-bottom:20px">\
-                                        天枢科技是一家专注于城市供应链全链路数字化解决方案的科技企业。</p>\
-                                    <p style="font-size:15px;line-height:2.2;color:#374151;margin-bottom:20px">\
-                                        我们的系统覆盖订单管理、仓储作业、运输调度、BI数据分析与B2B订货商城，\
-                                        帮助企业实现从采购到配送到结算的全流程数字化闭环。</p>\
-                                    <p style="font-size:15px;line-height:2.2;color:#374151;margin-bottom:20px">\
-                                        日均处理运单超过 1,000 笔，服务覆盖城市仓储、干线运输及末端配送，\
-                                        致力于让每一件货物的流转更加高效、透明、可追溯。</p>\
-                                    <div style="margin-top:32px;padding-top:24px;border-top:1px solid #E5E7EB;font-size:14px;color:#6B7280">\
-                                        <p style="margin-bottom:8px">联系电话：18438369520</p>\
-                                        <p style="margin-bottom:8px">联系邮箱：2542127368@qq.com</p>\
-                                    </div>\
-                                    <div style="margin-top:28px">\
-                                        <a href="/web/login" class="kebi-forgot-link">← 返回登录</a>\
-                                    </div>\
-                                </div>\
-                            </div>';
-                        }
-                    })();
-                ]]></script>
                 <style>
                     .o_search_button, .search-query, [data-bs-toggle="search"],
                     #search, .header-search, .te_header_search { display: none !important; }
@@ -124,20 +95,484 @@
                         --kebi-text: #222222;
                         --kebi-muted: #6B7280;
                         --kebi-border: #DDDDDD;
+                        --kebi-amber: #F4A02A;
+                    }
+                    body.kebi-home-body {
+                        margin: 0 !important;
+                        background: #041B26 !important;
+                        overflow-x: hidden;
+                    }
+                    body.kebi-home-body > header,
+                    body.kebi-home-body > nav,
+                    body.kebi-home-body #wrapwrap > header,
+                    body.kebi-home-body #wrapwrap > nav,
+                    body.kebi-home-body #o_header,
+                    body.kebi-home-body header#top,
+                    body.kebi-home-body footer,
+                    body.kebi-home-body #footer,
+                    body.kebi-home-body .o_footer_copyright,
+                    body.kebi-home-body .o_main_navbar,
+                    body.kebi-home-body .o_frontend_to_backend_nav,
+                    body.kebi-home-body #oe_snippets,
+                    body.kebi-home-body .o_edit_menu,
+                    body.kebi-home-body [class*="o_edit"] {
+                        display: none !important;
+                        visibility: hidden !important;
+                    }
+                    body.kebi-home-body #wrapwrap {
+                        background: #041B26 !important;
+                    }
+                    body.kebi-home-body main {
+                        padding: 0 !important;
+                        margin: 0 !important;
+                    }
+                    .kebi-home-page {
+                        min-height: 100vh;
+                        height: 100vh;
+                        background: #041B26;
+                        color: #fff;
+                        font-family: "Montserrat", "Poppins", "PingFang SC", "Microsoft YaHei", sans-serif;
+                        padding: clamp(10px, 2vw, 26px);
+                        box-sizing: border-box;
+                        overflow: hidden;
+                    }
+                    .kebi-home-hero {
+                        position: relative;
+                        height: 100%;
+                        overflow: hidden;
+                        border-radius: 20px;
+                        background:
+                            linear-gradient(90deg, rgba(2,17,28,.94) 0%, rgba(2,24,39,.78) 34%, rgba(3,32,48,.16) 70%),
+                            linear-gradient(180deg, rgba(2,15,25,.18), rgba(2,15,25,.74)),
+                            url('/kebi_website_custom/static/src/img/tianshu-hero-ship.png') center center / cover no-repeat;
+                        box-shadow: 0 30px 90px rgba(0,0,0,.32);
+                    }
+                    .kebi-home-hero::after {
+                        content: "";
+                        position: absolute;
+                        inset: 0;
+                        background: radial-gradient(circle at 82% 12%, rgba(255,196,115,.38), transparent 24%);
+                        pointer-events: none;
+                    }
+                    .kebi-home-nav {
+                        position: relative;
+                        z-index: 2;
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        gap: 28px;
+                        padding: clamp(18px, 2.4vw, 28px) clamp(28px, 5vw, 70px);
+                    }
+                    .kebi-home-brand {
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                        color: #fff;
+                        text-decoration: none;
+                        font-size: 18px;
+                        font-weight: 800;
+                        letter-spacing: 0;
+                        white-space: nowrap;
+                    }
+                    .kebi-home-mark {
+                        width: 24px;
+                        height: 24px;
+                        position: relative;
+                        display: inline-block;
+                    }
+                    .kebi-home-mark span {
+                        position: absolute;
+                        left: 2px;
+                        width: 18px;
+                        height: 3px;
+                        border-radius: 999px;
+                        background: var(--kebi-amber);
+                    }
+                    .kebi-home-mark span:nth-child(1) { top: 4px; }
+                    .kebi-home-mark span:nth-child(2) { top: 10px; left: 5px; }
+                    .kebi-home-mark span:nth-child(3) { top: 16px; }
+                    .kebi-home-links {
+                        display: flex;
+                        align-items: center;
+                        gap: clamp(18px, 3vw, 42px);
+                        font-size: 14px;
+                    }
+                    .kebi-home-links a,
+                    .kebi-home-contact {
+                        color: rgba(255,255,255,.88);
+                        text-decoration: none;
+                        font-weight: 500;
+                    }
+                    .kebi-home-links a:hover,
+                    .kebi-home-contact:hover { color: #fff; }
+                    .kebi-home-login {
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        min-width: 114px;
+                        height: 38px;
+                        border-radius: 999px;
+                        border: 0;
+                        background: var(--kebi-amber);
+                        color: #17212A;
+                        text-decoration: none;
+                        font-size: 13px;
+                        font-weight: 800;
+                        box-shadow: 0 12px 28px rgba(244,160,42,.25);
+                    }
+                    .kebi-home-login:hover {
+                        color: #17212A;
+                        background: #FFB144;
+                    }
+                    .kebi-home-content {
+                        position: relative;
+                        z-index: 2;
+                        width: min(680px, 52vw);
+                        padding: clamp(44px, 8vh, 82px) clamp(28px, 5vw, 70px) 0;
+                    }
+                    .kebi-home-eyebrow {
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 10px;
+                        margin-bottom: 18px;
+                        color: rgba(255,255,255,.72);
+                        font-size: 13px;
+                        font-weight: 700;
+                    }
+                    .kebi-home-eyebrow::before {
+                        content: "";
+                        width: 34px;
+                        height: 3px;
+                        border-radius: 999px;
+                        background: var(--kebi-amber);
+                    }
+                    .kebi-home-title {
+                        margin: 0;
+                        color: #fff;
+                        font-size: clamp(58px, 7.1vw, 96px);
+                        line-height: .98;
+                        font-weight: 900;
+                        letter-spacing: 0;
+                    }
+                    .kebi-home-copy {
+                        max-width: 520px;
+                        margin: 24px 0 0;
+                        color: rgba(255,255,255,.84);
+                        font-size: 15px;
+                        line-height: 1.9;
+                    }
+                    .kebi-home-actions {
+                        display: flex;
+                        flex-wrap: wrap;
+                        gap: 12px;
+                        margin-top: 32px;
+                    }
+                    .kebi-home-primary,
+                    .kebi-home-secondary {
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        min-width: 142px;
+                        height: 52px;
+                        border-radius: 999px;
+                        text-decoration: none;
+                        font-size: 14px;
+                        font-weight: 800;
+                    }
+                    .kebi-home-primary {
+                        background: var(--kebi-amber);
+                        color: #17212A;
+                        box-shadow: 0 14px 34px rgba(244,160,42,.28);
+                    }
+                    .kebi-home-secondary {
+                        background: rgba(28,75,103,.72);
+                        color: #fff;
+                        backdrop-filter: blur(8px);
+                    }
+                    .kebi-home-primary:hover { color: #17212A; background: #FFB144; }
+                    .kebi-home-secondary:hover { color: #fff; background: rgba(35,92,124,.82); }
+                    .kebi-home-system-card {
+                        position: absolute;
+                        z-index: 2;
+                        right: clamp(36px, 9vw, 170px);
+                        top: clamp(190px, 29vh, 280px);
+                        width: min(390px, 30vw);
+                        min-height: 210px;
+                        padding: 30px 30px 28px;
+                        border-radius: 10px;
+                        background: rgba(255,255,255,.92);
+                        color: #183044;
+                        box-shadow: 0 24px 60px rgba(0,0,0,.18);
+                        backdrop-filter: blur(10px);
+                    }
+                    .kebi-home-system-card h2 {
+                        margin: 0 0 14px;
+                        color: #183044;
+                        font-size: 18px;
+                        font-weight: 900;
+                    }
+                    .kebi-home-system-card p {
+                        margin: 0;
+                        color: #4B6477;
+                        font-size: 14px;
+                        line-height: 1.8;
+                        font-weight: 600;
+                    }
+                    .kebi-home-score {
+                        display: flex;
+                        align-items: baseline;
+                        gap: 10px;
+                        margin-top: 20px;
+                    }
+                    .kebi-home-score strong {
+                        font-size: 52px;
+                        line-height: 1;
+                        color: #08283A;
+                        font-weight: 900;
+                    }
+                    .kebi-home-score span {
+                        color: var(--kebi-amber);
+                        font-size: 24px;
+                    }
+                    .kebi-home-operations {
+                        position: absolute;
+                        z-index: 2;
+                        left: clamp(28px, 6vw, 86px);
+                        bottom: 0;
+                        width: min(330px, 30vw);
+                        min-height: 150px;
+                        padding: 26px 30px;
+                        border-radius: 10px 10px 0 0;
+                        background: linear-gradient(135deg, rgba(12,22,45,.92), rgba(12,34,54,.72));
+                        box-shadow: 0 -12px 45px rgba(0,0,0,.18);
+                    }
+                    .kebi-home-label {
+                        margin-bottom: 8px;
+                        color: rgba(255,255,255,.52);
+                        font-size: 11px;
+                        font-weight: 700;
+                        letter-spacing: 0;
+                    }
+                    .kebi-home-operations h2 {
+                        margin: 0 0 14px;
+                        color: #fff;
+                        font-size: 20px;
+                        line-height: 1.35;
+                        font-weight: 900;
+                    }
+                    .kebi-home-operations a {
+                        color: #FFC46F;
+                        font-size: 13px;
+                        font-weight: 800;
+                        text-decoration: underline;
+                    }
+                    .kebi-home-route {
+                        position: absolute;
+                        z-index: 2;
+                        right: 0;
+                        bottom: 0;
+                        width: min(420px, 32vw);
+                        min-height: 150px;
+                        padding: 30px 42px;
+                        border-radius: 10px 0 0 0;
+                        background: rgba(14,68,92,.72);
+                        backdrop-filter: blur(12px);
+                    }
+                    .kebi-home-route-codes {
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        color: #fff;
+                        font-size: 18px;
+                        font-weight: 900;
+                    }
+                    .kebi-home-route-line {
+                        position: relative;
+                        height: 28px;
+                        margin: 16px 0 8px;
+                    }
+                    .kebi-home-route-line::before {
+                        content: "";
+                        position: absolute;
+                        left: 0;
+                        right: 0;
+                        top: 13px;
+                        height: 2px;
+                        background: rgba(255,255,255,.35);
+                    }
+                    .kebi-home-route-line::after {
+                        content: "";
+                        position: absolute;
+                        left: 0;
+                        top: 10px;
+                        width: 74%;
+                        height: 8px;
+                        background: linear-gradient(90deg, var(--kebi-amber), rgba(244,160,42,.25));
+                        clip-path: polygon(0 35%, 88% 35%, 88% 0, 100% 50%, 88% 100%, 88% 65%, 0 65%);
+                    }
+                    .kebi-home-route-times {
+                        display: flex;
+                        justify-content: space-between;
+                        color: rgba(255,255,255,.76);
+                        font-size: 12px;
+                        line-height: 1.6;
+                    }
+                    @media (max-width: 1100px) {
+                        .kebi-home-links { display: none; }
+                        .kebi-home-content { width: min(680px, 76vw); }
+                        .kebi-home-system-card {
+                            right: clamp(24px, 5vw, 54px);
+                            top: auto;
+                            bottom: 36px;
+                            width: min(360px, 38vw);
+                        }
+                    }
+                    @media (max-width: 760px) {
+                        .kebi-home-page { height: auto; min-height: 100vh; overflow: visible; }
+                        .kebi-home-page { padding: 0; }
+                        .kebi-home-hero { min-height: 100vh; border-radius: 0; }
+                        .kebi-home-nav { padding: 22px 20px; }
+                        .kebi-home-contact { display: none; }
+                        .kebi-home-content {
+                            width: 100%;
+                            padding: 38px 20px 260px;
+                        }
+                        .kebi-home-title { font-size: clamp(44px, 16vw, 66px); }
+                        .kebi-home-copy { font-size: 14px; }
+                        .kebi-home-system-card {
+                            left: 20px;
+                            right: 20px;
+                            bottom: 28px;
+                            top: auto;
+                            width: auto;
+                            min-height: 0;
+                            padding: 22px;
+                        }
+                        .kebi-home-score strong { font-size: 42px; }
+                    }
+                    .kebi-detail-page {
+                        min-height: 100vh;
+                        background:
+                            linear-gradient(90deg, rgba(2,17,28,.94), rgba(2,24,39,.72)),
+                            url('/kebi_website_custom/static/src/img/tianshu-hero-ship.png') center center / cover no-repeat;
+                        color: #fff;
+                        font-family: "Montserrat", "Poppins", "PingFang SC", "Microsoft YaHei", sans-serif;
+                        padding: clamp(46px, 5vw, 76px) clamp(24px, 4vw, 56px);
+                    }
+                    body.kebi-home-body main.kebi-detail-page {
+                        padding: clamp(46px, 5vw, 76px) clamp(24px, 4vw, 56px) !important;
+                    }
+                    .kebi-detail-shell {
+                        max-width: 1120px;
+                        margin: 0 auto;
+                    }
+                    .kebi-detail-nav {
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        min-height: 44px;
+                        margin-bottom: clamp(50px, 8vh, 86px);
+                        padding: 0 2px;
+                    }
+                    .kebi-detail-nav a {
+                        color: rgba(255,255,255,.88);
+                        text-decoration: none;
+                        font-weight: 800;
+                    }
+                    .kebi-detail-title {
+                        max-width: 760px;
+                    }
+                    .kebi-detail-title h1 {
+                        margin: 0;
+                        color: #fff;
+                        font-size: clamp(48px, 7vw, 88px);
+                        line-height: 1;
+                        font-weight: 900;
+                        letter-spacing: 0;
+                    }
+                    .kebi-detail-title p {
+                        margin: 24px 0 0;
+                        color: rgba(255,255,255,.84);
+                        font-size: 16px;
+                        line-height: 1.9;
+                    }
+                    .kebi-detail-grid {
+                        display: grid;
+                        grid-template-columns: repeat(3, minmax(0, 1fr));
+                        gap: 16px;
+                        margin-top: 42px;
+                    }
+                    .kebi-detail-grid.kebi-detail-grid-two {
+                        grid-template-columns: repeat(2, minmax(0, 1fr));
+                        margin-top: 16px;
+                    }
+                    .kebi-detail-card {
+                        min-height: 160px;
+                        padding: 24px;
+                        border-radius: 10px;
+                        background: rgba(255,255,255,.92);
+                        color: #183044;
+                        box-shadow: 0 20px 55px rgba(0,0,0,.18);
+                    }
+                    .kebi-detail-card strong {
+                        display: block;
+                        margin-bottom: 12px;
+                        color: var(--kebi-amber);
+                        font-size: 24px;
+                    }
+                    .kebi-detail-card p {
+                        margin: 0;
+                        color: #425D70;
+                        font-size: 14px;
+                        line-height: 1.8;
+                        font-weight: 600;
+                    }
+                    @media (max-width: 760px) {
+                        .kebi-detail-grid,
+                        .kebi-detail-grid.kebi-detail-grid-two { grid-template-columns: 1fr; }
+                        .kebi-detail-nav { margin-bottom: 42px; }
                     }
                     .kebi-login-page {
                         min-height: 100vh; display: flex; align-items: center; justify-content: center;
-                        background: var(--kebi-bg);
+                        position: relative;
+                        background:
+                            linear-gradient(90deg, rgba(2,17,28,.94) 0%, rgba(2,24,39,.78) 45%, rgba(3,32,48,.36) 100%),
+                            linear-gradient(180deg, rgba(2,15,25,.1), rgba(2,15,25,.68)),
+                            url('/kebi_website_custom/static/src/img/tianshu-hero-ship.png') center center / cover no-repeat;
                         font-family: "Montserrat", "Poppins", "PingFang SC", "Microsoft YaHei", sans-serif;
                         padding: 24px;
                     }
+                    .kebi-auth-home-link {
+                        position: absolute;
+                        top: 24px;
+                        left: 28px;
+                        z-index: 3;
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        height: 38px;
+                        padding: 0 18px;
+                        border-radius: 999px;
+                        color: #fff;
+                        text-decoration: none;
+                        background: rgba(10,38,56,.62);
+                        border: 1px solid rgba(255,255,255,.16);
+                        font-size: 13px;
+                        font-weight: 800;
+                        backdrop-filter: blur(10px);
+                    }
+                    .kebi-auth-home-link:hover {
+                        color: #fff;
+                        background: rgba(18,58,82,.76);
+                    }
                     .kebi-login-card {
-                        display: flex; max-width: 960px; width: 100%; background: #fff;
+                        position: relative; z-index: 2;
+                        display: flex; max-width: 960px; width: 100%; background: rgba(255,255,255,.94);
                         border-radius: 8px; overflow: hidden;
-                        box-shadow: 0 1px 3px rgba(0,0,0,.04), 0 12px 40px rgba(0,0,0,.08);
+                        box-shadow: 0 24px 70px rgba(0,0,0,.28);
                     }
                     .kebi-brand-side {
-                        flex: 1; background: var(--kebi-navy);
+                        flex: 1; background: linear-gradient(145deg, rgba(4,27,38,.96), rgba(24,71,96,.88));
                         padding: 56px 48px; display: flex; flex-direction: column; justify-content: center;
                         color: #fff; position: relative;
                     }
@@ -257,10 +692,250 @@
         </field>
     </record>
 
+    <record id="kebi_backend_favicon" model="ir.ui.view">
+        <field name="name">Kebi Backend Favicon</field>
+        <field name="inherit_id" ref="web.layout"/>
+        <field name="arch" type="xml">
+            <xpath expr="//head" position="inside">
+                <link rel="icon" type="image/svg+xml" href="/kebi_website_custom/static/src/img/ts-favicon.svg"/>
+                <link rel="shortcut icon" type="image/svg+xml" href="/kebi_website_custom/static/src/img/ts-favicon.svg"/>
+                <script><![CDATA[
+                    (function () {
+                        var icon = "/kebi_website_custom/static/src/img/ts-favicon.svg";
+                        function setTianshuIcon() {
+                            var links = document.querySelectorAll('link[rel*="icon"]');
+                            for (var i = 0; i < links.length; i++) {
+                                links[i].href = icon;
+                                links[i].type = "image/svg+xml";
+                            }
+                            if (!links.length) {
+                                var link = document.createElement("link");
+                                link.rel = "icon";
+                                link.type = "image/svg+xml";
+                                link.href = icon;
+                                document.head.appendChild(link);
+                            }
+                        }
+                        setTianshuIcon();
+                        setTimeout(setTianshuIcon, 1000);
+                    })();
+                ]]></script>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ===== 公开首页: 访问 / 或 /zh_CN 时先展示品牌入口 ===== -->
+    <record id="homepage_template" model="ir.ui.view">
+        <field name="name">Kebi Public Homepage</field>
+        <field name="type">qweb</field>
+        <field name="key">kebi_website_custom.homepage_template</field>
+        <field name="arch" type="xml">
+            <t t-call="website.layout">
+                <script><![CDATA[
+                    document.body.classList.add('kebi-home-body');
+                    document.title = '天枢科技物流系统';
+                    var f = document.querySelector('link[rel="icon"]') || document.createElement('link');
+                    f.rel = 'icon';
+                    f.type = 'image/svg+xml';
+                    f.href = '/kebi_website_custom/static/src/img/ts-favicon.svg';
+                    if (!f.parentNode) document.head.appendChild(f);
+                ]]></script>
+                <main class="kebi-home-page">
+                    <section class="kebi-home-hero">
+                        <nav class="kebi-home-nav" aria-label="天枢科技首页导航">
+                            <a class="kebi-home-brand" href="/">
+                                <span class="kebi-home-mark" aria-hidden="true"><span/><span/><span/></span>
+                                <span>天枢科技</span>
+                            </a>
+                            <div class="kebi-home-links">
+                                <a href="/">首页</a>
+                                <a href="/solutions/warehouse">数字仓储</a>
+                                <a href="/solutions/dispatch">运输调度</a>
+                                <a href="/solutions/trace">留痕可视</a>
+                                <a href="/aboutus">关于我们</a>
+                            </div>
+                            <a class="kebi-home-login" href="/web/login?redirect=/web">登录系统</a>
+                        </nav>
+
+                        <div class="kebi-home-content">
+                            <div class="kebi-home-eyebrow">Tianshu Logistics Control Tower</div>
+                            <h1 class="kebi-home-title">天枢科技<br/>物流系统</h1>
+                            <p class="kebi-home-copy">
+                                面向城市供应链的订单、仓储、运输、留痕与经营看板一体化系统，
+                                让每一票货物从入库到签收都清晰、可追踪、可复盘。
+                            </p>
+                            <div class="kebi-home-actions">
+                                <a class="kebi-home-primary" href="/web/login?redirect=/web">登录系统</a>
+                                <a class="kebi-home-secondary" href="/register">注册试用</a>
+                            </div>
+                        </div>
+
+                        <aside class="kebi-home-system-card" id="trace">
+                            <h2>可信赖的物流作业底座</h2>
+                            <p>覆盖 ERP 经营、WMS 仓储、TMS 配送、BI 控制塔与 B2B 订货协同。</p>
+                            <div class="kebi-home-score">
+                                <strong>98.6</strong><span>%</span>
+                            </div>
+                            <p>核心节点留痕完整率</p>
+                        </aside>
+                    </section>
+                </main>
+            </t>
+        </field>
+    </record>
+
+    <record id="solution_detail_template" model="ir.ui.view">
+        <field name="name">Kebi Solution Detail</field>
+        <field name="type">qweb</field>
+        <field name="key">kebi_website_custom.solution_detail_template</field>
+        <field name="arch" type="xml">
+            <t t-call="website.layout">
+                <script>document.body.classList.add('kebi-home-body'); document.title='天枢科技物流系统';</script>
+                <main class="kebi-detail-page">
+                    <div class="kebi-detail-shell">
+                        <nav class="kebi-detail-nav">
+                            <a href="/">天枢科技物流系统</a>
+                            <a href="/web/login?redirect=/web">登录系统</a>
+                        </nav>
+                        <section class="kebi-detail-title">
+                            <div class="kebi-home-eyebrow"><t t-esc="page['eyebrow']"/></div>
+                            <h1><t t-esc="page['title']"/></h1>
+                            <p><t t-esc="page['summary']"/></p>
+                        </section>
+                        <section class="kebi-detail-grid">
+                            <t t-foreach="page['points']" t-as="point">
+                                <article class="kebi-detail-card">
+                                    <strong>•</strong>
+                                    <p><t t-esc="point"/></p>
+                                </article>
+                            </t>
+                        </section>
+                    </div>
+                </main>
+            </t>
+        </field>
+    </record>
+
+    <record id="mock_register_template" model="ir.ui.view">
+        <field name="name">Kebi Mock Register</field>
+        <field name="type">qweb</field>
+        <field name="key">kebi_website_custom.mock_register_template</field>
+        <field name="arch" type="xml">
+            <t t-call="web.login_layout">
+                <title>天枢科技物流系统 - 注册试用</title>
+                <script>document.body.classList.add('kebi-login-body'); document.title='天枢科技物流系统 - 注册试用';</script>
+                <div class="kebi-login-page">
+                    <a class="kebi-auth-home-link" href="/">返回首页</a>
+                    <div class="kebi-login-card">
+                        <div class="kebi-brand-side">
+                            <div class="kebi-brand-logo">天枢科技物流系统</div>
+                            <div class="kebi-brand-divider"/>
+                            <div class="kebi-service-tags">
+                                <span class="kebi-service-tag">ERP 经营管理</span>
+                                <span class="kebi-service-tag">WMS 仓储管理</span>
+                                <span class="kebi-service-tag">TMS 运输调度</span>
+                                <span class="kebi-service-tag">BI 数据控制塔</span>
+                                <span class="kebi-service-tag">B2B 订货商城</span>
+                            </div>
+                            <div class="kebi-brand-contact">
+                                当前为试用申请入口，正式账号由管理员开通。
+                            </div>
+                        </div>
+                        <div class="kebi-form-side">
+                            <h2>注册试用</h2>
+                            <p class="subtitle">提交后我们会为您开通测试账号</p>
+                            <t t-if="submitted">
+                                <p class="alert alert-success" role="status" style="font-size:13px;border-radius:0">
+                                    试用申请已提交，管理员会根据联系方式为您开通账号。
+                                </p>
+                                <a class="kebi-btn-login" href="/web/login?redirect=/web" style="display:flex;align-items:center;justify-content:center;text-decoration:none">去登录</a>
+                            </t>
+                            <form t-if="not submitted" method="post" action="/register">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                <div class="form-group">
+                                    <label class="form-label" for="name">姓名</label>
+                                    <input type="text" name="name" id="name" class="form-control" t-att-value="name" placeholder="请输入姓名" required="required"/>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="company">企业名称</label>
+                                    <input type="text" name="company" id="company" class="form-control" t-att-value="company" placeholder="请输入企业名称"/>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="login">联系电话/邮箱</label>
+                                    <input type="text" name="login" id="login" class="form-control" t-att-value="login" placeholder="请输入联系电话或邮箱" required="required"/>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="message">需求备注</label>
+                                    <input type="text" name="message" id="message" class="form-control" placeholder="例如：需要开通仓储/调度/商城权限"/>
+                                </div>
+                                <button type="submit" class="kebi-btn-login">提交申请</button>
+                                <div style="text-align:right;margin-top:14px">
+                                    <a href="/web/login?redirect=/web" class="kebi-forgot-link">已有账号，去登录</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </field>
+    </record>
+
+    <record id="registration_request_list_template" model="ir.ui.view">
+        <field name="name">Kebi Registration Request List</field>
+        <field name="type">qweb</field>
+        <field name="key">kebi_website_custom.registration_request_list_template</field>
+        <field name="arch" type="xml">
+            <t t-call="website.layout">
+                <script>document.body.classList.add('kebi-home-body'); document.title='试用申请列表';</script>
+                <main class="kebi-detail-page">
+                    <div class="kebi-detail-shell">
+                        <nav class="kebi-detail-nav">
+                            <a href="/">天枢科技物流系统</a>
+                            <a href="/web">返回后台</a>
+                        </nav>
+                        <section class="kebi-detail-title">
+                            <div class="kebi-home-eyebrow">Registration Requests</div>
+                            <h1>试用申请</h1>
+                            <p>这里记录公开首页提交的注册试用申请。正式账号仍由管理员在后台开通。</p>
+                        </section>
+                        <section style="margin-top:34px;background:rgba(255,255,255,.94);border-radius:10px;overflow:hidden;color:#183044">
+                            <table style="width:100%;border-collapse:collapse;font-size:14px">
+                                <thead>
+                                    <tr style="background:#F5F7FA;text-align:left">
+                                        <th style="padding:14px 16px">时间</th>
+                                        <th style="padding:14px 16px">联系人</th>
+                                        <th style="padding:14px 16px">企业</th>
+                                        <th style="padding:14px 16px">联系方式</th>
+                                        <th style="padding:14px 16px">备注</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-if="not records">
+                                        <tr><td colspan="5" style="padding:24px 16px;color:#6B7280">暂无申请</td></tr>
+                                    </t>
+                                    <t t-foreach="records" t-as="r">
+                                        <tr style="border-top:1px solid #E5E7EB">
+                                            <td style="padding:14px 16px"><t t-esc="r.create_date"/></td>
+                                            <td style="padding:14px 16px"><t t-esc="r.name"/></td>
+                                            <td style="padding:14px 16px"><t t-esc="r.company or '-'"/></td>
+                                            <td style="padding:14px 16px"><t t-esc="r.contact"/></td>
+                                            <td style="padding:14px 16px"><t t-esc="r.message or '-'"/></td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </section>
+                    </div>
+                </main>
+            </t>
+        </field>
+    </record>
+
     <!-- ===== 登录页 TRUMUV 风格 ===== -->
     <record id="kebi_login_trumuv" model="ir.ui.view">
         <field name="name">Kebi Login Trumuv</field>
         <field name="inherit_id" ref="web.login"/>
+        <field name="priority" eval="90"/>
         <field name="arch" type="xml">
             <xpath expr="." position="replace">
                 <t t-name="web.login">
@@ -270,7 +945,7 @@
                             document.body.classList.add('kebi-login-body');
                             document.title = '天枢科技物流系统';
                             var f = document.querySelector('link[rel="icon"]') || document.createElement('link');
-                            f.rel = 'icon'; f.href = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="%232C3E50"/><text x="16" y="22" text-anchor="middle" font-size="18" fill="white" font-family="sans-serif">TS</text></svg>');
+                            f.rel = 'icon'; f.type = 'image/svg+xml'; f.href = '/kebi_website_custom/static/src/img/ts-favicon.svg';
                             if (!f.parentNode) document.head.appendChild(f);
                             function cleanNav() {
                                 var sel = '.o_login_navbar,.o_login_header,#oe_snippets,.o_navbar_toggle,.o_menu_toggle,.o_header_toggle,.dropdown-toggle,.o_edit_menu_button,.o_menu_apps,.o_menu_systray,.o_wevent_editor_button,.o_menu_brand';
@@ -290,6 +965,7 @@
                             setTimeout(cleanNav, 2000);
                         ]]></script>
                         <div class="kebi-login-page">
+                            <a class="kebi-auth-home-link" href="/">返回首页</a>
                             <div class="kebi-login-card">
                                 <div class="kebi-brand-side">
                                     <div class="kebi-brand-logo">天枢科技物流系统</div>
@@ -303,7 +979,7 @@
                                     </div>
                                     <div class="kebi-brand-contact">
                                         天枢科技 | Tianshu Technology<br/>
-                                        <a href="/aboutus">关于我们</a>
+                                        <a href="/">返回首页</a>
                                     </div>
                                 </div>
                                 <div class="kebi-form-side">
@@ -344,16 +1020,89 @@
 
 
     <!-- ===== 密码重置页(统一TRUMUV风格) ===== -->
+    <record id="kebi_signup_page" model="ir.ui.view">
+        <field name="name">Kebi Signup Page</field>
+        <field name="inherit_id" ref="auth_signup.signup"/>
+        <field name="priority" eval="90"/>
+        <field name="arch" type="xml">
+            <xpath expr="." position="replace">
+                <t t-name="auth_signup.signup">
+                    <t t-call="web.login_layout">
+                        <title>天枢科技物流系统 - 注册</title>
+                        <script>document.body.classList.add('kebi-login-body'); document.title='天枢科技物流系统 - 注册';</script>
+                        <div class="kebi-login-page">
+                            <a class="kebi-auth-home-link" href="/">返回首页</a>
+                            <div class="kebi-login-card">
+                                <div class="kebi-brand-side">
+                                    <div class="kebi-brand-logo">天枢科技物流系统</div>
+                                    <div class="kebi-brand-divider"/>
+                                    <div class="kebi-service-tags">
+                                        <span class="kebi-service-tag">ERP 经营管理</span>
+                                        <span class="kebi-service-tag">WMS 仓储管理</span>
+                                        <span class="kebi-service-tag">TMS 运输调度</span>
+                                        <span class="kebi-service-tag">BI 数据控制塔</span>
+                                        <span class="kebi-service-tag">B2B 订货商城</span>
+                                    </div>
+                                    <div class="kebi-brand-contact">
+                                        天枢科技 | Tianshu Technology<br/>
+                                        <a href="/">返回首页</a>
+                                    </div>
+                                </div>
+                                <div class="kebi-form-side">
+                                    <h2>注册试用</h2>
+                                    <p class="subtitle">Create your account</p>
+                                    <t t-if="message">
+                                        <p class="alert alert-success" role="status" style="font-size:13px;border-radius:0"><t t-esc="message"/></p>
+                                    </t>
+                                    <form class="oe_signup_form" role="form" method="post" t-if="not message" data-captcha="signup">
+                                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                        <div class="form-group">
+                                            <label class="form-label" for="name">姓名</label>
+                                            <input type="text" name="name" t-att-value="name" id="name" class="form-control" placeholder="请输入姓名" autofocus="autofocus" required="required"/>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label" for="login">账号/邮箱</label>
+                                            <input type="text" name="login" t-att-value="login" id="login" class="form-control" t-att-autofocus="'autofocus' if login else None" autocapitalize="off" required="required" placeholder="请输入账号或邮箱"/>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label" for="password">密码</label>
+                                            <input type="password" name="password" id="password" class="form-control" required="required" placeholder="请输入密码"/>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label" for="confirm_password">确认密码</label>
+                                            <input type="password" name="confirm_password" id="confirm_password" class="form-control" required="required" placeholder="请再次输入密码"/>
+                                        </div>
+                                        <p class="alert alert-danger" t-if="error" role="alert" style="font-size:13px;border-radius:0">
+                                            <t t-esc="error"/>
+                                        </p>
+                                        <input type="hidden" name="redirect" t-att-value="redirect"/>
+                                        <input type="hidden" name="token" t-att-value="token"/>
+                                        <button type="submit" class="kebi-btn-login">注 册</button>
+                                        <div style="text-align:right;margin-top:14px">
+                                            <a href="/web/login" class="kebi-forgot-link">已有账号，去登录</a>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </xpath>
+        </field>
+    </record>
+
     <record id="kebi_reset_password" model="ir.ui.view">
         <field name="name">Kebi Reset Password</field>
         <field name="inherit_id" ref="auth_signup.reset_password"/>
+        <field name="priority" eval="90"/>
         <field name="arch" type="xml">
             <xpath expr="." position="replace">
                 <t t-name="auth_signup.reset_password">
                     <t t-call="web.login_layout">
                         <title>天枢科技物流系统 - 重置密码</title>
                         <script>document.body.classList.add('kebi-login-body'); document.title='天枢科技物流系统 - 重置密码';</script>
-                        <div class="kebi-reset-page">
+                        <div class="kebi-login-page">
+                            <a class="kebi-auth-home-link" href="/">返回首页</a>
                             <div class="kebi-reset-card">
                                 <div class="kebi-reset-header">
                                     <div class="kebi-reset-logo">天枢科技</div>
@@ -392,31 +1141,47 @@
         <field name="key">kebi_website_custom.aboutus_page</field>
         <field name="arch" type="xml">
             <t t-call="website.layout">
-                <script>document.body.classList.add('kebi-login-body');document.title='天枢科技物流系统 - 关于我们';</script>
-                <div class="kebi-reset-page">
-                    <div class="kebi-reset-card" style="text-align:left;max-width:640px">
-                        <div class="kebi-reset-logo" style="font-size:28px;margin-bottom:8px">天枢科技物流系统</div>
-                        <div class="kebi-brand-divider" style="margin:20px 0"/>
-                        <p style="font-size:15px;line-height:2.2;color:#374151;margin-bottom:20px">
-                            天枢科技是一家专注于城市供应链全链路数字化解决方案的科技企业。
-                        </p>
-                        <p style="font-size:15px;line-height:2.2;color:#374151;margin-bottom:20px">
-                            我们的系统覆盖订单管理、仓储作业、运输调度、BI数据分析与B2B订货商城，
-                            帮助企业实现从采购到配送到结算的全流程数字化闭环。
-                        </p>
-                        <p style="font-size:15px;line-height:2.2;color:#374151;margin-bottom:20px">
-                            日均处理运单超过 1,000 笔，服务覆盖城市仓储、干线运输及末端配送，
-                            致力于让每一件货物的流转更加高效、透明、可追溯。
-                        </p>
-                        <div style="margin-top:32px;padding-top:24px;border-top:1px solid #E5E7EB;font-size:14px;color:#6B7280">
-                            <p style="margin-bottom:8px">联系电话：18438369520</p>
-                            <p style="margin-bottom:8px">联系邮箱：2542127368@qq.com</p>
-                        </div>
-                        <div style="margin-top:28px">
-                            <a href="/web/login" class="kebi-forgot-link">← 返回登录</a>
-                        </div>
+                <script>document.body.classList.add('kebi-home-body');document.title='天枢科技物流系统 - 关于我们';</script>
+                <main class="kebi-detail-page">
+                    <div class="kebi-detail-shell">
+                        <nav class="kebi-detail-nav">
+                            <a href="/">天枢科技物流系统</a>
+                            <a href="/web/login?redirect=/web">登录系统</a>
+                        </nav>
+                        <section class="kebi-detail-title">
+                            <div class="kebi-home-eyebrow">About Tianshu Technology</div>
+                            <h1>关于我们</h1>
+                            <p>
+                                天枢科技专注于城市供应链全链路数字化，把订单、仓储、运输、留痕、数据看板与订货协同整合到统一后台，
+                                帮助企业把货物流转过程变得清晰、可追踪、可复盘。
+                            </p>
+                        </section>
+                        <section class="kebi-detail-grid">
+                            <article class="kebi-detail-card">
+                                <strong>01</strong>
+                                <p>围绕 ERP 经营管理、WMS 仓储作业、TMS 运输调度和 BI 控制塔搭建统一的物流作业底座。</p>
+                            </article>
+                            <article class="kebi-detail-card">
+                                <strong>02</strong>
+                                <p>服务城市仓储、干线运输与末端配送场景，让入库、出库、派车、签收和异常处理都有据可查。</p>
+                            </article>
+                            <article class="kebi-detail-card">
+                                <strong>03</strong>
+                                <p>持续沉淀订单、库存、车辆、人员和履约数据，为管理层提供更透明的运营决策依据。</p>
+                            </article>
+                        </section>
+                        <section class="kebi-detail-grid kebi-detail-grid-two">
+                            <article class="kebi-detail-card">
+                                <strong>联系</strong>
+                                <p>联系电话：18438369520<br/>联系邮箱：2542127368@qq.com</p>
+                            </article>
+                            <article class="kebi-detail-card">
+                                <strong>方向</strong>
+                                <p>以“可执行、可留痕、可分析”为核心，陪伴物流企业逐步完成从人工台账到数字化运营的升级。</p>
+                            </article>
+                        </section>
                     </div>
-                </div>
+                </main>
             </t>
         </field>
     </record>

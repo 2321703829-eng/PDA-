@@ -2,7 +2,7 @@
 <odoo>
     <template id="logistics_web_layout_brand_title" inherit_id="web.layout">
         <xpath expr="//title" position="replace">
-            <title t-esc="title or '天枢科技企业系统'"/>
+            <title t-esc="title or '天枢科技物流系统'"/>
         </xpath>
     </template>
 

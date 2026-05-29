@@ -1,0 +1,1004 @@
+/* Kebi backend visual polish: keep native Odoo surfaces visually aligned. */
+.o_web_client {
+  --o-brand-primary: #1e5f98;
+  --o-brand-odoo: #1e5f98;
+  --o-action: #1e5f98;
+  --kebi-primary: #1e5f98;
+  --kebi-primary-dark: #123d70;
+  --kebi-primary-light: #edf5ff;
+  --kebi-border: #d9e6f3;
+  --kebi-text: #1f2d3d;
+  --kebi-radius: 8px;
+  --kebi-shadow: 0 10px 24px rgba(18, 61, 112, 0.08);
+}
+
+.o_web_client .o_main_navbar {
+  min-height: 56px !important;
+  height: 56px !important;
+  padding: 0 20px !important;
+  border: 0 !important;
+  box-shadow: 0 10px 24px rgba(18, 61, 112, 0.12) !important;
+  background: linear-gradient(90deg, #123d70 0%, #1e5f98 55%, #2f76b8 100%) !important;
+}
+
+.o_web_client .o_main_navbar .o_menu_brand,
+.o_web_client .o_main_navbar .o_navbar_apps_menu,
+.o_web_client .o_main_navbar .o_menu_sections .o_nav_entry,
+.o_web_client .o_main_navbar .o_menu_sections .dropdown-toggle,
+.o_web_client .o_main_navbar .o_menu_systray .dropdown-toggle,
+.o_web_client .o_main_navbar .o_menu_systray > * > a,
+.o_web_client .o_main_navbar .o_menu_systray > * > button {
+  min-height: 40px !important;
+  border-radius: var(--kebi-radius) !important;
+  color: #fff !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+
+.o_web_client .o_main_navbar .o_menu_brand {
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  padding: 0 10px !important;
+}
+
+.o_web_client .o_main_navbar .o_menu_sections .o_nav_entry,
+.o_web_client .o_main_navbar .o_menu_sections .dropdown-toggle,
+.o_web_client .o_main_navbar .o_menu_systray .dropdown-toggle,
+.o_web_client .o_main_navbar .o_menu_systray > * > a,
+.o_web_client .o_main_navbar .o_menu_systray > * > button {
+  padding: 0 14px !important;
+  font-weight: 600 !important;
+}
+
+.o_web_client .o_main_navbar .o_menu_sections .o_nav_entry:hover,
+.o_web_client .o_main_navbar .o_menu_sections .dropdown-toggle:hover,
+.o_web_client .o_main_navbar .o_menu_systray .dropdown-toggle:hover,
+.o_web_client .o_main_navbar .o_menu_systray > * > a:hover,
+.o_web_client .o_main_navbar .o_menu_systray > * > button:hover,
+.o_web_client .o_main_navbar .o_menu_sections .show > .dropdown-toggle,
+.o_web_client .o_main_navbar .o_menu_systray .show > .dropdown-toggle {
+  background: rgba(255, 255, 255, 0.14) !important;
+  color: #fff !important;
+}
+
+.o_web_client .dropdown-menu,
+.o_web_client .o-dropdown--menu,
+.o_web_client .o_popover,
+.o_web_client .modal-content {
+  border: 1px solid var(--kebi-border) !important;
+  border-radius: var(--kebi-radius) !important;
+  box-shadow: var(--kebi-shadow) !important;
+}
+
+.o_web_client .dropdown-item,
+.o_web_client .o-dropdown--menu .dropdown-item {
+  border-radius: 6px !important;
+  color: var(--kebi-text) !important;
+}
+
+.o_web_client .dropdown-item:hover,
+.o_web_client .dropdown-item:focus {
+  background: var(--kebi-primary-light) !important;
+  color: var(--kebi-primary-dark) !important;
+}
+
+.o_web_client .btn,
+.o_web_client button.btn,
+.o_web_client .o_button,
+.o_web_client .o_form_button_save,
+.o_web_client .o_form_button_cancel {
+  min-height: 34px !important;
+  border-radius: var(--kebi-radius) !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
+}
+
+.o_web_client .btn-primary,
+.o_web_client .btn.o-kanban-button-new,
+.o_web_client .o_list_button_add,
+.o_web_client .o_form_button_save {
+  border-color: var(--kebi-primary) !important;
+  background: var(--kebi-primary) !important;
+  color: #fff !important;
+}
+
+.o_web_client .btn-primary:hover,
+.o_web_client .btn.o-kanban-button-new:hover,
+.o_web_client .o_list_button_add:hover,
+.o_web_client .o_form_button_save:hover {
+  border-color: var(--kebi-primary-dark) !important;
+  background: var(--kebi-primary-dark) !important;
+  color: #fff !important;
+}
+
+.o_web_client .btn-secondary,
+.o_web_client .btn-outline-primary,
+.o_web_client .o_form_button_cancel {
+  border-color: #a9c9e8 !important;
+  background: var(--kebi-primary-light) !important;
+  color: var(--kebi-primary-dark) !important;
+}
+
+.o_web_client .btn-danger {
+  border-color: #d24848 !important;
+  background: #d24848 !important;
+  color: #fff !important;
+}
+
+.o_web_client .o_control_panel {
+  border-bottom: 1px solid var(--kebi-border) !important;
+  background: linear-gradient(180deg, #f7fbff 0%, #fff 100%) !important;
+}
+
+.o_web_client .o_searchview,
+.o_web_client .o_input,
+.o_web_client input,
+.o_web_client select,
+.o_web_client textarea {
+  border-radius: var(--kebi-radius) !important;
+}
+
+.o_web_client .o_form_sheet,
+.o_web_client .o_kanban_record,
+.o_web_client .o_list_renderer,
+.o_web_client .card,
+.o_web_client .o_logistics_web_card,
+.o_web_client .o_logistics_web_module_card,
+.o_web_client .o_logistics_web_summary_card {
+  border-color: var(--kebi-border) !important;
+  border-radius: var(--kebi-radius) !important;
+  box-shadow: var(--kebi-shadow) !important;
+}
+
+.o_web_client .o_list_renderer th,
+.o_web_client .o_list_renderer .o_list_table thead th {
+  background: #f7fbff !important;
+  color: #111827 !important;
+  font-weight: 700 !important;
+}
+
+.o_web_client .o_field_statusbar > .o_statusbar_status > .o_arrow_button,
+.o_web_client .badge.text-bg-primary,
+.o_web_client .badge.bg-primary,
+.o_web_client .o_tag,
+.o_web_client .o_searchview_facet .o_searchview_facet_label {
+  background-color: var(--kebi-primary) !important;
+  border-color: var(--kebi-primary) !important;
+  color: #fff !important;
+}
+
+.o_web_client a,
+.o_web_client .text-primary {
+  color: var(--kebi-primary) !important;
+}
+
+.o_web_client .bg-odoo,
+.o_web_client .text-bg-odoo {
+  background-color: var(--kebi-primary) !important;
+  color: #fff !important;
+}
+
+.o_web_client .o_user_menu .dropdown-menu,
+.o_web_client .o_switch_company_menu .dropdown-menu {
+  padding: 8px !important;
+}
+
+.o_web_client .o_user_menu a[href*="odoo.com"],
+.o_web_client .o_user_menu .o_doc_link,
+.o_web_client .o_user_menu .o_debug_manager,
+.o_web_client .dropdown-item[href*="odoo.com"] {
+  display: none !important;
+}
+
+/* 2026-05-29: internal web design refresh, based on the live kebi backend. */
+.o_web_client {
+  --o-brand-primary: #0f778f;
+  --o-brand-odoo: #0f778f;
+  --o-action: #0f778f;
+  --kebi-ink: #111417;
+  --kebi-ink-soft: #5f6b77;
+  --kebi-paper: #ffffff;
+  --kebi-canvas: #d9dde1;
+  --kebi-line: #e4e8ec;
+  --kebi-line-strong: #cdd4db;
+  --kebi-cyan: #0aa6c8;
+  --kebi-amber: #f4a02a;
+  --kebi-green: #2f7a5a;
+  --kebi-slate: #34383d;
+  --kebi-radius: 8px;
+  --kebi-shadow: 0 18px 38px rgba(34, 40, 46, 0.12);
+  --kebi-shadow-soft: 0 8px 22px rgba(34, 40, 46, 0.08);
+  color: var(--kebi-ink);
+}
+
+.o_web_client,
+.o_web_client .o_action_manager,
+.o_web_client .o_content,
+.o_web_client .o_view_controller {
+  background: var(--kebi-canvas) !important;
+}
+
+.o_web_client .o_main_navbar {
+  min-height: 66px !important;
+  height: 66px !important;
+  gap: 14px !important;
+  padding: 0 clamp(18px, 3vw, 34px) !important;
+  border: 0 !important;
+  background: rgba(255, 255, 255, 0.96) !important;
+  box-shadow: 0 1px 0 rgba(18, 22, 26, 0.08), 0 18px 38px rgba(18, 22, 26, 0.08) !important;
+  backdrop-filter: blur(18px);
+}
+
+.o_web_client .o_main_navbar::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(10, 166, 200, 0.38), transparent);
+  pointer-events: none;
+}
+
+.o_web_client .o_main_navbar .o_menu_brand {
+  gap: 10px !important;
+  min-height: 42px !important;
+  padding: 0 14px 0 0 !important;
+  color: var(--kebi-ink) !important;
+  font-size: 18px !important;
+  font-weight: 760 !important;
+  letter-spacing: 0 !important;
+  text-shadow: none !important;
+}
+
+.o_web_client .o_main_navbar .o_menu_brand::before {
+  content: "TS";
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--kebi-radius);
+  color: #ffffff;
+  background: #101418;
+  font-size: 13px;
+  font-weight: 850;
+  box-shadow: 0 8px 18px rgba(17, 20, 24, 0.18);
+}
+
+.o_web_client .o_main_navbar a:not(.btn),
+.o_web_client .o_main_navbar .dropdown-toggle,
+.o_web_client .o_main_navbar .o_nav_entry,
+.o_web_client .o_main_navbar .o_menu_brand *,
+.o_web_client .o_main_navbar .dropdown-toggle *,
+.o_web_client .o_main_navbar .o_nav_entry * {
+  color: var(--kebi-ink) !important;
+  text-shadow: none !important;
+}
+
+.o_web_client .o_main_navbar .o_menu_sections {
+  gap: 6px !important;
+}
+
+.o_web_client .o_main_navbar .o_menu_sections .o_nav_entry,
+.o_web_client .o_main_navbar .o_menu_sections .dropdown-toggle {
+  min-height: 42px !important;
+  margin: 0 !important;
+  padding: 0 14px !important;
+  border-radius: var(--kebi-radius) !important;
+  color: #2b3138 !important;
+  font-weight: 680 !important;
+  background: transparent !important;
+}
+
+.o_web_client .o_main_navbar .o_menu_sections .o_nav_entry:hover,
+.o_web_client .o_main_navbar .o_menu_sections .dropdown-toggle:hover,
+.o_web_client .o_main_navbar .o_menu_sections .show > .dropdown-toggle,
+.o_web_client .o_main_navbar .o_menu_sections .o_nav_entry.active,
+.o_web_client .o_main_navbar .o_menu_sections .o_nav_entry[aria-current="page"] {
+  color: var(--kebi-ink) !important;
+  background: #eef2f5 !important;
+  box-shadow: inset 0 0 0 1px rgba(17, 20, 24, 0.06) !important;
+}
+
+.o_web_client .o_main_navbar .o_menu_systray {
+  gap: 10px !important;
+  margin-inline-start: auto !important;
+  padding-inline-start: 20px !important;
+  border-inline-start: 1px solid var(--kebi-line) !important;
+}
+
+.o_web_client .o_main_navbar .o_menu_systray .dropdown-toggle,
+.o_web_client .o_main_navbar .o_menu_systray .o-dropdown > button,
+.o_web_client .o_main_navbar .o_menu_systray .o-dropdown > .dropdown-toggle,
+.o_web_client .o_main_navbar .o_menu_systray > * > a,
+.o_web_client .o_main_navbar .o_menu_systray > * > button {
+  min-height: 42px !important;
+  padding: 0 12px !important;
+  border: 1px solid var(--kebi-line) !important;
+  border-radius: var(--kebi-radius) !important;
+  color: var(--kebi-ink) !important;
+  background: #f8fafb !important;
+  box-shadow: none !important;
+}
+
+.o_web_client .o_main_navbar .o_menu_systray .dropdown-toggle:hover,
+.o_web_client .o_main_navbar .o_menu_systray .o-dropdown > button:hover,
+.o_web_client .o_main_navbar .o_menu_systray .o-dropdown > .dropdown-toggle:hover,
+.o_web_client .o_main_navbar .o_menu_systray > * > a:hover,
+.o_web_client .o_main_navbar .o_menu_systray > * > button:hover {
+  color: var(--kebi-ink) !important;
+  background: #eef2f5 !important;
+  transform: translateY(-1px);
+}
+
+.o_web_client .o_control_panel {
+  margin: 14px 18px 0 !important;
+  border: 1px solid var(--kebi-line) !important;
+  border-radius: var(--kebi-radius) !important;
+  background: rgba(255, 255, 255, 0.94) !important;
+  box-shadow: var(--kebi-shadow-soft) !important;
+}
+
+.o_web_client .o_control_panel .breadcrumb,
+.o_web_client .o_control_panel .breadcrumb-item,
+.o_web_client .o_control_panel .breadcrumb-item a,
+.o_web_client .o_control_panel .o_last_breadcrumb_item {
+  color: var(--kebi-ink) !important;
+  font-weight: 720;
+}
+
+.o_web_client .btn,
+.o_web_client button.btn,
+.o_web_client .o_button,
+.o_web_client .o_form_button_save,
+.o_web_client .o_form_button_cancel {
+  min-height: 36px !important;
+  border-radius: var(--kebi-radius) !important;
+  font-weight: 700 !important;
+}
+
+.o_web_client .btn-primary,
+.o_web_client .btn.o-kanban-button-new,
+.o_web_client .o_list_button_add,
+.o_web_client .o_form_button_save {
+  border-color: #101418 !important;
+  background: #101418 !important;
+  color: #ffffff !important;
+}
+
+.o_web_client .btn-primary:hover,
+.o_web_client .btn.o-kanban-button-new:hover,
+.o_web_client .o_list_button_add:hover,
+.o_web_client .o_form_button_save:hover {
+  border-color: #2b3138 !important;
+  background: #2b3138 !important;
+}
+
+.o_web_client .btn-secondary,
+.o_web_client .btn-outline-primary,
+.o_web_client .o_form_button_cancel {
+  border-color: var(--kebi-line-strong) !important;
+  background: #f8fafb !important;
+  color: #20262d !important;
+}
+
+.o_web_client .dropdown-menu,
+.o_web_client .o-dropdown--menu,
+.o_web_client .o_popover,
+.o_web_client .modal-content {
+  border: 1px solid var(--kebi-line) !important;
+  border-radius: var(--kebi-radius) !important;
+  box-shadow: var(--kebi-shadow) !important;
+}
+
+.o_web_client .dropdown-item:hover,
+.o_web_client .dropdown-item:focus,
+.o_web_client .dropdown-menu .dropdown-item.active,
+.o_web_client .dropdown-menu .dropdown-item:active {
+  background: #eef2f5 !important;
+  color: var(--kebi-ink) !important;
+}
+
+.o_web_client .o_list_renderer,
+.o_web_client .o_kanban_renderer,
+.o_web_client .o_form_view .o_form_sheet {
+  border: 1px solid var(--kebi-line) !important;
+  border-radius: var(--kebi-radius) !important;
+  background: var(--kebi-paper) !important;
+  box-shadow: var(--kebi-shadow-soft) !important;
+}
+
+.o_web_client .o_list_renderer {
+  margin: 16px 18px 18px !important;
+  overflow: hidden;
+}
+
+.o_web_client .o_list_renderer .o_list_table thead th,
+.o_web_client .o_list_renderer th {
+  background: #f5f7f9 !important;
+  color: #20262d !important;
+  font-weight: 760 !important;
+}
+
+.o_web_client .o_list_renderer .o_data_row:hover {
+  background: #f8fbfc !important;
+}
+
+.o_web_client .o_form_view {
+  background: var(--kebi-canvas) !important;
+}
+
+.o_web_client .o_form_view .o_form_sheet_bg {
+  padding: 18px !important;
+  max-width: 1480px !important;
+}
+
+.o_web_client .o_form_view .o_form_statusbar {
+  border: 1px solid var(--kebi-line) !important;
+  border-radius: var(--kebi-radius) !important;
+  background: rgba(255, 255, 255, 0.94) !important;
+  box-shadow: var(--kebi-shadow-soft) !important;
+}
+
+.o_web_client .o_form_view .oe_button_box,
+.o_web_client .o_form_view .o_notebook > .nav {
+  border: 1px solid var(--kebi-line) !important;
+  border-radius: var(--kebi-radius) !important;
+  background: #f8fafb !important;
+}
+
+.o_web_client .o_form_view .oe_button_box .oe_stat_button,
+.o_web_client .o_form_view .oe_button_box .btn.oe_stat_button,
+.o_web_client .o_kanban_record {
+  border: 1px solid var(--kebi-line) !important;
+  border-radius: var(--kebi-radius) !important;
+  background: #ffffff !important;
+  box-shadow: 0 8px 18px rgba(34, 40, 46, 0.06) !important;
+}
+
+.o_web_client .o_input,
+.o_web_client .o_searchview,
+.o_web_client .form-control,
+.o_web_client .form-select,
+.o_web_client input,
+.o_web_client select,
+.o_web_client textarea {
+  border-color: var(--kebi-line-strong) !important;
+  border-radius: var(--kebi-radius) !important;
+}
+
+.o_web_client .o_input:focus,
+.o_web_client .o_searchview:focus-within,
+.o_web_client .form-control:focus,
+.o_web_client .form-select:focus,
+.o_web_client input:focus,
+.o_web_client select:focus,
+.o_web_client textarea:focus {
+  border-color: var(--kebi-cyan) !important;
+  box-shadow: 0 0 0 3px rgba(10, 166, 200, 0.14) !important;
+}
+
+.o_web_client a,
+.o_web_client a:not(.btn),
+.o_web_client .text-primary,
+.o_web_client .link-primary {
+  color: #0f778f !important;
+}
+
+.o_web_client .badge.text-bg-primary,
+.o_web_client .badge.bg-primary,
+.o_web_client .o_tag,
+.o_web_client .o_searchview_facet .o_searchview_facet_label,
+.o_web_client .o_field_statusbar > .o_statusbar_status > .o_arrow_button.o_arrow_button_current {
+  background-color: #101418 !important;
+  border-color: #101418 !important;
+  color: #ffffff !important;
+}
+
+.o_logistics_web_page::before,
+.o_logistics_web_page::after,
+.o_logistics_web_page_hero::before {
+  display: none !important;
+}
+
+.o_logistics_web_page:not(.o_logistics_web_homepage) {
+  max-width: 1560px !important;
+  padding: 24px !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+}
+
+.o_logistics_web_page_hero:not(.o_logistics_web_home_hero) {
+  min-height: 220px !important;
+  border: 0 !important;
+  border-radius: var(--kebi-radius) !important;
+  background:
+    linear-gradient(90deg, rgba(3, 10, 17, 0.84) 0%, rgba(5, 24, 36, 0.58) 48%, rgba(5, 17, 24, 0.72) 100%),
+    url("/logistics_web/static/src/img/tianshu-data-network-hero.png") center center / cover no-repeat !important;
+  box-shadow: var(--kebi-shadow) !important;
+}
+
+.o_logistics_web_page_hero:not(.o_logistics_web_home_hero)::after {
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(3, 10, 17, 0.24) 100%) !important;
+}
+
+.o_logistics_web_page_hero:not(.o_logistics_web_home_hero) h1,
+.o_logistics_web_page_hero:not(.o_logistics_web_home_hero) strong,
+.o_logistics_web_page_hero:not(.o_logistics_web_home_hero) .o_logistics_web_page_kicker {
+  color: #ffffff !important;
+  text-shadow: 0 12px 30px rgba(0, 0, 0, 0.24);
+}
+
+.o_logistics_web_page_hero:not(.o_logistics_web_home_hero) p,
+.o_logistics_web_page_hero:not(.o_logistics_web_home_hero) span {
+  color: rgba(255, 255, 255, 0.86) !important;
+}
+
+.o_logistics_web_page_hero:not(.o_logistics_web_home_hero) .o_logistics_web_status_tag,
+.o_logistics_web_page_hero:not(.o_logistics_web_home_hero) .o_logistics_web_page_kicker {
+  border-color: rgba(255, 255, 255, 0.18) !important;
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  backdrop-filter: blur(14px);
+}
+
+.o_logistics_web_panel_shell,
+.o_logistics_dashboard_summary_card,
+.o_logistics_stats_summary_card,
+.o_logistics_dashboard_row_card,
+.o_logistics_dashboard_change_card,
+.o_logistics_dashboard_target_card,
+.o_logistics_web_import_template_card,
+.o_logistics_web_import_upload_panel,
+.o_logistics_web_import_result_info_card,
+.o_logistics_web_import_result_hero_card {
+  border: 1px solid var(--kebi-line) !important;
+  border-radius: var(--kebi-radius) !important;
+  background: #ffffff !important;
+  box-shadow: 0 10px 24px rgba(34, 40, 46, 0.08) !important;
+}
+
+.o_logistics_web_home_action {
+  min-height: calc(100vh - 66px);
+  padding: 28px;
+  background:
+    linear-gradient(135deg, rgba(10, 166, 200, 0.14) 0%, rgba(10, 166, 200, 0) 34%),
+    linear-gradient(225deg, rgba(244, 160, 42, 0.12) 0%, rgba(244, 160, 42, 0) 30%),
+    linear-gradient(180deg, #d9dde1 0%, #cfd4d8 100%);
+}
+
+.o_logistics_web_home_action .o_content,
+.o_logistics_web_home_action .o_action_manager {
+  background: transparent !important;
+}
+
+.o_logistics_web_homepage {
+  max-width: 1560px !important;
+  margin: 0 auto !important;
+  padding: 0 0 42px !important;
+  border: 1px solid rgba(17, 20, 24, 0.08) !important;
+  border-radius: 12px !important;
+  background: #ffffff !important;
+  box-shadow: 0 28px 70px rgba(17, 20, 24, 0.18) !important;
+  overflow: hidden !important;
+  gap: 0 !important;
+}
+
+.o_logistics_home_topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  min-height: 74px;
+  padding: 0 clamp(26px, 4vw, 46px);
+  border-bottom: 1px solid var(--kebi-line);
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.o_logistics_home_identity,
+.o_logistics_home_toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.o_logistics_home_identity {
+  color: var(--kebi-ink);
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.o_logistics_home_identity_mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--kebi-radius);
+  color: #ffffff;
+  background: #101418;
+  font-size: 13px;
+  font-weight: 880;
+  box-shadow: 0 8px 18px rgba(17, 20, 24, 0.18);
+}
+
+.o_logistics_home_toolbar span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid var(--kebi-line);
+  border-radius: var(--kebi-radius);
+  color: #30373f;
+  background: #f8fafb;
+  font-size: 13px;
+  font-weight: 720;
+  white-space: nowrap;
+}
+
+.o_logistics_web_home_hero.o_logistics_web_page_hero {
+  min-height: clamp(250px, 31vh, 330px) !important;
+  margin: 0 !important;
+  padding: clamp(34px, 5vw, 58px) clamp(32px, 5vw, 64px) clamp(64px, 8vw, 86px) !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background:
+    linear-gradient(90deg, rgba(3, 10, 17, 0.82) 0%, rgba(5, 24, 36, 0.52) 42%, rgba(5, 17, 24, 0.66) 100%),
+    url("/logistics_web/static/src/img/tianshu-data-network-hero.png") center center / cover no-repeat !important;
+  box-shadow: none !important;
+}
+
+.o_logistics_web_home_hero.o_logistics_web_page_hero::before {
+  display: none !important;
+}
+
+.o_logistics_web_home_hero.o_logistics_web_page_hero::after {
+  background: linear-gradient(180deg, transparent 0%, rgba(3, 10, 17, 0.34) 100%) !important;
+}
+
+.o_logistics_web_home_hero h1 {
+  max-width: 780px;
+  margin: 0;
+  color: #ffffff !important;
+  font-size: clamp(34px, 4.8vw, 56px);
+  line-height: 1.08;
+  font-weight: 860;
+  letter-spacing: 0;
+  text-shadow: 0 14px 34px rgba(0, 0, 0, 0.24);
+}
+
+.o_logistics_web_home_hero p {
+  max-width: 780px;
+  color: rgba(255, 255, 255, 0.86) !important;
+  font-size: 15px;
+  line-height: 1.9;
+}
+
+.o_logistics_web_home_brandline {
+  gap: 10px !important;
+}
+
+.o_logistics_web_home_brand {
+  color: rgba(255, 255, 255, 0.82) !important;
+  font-size: 12px !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+
+.o_logistics_web_home_hero .o_logistics_web_status_tag {
+  border-color: rgba(255, 255, 255, 0.18) !important;
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  backdrop-filter: blur(14px);
+}
+
+.o_logistics_web_home_hero_note {
+  max-width: 330px !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+  border-radius: var(--kebi-radius) !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.18) !important;
+  backdrop-filter: blur(16px);
+}
+
+.o_logistics_home_modules_section {
+  position: relative;
+  z-index: 4;
+  margin: -52px clamp(24px, 4vw, 52px) 0 !important;
+}
+
+.o_logistics_home_section,
+.o_logistics_web_home_grid,
+.o_logistics_web_homepage > .o_logistics_web_dashboard_section:not(.o_logistics_home_modules_section) {
+  margin: 34px clamp(24px, 4vw, 52px) 0 !important;
+}
+
+.o_logistics_web_section_heading {
+  margin-bottom: 16px !important;
+}
+
+.o_logistics_web_section_heading h2 {
+  margin: 0 !important;
+  color: var(--kebi-ink) !important;
+  font-size: 24px !important;
+  font-weight: 820 !important;
+  letter-spacing: 0 !important;
+}
+
+.o_logistics_web_section_heading p {
+  margin: 8px 0 0 !important;
+  color: var(--kebi-ink-soft) !important;
+  line-height: 1.65 !important;
+}
+
+.o_logistics_web_home_module_grid {
+  display: grid !important;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(218px, 1fr);
+  grid-template-columns: none !important;
+  gap: 16px !important;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  padding: 4px 4px 18px;
+  scrollbar-color: #aeb7bf transparent;
+}
+
+.o_logistics_web_home_module_card {
+  position: relative;
+  display: flex !important;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 168px !important;
+  padding: 18px !important;
+  border: 1px solid rgba(17, 20, 24, 0.08) !important;
+  border-radius: var(--kebi-radius) !important;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(247, 249, 251, 0.96) 100%) !important;
+  box-shadow: 0 18px 38px rgba(17, 20, 24, 0.12) !important;
+  scroll-snap-align: start;
+  overflow: hidden;
+}
+
+.o_logistics_web_home_module_card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(135deg, var(--tile-glow, rgba(10, 166, 200, 0.18)) 0%, rgba(255, 255, 255, 0) 34%),
+    linear-gradient(180deg, transparent 0%, rgba(255, 255, 255, 0.62) 100%);
+  pointer-events: none;
+}
+
+.o_logistics_web_home_module_card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.o_logistics_home_module_icon {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: var(--kebi-radius);
+  color: #ffffff;
+  background: var(--tile-accent, #101418);
+  box-shadow: 0 14px 26px rgba(17, 20, 24, 0.16);
+}
+
+.o_logistics_home_module_icon::before {
+  content: "TS";
+  font-size: 12px;
+  font-weight: 860;
+}
+
+.o_logistics_web_home_module_card[data-module="erp"] {
+  --tile-accent: #101418;
+  --tile-glow: rgba(17, 20, 24, 0.18);
+}
+
+.o_logistics_web_home_module_card[data-module="erp"] .o_logistics_home_module_icon::before { content: "ERP"; }
+
+.o_logistics_web_home_module_card[data-module="b2b"] {
+  --tile-accent: #0f778f;
+  --tile-glow: rgba(10, 166, 200, 0.2);
+}
+
+.o_logistics_web_home_module_card[data-module="b2b"] .o_logistics_home_module_icon::before { content: "B2B"; }
+
+.o_logistics_web_home_module_card[data-module="wms"] {
+  --tile-accent: #2f7a5a;
+  --tile-glow: rgba(47, 122, 90, 0.2);
+}
+
+.o_logistics_web_home_module_card[data-module="wms"] .o_logistics_home_module_icon::before { content: "WMS"; }
+
+.o_logistics_web_home_module_card[data-module="tms"] {
+  --tile-accent: #f4a02a;
+  --tile-glow: rgba(244, 160, 42, 0.24);
+}
+
+.o_logistics_web_home_module_card[data-module="tms"] .o_logistics_home_module_icon::before { content: "TMS"; }
+
+.o_logistics_web_home_module_card[data-module="bi"] {
+  --tile-accent: #496a82;
+  --tile-glow: rgba(73, 106, 130, 0.22);
+}
+
+.o_logistics_web_home_module_card[data-module="bi"] .o_logistics_home_module_icon::before { content: "BI"; }
+
+.o_logistics_web_home_module_card[data-module="master"] {
+  --tile-accent: #7b6f5a;
+  --tile-glow: rgba(123, 111, 90, 0.2);
+}
+
+.o_logistics_web_home_module_card[data-module="master"] .o_logistics_home_module_icon::before { content: "MD"; }
+
+.o_logistics_web_home_module_card[data-module="settings"] {
+  --tile-accent: #34383d;
+  --tile-glow: rgba(52, 56, 61, 0.18);
+}
+
+.o_logistics_web_home_module_card[data-module="settings"] .o_logistics_home_module_icon::before { content: "SYS"; }
+
+.o_logistics_web_home_module_card strong {
+  margin-top: 74px;
+  color: var(--kebi-ink) !important;
+  font-size: 18px;
+  font-weight: 820;
+}
+
+.o_logistics_web_home_module_card p {
+  margin: 10px 0 0;
+  color: var(--kebi-ink-soft);
+  line-height: 1.72;
+}
+
+.o_logistics_web_home_module_card:hover {
+  transform: translateY(-4px) !important;
+  border-color: rgba(17, 20, 24, 0.16) !important;
+  box-shadow: 0 26px 48px rgba(17, 20, 24, 0.18) !important;
+}
+
+.o_logistics_web_summary_card,
+.o_logistics_web_placeholder_panel,
+.o_logistics_web_home_cockpit_panel,
+.o_logistics_web_dashboard_change_card {
+  border: 1px solid var(--kebi-line) !important;
+  border-radius: var(--kebi-radius) !important;
+  background: #ffffff !important;
+  box-shadow: 0 10px 24px rgba(34, 40, 46, 0.08) !important;
+}
+
+.o_logistics_web_home_card_grid,
+.o_logistics_web_home_metric_grid,
+.o_logistics_web_home_trend_grid {
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)) !important;
+  gap: 16px !important;
+}
+
+.o_logistics_web_summary_card {
+  min-height: 132px;
+  padding: 18px !important;
+  overflow: hidden;
+}
+
+.o_logistics_web_summary_card[data-tone="danger"] {
+  border-color: rgba(210, 72, 72, 0.22) !important;
+  background: linear-gradient(180deg, #ffffff 0%, #fff5f3 100%) !important;
+}
+
+.o_logistics_web_summary_card[data-tone="warning"] {
+  border-color: rgba(244, 160, 42, 0.3) !important;
+  background: linear-gradient(180deg, #ffffff 0%, #fff9ec 100%) !important;
+}
+
+.o_logistics_web_summary_card[data-tone="info"] {
+  border-color: rgba(10, 166, 200, 0.24) !important;
+  background: linear-gradient(180deg, #ffffff 0%, #f0fbfd 100%) !important;
+}
+
+.o_logistics_web_summary_card_value,
+.o_logistics_web_home_metric_value,
+.o_logistics_web_home_cockpit_value {
+  color: var(--kebi-ink) !important;
+  font-weight: 860 !important;
+  letter-spacing: 0 !important;
+}
+
+.o_logistics_web_home_cockpit_grid {
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)) !important;
+}
+
+.o_logistics_web_home_cockpit_panel {
+  padding: 22px !important;
+}
+
+.o_logistics_web_home_cockpit_metric {
+  border-radius: var(--kebi-radius) !important;
+  border-color: var(--kebi-line) !important;
+  background: #f8fafb !important;
+}
+
+.o_logistics_web_home_grid {
+  grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr) !important;
+  gap: 24px !important;
+}
+
+.o_logistics_web_home_quick_grid,
+.o_logistics_web_home_guide_grid {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) !important;
+}
+
+.o_logistics_web_home_trend_card[data-tone="danger"] {
+  border-color: rgba(210, 72, 72, 0.22) !important;
+}
+
+.o_logistics_web_home_trend_card[data-tone="success"] {
+  border-color: rgba(47, 122, 90, 0.24) !important;
+}
+
+@media (max-width: 1180px) {
+  .o_logistics_web_home_hero.o_logistics_web_page_hero {
+    grid-template-columns: 1fr !important;
+  }
+
+  .o_logistics_web_home_hero_side {
+    align-items: flex-start !important;
+  }
+
+  .o_logistics_web_home_grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .o_logistics_web_home_action {
+    padding: 0;
+  }
+
+  .o_logistics_web_homepage {
+    border-radius: 0 !important;
+    border-inline: 0 !important;
+  }
+
+  .o_logistics_home_topbar {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 18px 20px;
+  }
+
+  .o_logistics_home_toolbar {
+    flex-wrap: wrap;
+  }
+
+  .o_logistics_web_home_hero.o_logistics_web_page_hero {
+    padding: 30px 20px 74px !important;
+  }
+
+  .o_logistics_web_home_hero h1 {
+    font-size: clamp(30px, 11vw, 42px);
+  }
+
+  .o_logistics_home_modules_section,
+  .o_logistics_home_section,
+  .o_logistics_web_home_grid,
+  .o_logistics_web_homepage > .o_logistics_web_dashboard_section:not(.o_logistics_home_modules_section) {
+    margin-inline: 20px !important;
+  }
+
+  .o_logistics_web_home_module_grid {
+    grid-auto-columns: minmax(210px, 78vw);
+  }
+
+  .o_logistics_web_home_cockpit_metrics {
+    grid-template-columns: 1fr !important;
+  }
+}

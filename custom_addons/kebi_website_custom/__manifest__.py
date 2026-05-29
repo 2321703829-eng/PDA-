@@ -6,6 +6,7 @@
     "license": "LGPL-3",
     "depends": ["website", "auth_signup", "portal"],
     "data": [
+        "security/ir.model.access.csv",
         "views/website_templates.xml",
     ],
     "installable": True,

@@ -39,15 +39,15 @@ export class LogisticsHomeAction extends Component {
 
     get ui() {
         return {
-            brandTitle: "天枢科技企业系统",
-            heroTitle: "先确认企业入口，再进入今天的工作模块",
-            heroSubtitle: "这里统一放置物流、车队、员工、库存和统计入口；先选模块，再继续处理今天的物流重点和数据摘要。",
+            brandTitle: "天枢科技物流系统",
+            heroTitle: "先选择业务工作区，再处理当前任务",
+            heroSubtitle: "这里统一放置订单经营、B2B 商城、仓库作业、配送调度和数据看板入口；原生模块只做业务支撑，页面按企业工作流组织。",
             badgePrimary: "Tianshu Enterprise Console",
             badgeSecondary: this.formatToday(new Date()),
-            loading: "正在加载天枢科技企业系统首页...",
-            sectionModules: "系统模块",
-            sectionModulesHint: "先从企业总入口选择模块，再进入对应模块继续工作。",
-            sectionHeadline: "物流今日重点",
+            loading: "正在加载天枢科技物流系统首页...",
+            sectionModules: "业务工作区",
+            sectionModulesHint: "先从企业总入口选择工作区，再进入对应页面继续处理。",
+            sectionHeadline: "今日重点",
             sectionHeadlineHint: "把当天需要优先处理的对象先捞出来，避免异常和超时继续扩大。",
             sectionMetrics: "物流核心指标",
             sectionMetricsHint: "这些指标更偏运营判断，帮助你快速识别今天整体执行情况。",
@@ -55,8 +55,8 @@ export class LogisticsHomeAction extends Component {
             sectionTrendsHint: "用最核心的环比指标先看趋势变化，再决定是否进入详细数据看板。",
             sectionCockpit: "物流仪表盘",
             sectionCockpitHint: "把执行、风险和证据三个维度放进一张首页驾驶舱里，先看全局，再决定往下钻取。",
-            sectionQuick: "物流快捷入口",
-            sectionQuickHint: "先从物流相关高频动作继续处理，不需要再回到旧的应用切换结构里找入口。",
+            sectionQuick: "快捷入口",
+            sectionQuickHint: "把销售、采购、仓库和调度的高频动作放到一起，减少在原生菜单里来回切换。",
             sectionGuides: "系统指引",
             sectionGuidesHint: "不同角色先看不同卡片，首页负责告诉你从哪里开始。",
             sectionRecent: "最近动态",
@@ -107,14 +107,13 @@ export class LogisticsHomeAction extends Component {
         const yesterdayStr = this.formatDate(yesterday);
 
         this.state.moduleCards = [
-            { key: "customer", title: "客户", hint: "进入统一客户入口，查看客户资料、配送规则和交付要求。", actionXmlid: "logistics_base.action_logistics_partner_profile" },
-            { key: "logistics", title: "物流", hint: "进入物流工作台、运单、批次和异常处理。", menuLabels: ["物流"] },
-            { key: "fleet", title: "车队", hint: "进入车队应用，查看车辆、车务记录和相关成本。", menuLabels: ["车队", "Vehicles"] },
-            { key: "employee", title: "员工", hint: "进入员工应用，查看员工档案、岗位和组织信息。", menuLabels: ["员工", "Employees"] },
-            { key: "inventory", title: "库存", hint: "进入库存应用，查看库存作业、出入库单和履约流转。", menuLabels: ["库存", "Inventory"] },
-            { key: "dashboard", title: "所有统计图表", hint: "进入统计图表中心，查看物流分析与排行分布。", actionXmlid: "logistics_web.action_logistics_web_stats_center" },
-            { key: "invoice", title: "发票", hint: "进入发票应用，查看开票、发票列表和对账处理。", menuLabels: ["发票", "Invoices"] },
-            { key: "settings", title: "设置", hint: "进入系统设置和基础参数配置。", menuLabels: ["设置", "Settings"] },
+            { key: "erp", title: "订单经营 ERP", hint: "进入销售订单、采购订单、客户供应商和商品资料。", actionXmlid: "logistics_web.action_enterprise_sales_orders" },
+            { key: "b2b", title: "B2B 商城", hint: "进入客户商品可见范围、购物车草稿、商城订单和售后处理。", targetUrl: "/b2b/products", actionXmlid: "b2b_storefront.action_cart_draft" },
+            { key: "wms", title: "仓库作业 WMS", hint: "进入收货、出库、出入库单和库存查询。", actionXmlid: "logistics_web.action_enterprise_wms_receipts" },
+            { key: "tms", title: "配送调度 TMS", hint: "进入调度工作台、派车单、司机任务、签收和异常。", actionXmlid: "logistics_web.action_logistics_web_dashboard" },
+            { key: "bi", title: "数据看板 BI", hint: "查看订单、仓库、配送、异常和运营指标。", actionXmlid: "logistics_web.action_logistics_web_stats_center" },
+            { key: "master", title: "基础资料", hint: "维护客户/供应商、商品等主数据。", actionXmlid: "logistics_web.action_enterprise_partners" },
+            { key: "settings", title: "系统设置", hint: "进入用户、角色、接口、日志和基础参数配置。", menuLabels: ["设置", "Settings"] },
         ];
 
         try {
@@ -262,17 +261,17 @@ export class LogisticsHomeAction extends Component {
             ];
 
             this.state.quickLinks = [
-                { key: "import_waybill", title: "物流导入", hint: "从标准导入页开始导入运单与订单数据。", action: "import_waybill", tone: "primary" },
-                { key: "exception_center", title: "物流异常", hint: "直接进入物流异常列表，继续查看责任、证据和处理进度。", action: "open_exception", tone: "default" },
-                { key: "waybill_center", title: "物流运单", hint: "进入物流运单列表，按运单号、批次号和门店继续筛选。", action: "open_waybill", tone: "default" },
-                { key: "board_center", title: "物流工作台", hint: "进入物流工作台和管理看板，继续查看趋势与重点对象。", action: "open_board", tone: "default" },
+                { key: "sales_order", title: "销售订单", hint: "进入销售订单列表，继续处理客户下单和发货前置流程。", action: "open_sales", tone: "primary" },
+                { key: "purchase_order", title: "采购订单", hint: "进入采购订单列表，跟进供应商采购和补货。", action: "open_purchase", tone: "default" },
+                { key: "stock_picking", title: "出入库单", hint: "进入仓库出入库单，查看收货、出库和调拨流转。", action: "open_stock", tone: "default" },
+                { key: "board_center", title: "调度工作台", hint: "进入调度工作台和管理看板，继续查看趋势与重点对象。", action: "open_board", tone: "default" },
             ];
 
             this.state.guideCards = [
-                { key: "dispatcher", title: "调度", description: "先进入物流模块，再看待执行运单、批次和波次安排。" },
-                { key: "operator", title: "运营", description: "先看待处理异常和待补证据，再进入物流模块中的异常与证据继续跟进。" },
-                { key: "manager", title: "管理层", description: "先看首页摘要和管理看板，再决定是否进入物流模块定位重点问题。" },
-                { key: "new_user", title: "新用户", description: "先理解企业模块结构，再进入对应模块，不需要一开始就理解全部业务表。" },
+                { key: "sales", title: "销售", description: "从订单经营进入销售订单，跟进客户订单、发货状态和开票前置数据。" },
+                { key: "purchase", title: "采购", description: "从订单经营进入采购订单，处理供应商采购和补货需求。" },
+                { key: "warehouse", title: "仓库", description: "从仓库作业进入收货、出库、出入库单和库存查询。" },
+                { key: "dispatcher", title: "调度", description: "从配送调度进入调度工作台、派车单、司机任务、签收和异常。" },
             ];
 
             this.state.recentItems = (recentExceptions || []).map((item) => ({
@@ -294,7 +293,7 @@ export class LogisticsHomeAction extends Component {
             this.state.quickLinks = [];
             this.state.guideCards = [];
             this.state.recentItems = [];
-            this.state.error = "天枢科技企业系统首页加载失败，请刷新页面或稍后再试。";
+            this.state.error = "天枢科技物流系统首页加载失败，请刷新页面或稍后再试。";
         } finally {
             this.state.loading = false;
         }
@@ -302,6 +301,10 @@ export class LogisticsHomeAction extends Component {
 
     async onModuleCardClick(item) {
         try {
+            if (item?.targetUrl) {
+                window.location.assign(item.targetUrl);
+                return;
+            }
             if (item?.menuLabels?.length) {
                 const menu = this.findMenuByLabels(item.menuLabels);
                 if (menu) {
@@ -335,6 +338,15 @@ export class LogisticsHomeAction extends Component {
     async onQuickLinkClick(item) {
         if (item?.action === "import_waybill") {
             return this.actionService.doAction("logistics_web.action_logistics_web_import_center");
+        }
+        if (item?.action === "open_sales") {
+            return this.actionService.doAction("logistics_web.action_enterprise_sales_orders");
+        }
+        if (item?.action === "open_purchase") {
+            return this.actionService.doAction("logistics_web.action_enterprise_purchase_orders");
+        }
+        if (item?.action === "open_stock") {
+            return this.actionService.doAction("logistics_web.action_enterprise_stock_pickings");
         }
         if (item?.action === "open_exception") {
             return this.openExceptionCenter();

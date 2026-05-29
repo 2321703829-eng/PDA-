@@ -272,6 +272,27 @@
         </div>
     </t>
 
+    <t t-name="logistics_web.TianshuUserSystray">
+        <div class="o_tianshu_account_systray" t-ref="root">
+            <button
+                type="button"
+                class="o_tianshu_account_button"
+                t-att-aria-expanded="state.open ? 'true' : 'false'"
+                title="个人中心"
+                t-on-click.stop="toggleMenu">
+                <span class="o_tianshu_account_initial"><t t-esc="initial"/></span>
+            </button>
+            <div t-if="state.open" class="o_tianshu_account_menu">
+                <button type="button" class="o_tianshu_account_menu_item" t-on-click="openProfile">
+                    个人中心
+                </button>
+                <button type="button" class="o_tianshu_account_menu_item" t-on-click="logout">
+                    退出登录
+                </button>
+            </div>
+        </div>
+    </t>
+
     <t t-name="logistics_web.EvidenceThumbnailField">
         <div class="o_logistics_web_evidence_thumb_list_cell">
             <t t-if="hasImages">
