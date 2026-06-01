@@ -28,10 +28,10 @@
         <field name="implied_ids" eval="[(4, ref('group_logistics_export_user'))]"/>
     </record>
 
-    <record id="group_logistics_dispatch_manager" model="res.groups"><field name="users" eval="[(4, ref('base.user_admin'))]"/></record>
-    <record id="group_logistics_import_manager" model="res.groups"><field name="users" eval="[(4, ref('base.user_admin'))]"/></record>
-    <record id="group_logistics_export_user" model="res.groups"><field name="users" eval="[(4, ref('base.user_admin'))]"/></record>
-    <record id="group_logistics_export_manager" model="res.groups"><field name="users" eval="[(4, ref('base.user_admin'))]"/></record>
+    <record id="group_logistics_dispatch_manager" model="res.groups"><field name="user_ids" eval="[(4, ref('base.user_admin'))]"/></record>
+    <record id="group_logistics_import_manager" model="res.groups"><field name="user_ids" eval="[(4, ref('base.user_admin'))]"/></record>
+    <record id="group_logistics_export_user" model="res.groups"><field name="user_ids" eval="[(4, ref('base.user_admin'))]"/></record>
+    <record id="group_logistics_export_manager" model="res.groups"><field name="user_ids" eval="[(4, ref('base.user_admin'))]"/></record>
 
     <record id="rule_logistics_import_source_file_own_read" model="ir.rule">
         <field name="name">logistics.import.source.file own read</field>
