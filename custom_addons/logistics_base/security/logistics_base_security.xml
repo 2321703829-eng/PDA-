@@ -4,7 +4,8 @@
         <field name="name">物流画像配置管理员</field>
         <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
     </record>
-    <record id="base.user_admin" model="res.users">
-        <field name="groups_id" eval="[(4, ref('group_logistics_profile_manager'))]"/>
-    </record>
+    <function model="res.users" name="write">
+        <value model="res.users" search="[('id', '=', ref('base.user_admin'))]"/>
+        <value eval="{'groups_id': [(4, ref('group_logistics_profile_manager'))]}"/>
+    </function>
 </odoo>

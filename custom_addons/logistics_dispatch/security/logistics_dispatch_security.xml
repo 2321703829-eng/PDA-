@@ -28,14 +28,15 @@
         <field name="implied_ids" eval="[(4, ref('group_logistics_export_user'))]"/>
     </record>
 
-    <record id="base.user_admin" model="res.users">
-        <field name="groups_id" eval="[
+    <function model="res.users" name="write">
+        <value model="res.users" search="[('id', '=', ref('base.user_admin'))]"/>
+        <value eval="{'groups_id': [
             (4, ref('group_logistics_dispatch_manager')),
             (4, ref('group_logistics_import_manager')),
             (4, ref('group_logistics_export_user')),
             (4, ref('group_logistics_export_manager'))
-        ]"/>
-    </record>
+        ]}"/>
+    </function>
 
     <record id="rule_logistics_import_source_file_own_read" model="ir.rule">
         <field name="name">logistics.import.source.file own read</field>
