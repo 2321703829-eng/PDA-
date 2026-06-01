@@ -7,10 +7,9 @@
         <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
     </record>
 
-    <function model="res.users" name="write">
-        <value model="res.users" search="[('id', '=', ref('base.user_admin'))]"/>
-        <value eval="{'groups_id': [(4, ref('group_logistics_trace_manager'))]}"/>
-    </function>
+    <record id="group_logistics_trace_manager" model="res.groups">
+        <field name="users" eval="[(4, ref('base.user_admin'))]"/>
+    </record>
 
     <record id="rule_logistics_trace_evidence_own_read" model="ir.rule">
         <field name="name">logistics.trace.evidence own read</field>
