@@ -20,6 +20,7 @@
     "data": [
         "security/erp_base_security.xml",
         "security/ir.model.access.csv",
+        "security/erp_acl_cleanup.xml",
         "views/product_template_views.xml",
         "views/res_partner_views.xml",
         "views/erp_import_template_views.xml",

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <delete
+        model="ir.model.access"
+        search="[
+            ('group_id', '=', ref('base.group_user')),
+            ('model_id', 'in', [
+                ref('model_erp_import_template'),
+                ref('model_product_price_adjustment'),
+                ref('model_erp_order_import'),
+                ref('model_erp_order_import_line'),
+                ref('model_erp_delivery_plan'),
+                ref('model_erp_reconciliation'),
+                ref('model_erp_claim_rule'),
+                ref('model_erp_period_close'),
+                ref('model_erp_sale_return')
+            ]),
+            ('perm_read', '=', 1),
+            ('perm_write', '=', 1),
+            ('perm_create', '=', 1),
+            ('perm_unlink', '=', 1)
+        ]"
+    />
+</odoo>
