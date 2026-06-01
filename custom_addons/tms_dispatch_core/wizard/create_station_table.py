@@ -2,6 +2,7 @@ import base64
 import io
 import json
 import logging
+import urllib.parse
 import urllib.request
 
 from odoo import _, api, fields, models
