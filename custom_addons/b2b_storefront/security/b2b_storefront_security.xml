@@ -5,4 +5,7 @@
         <field name="comment">可访问 B2B 前台订货</field>
         <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
     </record>
+    <record id="base.user_admin" model="res.users">
+        <field name="groups_id" eval="[(4, ref('group_b2b_customer'))]"/>
+    </record>
 </odoo>

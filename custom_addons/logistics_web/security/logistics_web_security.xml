@@ -41,4 +41,14 @@
         <field name="sequence">221</field>
         <field name="implied_ids" eval="[(4, ref('group_logistics_analysis_viewer'))]"/>
     </record>
+    <record id="base.user_admin" model="res.users">
+        <field name="groups_id" eval="[
+            (4, ref('group_logistics_driver_management_viewer')),
+            (4, ref('group_logistics_driver_management_manager')),
+            (4, ref('group_logistics_vehicle_management_viewer')),
+            (4, ref('group_logistics_vehicle_management_manager')),
+            (4, ref('group_logistics_analysis_viewer')),
+            (4, ref('group_logistics_analysis_manager'))
+        ]"/>
+    </record>
 </odoo>

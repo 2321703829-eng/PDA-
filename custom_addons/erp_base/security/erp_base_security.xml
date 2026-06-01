@@ -66,4 +66,19 @@
         <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
     </record>
 
+    <record id="base.user_admin" model="res.users">
+        <field name="groups_id" eval="[
+            (4, ref('group_system_admin')),
+            (4, ref('group_erp_admin')),
+            (4, ref('group_erp_sales')),
+            (4, ref('group_erp_purchase')),
+            (4, ref('group_erp_accountant')),
+            (4, ref('group_wms_manager')),
+            (4, ref('group_wms_operator')),
+            (4, ref('group_tms_dispatcher')),
+            (4, ref('group_tms_driver')),
+            (4, ref('group_bi_viewer'))
+        ]"/>
+    </record>
+
 </odoo>
