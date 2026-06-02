@@ -59,7 +59,7 @@ class B2bFrontend(http.Controller):
         })
 
     # ========== 加入购物车 ==========
-    @http.route("/b2b/cart/add", type="http", auth="user", website=True, methods=["POST"], csrf=False)
+    @http.route("/b2b/cart/add", type="http", auth="user", website=True, methods=["POST"])
     def cart_add(self, **kw):
         product_id = int(kw.get("product_id", 0))
         qty = float(kw.get("qty", 1))
@@ -91,7 +91,7 @@ class B2bFrontend(http.Controller):
         })
 
     # ========== 更新购物车数量 ==========
-    @http.route("/b2b/cart/update", type="http", auth="user", website=True, methods=["POST"], csrf=False)
+    @http.route("/b2b/cart/update", type="http", auth="user", website=True, methods=["POST"])
     def cart_update(self, **kw):
         line_id = int(kw.get("line_id", 0))
         qty = float(kw.get("qty", 0))
@@ -105,7 +105,7 @@ class B2bFrontend(http.Controller):
         return request.redirect("/b2b/cart")
 
     # ========== 更新购物车门 ==========
-    @http.route("/b2b/cart/set-store", type="http", auth="user", website=True, methods=["POST"], csrf=False)
+    @http.route("/b2b/cart/set-store", type="http", auth="user", website=True, methods=["POST"])
     def cart_set_store(self, **kw):
         store_id = int(kw.get("store_id", 0))
         cart = self._get_cart()
@@ -114,7 +114,7 @@ class B2bFrontend(http.Controller):
         return request.redirect("/b2b/cart")
 
     # ========== 清空购物车 ==========
-    @http.route("/b2b/cart/clear", type="http", auth="user", website=True, methods=["POST"], csrf=False)
+    @http.route("/b2b/cart/clear", type="http", auth="user", website=True, methods=["POST"])
     def cart_clear(self, **kw):
         cart = self._get_cart()
         cart.line_ids.unlink()
@@ -137,7 +137,7 @@ class B2bFrontend(http.Controller):
         })
 
     # ========== 提交订单 ==========
-    @http.route("/b2b/orders/submit", type="http", auth="user", website=True, methods=["POST"], csrf=False)
+    @http.route("/b2b/orders/submit", type="http", auth="user", website=True, methods=["POST"])
     def order_submit(self, **kw):
         partner_id = request.env.user.partner_id.id
         cart = request.env["b2b.cart.draft"].sudo().search(
@@ -220,7 +220,7 @@ class B2bFrontend(http.Controller):
         })
 
     # ========== 售后提交 ==========
-    @http.route("/b2b/after-sale/submit", type="http", auth="user", website=True, methods=["POST"], csrf=False)
+    @http.route("/b2b/after-sale/submit", type="http", auth="user", website=True, methods=["POST"])
     def after_sale_submit(self, **kw):
         order_id = int(kw.get("order_id", 0))
         ticket_type = kw.get("ticket_type", "other")
