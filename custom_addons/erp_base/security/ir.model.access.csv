@@ -29,3 +29,5 @@ access_erp_accountant_period_close,erp.accountant.period.close,model_erp_period_
 access_erp_admin_period_close,erp.admin.period.close,model_erp_period_close,erp_base.group_erp_admin,1,1,1,1
 access_erp_sales_sale_return,erp.sales.sale.return,model_erp_sale_return,erp_base.group_erp_sales,1,1,1,0
 access_erp_admin_sale_return,erp.admin.sale.return,model_erp_sale_return,erp_base.group_erp_admin,1,1,1,1
+access_erp_sales_sale_return_line,erp.sales.sale.return.line,model_erp_sale_return_line,erp_base.group_erp_sales,1,1,1,0
+access_erp_admin_sale_return_line,erp.admin.sale.return.line,model_erp_sale_return_line,erp_base.group_erp_admin,1,1,1,1

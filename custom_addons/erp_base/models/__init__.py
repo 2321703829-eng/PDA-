@@ -8,5 +8,6 @@ from . import erp_reconciliation
 from . import erp_claim_writeoff
 from . import erp_period_close
 from . import erp_sale_return
+from . import erp_field_completion
 from . import sale_order_ext
 from . import purchase_order_ext
