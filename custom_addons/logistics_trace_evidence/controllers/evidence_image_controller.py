@@ -18,7 +18,7 @@ class LogisticsTraceEvidenceImageController(http.Controller):
             "/<string:lang>/logistics_trace/evidence-images/<string:image_access_key>",
         ],
         type="http",
-        auth="public",
+        auth="user",
         methods=["GET"],
         csrf=False,
     )

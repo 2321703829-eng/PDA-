@@ -47,4 +47,12 @@
             </xpath>
         </field>
     </record>
+
+    <record id="action_wms_arrival_plan" model="ir.actions.act_window">
+        <field name="name">到货计划</field>
+        <field name="res_model">purchase.order</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('state', 'in', ['purchase', 'done'])]</field>
+        <field name="context">{}</field>
+    </record>
 </odoo>

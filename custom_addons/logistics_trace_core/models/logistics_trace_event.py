@@ -1,5 +1,5 @@
 from odoo import api, fields, models
-from odoo.exceptions import ValidationError
+from odoo.exceptions import AccessError, ValidationError
 
 
 TRACE_EVENT_MANAGER_GROUP = "logistics_trace_core.group_logistics_trace_event_manager"
@@ -191,6 +191,8 @@ class LogisticsTraceEvent(models.Model):
         return f"{event_label} - {fields.Datetime.to_string(trace_dt)}"
 
     def action_logistics_delete(self):
+        if not self.env.user.has_group(TRACE_EVENT_MANAGER_GROUP):
+            raise AccessError("Only trace managers can delete trace events and related records.")
         if "logistics.trace.exception" in self.env.registry:
             self.env["logistics.trace.exception"].sudo().search(
                 [("trace_event_id", "in", self.ids)]

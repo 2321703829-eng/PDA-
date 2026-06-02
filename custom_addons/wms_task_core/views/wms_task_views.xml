@@ -336,9 +336,21 @@
         <field name="view_mode">list,form</field>
     </record>
 
+    <record id="action_wms_pick_task" model="ir.actions.act_window">
+        <field name="name">WMS Pick Tasks</field>
+        <field name="res_model">wms.pick.task</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
     <record id="action_wms_check_task" model="ir.actions.act_window">
         <field name="name">WMS Check Tasks</field>
         <field name="res_model">wms.check.task</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_wms_handover_center" model="ir.actions.act_window">
+        <field name="name">WMS Handover Orders</field>
+        <field name="res_model">wms.handover.order</field>
         <field name="view_mode">list,form</field>
     </record>
 
