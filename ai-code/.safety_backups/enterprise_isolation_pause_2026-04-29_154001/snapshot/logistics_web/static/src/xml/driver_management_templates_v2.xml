@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="logistics_web.DriverManagementActionV2">
+        <div class="o_action o_logistics_driver_management_action">
+            <Layout display="display">
+                <div class="o_logistics_web_page o_logistics_driver_page">
+                    <div class="o_logistics_web_page_header o_logistics_web_dashboard_header">
+                        <div>
+                            <h1><t t-esc="state.mode === 'list' ? ui.title : currentProfileDriverName"/></h1>
+                            <p><t t-esc="state.mode === 'list' ? ui.subtitle : ui.profileTitle"/></p>
+                        </div>
+                        <div class="o_logistics_web_dashboard_header_meta">
+                            <button type="button" class="btn btn-secondary btn-sm o_logistics_driver_mock_toggle" t-on-click="toggleMockMode">
+                                <t t-esc="state.mockEnabled ? ui.mockOn : ui.mockOff"/>
+                            </button>
+                            <span class="o_logistics_web_status_tag"><t t-esc="ui.badgePrimary"/></span>
+                            <span class="o_logistics_web_status_tag"><t t-esc="ui.badgeSecondary"/></span>
+                        </div>
+                    </div>
+
+                    <t t-if="state.mockEnabled">
+                        <div class="o_logistics_driver_mock_banner">
+                            <div>
+                                <strong><t t-esc="ui.mockTitle"/></strong>
+                                <p><t t-esc="ui.mockDescription"/></p>
+                            </div>
+                        </div>
+                    </t>
+
+                    <t t-if="state.mode === 'list'">
+                        <section class="o_logistics_web_dashboard_section">
+                            <div class="o_logistics_web_section_heading">
+                                <h2><t t-esc="ui.listTitle"/></h2>
+                                <p>Quickly find a driver, check risk, and open the profile page.</p>
+                            </div>
+
+                            <div class="o_logistics_driver_toolbar">
+                                <div class="o_logistics_driver_toolbar_main">
+                                    <input type="text" class="form-control" t-att-value="state.keyword" t-att-placeholder="ui.searchPlaceholder" t-on-input="onKeywordInput" t-on-keydown="onKeywordKeydown"/>
+                                    <button type="button" class="btn btn-primary" t-on-click="onSearch"><t t-esc="ui.searchButton"/></button>
+                                    <button type="button" class="btn btn-secondary" t-on-click="onReset"><t t-esc="ui.resetButton"/></button>
+                                </div>
+                                <div class="o_logistics_driver_toolbar_filters">
+                                    <select class="form-select" t-on-change="onStatusChange">
+                                        <option value="">All Status</option>
+                                        <t t-foreach="state.filterOptions.status_options" t-as="option" t-key="option.value">
+                                            <option t-att-value="option.value" t-att-selected="state.filters.status === option.value"><t t-esc="option.label"/></option>
+                                        </t>
+                                    </select>
+                                    <select class="form-select" t-on-change="onOwnVehicleChange">
+                                        <option value="">All Own Vehicle</option>
+                                        <t t-foreach="state.filterOptions.has_own_vehicle_options" t-as="option" t-key="option.value">
+                                            <option t-att-value="option.value" t-att-selected="state.filters.hasOwnVehicle === option.value"><t t-esc="option.label"/></option>
+                                        </t>
+                                    </select>
+                                    <select class="form-select" t-on-change="onVehicleChange">
+                                        <option value="">All Vehicles</option>
+                                        <t t-foreach="state.filterOptions.vehicle_options" t-as="option" t-key="option.value">
+                                            <option t-att-value="option.value" t-att-selected="state.filters.vehicleId === option.value"><t t-esc="option.label"/></option>
+                                        </t>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="o_logistics_driver_sort_row">
+                                <t t-foreach="sortItems" t-as="item" t-key="item.key">
+                                    <button type="button" class="btn btn-secondary btn-sm" t-att-class="state.sortBy === item.key ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm'" t-on-click="() => onSortChange(item.key)">
+                                        <t t-esc="item.label"/>
+                                        <t t-if="state.sortBy === item.key">
+                                            <span><t t-esc="state.sortOrder === 'desc' ? ' DESC' : ' ASC'"/></span>
+                                        </t>
+                                    </button>
+                                </t>
+                            </div>
+
+                            <t t-if="state.loading">
+                                <div class="o_logistics_web_placeholder_panel"><p>Loading drivers...</p></div>
+                            </t>
+                            <t t-elif="state.error">
+                                <div class="o_logistics_web_feedback_strip"><p><t t-esc="state.error"/></p></div>
+                            </t>
+                            <t t-elif="!state.items.length">
+                                <div class="o_logistics_web_placeholder_panel"><p><t t-esc="ui.empty"/></p></div>
+                            </t>
+                            <t t-else="">
+                                <div class="o_logistics_driver_table_wrap">
+                                    <table class="table table-hover o_logistics_driver_table">
+                                        <thead>
+                                            <tr>
+                                                <th>Driver</th>
+                                                <th>Mobile</th>
+                                                <th>Vehicle</th>
+                                                <th>Status</th>
+                                                <th>Latest Execution</th>
+                                                <th>Waybills</th>
+                                                <th>Avg Exception Rate</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-foreach="state.items" t-as="item" t-key="item.driver_id">
+                                                <tr class="o_logistics_driver_table_row" t-on-click="() => openProfile(item.driver_id)">
+                                                    <td><button type="button" class="btn btn-link p-0 o_logistics_driver_name_button" t-on-click.stop="() => openProfile(item.driver_id)"><t t-esc="item.driver_name"/></button></td>
+                                                    <td><t t-esc="item.mobile or '-'"/></td>
+                                                    <td><t t-esc="item.current_vehicle_label or '-'"/></td>
+                                                    <td><span class="o_logistics_web_status_tag"><t t-esc="item.status_label"/></span></td>
+                                                    <td><t t-esc="formatDateTime(item.latest_execution_at)"/></td>
+                                                    <td><t t-esc="item.waybill_count"/></td>
+                                                    <td><t t-esc="formatPercent(item.month_avg_exception_rate)"/></td>
+                                                    <td><button type="button" class="btn btn-secondary btn-sm" t-on-click.stop="() => openProfile(item.driver_id)"><t t-esc="ui.viewProfile"/></button></td>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="o_logistics_driver_pager">
+                                    <button type="button" class="btn btn-secondary btn-sm" t-att-disabled="!hasPrevPage" t-on-click="() => onPageChange('prev')">Prev</button>
+                                    <span>Page <t t-esc="state.page"/> / <t t-esc="totalPages"/></span>
+                                    <button type="button" class="btn btn-secondary btn-sm" t-att-disabled="!hasNextPage" t-on-click="() => onPageChange('next')">Next</button>
+                                </div>
+                            </t>
+                        </section>
+                    </t>
+
+                    <t t-else="">
+                        <t t-if="state.profileLoading">
+                            <div class="o_logistics_web_placeholder_panel"><p><t t-esc="ui.profileLoading"/></p></div>
+                        </t>
+                        <t t-elif="state.profileError">
+                            <div class="o_logistics_web_feedback_strip"><p><t t-esc="state.profileError"/></p></div>
+                            <button type="button" class="btn btn-secondary" t-on-click="backToList"><t t-esc="ui.backToList"/></button>
+                        </t>
+                        <t t-else="">
+                            <section class="o_logistics_web_dashboard_section o_logistics_driver_profile_header">
+                                <div class="o_logistics_driver_profile_top">
+                                    <div class="o_logistics_driver_profile_identity">
+                                        <h2><t t-esc="state.profile.overview.driver_name"/></h2>
+                                        <div class="o_logistics_driver_profile_meta">
+                                            <span><t t-esc="state.profile.overview.mobile or '-'"/></span>
+                                            <span><t t-esc="ui.statusLabel"/>: <t t-esc="state.profile.overview.status_label"/></span>
+                                            <span><t t-esc="ui.vehicleLabel"/>: <t t-esc="state.profile.overview.current_vehicle.vehicle_label or '-'"/></span>
+                                            <span><t t-esc="ui.ownVehicleLabel"/>: <t t-esc="state.profile.overview.has_own_vehicle ? 'Yes' : 'No'"/></span>
+                                            <span><t t-esc="ui.latestExecution"/>: <t t-esc="formatDateTime(state.profile.overview.latest_execution_at)"/></span>
+                                        </div>
+                                    </div>
+                                    <div class="o_logistics_driver_profile_actions">
+                                        <button type="button" class="btn btn-secondary" t-on-click="backToList"><t t-esc="ui.backToList"/></button>
+                                        <button type="button" class="btn btn-primary" t-on-click="() => onHeaderAction('waybills')"><t t-esc="ui.openWaybills"/></button>
+                                        <button type="button" class="btn btn-secondary" t-on-click="() => onHeaderAction('exceptions')"><t t-esc="ui.openExceptions"/></button>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <section class="o_logistics_web_dashboard_section">
+                                <div class="o_logistics_web_section_heading"><h2><t t-esc="ui.sectionKpi"/></h2><p>Review workload, risk, and signed / timeout performance first.</p></div>
+                                <div class="o_logistics_web_dashboard_cards">
+                                    <div class="o_logistics_web_summary_card o_logistics_web_clickable" t-on-click="() => onKpiClick('month_waybill_count')"><span class="o_logistics_web_summary_card_label">Monthly Waybills</span><strong class="o_logistics_web_summary_card_value"><t t-esc="state.profile.kpis.month_waybill_count"/></strong></div>
+                                    <div class="o_logistics_web_summary_card o_logistics_web_clickable" t-on-click="() => onKpiClick('month_avg_exception_rate')"><span class="o_logistics_web_summary_card_label">Avg Exception Rate</span><strong class="o_logistics_web_summary_card_value"><t t-esc="formatPercent(state.profile.kpis.month_avg_exception_rate)"/></strong></div>
+                                    <div class="o_logistics_web_summary_card o_logistics_web_clickable" t-on-click="() => onKpiClick('current_month_signed_rate')"><span class="o_logistics_web_summary_card_label">Signed Rate</span><strong class="o_logistics_web_summary_card_value"><t t-esc="formatPercent(state.profile.kpis.current_month_signed_rate)"/></strong></div>
+                                    <div class="o_logistics_web_summary_card o_logistics_web_clickable" t-on-click="() => onKpiClick('current_month_timeout_rate')"><span class="o_logistics_web_summary_card_label">Timeout Rate</span><strong class="o_logistics_web_summary_card_value"><t t-esc="formatPercent(state.profile.kpis.current_month_timeout_rate)"/></strong></div>
+                                    <div class="o_logistics_web_summary_card o_logistics_web_clickable" t-on-click="() => onKpiClick('missing_evidence_rate')"><span class="o_logistics_web_summary_card_label">Missing Evidence</span><strong class="o_logistics_web_summary_card_value"><t t-esc="formatPercent(state.profile.kpis.missing_evidence_rate)"/></strong></div>
+                                    <div class="o_logistics_web_summary_card o_logistics_web_clickable" t-on-click="() => onKpiClick('exception_count')"><span class="o_logistics_web_summary_card_label">Exceptions</span><strong class="o_logistics_web_summary_card_value"><t t-esc="state.profile.kpis.exception_count"/></strong></div>
+                                </div>
+                            </section>
+
+                            <section class="o_logistics_web_dashboard_section">
+                                <div class="o_logistics_web_section_heading"><h2><t t-esc="ui.sectionTrends"/></h2><p>Three fixed charts for the first version.</p></div>
+                                <div class="o_logistics_driver_trend_grid">
+                                    <t t-foreach="trendCards" t-as="card" t-key="card.key">
+                                        <div class="o_logistics_driver_trend_card">
+                                            <div class="o_logistics_driver_trend_header"><strong><t t-esc="card.title"/></strong><span><t t-esc="card.hint"/></span></div>
+                                            <t t-if="card.key !== 'delivery_quality' and card.series and card.series.points.length">
+                                                <div class="o_logistics_driver_trend_bars">
+                                                    <t t-foreach="card.series.points" t-as="point" t-key="point.bucket">
+                                                        <button type="button" class="o_logistics_driver_trend_bar_item" t-on-click="() => onTrendPointClick(card.series.metric_code, point.bucket)">
+                                                            <span class="o_logistics_driver_trend_bucket"><t t-esc="point.bucket"/></span>
+                                                            <span class="o_logistics_driver_trend_bar_track"><span class="o_logistics_driver_trend_bar_fill" t-att-style="`height:${getBarHeight(card.series, point)}%`"/></span>
+                                                            <span class="o_logistics_driver_trend_value"><t t-esc="formatValue(point.value, card.percent)"/></span>
+                                                        </button>
+                                                    </t>
+                                                </div>
+                                            </t>
+                                            <t t-elif="card.key === 'delivery_quality' and card.series.length">
+                                                <div class="o_logistics_driver_trend_bars o_logistics_driver_trend_bars_dual">
+                                                    <t t-foreach="card.series[0].points" t-as="point" t-key="point.bucket">
+                                                        <button type="button" class="o_logistics_driver_trend_bar_item" t-on-click="() => onTrendPointClick('signed_rate', point.bucket)">
+                                                            <span class="o_logistics_driver_trend_bucket"><t t-esc="point.bucket"/></span>
+                                                            <span class="o_logistics_driver_trend_bar_track o_logistics_driver_trend_dual_track">
+                                                                <span class="o_logistics_driver_trend_bar_fill o_logistics_driver_trend_bar_fill_primary" t-att-style="`height:${getDualBarHeight(card.series, point, 0)}%`"/>
+                                                                <span class="o_logistics_driver_trend_bar_fill o_logistics_driver_trend_bar_fill_warning" t-att-style="`height:${getDualBarHeight(card.series, point, 1)}%`"/>
+                                                            </span>
+                                                            <span class="o_logistics_driver_trend_value"><t t-esc="formatPercent(point.value)"/></span>
+                                                        </button>
+                                                    </t>
+                                                </div>
+                                                <div class="o_logistics_driver_trend_legend"><span><i class="o_logistics_driver_legend_dot o_logistics_driver_legend_dot_primary"/>Signed</span><span><i class="o_logistics_driver_legend_dot o_logistics_driver_legend_dot_warning"/>Timeout</span></div>
+                                            </t>
+                                            <t t-else=""><div class="o_logistics_web_placeholder_panel"><p><t t-esc="ui.noTrendData"/></p></div></t>
+                                        </div>
+                                    </t>
+                                </div>
+                            </section>
+
+                            <div class="o_logistics_driver_profile_grid">
+                                <section class="o_logistics_web_dashboard_section">
+                                    <div class="o_logistics_web_section_heading"><h2><t t-esc="ui.sectionExecution"/></h2><p>Volume, recent activity, regions, and stores.</p></div>
+                                    <div class="o_logistics_driver_stat_grid">
+                                        <div class="o_logistics_web_placeholder_panel"><strong>Batches</strong><span><t t-esc="state.profile.overview.execution_summary.batch_count"/></span></div>
+                                        <div class="o_logistics_web_placeholder_panel"><strong>Waybills</strong><span><t t-esc="state.profile.overview.execution_summary.waybill_count"/></span></div>
+                                        <div class="o_logistics_web_placeholder_panel"><strong>30d Waybills</strong><span><t t-esc="state.profile.overview.execution_summary.recent_30d_waybill_count"/></span></div>
+                                        <div class="o_logistics_web_placeholder_panel"><strong>30d Batches</strong><span><t t-esc="state.profile.overview.execution_summary.recent_30d_batch_count"/></span></div>
+                                        <div class="o_logistics_web_placeholder_panel"><strong>30d Stores</strong><span><t t-esc="state.profile.overview.execution_summary.recent_store_count"/></span></div>
+                                        <div class="o_logistics_web_placeholder_panel"><strong>30d Regions</strong><span><t t-esc="state.profile.overview.execution_summary.recent_region_count"/></span></div>
+                                    </div>
+                                    <div class="o_logistics_driver_chip_sections">
+                                        <div class="o_logistics_web_placeholder_panel"><strong>Top Regions</strong><div class="o_logistics_driver_chip_row"><t t-foreach="state.profile.overview.execution_summary.top_regions" t-as="item" t-key="item"><span class="o_logistics_web_status_tag"><t t-esc="item"/></span></t></div></div>
+                                        <div class="o_logistics_web_placeholder_panel"><strong>Top Stores</strong><div class="o_logistics_driver_chip_row"><t t-foreach="state.profile.overview.execution_summary.top_stores" t-as="item" t-key="item"><span class="o_logistics_web_status_tag"><t t-esc="item"/></span></t></div></div>
+                                    </div>
+                                </section>
+
+                                <section class="o_logistics_web_dashboard_section">
+                                    <div class="o_logistics_web_section_heading"><h2><t t-esc="ui.sectionRisk"/></h2><p>Review summary risk and the top exception types.</p></div>
+                                    <div class="o_logistics_driver_stat_grid">
+                                        <div class="o_logistics_web_placeholder_panel"><strong>Exception Waybills</strong><span><t t-esc="state.profile.risk.exception_waybill_count"/></span></div>
+                                        <div class="o_logistics_web_placeholder_panel"><strong>Severe Exceptions</strong><span><t t-esc="state.profile.risk.severe_exception_count"/></span></div>
+                                        <div class="o_logistics_web_placeholder_panel"><strong>Timeout Waybills</strong><span><t t-esc="state.profile.risk.timeout_waybill_count"/></span></div>
+                                        <div class="o_logistics_web_placeholder_panel"><strong>Missing Evidence</strong><span><t t-esc="state.profile.risk.missing_evidence_waybill_count"/></span></div>
+                                    </div>
+                                    <div class="o_logistics_web_placeholder_panel">
+                                        <strong>Top Exception Types</strong>
+                                        <div class="o_logistics_driver_risk_list">
+                                            <t t-foreach="state.profile.risk.top_exception_types" t-as="item" t-key="item.key"><div class="o_logistics_driver_risk_item"><span><t t-esc="item.label"/></span><strong><t t-esc="item.value"/></strong></div></t>
+                                        </div>
+                                    </div>
+                                </section>
+                            </div>
+
+                            <section class="o_logistics_web_dashboard_section">
+                                <div class="o_logistics_web_section_heading"><h2><t t-esc="ui.sectionRecords"/></h2><p>Open recent business records after reading the profile.</p></div>
+                                <div class="o_logistics_driver_profile_grid">
+                                    <div class="o_logistics_web_placeholder_panel">
+                                        <strong>Recent Waybills</strong>
+                                        <t t-if="state.profile.recentWaybills.length">
+                                            <div class="o_logistics_driver_record_list">
+                                                <t t-foreach="state.profile.recentWaybills" t-as="item" t-key="item.waybill_id">
+                                                    <button type="button" class="o_logistics_driver_record_item" t-on-click="() => openWaybillForm(item.waybill_id)">
+                                                        <div class="o_logistics_driver_record_top"><strong><t t-esc="item.waybill_no"/></strong><span class="o_logistics_web_status_tag"><t t-esc="item.status_label"/></span></div>
+                                                        <div class="o_logistics_driver_record_meta"><span><t t-esc="item.store_name or '-'"/></span><span><t t-esc="item.store_region or '-'"/></span><span><t t-esc="item.delivery_date or '-'"/></span></div>
+                                                    </button>
+                                                </t>
+                                            </div>
+                                        </t>
+                                        <t t-else=""><p><t t-esc="ui.noRecentWaybills"/></p></t>
+                                    </div>
+
+                                    <div class="o_logistics_web_placeholder_panel">
+                                        <strong>Recent Exceptions</strong>
+                                        <t t-if="state.profile.recentExceptions.length">
+                                            <div class="o_logistics_driver_record_list">
+                                                <t t-foreach="state.profile.recentExceptions" t-as="item" t-key="item.exception_id">
+                                                    <button type="button" class="o_logistics_driver_record_item" t-on-click="() => openExceptionForm(item.exception_id)">
+                                                        <div class="o_logistics_driver_record_top"><strong><t t-esc="item.exception_no"/></strong><span class="o_logistics_web_status_tag"><t t-esc="item.status_label"/></span></div>
+                                                        <div class="o_logistics_driver_record_meta"><span><t t-esc="item.waybill_no or '-'"/></span><span><t t-esc="item.exception_type_label or '-'"/></span><span><t t-esc="formatDateTime(item.report_time)"/></span></div>
+                                                    </button>
+                                                </t>
+                                            </div>
+                                        </t>
+                                        <t t-else=""><p><t t-esc="ui.noRecentExceptions"/></p></t>
+                                    </div>
+                                </div>
+                            </section>
+                        </t>
+                    </t>
+                </div>
+            </Layout>
+        </div>
+    </t>
+</templates>

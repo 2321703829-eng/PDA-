@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- 排线批次表单加"路线地图"按钮 -->
+    <record id="view_logistics_route_batch_form_add_map" model="ir.ui.view">
+        <field name="name">logistics.route.planning.batch.form.add.map</field>
+        <field name="model">logistics.route.planning.batch</field>
+        <field name="inherit_id" ref="tms_dispatch_core.view_logistics_route_planning_batch_form_tms_dispatch_core"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_open_route_map" type="object" string="路线地图" class="btn btn-primary"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

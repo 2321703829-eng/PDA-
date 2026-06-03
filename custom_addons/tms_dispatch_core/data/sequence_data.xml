@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="seq_tms_dispatch_order" model="ir.sequence">
+        <field name="name">TMS Dispatch Order</field>
+        <field name="code">tms.dispatch.order</field>
+        <field name="prefix">TMS-DSP-</field>
+        <field name="padding">5</field>
+    </record>
+
+    <record id="seq_tms_driver_task" model="ir.sequence">
+        <field name="name">TMS Driver Task</field>
+        <field name="code">tms.driver.task</field>
+        <field name="prefix">TMS-DRV-</field>
+        <field name="padding">5</field>
+    </record>
+
+    <record id="seq_tms_signoff_receipt" model="ir.sequence">
+        <field name="name">TMS Signoff Receipt</field>
+        <field name="code">tms.signoff.receipt</field>
+        <field name="prefix">TMS-SGN-</field>
+        <field name="padding">5</field>
+    </record>
+
+    <record id="seq_tms_delivery_exception" model="ir.sequence">
+        <field name="name">TMS Delivery Exception</field>
+        <field name="code">tms.delivery.exception</field>
+        <field name="prefix">TMS-EXC-</field>
+        <field name="padding">5</field>
+    </record>
+</odoo>

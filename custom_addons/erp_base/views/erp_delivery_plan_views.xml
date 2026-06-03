@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_delivery_plan_list" model="ir.ui.view">
+        <field name="name">erp.delivery.plan.list</field>
+        <field name="model">erp.delivery.plan</field>
+        <field name="arch" type="xml">
+            <list><field name="name"/><field name="sale_order_id"/><field name="planned_date"/><field name="state"/><field name="locked"/></list>
+        </field>
+    </record>
+    <record id="view_delivery_plan_form" model="ir.ui.view">
+        <field name="name">erp.delivery.plan.form</field>
+        <field name="model">erp.delivery.plan</field>
+        <field name="arch" type="xml">
+            <form>
+                <header><field name="state" widget="statusbar"/></header>
+                <sheet>
+                    <group><field name="name"/><field name="sale_order_id"/><field name="planned_date"/></group>
+                    <group><field name="locked"/><field name="note"/></group>
+                    <field name="picking_ids"><list><field name="name"/><field name="state"/><field name="scheduled_date"/></list></field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="action_delivery_plan" model="ir.actions.act_window">
+        <field name="name">销售出库计划</field><field name="res_model">erp.delivery.plan</field><field name="view_mode">list,form</field>
+    </record>
+    <menuitem id="menu_delivery_plan" name="销售出库计划" action="action_delivery_plan" parent="sale.sale_menu_root" sequence="30"/>
+</odoo>

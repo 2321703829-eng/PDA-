@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="rule_logistics_trace_exception_own_read" model="ir.rule">
+        <field name="name">logistics.trace.exception own read</field>
+        <field name="model_id" ref="model_logistics_trace_exception"/>
+        <field name="domain_force">[('reporter_user_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_logistics_trace_exception_manager_read" model="ir.rule">
+        <field name="name">logistics.trace.exception manager read</field>
+        <field name="model_id" ref="model_logistics_trace_exception"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('logistics_trace_evidence.group_logistics_trace_manager'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_logistics_trace_exception_process_log_own_read" model="ir.rule">
+        <field name="name">logistics.trace.exception.process.log own read</field>
+        <field name="model_id" ref="model_logistics_trace_exception_process_log"/>
+        <field name="domain_force">[('exception_id.reporter_user_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_logistics_trace_exception_process_log_manager_read" model="ir.rule">
+        <field name="name">logistics.trace.exception.process.log manager read</field>
+        <field name="model_id" ref="model_logistics_trace_exception_process_log"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('logistics_trace_evidence.group_logistics_trace_manager'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+</odoo>

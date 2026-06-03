@@ -1,0 +1,159 @@
+2026-04-29 05:48:56,853 12148 INFO ? odoo: Odoo version 19.0 
+2026-04-29 05:48:56,853 12148 INFO ? odoo: Using configuration file at d:\desktop\odoo\ai-code\.runtime\odoo_p0_kebi.conf 
+2026-04-29 05:48:56,853 12148 INFO ? odoo: addons paths: _NamespacePath(['d:\\Desktop\\Odoo\\odoo\\addons', 'd:\\desktop\\odoo\\addons', 'd:\\desktop\\odoo\\custom_addons']) 
+2026-04-29 05:48:56,853 12148 INFO ? odoo: database: odoo@localhost:5432 
+2026-04-29 05:48:57,442 12148 INFO ? odoo.service.server: HTTP service (werkzeug) running on img.youtobe.com:8070 
+2026-04-29 05:49:57,951 12148 INFO odoo_logistics_phase4_v1 odoo.modules.loading: loading 1 modules... 
+2026-04-29 05:49:57,954 12148 INFO odoo_logistics_phase4_v1 odoo.modules.loading: 1 modules loaded in 0.00s, 0 queries (+0 extra) 
+2026-04-29 05:49:57,998 12148 INFO odoo_logistics_phase4_v1 odoo.modules.loading: loading 73 modules... 
+2026-04-29 05:49:59,207 12148 INFO odoo_logistics_phase4_v1 odoo.modules.loading: 73 modules loaded in 1.21s, 0 queries (+10 extra) 
+2026-04-29 05:49:59,366 12148 INFO odoo_logistics_phase4_v1 odoo.modules.loading: Modules loaded. 
+2026-04-29 05:49:59,374 12148 WARNING odoo_logistics_phase4_v1 odoo.schema: Missing not-null constraint on logistics.trace.evidence.match_status 
+2026-04-29 05:49:59,374 12148 WARNING odoo_logistics_phase4_v1 odoo.schema: Missing not-null constraint on logistics.trace.evidence.link_status 
+2026-04-29 05:49:59,374 12148 WARNING odoo_logistics_phase4_v1 odoo.schema: Missing not-null constraint on logistics.trace.image.package.import.wizard.package_file_name 
+2026-04-29 05:49:59,416 12148 INFO odoo_logistics_phase4_v1 odoo.registry: Registry loaded in 1.531s 
+2026-04-29 05:49:59,457 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.ir_cron: Job 'Base: Auto-vacuum internal data' (1) starting 
+2026-04-29 05:49:59,457 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.ir_cron: Job 'Mail: Post scheduled messages' (7) starting 
+2026-04-29 05:49:59,738 12148 INFO odoo_logistics_phase4_v1 odoo.addons.mail.models.mail_scheduled_message: Posting 0 scheduled messages 
+2026-04-29 05:49:59,872 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.ir_cron: Job 'Mail: Post scheduled messages' (7) fully done (#loop 1; done 0; remaining 0; duration 0.42s) 
+2026-04-29 05:49:59,929 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) starting 
+2026-04-29 05:49:59,948 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) fully done (#loop 1; done 0; remaining 0; duration 0.03s) 
+2026-04-29 05:49:59,951 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.ir_cron: Job 'Mail: send web push notification' (9) starting 
+2026-04-29 05:49:59,958 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.ir_cron: Job 'Mail: send web push notification' (9) fully done (#loop 1; done 0; remaining 0; duration 0.00s) 
+2026-04-29 05:49:59,958 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.ir_cron: Job 'Discuss: channel member unmute' (10) starting 
+2026-04-29 05:49:59,958 12148 ERROR odoo_logistics_phase4_v1 odoo.sql_db: bad query: b'SELECT "logistics_trace_image_package_import_wizard"."id" FROM "logistics_trace_image_package_import_wizard" WHERE "logistics_trace_image_package_import_wizard"."write_date" < \'2026-04-29T04:49:59\'::timestamp ORDER BY "logistics_trace_image_package_import_wizard"."id"   LIMIT 100000'
+ERROR: relation "logistics_trace_image_package_import_wizard" does not exist
+LINE 1: ...tics_trace_image_package_import_wizard"."id" FROM "logistics...
+                                                             ^
+ 
+2026-04-29 05:49:59,958 12148 ERROR odoo_logistics_phase4_v1 odoo.addons.base.models.ir_autovacuum: Failed logistics.trace.image.package.import.wizard()._transient_vacuum() 
+Traceback (most recent call last):
+  File "d:\Desktop\Odoo\odoo\addons\base\models\ir_autovacuum.py", line 49, in _run_vacuum_cleaner
+    result = func(model)
+             ^^^^^^^^^^^
+  File "d:\Desktop\Odoo\odoo\orm\models_transient.py", line 58, in _transient_vacuum
+    has_remaining |= self._transient_clean_rows_older_than(self._transient_max_hours * 60 * 60)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "d:\Desktop\Odoo\odoo\orm\models_transient.py", line 80, in _transient_clean_rows_older_than
+    records = self.sudo().search(domain, limit=GC_UNLINK_LIMIT)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "d:\Desktop\Odoo\odoo\orm\models.py", line 1378, in search
+    return self.search_fetch(domain, [], offset=offset, limit=limit, order=order)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "d:\Desktop\Odoo\odoo\orm\models.py", line 1418, in search_fetch
+    return self._fetch_query(query, fields_to_fetch)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "d:\Desktop\Odoo\odoo\orm\models.py", line 3935, in _fetch_query
+    fetched = self.browse(query)
+              ^^^^^^^^^^^^^^^^^^
+  File "d:\Desktop\Odoo\odoo\orm\models.py", line 5890, in browse
+    if not ids:
+           ^^^
+  File "d:\Desktop\Odoo\odoo\tools\query.py", line 263, in __bool__
+    return bool(self.get_result_ids())
+                ^^^^^^^^^^^^^^^^^^^^^
+  File "d:\Desktop\Odoo\odoo\tools\query.py", line 227, in get_result_ids
+    self._ids = tuple(id_ for id_, in self._env.execute_query(self.select()))
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "d:\Desktop\Odoo\odoo\orm\environments.py", line 534, in execute_query
+    self.cr.execute(query)
+  File "d:\Desktop\Odoo\odoo\sql_db.py", line 433, in execute
+    self._obj.execute(query, params)
+psycopg2.errors.UndefinedTable: relation "logistics_trace_image_package_import_wizard" does not exist
+LINE 1: ...tics_trace_image_package_import_wizard"."id" FROM "logistics...
+                                                             ^
+
+2026-04-29 05:49:59,978 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.ir_cron: Job 'Discuss: channel member unmute' (10) fully done (#loop 1; done 0; remaining 0; duration 0.02s) 
+2026-04-29 05:49:59,981 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.ir_cron: Job 'Fleet: Generate contracts costs based on costs frequency' (12) starting 
+2026-04-29 05:49:59,999 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.ir_cron: Job 'Fleet: Generate contracts costs based on costs frequency' (12) fully done (#loop 1; done 0; remaining 0; duration 0.01s) 
+2026-04-29 05:50:00,002 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (13) starting 
+2026-04-29 05:50:00,008 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (13) fully done (#loop 1; done 0; remaining 0; duration 0.00s) 
+2026-04-29 05:50:00,022 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (14) starting 
+2026-04-29 05:50:00,033 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (14) fully done (#loop 1; done 0; remaining 0; duration 0.01s) 
+2026-04-29 05:50:00,037 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.ir_cron: Job 'Account: Post draft entries with auto_post enabled and accounting date up to today' (17) starting 
+2026-04-29 05:50:00,086 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.ir_cron: Job 'Account: Post draft entries with auto_post enabled and accounting date up to today' (17) fully done (#loop 1; done 0; remaining 0; duration 0.05s) 
+2026-04-29 05:50:00,090 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.ir_cron: Job 'Send invoices automatically' (18) starting 
+2026-04-29 05:50:00,090 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.ir_cron: Job 'Send invoices automatically' (18) fully done (#loop 1; done 0; remaining 0; duration 0.00s) 
+2026-04-29 05:50:00,090 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.ir_cron: Job 'HR Employee: Notify Expiring Contract or Work Permit' (19) starting 
+2026-04-29 05:50:00,129 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.ir_cron: Job 'HR Employee: Notify Expiring Contract or Work Permit' (19) fully done (#loop 1; done 0; remaining 0; duration 0.03s) 
+2026-04-29 05:50:00,129 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.ir_cron: Job 'HR Employee: Update Current Version' (20) starting 
+2026-04-29 05:50:00,143 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.ir_cron: Job 'HR Employee: Update Current Version' (20) fully done (#loop 1; done 0; remaining 0; duration 0.02s) 
+2026-04-29 05:50:00,146 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.ir_cron: Job 'Procurement: run scheduler' (21) starting 
+2026-04-29 05:50:00,173 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.res_users: GC 'auth_totp.device' delete 0 entries 
+2026-04-29 05:50:00,195 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.ir_cron: Job 'Procurement: run scheduler' (21) fully done (#loop 1; done 3; remaining 0; duration 0.05s) 
+2026-04-29 05:50:00,198 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.ir_cron: Job 'Skills: Add an activity to employees with missing or expiring certifications' (22) starting 
+2026-04-29 05:50:00,207 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.ir_cron: Job 'Skills: Add an activity to employees with missing or expiring certifications' (22) fully done (#loop 1; done 0; remaining 0; duration 0.00s) 
+2026-04-29 05:50:00,207 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.ir_cron: Job 'Stock Account: Inventory Valuation Closing' (23) starting 
+2026-04-29 05:50:00,207 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.ir_cron: Job 'Stock Account: Inventory Valuation Closing' (23) fully done (#loop 1; done 0; remaining 0; duration 0.00s) 
+2026-04-29 05:50:00,224 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) starting 
+2026-04-29 05:50:00,238 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) fully done (#loop 1; done 0; remaining 0; duration 0.02s) 
+2026-04-29 05:50:00,242 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.ir_cron: Job 'Users: Notify About Unregistered Users' (11) starting 
+2026-04-29 05:50:00,255 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.ir_cron: Job 'Users: Notify About Unregistered Users' (11) fully done (#loop 1; done 0; remaining 0; duration 0.01s) 
+2026-04-29 05:50:00,258 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.ir_cron: Job 'Base: Portal Users Deletion' (2) starting 
+2026-04-29 05:50:00,258 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.ir_cron: Job 'Base: Portal Users Deletion' (2) fully done (#loop 1; done 0; remaining 0; duration 0.00s) 
+2026-04-29 05:50:00,359 12148 INFO odoo_logistics_phase4_v1 odoo.addons.api_doc.models.ir_attachment: GC'd 0 /doc cached index 
+2026-04-29 05:50:00,385 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.res_device: GC device logs delete 0 entries 
+2026-04-29 05:50:00,409 12148 INFO odoo_logistics_phase4_v1 odoo.addons.sms.models.sms_sms: GC'd 0 sms marked for deletion 
+2026-04-29 05:50:00,429 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.res_device: GC device logs delete 0 entries 
+2026-04-29 05:50:00,429 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.res_users: GC'd 0 user log entries 
+2026-04-29 05:50:00,459 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.res_users: GC 'res.users.apikeys' delete 0 entries 
+2026-04-29 05:50:00,459 12148 INFO tenant_kebi_restore_check odoo.modules.loading: loading 1 modules... 
+2026-04-29 05:50:00,459 12148 INFO tenant_kebi_restore_check odoo.modules.loading: 1 modules loaded in 0.00s, 0 queries (+0 extra) 
+2026-04-29 05:50:00,471 12148 INFO tenant_kebi_restore_check odoo.modules.loading: loading 73 modules... 
+2026-04-29 05:50:00,499 12148 INFO tenant_kebi_restore_check odoo.modules.loading: 73 modules loaded in 0.03s, 0 queries (+0 extra) 
+2026-04-29 05:50:00,650 12148 INFO tenant_kebi_restore_check odoo.modules.loading: Modules loaded. 
+2026-04-29 05:50:00,674 12148 INFO tenant_kebi_restore_check odoo.registry: Registry loaded in 0.276s 
+2026-04-29 05:50:00,674 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.ir_attachment: filestore gc 0 checked, 0 removed 
+2026-04-29 05:50:00,674 12148 INFO tenant_kebi_restore_check odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) starting 
+2026-04-29 05:50:00,734 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.ir_cron: Job 'Base: Auto-vacuum internal data' (1) fully done (#loop 1; done 124; remaining 0; duration 1.28s) 
+2026-04-29 05:50:00,899 12148 INFO tenant_kebi_restore_check odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) fully done (#loop 1; done 0; remaining 0; duration 0.22s) 
+2026-04-29 05:50:00,942 12148 INFO tenant_kebi_restore_check odoo.addons.base.models.ir_cron: Job 'Account: Post draft entries with auto_post enabled and accounting date up to today' (17) starting 
+2026-04-29 05:50:00,957 12148 INFO tenant_kebi_restore_check odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) starting 
+2026-04-29 05:50:00,994 12148 INFO tenant_kebi_restore_check odoo.addons.base.models.ir_cron: Job 'Account: Post draft entries with auto_post enabled and accounting date up to today' (17) fully done (#loop 1; done 0; remaining 0; duration 0.05s) 
+2026-04-29 05:50:01,024 12148 INFO tenant_kebi_restore_check odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) fully done (#loop 1; done 0; remaining 0; duration 0.06s) 
+2026-04-29 06:19:02,819 12148 INFO odoo_logistics_dev odoo.modules.loading: loading 1 modules... 
+2026-04-29 06:19:02,819 12148 INFO odoo_logistics_dev odoo.modules.loading: 1 modules loaded in 0.00s, 0 queries (+0 extra) 
+2026-04-29 06:19:02,819 12148 INFO odoo_logistics_dev odoo.modules.loading: loading 73 modules... 
+2026-04-29 06:19:02,851 12148 INFO odoo_logistics_dev odoo.modules.loading: 73 modules loaded in 0.03s, 0 queries (+0 extra) 
+2026-04-29 06:19:03,072 12148 INFO odoo_logistics_dev odoo.modules.loading: Modules loaded. 
+2026-04-29 06:19:03,088 12148 INFO odoo_logistics_dev odoo.registry: Registry loaded in 0.331s 
+2026-04-29 06:19:03,088 12148 INFO odoo_logistics_dev odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) starting 
+2026-04-29 06:19:03,181 12148 INFO odoo_logistics_dev odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) fully done (#loop 1; done 0; remaining 0; duration 0.09s) 
+2026-04-29 06:19:03,190 12148 INFO odoo_logistics_dev odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) starting 
+2026-04-29 06:19:03,205 12148 INFO odoo_logistics_dev odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) fully done (#loop 1; done 0; remaining 0; duration 0.01s) 
+2026-04-29 06:19:03,261 12148 INFO tenant_kebi odoo.modules.loading: loading 1 modules... 
+2026-04-29 06:19:03,261 12148 INFO tenant_kebi odoo.modules.loading: 1 modules loaded in 0.00s, 0 queries (+0 extra) 
+2026-04-29 06:19:03,261 12148 INFO tenant_kebi odoo.modules.loading: loading 73 modules... 
+2026-04-29 06:19:03,292 12148 INFO tenant_kebi odoo.modules.loading: 73 modules loaded in 0.03s, 0 queries (+0 extra) 
+2026-04-29 06:19:03,419 12148 INFO tenant_kebi odoo.modules.loading: Modules loaded. 
+2026-04-29 06:19:03,451 12148 INFO tenant_kebi odoo.registry: Registry loaded in 0.246s 
+2026-04-29 06:19:03,451 12148 INFO tenant_kebi odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) starting 
+2026-04-29 06:19:03,533 12148 INFO tenant_kebi odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) fully done (#loop 1; done 0; remaining 0; duration 0.08s) 
+2026-04-29 06:19:03,555 12148 INFO tenant_kebi odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) starting 
+2026-04-29 06:19:03,563 12148 INFO tenant_kebi odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) fully done (#loop 1; done 0; remaining 0; duration 0.02s) 
+2026-04-29 06:19:03,619 12148 INFO tenant_kebi_restore_check odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) starting 
+2026-04-29 06:19:03,676 12148 INFO tenant_kebi_restore_check odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) fully done (#loop 1; done 0; remaining 0; duration 0.06s) 
+2026-04-29 06:19:03,676 12148 INFO tenant_kebi_restore_check odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) starting 
+2026-04-29 06:19:03,699 12148 INFO tenant_kebi_restore_check odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) fully done (#loop 1; done 0; remaining 0; duration 0.03s) 
+2026-04-29 06:38:52,702 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) starting 
+2026-04-29 06:38:52,870 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) fully done (#loop 1; done 0; remaining 0; duration 0.17s) 
+2026-04-29 06:38:52,879 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) starting 
+2026-04-29 06:38:52,879 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) fully done (#loop 1; done 0; remaining 0; duration 0.00s) 
+2026-04-29 07:19:07,849 12148 INFO odoo_logistics_dev odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) starting 
+2026-04-29 07:19:07,922 12148 INFO odoo_logistics_dev odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) fully done (#loop 1; done 0; remaining 0; duration 0.08s) 
+2026-04-29 07:19:07,928 12148 INFO odoo_logistics_dev odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) starting 
+2026-04-29 07:19:07,928 12148 INFO odoo_logistics_dev odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) fully done (#loop 1; done 0; remaining 0; duration 0.00s) 
+2026-04-29 07:19:07,990 12148 INFO tenant_kebi odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) starting 
+2026-04-29 07:19:08,174 12148 INFO tenant_kebi odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) fully done (#loop 1; done 0; remaining 0; duration 0.19s) 
+2026-04-29 07:19:08,181 12148 INFO tenant_kebi odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) starting 
+2026-04-29 07:19:08,190 12148 INFO tenant_kebi odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) fully done (#loop 1; done 0; remaining 0; duration 0.02s) 
+2026-04-29 07:19:08,245 12148 INFO tenant_kebi_restore_check odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) starting 
+2026-04-29 07:19:08,300 12148 INFO tenant_kebi_restore_check odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) fully done (#loop 1; done 0; remaining 0; duration 0.05s) 
+2026-04-29 07:19:08,316 12148 INFO tenant_kebi_restore_check odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) starting 
+2026-04-29 07:19:08,323 12148 INFO tenant_kebi_restore_check odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) fully done (#loop 1; done 0; remaining 0; duration 0.01s) 
+2026-04-29 07:38:55,734 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) starting 
+2026-04-29 07:38:55,809 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) fully done (#loop 1; done 0; remaining 0; duration 0.08s) 
+2026-04-29 07:38:55,814 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.ir_cron: Job 'Digest Emails' (15) starting 
+2026-04-29 07:38:55,831 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.ir_cron: Job 'Digest Emails' (15) fully done (#loop 1; done 0; remaining 0; duration 0.01s) 
+2026-04-29 07:38:55,831 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) starting 
+2026-04-29 07:38:55,847 12148 INFO odoo_logistics_phase4_v1 odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) fully done (#loop 1; done 0; remaining 0; duration 0.02s) 

@@ -1,172 +1,594 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
     <t t-name="logistics_web.ImportCenterAction">
         <div class="o_action o_logistics_web_import_center_action">
             <Layout display="display">
                 <div class="o_logistics_web_page o_logistics_web_import_center_page">
-                    <div class="o_logistics_web_page_header o_logistics_web_dashboard_header">
-                        <div>
-                            <h1><t t-esc="this.ui.title"/></h1>
-                            <p><t t-esc="this.ui.subtitle"/></p>
+                    <div class="o_logistics_web_page_header o_logistics_web_dashboard_header o_logistics_web_page_hero o_logistics_import_page_hero o_logistics_import_center_page_hero">
+                        <div class="o_logistics_web_page_hero_main">
+                            <span class="o_logistics_web_page_kicker">导入中心</span>
+                            <h1><t t-esc="this.ui.title" /></h1>
+                            <p><t t-esc="this.ui.subtitle" /></p>
                         </div>
-                        <div class="o_logistics_web_dashboard_header_meta">
-                            <span class="o_logistics_web_status_tag"><t t-esc="this.ui.badgePrimary"/></span>
-                            <span class="o_logistics_web_status_tag"><t t-esc="this.ui.badgeSecondary"/></span>
+                        <div class="o_logistics_web_page_hero_aside">
+                            <div class="o_logistics_web_dashboard_header_meta">
+                                <span class="o_logistics_web_status_tag"><t t-esc="this.ui.badgePrimary" /></span>
+                                <span class="o_logistics_web_status_tag"><t t-esc="this.ui.badgeSecondary" /></span>
+                            </div>
+                            <div class="o_logistics_web_page_note">
+                                <strong><t t-esc="this.ui.heroNoteTitle" /></strong>
+                                <span><t t-esc="this.ui.heroNoteBody" /></span>
+                            </div>
                         </div>
                     </div>
 
                     <t t-if="state.loading">
-                        <div class="o_logistics_web_placeholder_panel">
-                            <p><t t-esc="this.ui.loading"/></p>
+                        <div class="o_logistics_web_placeholder_panel o_logistics_web_state_panel">
+                            <strong>正在加载导入中心</strong>
+                            <p><t t-esc="this.ui.loading" /></p>
                         </div>
                     </t>
                     <t t-else="">
                         <t t-if="state.error">
                             <div class="o_logistics_web_feedback_strip">
-                                <p><t t-esc="state.error"/></p>
+                                <p><t t-esc="state.error" /></p>
+                            </div>
+                            <div class="o_logistics_web_state_panel">
+                                <strong><t t-esc="state.error" /></strong>
+                                <p>请先确认模板、入口和权限状态，再刷新页面或稍后重试。</p>
                             </div>
                         </t>
 
-                        <div class="o_logistics_web_feedback_strip o_logistics_web_feedback_strip_light">
+                        <div class="o_logistics_web_feedback_strip o_logistics_web_feedback_strip_light o_logistics_import_entry_strip">
                             <p>
-                                褰撳墠鍏ュ彛锛?                                <strong><t t-esc="this.sourceConfig.entryTitle"/></strong>
-                                銆傚缓璁紭鍏堝～鍐?                                <strong><t t-esc="this.sourceConfig.focusSheetLabel"/></strong>
-                                Sheet銆?
+                                <t t-esc="this.ui.entryCurrentLabel" />：
+                                <strong><t t-esc="this.sourceConfig.entryTitle" /></strong>。
+                                <t t-esc="this.ui.entryRecommendLabel" />
+                                <strong><t t-esc="this.sourceConfig.focusSheetLabel" /></strong>
+                                工作表。
                             </p>
                             <div class="o_logistics_web_feedback_tags">
                                 <span class="o_logistics_web_status_tag" data-tone="info">
-                                    <t t-esc="this.sourceConfig.focusHint"/>
+                                    <t t-esc="this.sourceConfig.focusHint" />
                                 </span>
                             </div>
                         </div>
 
-                        <section class="o_logistics_web_dashboard_section">
+                        <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_import_section">
                             <div class="o_logistics_web_section_heading">
-                                <h2><t t-esc="this.ui.sectionTemplateTitle"/></h2>
-                                <p><t t-esc="this.ui.sectionTemplateHint"/></p>
+                                <h2><t t-esc="this.ui.sectionEntrySwitchTitle" /></h2>
+                                <p><t t-esc="this.ui.sectionEntrySwitchHint" /></p>
                             </div>
                             <div class="o_logistics_web_import_template_grid">
-                                <t t-foreach="availableTemplates" t-as="item" t-key="item.template_locale">
+                                <t t-foreach="this.importEntryCards" t-as="item" t-key="item.key">
+                                    <div class="o_logistics_web_placeholder_panel o_logistics_web_import_template_card" t-att-data-tone="item.isActive ? 'info' : undefined">
+                                        <strong><t t-esc="item.title" /></strong>
+                                        <p><t t-esc="item.detail" /></p>
+                                        <div class="d-flex gap-2 align-items-center flex-wrap">
+                                            <button type="button" t-att-class="item.isActive ? 'btn btn-primary' : 'btn btn-secondary'" t-on-click="() => this.focusImportEntry(item.sourceModel, item.sectionId)">
+                                                <t t-esc="item.isActive ? this.ui.entryCardCurrentLabel : this.ui.entryCardOpenLabel" />
+                                            </button>
+                                            <span t-if="item.isActive" class="o_logistics_web_status_tag" data-tone="info">
+                                                <t t-esc="this.ui.entryCardCurrentLabel" />
+                                            </span>
+                                        </div>
+                                    </div>
+                                </t>
+                            </div>
+                        </section>
+
+                        <section id="import-entry-mini-program-raw-sheet" class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_import_section">
+                            <div class="o_logistics_web_section_heading">
+                                <h2><t t-esc="this.ui.sectionMiniProgramRawSheetTemplateTitle" /></h2>
+                                <p><t t-esc="this.ui.sectionMiniProgramRawSheetTemplateHint" /></p>
+                            </div>
+                            <div class="o_logistics_web_import_template_grid">
+                                <t t-foreach="miniProgramRawSheetTemplates" t-as="item" t-key="`mini-${item.template_locale}`">
                                     <div class="o_logistics_web_placeholder_panel o_logistics_web_import_template_card">
-                                        <strong><t t-esc="item.template_label"/></strong>
-                                        <p>
-                                            鏂囦欢鍚嶏細
-                                            <t t-esc="item.file_name"/>
-                                        </p>
+                                        <strong><t t-esc="item.template_label" /></strong>
+                                        <p><t t-esc="this.ui.fileNameLabel" />：<t t-esc="item.file_name" /></p>
                                         <a class="btn btn-secondary" t-att-href="item.download_url">
-                                            涓嬭浇妯℃澘
+                                            <t t-esc="this.ui.downloadTemplate" />
                                         </a>
                                     </div>
                                 </t>
                             </div>
                         </section>
 
-                        <section class="o_logistics_web_dashboard_section">
+                        <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_import_section">
                             <div class="o_logistics_web_section_heading">
-                                <h2><t t-esc="this.ui.sectionUploadTitle"/></h2>
-                                <p><t t-esc="this.ui.sectionUploadHint"/></p>
+                                <h2><t t-esc="this.ui.sectionMiniProgramRawSheetUploadTitle" /></h2>
+                                <p><t t-esc="this.ui.sectionMiniProgramRawSheetUploadHint" /></p>
                             </div>
                             <div class="o_logistics_web_import_upload_panel">
-                                <input
-                                    t-ref="fileInput"
-                                    class="d-none"
-                                    type="file"
-                                    accept=".xlsx"
-                                    t-on-change="onFileChanged"/>
+                                <input t-ref="miniProgramRawSheetFileInput" class="d-none" type="file" accept=".xlsx" t-on-change="onMiniProgramRawSheetFileChanged" />
                                 <div class="o_logistics_web_import_upload_main">
-                                    <strong>褰撳墠鏂囦欢</strong>
-                                    <p><t t-esc="this.fileLabel"/></p>
+                                    <strong><t t-esc="this.ui.currentFileLabel" /></strong>
+                                    <p><t t-esc="this.miniProgramRawSheetFileLabel" /></p>
                                 </div>
                                 <div class="o_logistics_web_import_upload_actions">
-                                    <button type="button" class="btn btn-secondary" t-on-click="triggerFileSelect">
-                                        <t t-esc="hasSelectedFile ? this.ui.replaceFile : this.ui.chooseFile"/>
+                                    <button type="button" class="btn btn-secondary" t-on-click="triggerMiniProgramRawSheetFileSelect">
+                                        <t t-esc="hasMiniProgramRawSheetSelectedFile ? this.ui.miniProgramRawSheetReplaceFile : this.ui.miniProgramRawSheetChooseFile" />
                                     </button>
-                                    <button
-                                        type="button"
-                                        class="btn btn-primary"
-                                        t-att-disabled="!hasSelectedFile or state.prechecking"
-                                        t-on-click="runPrecheck">
-                                        <t t-esc="state.prechecking ? '棰勬牎楠屼腑...' : this.ui.runPrecheck"/>
+                                    <button type="button" class="btn btn-primary" t-att-disabled="!hasMiniProgramRawSheetSelectedFile or state.miniProgramRawSheetPrechecking" t-on-click="runMiniProgramRawSheetPrecheck">
+                                        <t t-esc="state.miniProgramRawSheetPrechecking ? this.ui.miniProgramRawSheetPrecheckingText : this.ui.miniProgramRawSheetRunPrecheck" />
                                     </button>
                                 </div>
                             </div>
                         </section>
 
-                        <section class="o_logistics_web_dashboard_section">
+                        <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_import_section">
                             <div class="o_logistics_web_section_heading">
-                                <h2><t t-esc="this.ui.sectionPrecheckTitle"/></h2>
-                                <p><t t-esc="this.ui.sectionPrecheckHint"/></p>
+                                <h2>小程序预校验结果</h2>
+                                <p>先确认发车单号、去重结果和客户命中情况，再决定是否正式写入排线批次与停靠点。</p>
                             </div>
-                            <t t-if="hasPrecheckResult">
+                            <t t-if="hasMiniProgramRawSheetPrecheckResult">
                                 <div class="o_logistics_web_dashboard_cards">
                                     <div class="o_logistics_web_summary_card">
-                                        <span class="o_logistics_web_summary_card_label">瀵煎叆鎵规鍙?</span>
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="this.ui.importBatchNoLabel" /></span>
                                         <strong class="o_logistics_web_summary_card_value o_logistics_web_summary_card_value_small">
-                                            <t t-esc="state.precheckResult.import_batch_no"/>
+                                            <t t-esc="state.miniProgramRawSheetPrecheckResult.task_no || state.miniProgramRawSheetPrecheckResult.import_batch_no" />
                                         </strong>
                                     </div>
                                     <div class="o_logistics_web_summary_card">
-                                        <span class="o_logistics_web_summary_card_label">鎬昏鏁?</span>
-                                        <strong class="o_logistics_web_summary_card_value">
-                                            <t t-esc="state.precheckResult.total_row_count"/>
-                                        </strong>
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="this.ui.totalRowsLabel" /></span>
+                                        <strong class="o_logistics_web_summary_card_value"><t t-esc="state.miniProgramRawSheetPrecheckResult.total_row_count" /></strong>
                                     </div>
-                                    <div class="o_logistics_web_summary_card" t-att-data-tone="state.precheckResult.failed_row_count ? 'warning' : 'info'">
-                                        <span class="o_logistics_web_summary_card_label">澶辫触琛屾暟</span>
-                                        <strong class="o_logistics_web_summary_card_value">
-                                            <t t-esc="state.precheckResult.failed_row_count"/>
-                                        </strong>
+                                    <div class="o_logistics_web_summary_card">
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="this.ui.miniProgramRawSheetDeduplicatedCountLabel" /></span>
+                                        <strong class="o_logistics_web_summary_card_value"><t t-esc="state.miniProgramRawSheetPrecheckResult.deduplicated_row_count" /></strong>
                                     </div>
-                                    <div class="o_logistics_web_summary_card" t-att-data-tone="state.precheckResult.can_confirm_import ? 'info' : 'danger'">
-                                        <span class="o_logistics_web_summary_card_label">鍙寮忓鍏?</span>
+                                    <div class="o_logistics_web_summary_card" t-att-data-tone="state.miniProgramRawSheetPrecheckResult.unmatched_row_count ? 'warning' : 'success'">
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="this.ui.miniProgramUnmatchedCountLabel" /></span>
+                                        <strong class="o_logistics_web_summary_card_value"><t t-esc="state.miniProgramRawSheetPrecheckResult.unmatched_row_count" /></strong>
+                                    </div>
+                                    <div class="o_logistics_web_summary_card" t-att-data-tone="state.miniProgramRawSheetPrecheckResult.can_confirm_import ? 'success' : 'danger'">
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="this.ui.canImportLabel" /></span>
                                         <strong class="o_logistics_web_summary_card_value">
-                                            <t t-esc="state.precheckResult.can_confirm_import ? '鏄? : '鍚?'"/>
+                                            <t t-esc="state.miniProgramRawSheetPrecheckResult.can_confirm_import ? this.ui.yesLabel : this.ui.noLabel" />
                                         </strong>
                                     </div>
                                 </div>
-
                                 <div class="o_logistics_web_import_action_bar">
-                                    <button
-                                        type="button"
-                                        class="btn btn-primary"
-                                        t-att-disabled="!canConfirmImport or state.confirming"
-                                        t-on-click="confirmImport">
-                                        <t t-esc="state.confirming ? '瀵煎叆涓?..' : this.ui.confirmImport"/>
+                                    <button type="button" class="btn btn-primary" t-att-disabled="!canConfirmMiniProgramRawSheetImport or state.miniProgramRawSheetConfirming" t-on-click="confirmMiniProgramRawSheetImport">
+                                        <t t-esc="state.miniProgramRawSheetConfirming ? this.ui.miniProgramRawSheetImportingText : this.ui.miniProgramRawSheetConfirmImport" />
                                     </button>
-                                    <button
-                                        t-if="state.precheckResult.error_report_url"
-                                        type="button"
-                                        class="btn btn-secondary"
-                                        t-on-click="downloadErrorReport">
-                                        <t t-esc="this.ui.openErrorReport"/>
+                                    <button t-if="state.miniProgramRawSheetPrecheckResult.error_report_url" type="button" class="btn btn-secondary" t-on-click="downloadErrorReport">
+                                        <t t-esc="this.ui.openErrorReport" />
                                     </button>
                                 </div>
-
-                                <t t-if="visibleErrors.length">
+                                <t t-if="miniProgramRawSheetVisibleErrors.length">
                                     <div class="o_logistics_web_import_error_panel">
                                         <div class="o_logistics_web_section_heading">
-                                            <h2>閿欒鏄庣粏</h2>
-                                            <p>褰撳墠鏈€澶氬睍绀哄墠 20 鏉￠敊璇紝瀹屾暣鍐呭璇蜂笅杞介敊璇姤鍛娿€?</p>
+                                            <h2><t t-esc="this.ui.errorDetailsTitle" /></h2>
+                                            <p><t t-esc="this.ui.errorDetailsHint" /></p>
                                         </div>
                                         <div class="table-responsive">
                                             <table class="table table-sm o_logistics_web_import_table">
                                                 <thead>
                                                     <tr>
-                                                        <th>Sheet</th>
-                                                        <th>琛屽彿</th>
-                                                        <th>瀛楁</th>
-                                                        <th>閿欒缂栫爜</th>
-                                                        <th>閿欒璇存槑</th>
+                                                        <th>工作表</th>
+                                                        <th><t t-esc="this.ui.rowNumberLabel" /></th>
+                                                        <th><t t-esc="this.ui.fieldLabel" /></th>
+                                                        <th><t t-esc="this.ui.errorCodeLabel" /></th>
+                                                        <th><t t-esc="this.ui.errorMessageLabel" /></th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <t t-foreach="visibleErrors" t-as="item" t-key="`${item.sheet_name}-${item.row_no}-${item.field_code}-${item.error_code}`">
+                                                    <t t-foreach="miniProgramRawSheetVisibleErrors" t-as="item" t-key="`${item.sheet_name}-${item.row_no}-${item.field_code}-${item.error_code}`">
                                                         <tr>
-                                                            <td><t t-esc="item.sheet_name"/></td>
-                                                            <td><t t-esc="item.row_no"/></td>
-                                                            <td><t t-esc="item.field_label or item.field_code"/></td>
-                                                            <td><t t-esc="item.error_code"/></td>
-                                                            <td><t t-esc="item.error_message"/></td>
+                                                            <td><t t-esc="item.sheet_name" /></td>
+                                                            <td><t t-esc="item.row_no" /></td>
+                                                            <td><t t-esc="item.field_label or item.field_code" /></td>
+                                                            <td><t t-esc="item.error_code" /></td>
+                                                            <td><t t-esc="item.error_message" /></td>
+                                                        </tr>
+                                                    </t>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </t>
+                                <t t-if="miniProgramRawSheetUnmatchedCandidates.length">
+                                    <div class="o_logistics_web_import_error_panel">
+                                        <div class="o_logistics_web_section_heading">
+                                            <h2>未命中客户候选</h2>
+                                            <p>仅用于人工复核辅助展示，不会放宽自动导入匹配规则。每条未命中客户最多展示 5 个相近候选。</p>
+                                        </div>
+                                        <div class="table-responsive">
+                                            <table class="table table-sm o_logistics_web_import_table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>原始客户名称</th>
+                                                        <th>原始地址</th>
+                                                        <th>候选客户</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <t t-foreach="miniProgramRawSheetUnmatchedCandidates" t-as="item" t-key="`${item.source_row_nos}-${item.raw_store_name}`">
+                                                        <tr>
+                                                            <td><t t-esc="item.raw_store_name" /></td>
+                                                            <td><t t-esc="item.raw_address" /></td>
+                                                            <td>
+                                                                <t t-if="item.similar_partner_candidates?.length">
+                                                                    <div t-foreach="item.similar_partner_candidates" t-as="candidate" t-key="candidate.partner_id" class="mb-2">
+                                                                        <strong><t t-esc="candidate.partner_name" /></strong>
+                                                                        <div class="text-muted" t-if="candidate.address_detail"><t t-esc="candidate.address_detail" /></div>
+                                                                        <div class="text-muted" t-if="candidate.contact_phone"><t t-esc="candidate.contact_phone" /></div>
+                                                                        <div class="mt-1">
+                                                                            <button
+                                                                                type="button"
+                                                                                class="btn btn-sm btn-secondary"
+                                                                                t-att-disabled="this.isMiniProgramRawSheetAssigning(item.business_key)"
+                                                                                t-on-click="() => this.assignMiniProgramRawSheetPartner(item.business_key, candidate.partner_id)">
+                                                                                <t t-esc="this.isMiniProgramRawSheetAssigning(item.business_key) ? this.ui.miniProgramRawSheetAssigningText : this.ui.miniProgramRawSheetAssignPartner" />
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                </t>
+                                                                <t t-else="">
+                                                                    <span class="text-muted">暂无候选</span>
+                                                                </t>
+                                                            </td>
+                                                        </tr>
+                                                    </t>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </t>
+                            </t>
+                            <t t-else="">
+                                <div class="o_logistics_web_placeholder_panel o_logistics_web_state_panel">
+                                    <strong>等待小程序预校验结果</strong>
+                                    <p><t t-esc="this.ui.miniProgramRawSheetPrecheckEmptyHint" /></p>
+                                </div>
+                            </t>
+                        </section>
+
+                        <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_import_section">
+                            <div class="o_logistics_web_section_heading">
+                                <h2>小程序导入结果</h2>
+                                <p>正式写入后，这里显示发车单号对应的排线批次和停靠点写入结果。</p>
+                            </div>
+                            <t t-if="hasMiniProgramRawSheetImportResult">
+                                <div class="o_logistics_web_dashboard_cards">
+                                    <div class="o_logistics_web_summary_card">
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="this.ui.importBatchNoLabel" /></span>
+                                        <strong class="o_logistics_web_summary_card_value o_logistics_web_summary_card_value_small">
+                                            <t t-esc="state.miniProgramRawSheetImportResult.task_no || state.miniProgramRawSheetImportResult.import_batch_no" />
+                                        </strong>
+                                    </div>
+                                    <div class="o_logistics_web_summary_card">
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="this.ui.statusLabel" /></span>
+                                        <strong class="o_logistics_web_summary_card_value"><t t-esc="state.miniProgramRawSheetImportResult.status_label || state.miniProgramRawSheetImportResult.status" /></strong>
+                                    </div>
+                                    <div class="o_logistics_web_summary_card">
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="this.ui.miniProgramCreatedBatchLabel" /></span>
+                                        <strong class="o_logistics_web_summary_card_value"><t t-esc="state.miniProgramRawSheetImportResult.route_planning_batch_id" /></strong>
+                                    </div>
+                                    <div class="o_logistics_web_summary_card">
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="this.ui.miniProgramCreatedStopCountLabel" /></span>
+                                        <strong class="o_logistics_web_summary_card_value"><t t-esc="state.miniProgramRawSheetImportResult.created_stop_line_count" /></strong>
+                                    </div>
+                                </div>
+                            </t>
+                            <t t-else="">
+                                <div class="o_logistics_web_placeholder_panel o_logistics_web_state_panel">
+                                    <strong>当前还没有小程序导入结果</strong>
+                                    <p><t t-esc="this.ui.miniProgramRawSheetResultEmptyHint" /></p>
+                                </div>
+                            </t>
+                        </section>
+
+                        <section id="import-entry-route-planning" class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_import_section">
+                            <div class="o_logistics_web_section_heading">
+                                <h2><t t-esc="this.ui.sectionRoutePlanningTemplateTitle" /></h2>
+                                <p><t t-esc="this.ui.sectionRoutePlanningTemplateHint" /></p>
+                            </div>
+                            <div class="o_logistics_web_import_template_grid">
+                                <t t-foreach="routePlanningTemplates" t-as="item" t-key="`route-${item.template_locale}`">
+                                    <div class="o_logistics_web_placeholder_panel o_logistics_web_import_template_card">
+                                        <strong><t t-esc="item.template_label" /></strong>
+                                        <p><t t-esc="this.ui.fileNameLabel" />：<t t-esc="item.file_name" /></p>
+                                        <a class="btn btn-secondary" t-att-href="item.download_url">
+                                            <t t-esc="this.ui.downloadTemplate" />
+                                        </a>
+                                    </div>
+                                </t>
+                            </div>
+                        </section>
+
+                        <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_import_section">
+                            <div class="o_logistics_web_section_heading">
+                                <h2><t t-esc="this.ui.sectionRoutePlanningUploadTitle" /></h2>
+                                <p><t t-esc="this.ui.sectionRoutePlanningUploadHint" /></p>
+                            </div>
+                            <div class="o_logistics_web_import_upload_panel">
+                                <input t-ref="routePlanningFileInput" class="d-none" type="file" accept=".xlsx" t-on-change="onRoutePlanningFileChanged" />
+                                <div class="o_logistics_web_import_upload_main">
+                                    <strong><t t-esc="this.ui.currentFileLabel" /></strong>
+                                    <p><t t-esc="this.routePlanningFileLabel" /></p>
+                                </div>
+                                <div class="o_logistics_web_import_upload_actions">
+                                    <button type="button" class="btn btn-secondary" t-on-click="triggerRoutePlanningFileSelect">
+                                        <t t-esc="hasRoutePlanningSelectedFile ? this.ui.routePlanningReplaceFile : this.ui.routePlanningChooseFile" />
+                                    </button>
+                                    <button type="button" class="btn btn-primary" t-att-disabled="!hasRoutePlanningSelectedFile or state.routePlanningPrechecking" t-on-click="runRoutePlanningPrecheck">
+                                        <t t-esc="state.routePlanningPrechecking ? this.ui.routePlanningPrecheckingText : this.ui.routePlanningRunPrecheck" />
+                                    </button>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_import_section">
+                            <div class="o_logistics_web_section_heading">
+                                <h2>排线预校验结果</h2>
+                                <p>先处理阻断错误，再根据人工复查提醒确认是否继续写入排线草稿。</p>
+                            </div>
+                            <t t-if="hasRoutePlanningPrecheckResult">
+                                <div class="o_logistics_web_dashboard_cards">
+                                    <div class="o_logistics_web_summary_card">
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="this.ui.importBatchNoLabel" /></span>
+                                        <strong class="o_logistics_web_summary_card_value o_logistics_web_summary_card_value_small">
+                                            <t t-esc="state.routePlanningPrecheckResult.task_no || state.routePlanningPrecheckResult.import_batch_no" />
+                                        </strong>
+                                    </div>
+                                    <div class="o_logistics_web_summary_card">
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="this.ui.totalRowsLabel" /></span>
+                                        <strong class="o_logistics_web_summary_card_value">
+                                            <t t-esc="state.routePlanningPrecheckResult.total_row_count" />
+                                        </strong>
+                                    </div>
+                                    <div class="o_logistics_web_summary_card" t-att-data-tone="state.routePlanningPrecheckResult.failed_row_count ? 'warning' : 'info'">
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="this.ui.failedRowsLabel" /></span>
+                                        <strong class="o_logistics_web_summary_card_value">
+                                            <t t-esc="state.routePlanningPrecheckResult.failed_row_count" />
+                                        </strong>
+                                    </div>
+                                    <div class="o_logistics_web_summary_card" t-att-data-tone="state.routePlanningPrecheckResult.has_review_warning ? 'warning' : 'success'">
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="this.ui.routePlanningReviewLabel" /></span>
+                                        <strong class="o_logistics_web_summary_card_value">
+                                            <t t-esc="state.routePlanningPrecheckResult.has_review_warning ? this.ui.yesLabel : this.ui.noLabel" />
+                                        </strong>
+                                    </div>
+                                </div>
+
+                                <div class="o_logistics_web_import_action_bar">
+                                    <button type="button" class="btn btn-primary" t-att-disabled="!canConfirmRoutePlanningImport or state.routePlanningConfirming" t-on-click="confirmRoutePlanningImport">
+                                        <t t-esc="state.routePlanningConfirming ? this.ui.routePlanningImportingText : this.ui.routePlanningConfirmImport" />
+                                    </button>
+                                    <button t-if="state.routePlanningPrecheckResult.error_report_url" type="button" class="btn btn-secondary" t-on-click="downloadErrorReport">
+                                        <t t-esc="this.ui.openErrorReport" />
+                                    </button>
+                                </div>
+
+                                <t t-if="routePlanningVisibleWarnings.length">
+                                    <div class="o_logistics_web_import_error_panel">
+                                        <div class="o_logistics_web_section_heading">
+                                            <h2><t t-esc="this.ui.routePlanningWarningsTitle" /></h2>
+                                            <p><t t-esc="this.ui.routePlanningWarningsHint" /></p>
+                                        </div>
+                                        <div class="table-responsive">
+                                            <table class="table table-sm o_logistics_web_import_table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>工作表</th>
+                                                        <th><t t-esc="this.ui.rowNumberLabel" /></th>
+                                                        <th><t t-esc="this.ui.fieldLabel" /></th>
+                                                        <th><t t-esc="this.ui.warningCodeLabel" /></th>
+                                                        <th><t t-esc="this.ui.warningMessageLabel" /></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <t t-foreach="routePlanningVisibleWarnings" t-as="item" t-key="`${item.sheet_name}-${item.row_no}-${item.field_code}-${item.warning_code}`">
+                                                        <tr>
+                                                            <td><t t-esc="item.sheet_name" /></td>
+                                                            <td><t t-esc="item.row_no" /></td>
+                                                            <td><t t-esc="item.field_label or item.field_code" /></td>
+                                                            <td><t t-esc="item.warning_code" /></td>
+                                                            <td><t t-esc="item.warning_message" /></td>
+                                                        </tr>
+                                                    </t>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </t>
+
+                                <t t-if="routePlanningVisibleErrors.length">
+                                    <div class="o_logistics_web_import_error_panel">
+                                        <div class="o_logistics_web_section_heading">
+                                            <h2><t t-esc="this.ui.errorDetailsTitle" /></h2>
+                                            <p><t t-esc="this.ui.errorDetailsHint" /></p>
+                                        </div>
+                                        <div class="table-responsive">
+                                            <table class="table table-sm o_logistics_web_import_table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>工作表</th>
+                                                        <th><t t-esc="this.ui.rowNumberLabel" /></th>
+                                                        <th><t t-esc="this.ui.fieldLabel" /></th>
+                                                        <th><t t-esc="this.ui.errorCodeLabel" /></th>
+                                                        <th><t t-esc="this.ui.errorMessageLabel" /></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <t t-foreach="routePlanningVisibleErrors" t-as="item" t-key="`${item.sheet_name}-${item.row_no}-${item.field_code}-${item.error_code}`">
+                                                        <tr>
+                                                            <td><t t-esc="item.sheet_name" /></td>
+                                                            <td><t t-esc="item.row_no" /></td>
+                                                            <td><t t-esc="item.field_label or item.field_code" /></td>
+                                                            <td><t t-esc="item.error_code" /></td>
+                                                            <td><t t-esc="item.error_message" /></td>
+                                                        </tr>
+                                                    </t>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </t>
+                            </t>
+                            <t t-else="">
+                                <div class="o_logistics_web_placeholder_panel o_logistics_web_state_panel">
+                                    <strong>等待排线预校验结果</strong>
+                                    <p><t t-esc="this.ui.routePlanningPrecheckEmptyHint" /></p>
+                                </div>
+                            </t>
+                        </section>
+
+                        <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_import_section">
+                            <div class="o_logistics_web_section_heading">
+                                <h2>排线导入结果</h2>
+                                <p>正式写入后，这里显示写入的排线批次数和停靠点数。</p>
+                            </div>
+                            <t t-if="hasRoutePlanningImportResult">
+                                <div class="o_logistics_web_dashboard_cards">
+                                    <div class="o_logistics_web_summary_card">
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="this.ui.importBatchNoLabel" /></span>
+                                        <strong class="o_logistics_web_summary_card_value o_logistics_web_summary_card_value_small">
+                                            <t t-esc="state.routePlanningImportResult.task_no || state.routePlanningImportResult.import_batch_no" />
+                                        </strong>
+                                    </div>
+                                    <div class="o_logistics_web_summary_card" t-att-data-tone="state.routePlanningImportResult.status === 'success' ? 'success' : 'warning'">
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="this.ui.statusLabel" /></span>
+                                        <strong class="o_logistics_web_summary_card_value">
+                                            <t t-esc="state.routePlanningImportResult.status_label" />
+                                        </strong>
+                                    </div>
+                                    <div class="o_logistics_web_summary_card">
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="this.ui.routePlanningBatchCountLabel" /></span>
+                                        <strong class="o_logistics_web_summary_card_value">
+                                            <t t-esc="state.routePlanningImportResult.created_route_batch_count" />
+                                        </strong>
+                                    </div>
+                                    <div class="o_logistics_web_summary_card">
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="this.ui.routePlanningStopCountLabel" /></span>
+                                        <strong class="o_logistics_web_summary_card_value">
+                                            <t t-esc="state.routePlanningImportResult.written_route_stop_count" />
+                                        </strong>
+                                    </div>
+                                </div>
+                                <t t-if="state.routePlanningImportResult.failure_reason">
+                                    <div class="o_logistics_web_feedback_strip">
+                                        <p><t t-esc="state.routePlanningImportResult.failure_reason" /></p>
+                                    </div>
+                                </t>
+                            </t>
+                            <t t-else="">
+                                <div class="o_logistics_web_placeholder_panel o_logistics_web_state_panel">
+                                    <strong>当前还没有排线导入结果</strong>
+                                    <p><t t-esc="this.ui.routePlanningResultEmptyHint" /></p>
+                                </div>
+                            </t>
+                        </section>
+
+                        <section id="import-entry-phase5-workbook" class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_import_section">
+                            <div class="o_logistics_web_section_heading">
+                                <h2><t t-esc="this.ui.sectionPhase5TemplateTitle" /></h2>
+                                <p><t t-esc="this.ui.sectionPhase5TemplateHint" /></p>
+                            </div>
+                            <div class="o_logistics_web_import_template_grid">
+                                <t t-foreach="phase5Templates" t-as="item" t-key="`phase5-${item.template_locale}`">
+                                    <div class="o_logistics_web_placeholder_panel o_logistics_web_import_template_card">
+                                        <strong><t t-esc="item.template_label" /></strong>
+                                        <p><t t-esc="this.ui.fileNameLabel" />：<t t-esc="item.file_name" /></p>
+                                        <a class="btn btn-secondary" t-att-href="item.download_url">
+                                            <t t-esc="this.ui.downloadTemplate" />
+                                        </a>
+                                    </div>
+                                </t>
+                            </div>
+                        </section>
+
+                        <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_import_section">
+                            <div class="o_logistics_web_section_heading">
+                                <h2><t t-esc="this.ui.sectionPhase5UploadTitle" /></h2>
+                                <p><t t-esc="this.ui.sectionPhase5UploadHint" /></p>
+                            </div>
+                            <div class="o_logistics_web_import_upload_panel">
+                                <input t-ref="phase5FileInput" class="d-none" type="file" accept=".xlsx" t-on-change="onPhase5FileChanged" />
+                                <div class="o_logistics_web_import_upload_main">
+                                    <strong><t t-esc="this.ui.currentFileLabel" /></strong>
+                                    <p><t t-esc="this.phase5FileLabel" /></p>
+                                </div>
+                                <div class="o_logistics_web_import_upload_actions">
+                                    <button type="button" class="btn btn-secondary" t-on-click="triggerPhase5FileSelect">
+                                        <t t-esc="hasPhase5SelectedFile ? this.ui.phase5ReplaceFile : this.ui.phase5ChooseFile" />
+                                    </button>
+                                    <button type="button" class="btn btn-primary" t-att-disabled="!hasPhase5SelectedFile or state.phase5Prechecking" t-on-click="runPhase5Precheck">
+                                        <t t-esc="state.phase5Prechecking ? this.ui.phase5PrecheckingText : this.ui.phase5RunPrecheck" />
+                                    </button>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_import_section">
+                            <div class="o_logistics_web_section_heading">
+                                <h2><t t-esc="this.ui.sectionPhase5PrecheckTitle" /></h2>
+                                <p><t t-esc="this.ui.sectionPhase5PrecheckHint" /></p>
+                            </div>
+                            <t t-if="hasPhase5PrecheckResult">
+                                <div class="o_logistics_web_dashboard_cards">
+                                    <div class="o_logistics_web_summary_card">
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="this.ui.importBatchNoLabel" /></span>
+                                        <strong class="o_logistics_web_summary_card_value o_logistics_web_summary_card_value_small">
+                                            <t t-esc="state.phase5PrecheckResult.task_no || state.phase5PrecheckResult.import_batch_no" />
+                                        </strong>
+                                    </div>
+                                    <div class="o_logistics_web_summary_card">
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="this.ui.totalRowsLabel" /></span>
+                                        <strong class="o_logistics_web_summary_card_value">
+                                            <t t-esc="state.phase5PrecheckResult.total_row_count" />
+                                        </strong>
+                                    </div>
+                                    <div class="o_logistics_web_summary_card" t-att-data-tone="state.phase5PrecheckResult.failed_row_count ? 'warning' : 'info'">
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="this.ui.failedRowsLabel" /></span>
+                                        <strong class="o_logistics_web_summary_card_value">
+                                            <t t-esc="state.phase5PrecheckResult.failed_row_count" />
+                                        </strong>
+                                    </div>
+                                    <div class="o_logistics_web_summary_card" t-att-data-tone="state.phase5PrecheckResult.can_confirm_import ? 'success' : 'danger'">
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="this.ui.canImportLabel" /></span>
+                                        <strong class="o_logistics_web_summary_card_value">
+                                            <t t-esc="state.phase5PrecheckResult.can_confirm_import ? this.ui.yesLabel : this.ui.noLabel" />
+                                        </strong>
+                                    </div>
+                                </div>
+
+                                <div class="o_logistics_web_import_action_bar">
+                                    <button type="button" class="btn btn-primary" t-att-disabled="!canConfirmPhase5Import or state.phase5Confirming" t-on-click="confirmPhase5Import">
+                                        <t t-esc="state.phase5Confirming ? this.ui.phase5ImportingText : this.ui.phase5ConfirmImport" />
+                                    </button>
+                                    <button t-if="state.phase5PrecheckResult.error_report_url" type="button" class="btn btn-secondary" t-on-click="downloadErrorReport">
+                                        <t t-esc="this.ui.openErrorReport" />
+                                    </button>
+                                </div>
+
+                                <t t-if="phase5VisibleErrors.length">
+                                    <div class="o_logistics_web_import_error_panel">
+                                        <div class="o_logistics_web_section_heading">
+                                            <h2><t t-esc="this.ui.errorDetailsTitle" /></h2>
+                                            <p><t t-esc="this.ui.errorDetailsHint" /></p>
+                                        </div>
+                                        <div class="table-responsive">
+                                            <table class="table table-sm o_logistics_web_import_table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>工作表</th>
+                                                        <th><t t-esc="this.ui.rowNumberLabel" /></th>
+                                                        <th><t t-esc="this.ui.fieldLabel" /></th>
+                                                        <th><t t-esc="this.ui.errorCodeLabel" /></th>
+                                                        <th><t t-esc="this.ui.errorMessageLabel" /></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <t t-foreach="phase5VisibleErrors" t-as="item" t-key="`${item.sheet_name}-${item.row_no}-${item.field_code}-${item.error_code}`">
+                                                        <tr>
+                                                            <td><t t-esc="item.sheet_name" /></td>
+                                                            <td><t t-esc="item.row_no" /></td>
+                                                            <td><t t-esc="item.field_label or item.field_code" /></td>
+                                                            <td><t t-esc="item.error_code" /></td>
+                                                            <td><t t-esc="item.error_message" /></td>
                                                         </tr>
                                                     </t>
                                                 </tbody>
@@ -175,93 +597,332 @@
                                     </div>
                                 </t>
                                 <t t-else="">
-                                    <div class="o_logistics_web_placeholder_panel">
-                                        <p><t t-esc="this.ui.noErrors"/></p>
+                                    <div class="o_logistics_web_placeholder_panel o_logistics_web_state_panel">
+                                        <strong>五期预校验已通过</strong>
+                                        <p><t t-esc="this.ui.noErrors" /></p>
                                     </div>
                                 </t>
                             </t>
                             <t t-else="">
-                                <div class="o_logistics_web_placeholder_panel">
-                                    <p>瀹屾垚鏂囦欢涓婁紶鍚庯紝棰勬牎楠岀粨鏋滀細鏄剧ず鍦ㄨ繖閲屻€?</p>
+                                <div class="o_logistics_web_placeholder_panel o_logistics_web_state_panel">
+                                    <strong>等待五期预校验结果</strong>
+                                    <p><t t-esc="this.ui.phase5PrecheckEmptyHint" /></p>
                                 </div>
                             </t>
                         </section>
 
-                        <section class="o_logistics_web_dashboard_section">
+                        <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_import_section">
                             <div class="o_logistics_web_section_heading">
-                                <h2><t t-esc="this.ui.sectionResultTitle"/></h2>
-                                <p><t t-esc="this.ui.sectionResultHint"/></p>
+                                <h2><t t-esc="this.ui.sectionPhase5ResultTitle" /></h2>
+                                <p><t t-esc="this.ui.sectionPhase5ResultHint" /></p>
+                            </div>
+                            <t t-if="hasPhase5ImportResult">
+                                <div class="o_logistics_web_dashboard_cards">
+                                    <div class="o_logistics_web_summary_card">
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="this.ui.importBatchNoLabel" /></span>
+                                        <strong class="o_logistics_web_summary_card_value o_logistics_web_summary_card_value_small">
+                                            <t t-esc="state.phase5ImportResult.task_no || state.phase5ImportResult.import_batch_no" />
+                                        </strong>
+                                    </div>
+                                    <div class="o_logistics_web_summary_card" t-att-data-tone="state.phase5ImportResult.status === 'success' ? 'success' : 'warning'">
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="this.ui.statusLabel" /></span>
+                                        <strong class="o_logistics_web_summary_card_value">
+                                            <t t-esc="state.phase5ImportResult.status_label" />
+                                        </strong>
+                                    </div>
+                                    <div class="o_logistics_web_summary_card">
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="this.ui.phase5SuccessCountLabel" /></span>
+                                        <strong class="o_logistics_web_summary_card_value">
+                                            <t t-esc="state.phase5ImportResult.success_count" />
+                                        </strong>
+                                    </div>
+                                    <div class="o_logistics_web_summary_card">
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="this.ui.failedRowsLabel" /></span>
+                                        <strong class="o_logistics_web_summary_card_value">
+                                            <t t-esc="state.phase5ImportResult.fail_count" />
+                                        </strong>
+                                    </div>
+                                    <div class="o_logistics_web_summary_card">
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="this.ui.phase5SkippedCountLabel" /></span>
+                                        <strong class="o_logistics_web_summary_card_value">
+                                            <t t-esc="state.phase5ImportResult.skipped_count" />
+                                        </strong>
+                                    </div>
+                                </div>
+                                <div class="o_logistics_web_feedback_strip o_logistics_web_feedback_strip_light">
+                                    <p><t t-esc="state.phase5ImportResult.summary_message" /></p>
+                                </div>
+                            </t>
+                            <t t-else="">
+                                <div class="o_logistics_web_placeholder_panel o_logistics_web_state_panel">
+                                    <strong>当前还没有五期导入结果</strong>
+                                    <p><t t-esc="this.ui.phase5ResultEmptyHint" /></p>
+                                </div>
+                            </t>
+                        </section>
+
+                        <section id="import-entry-waybill-standard" class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_import_section">
+                            <div class="o_logistics_web_section_heading">
+                                <h2><t t-esc="this.ui.sectionTemplateTitle" /></h2>
+                                <p><t t-esc="this.ui.sectionTemplateHint" /></p>
+                            </div>
+                            <div class="o_logistics_web_import_template_grid">
+                                <t t-foreach="availableTemplates" t-as="item" t-key="item.template_locale">
+                                    <div class="o_logistics_web_placeholder_panel o_logistics_web_import_template_card">
+                                        <strong><t t-esc="item.template_label" /></strong>
+                                        <p><t t-esc="this.ui.fileNameLabel" />：<t t-esc="item.file_name" /></p>
+                                        <a class="btn btn-secondary" t-att-href="item.download_url">
+                                            <t t-esc="this.ui.downloadTemplate" />
+                                        </a>
+                                    </div>
+                                </t>
+                            </div>
+                        </section>
+
+                        <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_import_section">
+                            <div class="o_logistics_web_section_heading">
+                                <h2><t t-esc="this.ui.sectionDriverExportTitle" /></h2>
+                                <p><t t-esc="this.ui.sectionDriverExportHint" /></p>
+                            </div>
+                            <t t-if="hasDriverExportContext">
+                                <div class="o_logistics_web_feedback_strip o_logistics_web_feedback_strip_light o_logistics_import_entry_strip">
+                                    <p>
+                                        <t t-if="state.driverExportBatchNo">
+                                            <t t-esc="this.ui.driverExportBatchContextLabel" />：
+                                            <strong><t t-esc="state.driverExportBatchNo" /></strong>。
+                                        </t>
+                                        <t t-if="state.driverExportHint">
+                                            <t t-esc="state.driverExportHint" />
+                                        </t>
+                                    </p>
+                                </div>
+                            </t>
+                            <div class="o_logistics_web_import_upload_panel">
+                                <div class="o_logistics_web_import_upload_main">
+                                    <strong><t t-esc="this.ui.driverExportDateLabel" /></strong>
+                                    <input class="form-control mt-2" type="date" t-att-value="state.driverExportDate" t-on-change="onDriverExportDateChanged" />
+                                    <p class="mt-2 mb-0"><t t-esc="this.ui.driverExportDateHint" /></p>
+                                </div>
+                                <div class="o_logistics_web_import_upload_actions">
+                                    <button type="button" class="btn btn-primary" t-att-disabled="!state.driverExportDate or state.driverExportDownloading" t-on-click="downloadDriverRouteExcel">
+                                        <t t-esc="state.driverExportDownloading ? this.ui.driverExportDownloading : this.ui.driverExportButton" />
+                                    </button>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_import_section">
+                            <div class="o_logistics_web_section_heading">
+      <h2>当前表格导出</h2>
+      <p>直接在导入中心按配送日期下载当前三张表；如果当前入口带了批次号，系统会自动优先导出该批次数据。</p>
+                            </div>
+                            <div class="o_logistics_web_import_template_grid">
+                                <t t-foreach="this.phase5ExportShortcuts" t-as="item" t-key="item.key">
+                                    <div class="o_logistics_web_placeholder_panel o_logistics_web_import_template_card">
+                                        <strong><t t-esc="item.title" /></strong>
+                                        <p><t t-esc="item.detail" /></p>
+                                        <button type="button" class="btn btn-primary" t-att-disabled="!state.driverExportDate or state.phase5ExportDownloadingKey === item.key" t-att-data-export-key="item.key" t-on-click="onPhase5ExportButtonClicked">
+                                            <t t-esc="state.phase5ExportDownloadingKey === item.key ? this.ui.driverExportDownloading : item.buttonLabel" />
+                                        </button>
+                                    </div>
+                                </t>
+                            </div>
+                        </section>
+
+                        <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_import_section">
+                            <div class="o_logistics_web_section_heading">
+                                <h2>标准导出快捷入口</h2>
+                                <p>把运单标准导出、客户画像导出和货物画像导出放在同一处，先进入对应列表后再按既有方式勾选记录发起导出。</p>
+                            </div>
+                            <div class="o_logistics_web_import_template_grid">
+                                <t t-foreach="this.exportShortcuts" t-as="item" t-key="item.key">
+                                    <div class="o_logistics_web_placeholder_panel o_logistics_web_import_template_card">
+                                        <strong><t t-esc="item.title" /></strong>
+                                        <p><t t-esc="item.lead" /></p>
+                                        <p><t t-esc="item.detail" /></p>
+                                        <button type="button" class="btn btn-secondary" t-on-click="() =&gt; this.openExportEntry(item.actionXmlid)">
+                                            <t t-esc="item.buttonLabel" />
+                                        </button>
+                                    </div>
+                                </t>
+                            </div>
+                        </section>
+
+                        <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_import_section">
+                            <div class="o_logistics_web_section_heading">
+                                <h2><t t-esc="this.ui.sectionUploadTitle" /></h2>
+                                <p><t t-esc="this.ui.sectionUploadHint" /></p>
+                            </div>
+                            <div class="o_logistics_web_import_upload_panel">
+                                <input t-ref="fileInput" class="d-none" type="file" accept=".xlsx" t-on-change="onFileChanged" />
+                                <div class="o_logistics_web_import_upload_main">
+                                    <strong><t t-esc="this.ui.currentFileLabel" /></strong>
+                                    <p><t t-esc="this.fileLabel" /></p>
+                                </div>
+                                <div class="o_logistics_web_import_upload_actions">
+                                    <button type="button" class="btn btn-secondary" t-on-click="triggerFileSelect">
+                                        <t t-esc="hasSelectedFile ? this.ui.replaceFile : this.ui.chooseFile" />
+                                    </button>
+                                    <button type="button" class="btn btn-primary" t-att-disabled="!hasSelectedFile or state.prechecking" t-on-click="runPrecheck">
+                                        <t t-esc="state.prechecking ? this.ui.precheckingText : this.ui.runPrecheck" />
+                                    </button>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_import_section">
+                            <div class="o_logistics_web_section_heading">
+                                <h2><t t-esc="this.ui.sectionPrecheckTitle" /></h2>
+                                <p><t t-esc="this.ui.sectionPrecheckHint" /></p>
+                            </div>
+                            <t t-if="hasPrecheckResult">
+                                <div class="o_logistics_web_dashboard_cards">
+                                    <div class="o_logistics_web_summary_card">
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="this.ui.importBatchNoLabel" /></span>
+                                        <strong class="o_logistics_web_summary_card_value o_logistics_web_summary_card_value_small">
+                                            <t t-esc="state.precheckResult.task_no || state.precheckResult.import_batch_no" />
+                                        </strong>
+                                    </div>
+                                    <div class="o_logistics_web_summary_card">
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="this.ui.totalRowsLabel" /></span>
+                                        <strong class="o_logistics_web_summary_card_value">
+                                            <t t-esc="state.precheckResult.total_row_count" />
+                                        </strong>
+                                    </div>
+                                    <div class="o_logistics_web_summary_card" t-att-data-tone="state.precheckResult.failed_row_count ? 'warning' : 'info'">
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="this.ui.failedRowsLabel" /></span>
+                                        <strong class="o_logistics_web_summary_card_value">
+                                            <t t-esc="state.precheckResult.failed_row_count" />
+                                        </strong>
+                                    </div>
+                                    <div class="o_logistics_web_summary_card" t-att-data-tone="state.precheckResult.can_confirm_import ? 'success' : 'danger'">
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="this.ui.canImportLabel" /></span>
+                                        <strong class="o_logistics_web_summary_card_value">
+                                            <t t-esc="state.precheckResult.can_confirm_import ? this.ui.yesLabel : this.ui.noLabel" />
+                                        </strong>
+                                    </div>
+                                </div>
+
+                                <div class="o_logistics_web_import_action_bar">
+                                    <button type="button" class="btn btn-primary" t-att-disabled="!canConfirmImport or state.confirming" t-on-click="confirmImport">
+                                        <t t-esc="state.confirming ? this.ui.importingText : this.ui.confirmImport" />
+                                    </button>
+                                    <button t-if="state.precheckResult.error_report_url" type="button" class="btn btn-secondary" t-on-click="downloadErrorReport">
+                                        <t t-esc="this.ui.openErrorReport" />
+                                    </button>
+                                </div>
+
+                                <t t-if="visibleErrors.length">
+                                    <div class="o_logistics_web_import_error_panel">
+                                        <div class="o_logistics_web_section_heading">
+                                            <h2><t t-esc="this.ui.errorDetailsTitle" /></h2>
+                                            <p><t t-esc="this.ui.errorDetailsHint" /></p>
+                                        </div>
+                                        <div class="table-responsive">
+                                            <table class="table table-sm o_logistics_web_import_table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>工作表</th>
+                                                        <th><t t-esc="this.ui.rowNumberLabel" /></th>
+                                                        <th><t t-esc="this.ui.fieldLabel" /></th>
+                                                        <th><t t-esc="this.ui.errorCodeLabel" /></th>
+                                                        <th><t t-esc="this.ui.errorMessageLabel" /></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <t t-foreach="visibleErrors" t-as="item" t-key="`${item.sheet_name}-${item.row_no}-${item.field_code}-${item.error_code}`">
+                                                        <tr>
+                                                            <td><t t-esc="item.sheet_name" /></td>
+                                                            <td><t t-esc="item.row_no" /></td>
+                                                            <td><t t-esc="item.field_label or item.field_code" /></td>
+                                                            <td><t t-esc="item.error_code" /></td>
+                                                            <td><t t-esc="item.error_message" /></td>
+                                                        </tr>
+                                                    </t>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </t>
+                                <t t-else="">
+                                    <div class="o_logistics_web_placeholder_panel o_logistics_web_state_panel">
+                                        <strong>预校验已通过</strong>
+                                        <p><t t-esc="this.ui.noErrors" /></p>
+                                    </div>
+                                </t>
+                            </t>
+                            <t t-else="">
+                                <div class="o_logistics_web_placeholder_panel o_logistics_web_state_panel">
+                                    <strong>等待预校验结果</strong>
+                                    <p><t t-esc="this.ui.precheckEmptyHint" /></p>
+                                </div>
+                            </t>
+                        </section>
+
+                        <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_import_section">
+                            <div class="o_logistics_web_section_heading">
+                                <h2><t t-esc="this.ui.sectionResultTitle" /></h2>
+                                <p><t t-esc="this.ui.sectionResultHint" /></p>
                             </div>
                             <t t-if="hasImportResult">
                                 <div class="o_logistics_web_dashboard_cards">
                                     <div class="o_logistics_web_summary_card">
-                                        <span class="o_logistics_web_summary_card_label">瀵煎叆鎵规鍙?</span>
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="this.ui.importBatchNoLabel" /></span>
                                         <strong class="o_logistics_web_summary_card_value o_logistics_web_summary_card_value_small">
-                                            <t t-esc="state.importResult.import_batch_no"/>
+                                            <t t-esc="state.importResult.task_no || state.importResult.import_batch_no" />
                                         </strong>
                                     </div>
-                                    <div class="o_logistics_web_summary_card" t-att-data-tone="state.importResult.status === 'finished' ? 'info' : 'warning'">
-                                        <span class="o_logistics_web_summary_card_label">鐘舵€?</span>
+                                    <div class="o_logistics_web_summary_card" t-att-data-tone="state.importResult.status === 'finished' ? 'success' : 'warning'">
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="this.ui.statusLabel" /></span>
                                         <strong class="o_logistics_web_summary_card_value">
-                                            <t t-esc="state.importResult.status_label"/>
-                                        </strong>
-                                    </div>
-                                    <div class="o_logistics_web_summary_card">
-                                        <span class="o_logistics_web_summary_card_label">鏂板杩愬崟</span>
-                                        <strong class="o_logistics_web_summary_card_value">
-                                            <t t-esc="state.importResult.created_waybill_count"/>
+                                            <t t-esc="state.importResult.status_label" />
                                         </strong>
                                     </div>
                                     <div class="o_logistics_web_summary_card">
-                                        <span class="o_logistics_web_summary_card_label">鏂板瀹㈡埛鏄庣粏</span>
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="this.ui.createdWaybillLabel" /></span>
                                         <strong class="o_logistics_web_summary_card_value">
-                                            <t t-esc="state.importResult.created_customer_line_count"/>
+                                            <t t-esc="state.importResult.created_waybill_count" />
                                         </strong>
                                     </div>
                                     <div class="o_logistics_web_summary_card">
-                                        <span class="o_logistics_web_summary_card_label">鏂板璐х墿鏄庣粏</span>
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="this.ui.createdCustomerLabel" /></span>
                                         <strong class="o_logistics_web_summary_card_value">
-                                            <t t-esc="state.importResult.created_goods_line_count"/>
+                                            <t t-esc="state.importResult.created_customer_line_count" />
+                                        </strong>
+                                    </div>
+                                    <div class="o_logistics_web_summary_card">
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="this.ui.createdGoodsLabel" /></span>
+                                        <strong class="o_logistics_web_summary_card_value">
+                                            <t t-esc="state.importResult.created_goods_line_count" />
                                         </strong>
                                     </div>
                                 </div>
 
                                 <t t-if="state.importResult.failure_reason">
                                     <div class="o_logistics_web_feedback_strip">
-                                        <p><t t-esc="state.importResult.failure_reason"/></p>
+                                        <p><t t-esc="state.importResult.failure_reason" /></p>
                                     </div>
                                 </t>
 
                                 <div class="o_logistics_web_import_action_bar">
-                                    <button
-                                        type="button"
-                                        class="btn btn-secondary"
-                                        t-att-disabled="state.refreshingResult"
-                                        t-on-click="refreshResult">
-                                        <t t-esc="state.refreshingResult ? '鍒锋柊涓?..' : this.ui.refreshResult"/>
+                                    <button type="button" class="btn btn-secondary" t-att-disabled="state.refreshingResult" t-on-click="refreshResult">
+                                        <t t-esc="state.refreshingResult ? this.ui.refreshingText : this.ui.refreshResult" />
                                     </button>
                                     <button type="button" class="btn btn-primary" t-on-click="openWaybillList">
-                                        <t t-esc="this.ui.openWaybillList"/>
+                                        <t t-esc="this.ui.openWaybillList" />
                                     </button>
-                                    <button
-                                        type="button"
-                                        class="btn btn-secondary"
-                                        t-att-disabled="!currentImportBatchNo"
-                                        t-on-click="openImportResultPage">
-                                        <t t-esc="this.ui.openResultPage"/>
+                                    <button type="button" class="btn btn-secondary" t-att-disabled="!currentTaskNo" t-on-click="openImportResultPage">
+                                        <t t-esc="this.ui.openResultPage" />
                                     </button>
-                                    <button
-                                        t-if="state.importResult.error_report_url"
-                                        type="button"
-                                        class="btn btn-secondary"
-                                        t-on-click="downloadErrorReport">
-                                        <t t-esc="this.ui.openErrorReport"/>
+                                    <button t-if="state.importResult.error_report_url" type="button" class="btn btn-secondary" t-on-click="downloadErrorReport">
+                                        <t t-esc="this.ui.openErrorReport" />
                                     </button>
                                 </div>
                             </t>
                             <t t-else="">
-                                <div class="o_logistics_web_placeholder_panel">
-                                    <p>姝ｅ紡瀵煎叆瀹屾垚鍚庯紝瀵煎叆鎵规鍜岀粨鏋滅粺璁′細鏄剧ず鍦ㄨ繖閲屻€?</p>
+                                <div class="o_logistics_web_placeholder_panel o_logistics_web_state_panel">
+                                    <strong>当前还没有导入结果</strong>
+                                    <p><t t-esc="this.ui.resultEmptyHint" /></p>
                                 </div>
                             </t>
                         </section>

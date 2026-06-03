@@ -6,19 +6,28 @@ class LogisticsDispatchWave(models.Model):
     _description = "物流波次"
     _order = "dispatch_date desc, id desc"
 
+    _uniq_wave_no = models.Constraint(
+        "unique(name)",
+        "波次号必须唯一。",
+    )
+
     name = fields.Char(string="波次号", required=True, copy=False, default="新建", index=True)
     wave_no = fields.Char(
         string="波次号（导入导出）",
         compute="_compute_wave_no",
         inverse="_inverse_wave_no",
     )
+    active = fields.Boolean(default=True, index=True)
     dispatch_date = fields.Date(
         string="发车日期",
         required=True,
         default=fields.Date.context_today,
     )
+    wave_date = fields.Date(string="波次日期", related="dispatch_date", store=True, readonly=False)
     warehouse_id = fields.Many2one("stock.warehouse", string="仓库", required=True)
     planned_depart_time = fields.Datetime(string="计划发车时间")
+    organization_name_snapshot = fields.Char(string="组织快照", size=64)
+    warehouse_name_snapshot = fields.Char(string="仓库快照", size=64)
     state = fields.Selection(
         [
             ("draft", "草稿"),
@@ -51,9 +60,15 @@ class LogisticsDispatchWave(models.Model):
         for record in self:
             record.total_batch_count = len(record.batch_ids)
             record.total_waybill_count = sum(record.batch_ids.mapped("total_waybill_count"))
-            record.total_order_count = sum(
-                len(batch.waybill_ids.mapped("order_line_ids")) for batch in record.batch_ids
-            )
+            record.total_order_count = sum(len(batch.waybill_ids.mapped("order_line_ids")) for batch in record.batch_ids)
+
+    @api.model
+    def _build_snapshot_vals(self, vals):
+        warehouse = self.env["stock.warehouse"].browse(vals["warehouse_id"]) if vals.get("warehouse_id") else False
+        return {
+            "organization_name_snapshot": warehouse.company_id.name or False,
+            "warehouse_name_snapshot": warehouse.name or False,
+        }
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -62,6 +77,9 @@ class LogisticsDispatchWave(models.Model):
                 vals["name"] = (vals.pop("wave_no") or "").strip() or vals.get("name") or "新建"
             if vals.get("name", "新建") in ("New", "新建"):
                 vals["name"] = self.env["ir.sequence"].next_by_code("logistics.dispatch.wave") or "新建"
+            if vals.get("warehouse_id"):
+                for field_name, field_value in self._build_snapshot_vals(vals).items():
+                    vals.setdefault(field_name, field_value)
         return super().create(vals_list)
 
     def write(self, vals):
@@ -70,5 +88,15 @@ class LogisticsDispatchWave(models.Model):
             wave_no = (vals.pop("wave_no") or "").strip()
             if wave_no:
                 vals["name"] = wave_no
+        if "warehouse_id" in vals and vals.get("warehouse_id"):
+            for field_name, field_value in self._build_snapshot_vals(vals).items():
+                vals.setdefault(field_name, field_value)
         return super().write(vals)
 
+    def action_logistics_delete(self):
+        self.batch_ids.action_logistics_delete()
+        self.unlink()
+        return True
+
+    def action_logistics_archive(self):
+        return self.action_logistics_delete()

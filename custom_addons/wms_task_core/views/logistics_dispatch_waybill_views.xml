@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_logistics_dispatch_waybill_form_wms_task_core" model="ir.ui.view">
+        <field name="name">logistics.dispatch.waybill.form.wms.task.core</field>
+        <field name="model">logistics.dispatch.waybill</field>
+        <field name="inherit_id" ref="logistics_dispatch.view_logistics_dispatch_waybill_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button
+                    name="action_open_related_handover_orders"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-handshake-o">
+                    <field name="wms_handover_order_count" string="Handover Orders" widget="statinfo"/>
+                </button>
+                <button
+                    name="action_open_related_outbound_tasks"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-archive">
+                    <field name="wms_outbound_task_count" string="Outbound Tasks" widget="statinfo"/>
+                </button>
+            </xpath>
+        </field>
+    </record>
+</odoo>

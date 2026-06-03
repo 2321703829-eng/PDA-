@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="logistics_web.ExportResultAction">
+        <div class="o_action o_logistics_web_import_result_action">
+            <Layout display="display">
+                <div class="o_logistics_web_page o_logistics_web_import_result_page">
+                    <div class="o_logistics_web_page_header o_logistics_web_dashboard_header o_logistics_web_page_hero o_logistics_import_page_hero o_logistics_import_result_page_hero">
+                        <div class="o_logistics_web_page_hero_main">
+                            <span class="o_logistics_web_page_kicker">导出结果</span>
+                            <h1><t t-esc="this.ui.title"/></h1>
+                            <p><t t-esc="this.ui.subtitle"/></p>
+                        </div>
+                        <div class="o_logistics_web_page_hero_aside">
+                            <div class="o_logistics_web_dashboard_header_meta">
+                                <span class="o_logistics_web_status_tag">导出回看</span>
+                                <span class="o_logistics_web_status_tag" t-att-data-tone="statusTone">
+                                    <t t-esc="result?.status_label || '--'"/>
+                                </span>
+                            </div>
+                            <div class="o_logistics_web_page_note">
+                                <strong><t t-esc="this.ui.heroNoteTitle"/></strong>
+                                <span><t t-esc="this.ui.heroNoteBody"/></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <t t-if="state.loading">
+                        <div class="o_logistics_web_placeholder_panel o_logistics_web_state_panel">
+                            <strong>正在加载导出结果</strong>
+                            <p><t t-esc="this.ui.loading"/></p>
+                        </div>
+                    </t>
+                    <t t-else="">
+                        <t t-if="state.error">
+                            <div class="o_logistics_web_feedback_strip">
+                                <p><t t-esc="state.error"/></p>
+                            </div>
+                            <div class="o_logistics_web_state_panel">
+                                <strong><t t-esc="state.error"/></strong>
+                                <p>请先确认任务号、权限和结果状态，再刷新页面或回到运单列表继续处理。</p>
+                                <button type="button" class="btn btn-secondary" t-on-click="backToWaybillList">
+                                    <t t-esc="this.ui.backToWaybillList"/>
+                                </button>
+                            </div>
+                        </t>
+
+                        <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_import_section o_logistics_import_result_overview">
+                            <div class="o_logistics_web_section_heading">
+                                <h2>结果头部</h2>
+                                <p><t t-esc="summaryText"/></p>
+                            </div>
+                            <div class="o_logistics_web_import_action_bar o_logistics_import_result_primary_actions">
+                                <button type="button" class="btn btn-secondary" t-att-disabled="state.refreshing" t-on-click="refreshResult">
+                                    <t t-esc="state.refreshing ? this.ui.refreshingText : this.ui.refresh"/>
+                                </button>
+                                <button type="button" class="btn btn-primary" t-att-disabled="!canDownloadFile" t-on-click="downloadExportFile">
+                                    <t t-esc="this.ui.downloadFile"/>
+                                </button>
+                                <button type="button" class="btn btn-secondary" t-att-disabled="!canDownloadErrorReport" t-on-click="downloadErrorReport">
+                                    <t t-esc="this.ui.downloadErrorReport"/>
+                                </button>
+                                <button type="button" class="btn btn-secondary" t-on-click="openWaybillList">
+                                    <t t-esc="this.ui.openWaybillList"/>
+                                </button>
+                            </div>
+                            <div class="o_logistics_web_import_result_hero">
+                                <div class="o_logistics_web_placeholder_panel o_logistics_web_import_result_hero_card">
+                                    <span class="o_logistics_web_summary_card_label">Task No</span>
+                                    <strong class="o_logistics_web_summary_card_value o_logistics_web_summary_card_value_small">
+                                        <t t-esc="result?.task_no || state.taskNo || '--'"/>
+                                    </strong>
+                                </div>
+                                <div class="o_logistics_web_placeholder_panel o_logistics_web_import_result_hero_card">
+                                    <span class="o_logistics_web_summary_card_label">导出模式</span>
+                                    <strong class="o_logistics_web_summary_card_value o_logistics_web_summary_card_value_small">
+                                        <t t-esc="result?.export_mode || '--'"/>
+                                    </strong>
+                                </div>
+                                <div class="o_logistics_web_placeholder_panel o_logistics_web_import_result_hero_card">
+                                    <span class="o_logistics_web_summary_card_label">导出文件</span>
+                                    <strong class="o_logistics_web_summary_card_value o_logistics_web_summary_card_value_small">
+                                        <t t-esc="result?.download_file?.name || '--'"/>
+                                    </strong>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_import_section">
+                            <div class="o_logistics_web_section_heading">
+                                <h2><t t-esc="this.ui.summaryTitle"/></h2>
+                                <p><t t-esc="this.ui.summaryHint"/></p>
+                            </div>
+                            <div class="o_logistics_web_dashboard_cards">
+                                <t t-foreach="summaryCards" t-as="item" t-key="item.key">
+                                    <div class="o_logistics_web_summary_card" t-att-data-tone="item.tone || false">
+                                        <span class="o_logistics_web_summary_card_label"><t t-esc="item.label"/></span>
+                                        <strong class="o_logistics_web_summary_card_value"><t t-esc="item.value"/></strong>
+                                        <span class="o_logistics_web_summary_card_meta"><t t-esc="item.caption"/></span>
+                                    </div>
+                                </t>
+                            </div>
+                        </section>
+
+                        <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_import_section">
+                            <div class="o_logistics_web_section_heading">
+                                <h2><t t-esc="this.ui.infoTitle"/></h2>
+                                <p><t t-esc="this.ui.infoHint"/></p>
+                            </div>
+                            <div class="o_logistics_web_import_result_info_grid">
+                                <t t-foreach="infoCards" t-as="card" t-key="card.key">
+                                    <div class="o_logistics_web_import_result_info_card">
+                                        <strong><t t-esc="card.title"/></strong>
+                                        <dl class="o_logistics_web_import_result_info_list">
+                                            <t t-foreach="card.items" t-as="item" t-key="item[0]">
+                                                <div class="o_logistics_web_import_result_info_row">
+                                                    <dt><t t-esc="item[0]"/></dt>
+                                                    <dd><t t-esc="item[1]"/></dd>
+                                                </div>
+                                            </t>
+                                        </dl>
+                                    </div>
+                                </t>
+                            </div>
+                        </section>
+
+                        <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_import_section">
+                            <div class="o_logistics_web_section_heading">
+                                <h2><t t-esc="this.ui.lineTitle"/></h2>
+                                <p><t t-esc="lineDetailHint"/></p>
+                            </div>
+                            <div class="o_logistics_web_import_section_toolbar">
+                                <div class="o_logistics_web_import_filter_group">
+                                    <span class="o_logistics_web_import_filter_label"><t t-esc="this.ui.lineFilterTitle"/></span>
+                                    <div class="o_logistics_web_import_filter_tabs">
+                                        <t t-foreach="lineStatusFilters" t-as="filterItem" t-key="filterItem.value">
+                                            <button
+                                                type="button"
+                                                t-att-class="state.taskLineStatusFilter === filterItem.value ? 'btn btn-primary' : 'btn btn-secondary'"
+                                                t-att-disabled="state.taskLinesLoading"
+                                                t-on-click="() => this.changeTaskLineStatusFilter(filterItem.value)"
+                                            >
+                                                <t t-esc="filterItem.label"/>
+                                            </button>
+                                        </t>
+                                    </div>
+                                </div>
+                            </div>
+                            <t t-if="state.taskLinesError">
+                                <div class="o_logistics_web_feedback_strip">
+                                    <p><t t-esc="state.taskLinesError"/></p>
+                                </div>
+                            </t>
+                            <t t-if="state.taskLinesLoading and !taskLines.length">
+                                <div class="o_logistics_web_placeholder_panel o_logistics_web_state_panel">
+                                    <strong>正在加载行结果</strong>
+                                    <p><t t-esc="this.ui.detailLoading"/></p>
+                                </div>
+                            </t>
+                            <t t-elif="taskLines.length">
+                                <div class="table-responsive">
+                                    <table class="table table-sm o_logistics_web_import_table">
+                                        <thead>
+                                            <tr>
+                                                <th><t t-esc="this.ui.lineNoLabel"/></th>
+                                                <th><t t-esc="this.ui.statusLabel"/></th>
+                                                <th><t t-esc="this.ui.businessKeyLabel"/></th>
+                                                <th><t t-esc="this.ui.displayNameLabel"/></th>
+                                                <th><t t-esc="this.ui.countSummaryLabel"/></th>
+                                                <th><t t-esc="this.ui.messageLabel"/></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-foreach="taskLines" t-as="item" t-key="`${item.line_no}-${item.status}-${item_index}`">
+                                                <tr>
+                                                    <td><t t-esc="item.line_no"/></td>
+                                                    <td>
+                                                        <span class="o_logistics_web_status_tag" t-att-data-tone="item.status === 'failed' ? 'danger' : item.status === 'success' ? 'success' : item.status === 'skipped' ? 'warning' : 'info'">
+                                                            <t t-esc="item.status_label || item.status"/>
+                                                        </span>
+                                                    </td>
+                                                    <td><t t-esc="item.business_key || '--'"/></td>
+                                                    <td><t t-esc="item.display_name || '--'"/></td>
+                                                    <td><t t-esc="item.export_count_summary || '--'"/></td>
+                                                    <td><t t-esc="item.message || '--'"/></td>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="o_logistics_web_import_pager">
+                                    <div class="o_logistics_web_import_pager_meta">
+                                        <strong>行结果分页</strong>
+                                        <span><t t-esc="taskLinePageLabel"/></span>
+                                        <span><t t-esc="taskLineRangeLabel"/></span>
+                                    </div>
+                                    <div class="o_logistics_web_import_pager_actions">
+                                        <button type="button" class="btn btn-secondary" t-att-disabled="state.taskLinesLoading || state.taskLinePage &lt;= 1" t-on-click="() => this.goToTaskLinePage(state.taskLinePage - 1)">
+                                            <t t-esc="this.ui.prevPage"/>
+                                        </button>
+                                        <button type="button" class="btn btn-secondary" t-att-disabled="state.taskLinesLoading || state.taskLinePage &gt;= state.taskLineTotalPages" t-on-click="() => this.goToTaskLinePage(state.taskLinePage + 1)">
+                                            <t t-esc="this.ui.nextPage"/>
+                                        </button>
+                                    </div>
+                                </div>
+                            </t>
+                            <t t-else="">
+                                <div class="o_logistics_web_placeholder_panel o_logistics_web_state_panel">
+                                    <strong><t t-esc="this.ui.linesEmptyTitle"/></strong>
+                                    <p><t t-esc="this.ui.linesEmptyHint"/></p>
+                                </div>
+                            </t>
+                        </section>
+
+                        <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_import_section">
+                            <div class="o_logistics_web_section_heading">
+                                <h2><t t-esc="this.ui.errorTitle"/></h2>
+                                <p><t t-esc="errorDetailHint"/></p>
+                            </div>
+                            <t t-if="state.taskErrorsError">
+                                <div class="o_logistics_web_feedback_strip">
+                                    <p><t t-esc="state.taskErrorsError"/></p>
+                                </div>
+                            </t>
+                            <t t-if="state.taskErrorsLoading and !taskErrors.length">
+                                <div class="o_logistics_web_placeholder_panel o_logistics_web_state_panel">
+                                    <strong>正在加载错误明细</strong>
+                                    <p><t t-esc="this.ui.detailLoading"/></p>
+                                </div>
+                            </t>
+                            <t t-elif="taskErrors.length">
+                                <div class="table-responsive">
+                                    <table class="table table-sm o_logistics_web_import_table">
+                                        <thead>
+                                            <tr>
+                                                <th><t t-esc="this.ui.lineNoLabel"/></th>
+                                                <th><t t-esc="this.ui.businessKeyLabel"/></th>
+                                                <th><t t-esc="this.ui.errorStageLabel"/></th>
+                                                <th><t t-esc="this.ui.fieldNameLabel"/></th>
+                                                <th><t t-esc="this.ui.rawValueLabel"/></th>
+                                                <th><t t-esc="this.ui.errorCodeLabel"/></th>
+                                                <th><t t-esc="this.ui.errorMessageLabel"/></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-foreach="taskErrors" t-as="item" t-key="`${item.line_no || 0}-${item.error_code}-${item_index}`">
+                                                <tr>
+                                                    <td><t t-esc="item.line_no || '--'"/></td>
+                                                    <td><t t-esc="item.business_key || '--'"/></td>
+                                                    <td><t t-esc="item.error_stage_label || item.error_stage || '--'"/></td>
+                                                    <td><t t-esc="item.field_name || '--'"/></td>
+                                                    <td><t t-esc="item.raw_value || '--'"/></td>
+                                                    <td><t t-esc="item.error_code || '--'"/></td>
+                                                    <td><t t-esc="item.error_message || '--'"/></td>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="o_logistics_web_import_pager">
+                                    <div class="o_logistics_web_import_pager_meta">
+                                        <strong>错误明细分页</strong>
+                                        <span><t t-esc="taskErrorPageLabel"/></span>
+                                        <span><t t-esc="taskErrorRangeLabel"/></span>
+                                    </div>
+                                    <div class="o_logistics_web_import_pager_actions">
+                                        <button type="button" class="btn btn-secondary" t-att-disabled="state.taskErrorsLoading || state.taskErrorPage &lt;= 1" t-on-click="() => this.goToTaskErrorPage(state.taskErrorPage - 1)">
+                                            <t t-esc="this.ui.prevPage"/>
+                                        </button>
+                                        <button type="button" class="btn btn-secondary" t-att-disabled="state.taskErrorsLoading || state.taskErrorPage &gt;= state.taskErrorTotalPages" t-on-click="() => this.goToTaskErrorPage(state.taskErrorPage + 1)">
+                                            <t t-esc="this.ui.nextPage"/>
+                                        </button>
+                                    </div>
+                                </div>
+                            </t>
+                            <t t-else="">
+                                <div class="o_logistics_web_placeholder_panel o_logistics_web_state_panel">
+                                    <strong><t t-esc="this.ui.errorsEmptyTitle"/></strong>
+                                    <p><t t-esc="this.ui.errorsEmptyHint"/></p>
+                                </div>
+                            </t>
+                        </section>
+                    </t>
+                </div>
+            </Layout>
+        </div>
+    </t>
+</templates>

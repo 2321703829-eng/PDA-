@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_stock_location_form_wms_task_core" model="ir.ui.view">
+        <field name="name">stock.location.form.wms.task.core</field>
+        <field name="model">stock.location</field>
+        <field name="inherit_id" ref="stock.view_location_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button
+                    name="action_open_inventory_operations"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-balance-scale">
+                    <field name="inventory_operation_count" string="Inventory Ops" widget="statinfo"/>
+                </button>
+                <button
+                    name="action_open_inventory_ledger"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-book">
+                    <field name="inventory_ledger_count" string="Inventory Ledger" widget="statinfo"/>
+                </button>
+            </xpath>
+            <xpath expr="//sheet/group" position="inside">
+                <group string="WMS Task">
+                    <field name="location_usage_type_ext"/>
+                    <field name="pick_path_sequence"/>
+                    <field name="is_staging_zone"/>
+                    <field name="is_handover_zone"/>
+                </group>
+                <group string="Inventory">
+                    <button name="action_create_inventory_operation" type="object" string="Create Inventory Operation" class="btn-primary"/>
+                    <button name="action_open_inventory_operations" type="object" string="Open Inventory Operations"/>
+                    <button name="action_open_inventory_ledger" type="object" string="Open Inventory Ledger"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

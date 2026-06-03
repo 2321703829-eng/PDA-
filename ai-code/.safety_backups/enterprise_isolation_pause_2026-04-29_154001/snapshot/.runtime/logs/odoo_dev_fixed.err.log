@@ -1,0 +1,21 @@
+2026-04-28 10:25:22,196 27728 INFO ? odoo: Odoo version 19.0 
+2026-04-28 10:25:22,198 27728 INFO ? odoo: Using configuration file at d:\desktop\odoo\ai-code\.runtime\odoo_dev_fixed.conf 
+2026-04-28 10:25:22,199 27728 INFO ? odoo: addons paths: _NamespacePath(['D:\\Desktop\\Odoo\\odoo\\addons', 'd:\\desktop\\odoo\\addons', 'd:\\desktop\\odoo\\custom_addons']) 
+2026-04-28 10:25:22,200 27728 INFO ? odoo: database: odoo@localhost:5432 
+2026-04-28 10:25:22,876 27728 INFO ? odoo.service.server: HTTP service (werkzeug) running on img.youtobe.com:8071 
+2026-04-28 10:25:22,926 27728 INFO odoo_logistics_dev odoo.modules.loading: loading 1 modules... 
+2026-04-28 10:25:22,943 27728 INFO odoo_logistics_dev odoo.modules.loading: 1 modules loaded in 0.02s, 0 queries (+0 extra) 
+2026-04-28 10:25:22,985 27728 INFO odoo_logistics_dev odoo.modules.loading: loading 73 modules... 
+2026-04-28 10:25:24,230 27728 INFO odoo_logistics_dev odoo.modules.loading: 73 modules loaded in 1.24s, 0 queries (+0 extra) 
+2026-04-28 10:25:24,381 27728 INFO odoo_logistics_dev odoo.modules.loading: Modules loaded. 
+2026-04-28 10:25:24,440 27728 INFO odoo_logistics_dev odoo.registry: Registry loaded in 1.563s 
+2026-04-28 11:49:11,759 27728 INFO odoo_logistics_dev odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) starting 
+2026-04-28 11:49:11,874 27728 INFO odoo_logistics_dev odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) fully done (#loop 1; done 0; remaining 0; duration 0.12s) 
+2026-04-28 12:19:12,142 27728 INFO odoo_logistics_dev odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) starting 
+2026-04-28 12:19:12,342 27728 INFO odoo_logistics_dev odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) fully done (#loop 1; done 0; remaining 0; duration 0.20s) 
+2026-04-28 13:19:13,105 27728 INFO odoo_logistics_dev odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) starting 
+2026-04-28 13:19:13,314 27728 INFO odoo_logistics_dev odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) fully done (#loop 1; done 0; remaining 0; duration 0.20s) 
+2026-04-28 14:19:14,050 27728 INFO odoo_logistics_dev odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) starting 
+2026-04-28 14:19:14,229 27728 INFO odoo_logistics_dev odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) fully done (#loop 1; done 0; remaining 0; duration 0.19s) 
+2026-04-28 15:19:32,929 27728 INFO odoo_logistics_dev odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) starting 
+2026-04-28 15:19:33,029 27728 INFO odoo_logistics_dev odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) fully done (#loop 1; done 0; remaining 0; duration 0.11s) 

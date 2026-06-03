@@ -3,8 +3,8 @@
 > 原因：本文的推进顺序仍围绕“订单留痕体系 Odoo 化”，已不符合当前 `波次 -> 批次 -> 运单 -> 留痕 -> 证据` 的主线。
 >
 > 当前请优先参考：
-> - `ai-code/前端相关设计/00_导航与总纲/前端设计新工作计划安排.md`
-> - `ai-code/Odoo19物流留痕系统运单主对象与留痕主流程设计.md`
+> - `ai-code/专题设计/前端设计/一期前端相关设计/00_导航与总纲/前端设计新工作计划安排.md`
+> - `ai-code/docs/context/Odoo19物流留痕系统运单主对象与留痕主流程设计.md`
 
 # 下一步工作计划（2026-04-10 重校正版）
 
@@ -26,8 +26,8 @@
 
 交付物：
 
-- docs/architecture/logistics_order_mapping.md
-- 更新后的 logistics_order_addon_design.md
+- docs/architecture/logistics_order_mapping_bridge.md
+- 更新后的 logistics_order_addon_design_bridge.md
 
 ### P2. 完成 Odoo 侧留痕和图片映射设计
 
@@ -39,8 +39,8 @@
 
 交付物：
 
-- docs/architecture/logistics_trace_mapping.md
-- 更新后的 logistics_trace_addon_design.md
+- docs/architecture/logistics_trace_mapping_bridge.md
+- 更新后的 logistics_trace_addon_design_bridge.md
 
 ### P3. 完成异常领域边界设计
 
@@ -52,7 +52,7 @@
 交付物：
 
 - docs/architecture/logistics_exception_boundary.md
-- 更新后的 logistics_exception_addon_design.md
+- 更新后的 logistics_exception_addon_design_bridge.md
 
 ### P4. 回头做主数据专题确认
 
@@ -90,3 +90,7 @@
 
 - 先把已经成熟的订单留痕体系 Odoo 化
 - 再把主数据模块从草图推进到正式设计
+
+
+
+

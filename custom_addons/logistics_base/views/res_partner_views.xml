@@ -5,37 +5,189 @@
         <field name="model">res.partner</field>
         <field name="inherit_id" ref="base.view_partner_form"/>
         <field name="arch" type="xml">
+            <xpath expr="//sheet/div[@name='button_box']" position="inside">
+                <button
+                    name="action_open_or_create_logistics_profile"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-address-card-o"
+                    invisible="not is_logistics_partner">
+                    <field name="logistics_profile_count" widget="statinfo" string="物流客户画像"/>
+                </button>
+            </xpath>
             <xpath expr="//notebook" position="inside">
-                <page string="Logistics" name="logistics">
+                <page string="物流信息" name="logistics">
                     <group>
-                        <group string="Flags">
-                            <field name="is_logistics_customer"/>
-                            <field name="is_logistics_store"/>
-                            <field name="logistics_customer_status" invisible="not is_logistics_customer"/>
-                            <field name="logistics_store_status" invisible="not is_logistics_store"/>
+                        <group string="业务标记">
+                            <field name="is_logistics_partner"/>
+                            <field name="customer_status" invisible="not is_logistics_partner"/>
+                            <field name="logistics_customer_level" invisible="not is_logistics_partner"/>
                         </group>
-                        <group string="Codes">
-                            <field name="logistics_customer_code" invisible="not is_logistics_customer"/>
-                            <field name="logistics_store_code" invisible="not is_logistics_store"/>
-                            <field name="logistics_customer_level" invisible="not is_logistics_customer"/>
-                            <field name="logistics_internal_reference"/>
+                        <group string="编号信息">
+                            <field name="external_customer_code" invisible="not is_logistics_partner"/>
+                            <field name="internal_customer_code" invisible="not is_logistics_partner"/>
+                            <field name="logistics_customer_code" invisible="not is_logistics_partner"/>
+                            <field name="logistics_internal_reference" invisible="not is_logistics_partner"/>
                         </group>
                     </group>
                     <group>
-                        <group string="Store Delivery" invisible="not is_logistics_store">
-                            <field name="logistics_delivery_time_window"/>
+                        <group string="客户基础信息">
+                            <field name="customer_name"/>
+                            <field name="contact_name"/>
+                            <field name="contact_phone"/>
+                            <field name="organization_name"/>
+                            <field name="channel_name"/>
+                            <field name="department_name"/>
+                            <field name="salesperson_name"/>
+                            <field name="address_full"/>
+                            <field name="address_region_json" widget="json"/>
                             <field name="partner_latitude"/>
                             <field name="partner_longitude"/>
+                        </group>
+                        <group string="经营与签收" invisible="not is_logistics_partner">
+                            <field name="allow_cash_on_delivery"/>
+                            <field name="internal_counterparty_flag"/>
+                            <field name="invoice_type"/>
+                            <field name="default_signoff_requirement"/>
                             <field name="logistics_need_sign_receipt"/>
+                            <field name="logistics_delivery_time_window"/>
                         </group>
-                        <group string="Notes">
-                            <field name="logistics_service_note" placeholder="Service-level reminders for this customer"/>
-                            <field name="logistics_unload_requirement" invisible="not is_logistics_store" placeholder="Special unload rules or onsite requirements"/>
+                    </group>
+                    <group>
+                        <group string="到店与配送规则" invisible="not is_logistics_partner">
+                            <field name="delivery_window_text"/>
+                            <field name="receive_start_time"/>
+                            <field name="receive_end_time"/>
+                            <field name="receive_time_slots_text"/>
+                            <field name="no_receive_time_slots_text"/>
+                            <field name="delivery_week_flags"/>
+                            <field name="delivery_access_flags"/>
+                            <field name="route_preference"/>
+                            <field name="warehouse_preference"/>
                         </group>
+                        <group string="停车与卸货" invisible="not is_logistics_partner">
+                            <field name="illegal_parking_flag"/>
+                            <field name="free_parking_minutes"/>
+                            <field name="parking_fee_per_hour"/>
+                            <field name="parking_location_text"/>
+                            <field name="parking_mode_text"/>
+                            <field name="unload_entrance_text"/>
+                            <field name="unload_location_text"/>
+                            <field name="upstairs_floor_count"/>
+                            <field name="basement_height_limit_text"/>
+                            <field name="logistics_unload_requirement"/>
+                        </group>
+                    </group>
+                    <group string="服务备注" invisible="not is_logistics_partner">
+                        <field name="logistics_service_note" placeholder="填写客户服务提醒、到店注意事项或特殊交付要求"/>
                     </group>
                 </page>
             </xpath>
         </field>
+    </record>
+
+    <record id="view_res_partner_logistics_profile_tree" model="ir.ui.view">
+        <field name="name">res.partner.logistics.profile.tree</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <list string="物流客户画像">
+                <field name="name"/>
+                <field name="external_customer_code"/>
+                <field name="internal_customer_code"/>
+                <field name="contact_name"/>
+                <field name="contact_phone"/>
+                <field name="customer_status"/>
+                <field name="default_signoff_requirement"/>
+                <field name="warehouse_preference"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_res_partner_logistics_profile_form" model="ir.ui.view">
+        <field name="name">res.partner.logistics.profile.form</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <form string="物流客户画像">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                        <div class="text-muted">
+                            <field name="external_customer_code" readonly="1"/>
+                        </div>
+                    </div>
+                    <group>
+                        <group string="基础信息">
+                            <field name="is_logistics_partner"/>
+                            <field name="customer_status"/>
+                            <field name="logistics_customer_level"/>
+                            <field name="internal_customer_code"/>
+                            <field name="external_customer_code"/>
+                            <field name="logistics_customer_code"/>
+                            <field name="logistics_internal_reference"/>
+                            <field name="contact_name"/>
+                            <field name="contact_phone"/>
+                            <field name="organization_name"/>
+                            <field name="channel_name"/>
+                            <field name="department_name"/>
+                            <field name="salesperson_name"/>
+                        </group>
+                        <group string="地址与坐标">
+                            <field name="address_full"/>
+                            <field name="address_region_json" widget="json"/>
+                            <field name="partner_longitude"/>
+                            <field name="partner_latitude"/>
+                            <field name="route_preference"/>
+                            <field name="warehouse_preference"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="经营信息">
+                            <field name="allow_cash_on_delivery"/>
+                            <field name="internal_counterparty_flag"/>
+                            <field name="invoice_type"/>
+                        </group>
+                        <group string="签收与服务">
+                            <field name="default_signoff_requirement"/>
+                            <field name="logistics_need_sign_receipt"/>
+                            <field name="logistics_service_note"/>
+                            <field name="logistics_unload_requirement"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="收货时间">
+                            <field name="delivery_window_text"/>
+                            <field name="receive_start_time"/>
+                            <field name="receive_end_time"/>
+                            <field name="receive_time_slots_text"/>
+                            <field name="no_receive_time_slots_text"/>
+                            <field name="delivery_week_flags"/>
+                        </group>
+                        <group string="配送与停车">
+                            <field name="delivery_access_flags"/>
+                            <field name="illegal_parking_flag"/>
+                            <field name="free_parking_minutes"/>
+                            <field name="parking_fee_per_hour"/>
+                            <field name="parking_location_text"/>
+                            <field name="parking_mode_text"/>
+                            <field name="unload_entrance_text"/>
+                            <field name="unload_location_text"/>
+                            <field name="upstairs_floor_count"/>
+                            <field name="basement_height_limit_text"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_logistics_partner_profile" model="ir.actions.act_window">
+        <field name="name">物流客户画像</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('is_logistics_partner', '=', True)]</field>
+        <field name="context">{'default_is_logistics_partner': True, 'default_is_logistics_customer': True, 'default_is_logistics_store': True}</field>
     </record>
 
     <record id="view_res_partner_filter_logistics_base" model="ir.ui.view">
@@ -45,8 +197,7 @@
         <field name="arch" type="xml">
             <xpath expr="//search" position="inside">
                 <separator/>
-                <filter string="Logistics Customers" name="logistics_customers" domain="[('is_logistics_customer', '=', True)]"/>
-                <filter string="Logistics Stores" name="logistics_stores" domain="[('is_logistics_store', '=', True)]"/>
+                <filter string="物流客户" name="logistics_partners" domain="[('is_logistics_partner', '=', True)]"/>
             </xpath>
         </field>
     </record>

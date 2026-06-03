@@ -1,0 +1,416 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_wms_receipt_task_tree" model="ir.ui.view">
+        <field name="name">wms.receipt.task.tree</field>
+        <field name="model">wms.receipt.task</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="state"/>
+                <field name="warehouse_id"/>
+                <field name="stock_picking_id"/>
+                <field name="scheduled_date"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_wms_receipt_task_form" model="ir.ui.view">
+        <field name="name">wms.receipt.task.form</field>
+        <field name="model">wms.receipt.task</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_start_receipt" type="object" string="Start" invisible="state != 'waiting_receipt'"/>
+                    <button name="action_mark_received" type="object" string="Mark Received" invisible="state not in ('waiting_receipt', 'receiving')"/>
+                    <button name="action_create_putaway_task" type="object" string="Create Putaway"/>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="state"/>
+                        <field name="warehouse_id"/>
+                        <field name="stock_picking_id"/>
+                        <field name="partner_id"/>
+                        <field name="scheduled_date"/>
+                    </group>
+                    <group>
+                        <field name="putaway_task_ids" readonly="1"/>
+                    </group>
+                    <group>
+                        <field name="note"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_wms_putaway_task_tree" model="ir.ui.view">
+        <field name="name">wms.putaway.task.tree</field>
+        <field name="model">wms.putaway.task</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="state"/>
+                <field name="warehouse_id"/>
+                <field name="stock_picking_id"/>
+                <field name="receipt_task_id"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_wms_putaway_task_form" model="ir.ui.view">
+        <field name="name">wms.putaway.task.form</field>
+        <field name="model">wms.putaway.task</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_start_putaway" type="object" string="Start" invisible="state != 'waiting_putaway'"/>
+                    <button name="action_mark_done" type="object" string="Mark Done" invisible="state not in ('waiting_putaway', 'putaway_ing')"/>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="state"/>
+                        <field name="warehouse_id"/>
+                        <field name="stock_picking_id"/>
+                        <field name="receipt_task_id"/>
+                    </group>
+                    <group>
+                        <field name="source_location_id"/>
+                        <field name="dest_location_id"/>
+                    </group>
+                    <group>
+                        <field name="note"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_wms_outbound_task_tree" model="ir.ui.view">
+        <field name="name">wms.outbound.task.tree</field>
+        <field name="model">wms.outbound.task</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="state"/>
+                <field name="warehouse_id"/>
+                <field name="store_partner_id"/>
+                <field name="move_line_count"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_wms_outbound_task_form" model="ir.ui.view">
+        <field name="name">wms.outbound.task.form</field>
+        <field name="model">wms.outbound.task</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_start_outbound" type="object" string="Start" invisible="state != 'waiting_outbound'"/>
+                    <button name="action_generate_pick_task" type="object" string="Generate Pick Task"/>
+                    <button name="action_mark_done" type="object" string="Mark Done" invisible="state == 'task_done'"/>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="state"/>
+                        <field name="warehouse_id"/>
+                        <field name="stock_picking_id"/>
+                        <field name="store_partner_id"/>
+                    </group>
+                    <notebook>
+                        <page string="Pick Tasks">
+                            <field name="pick_task_ids"/>
+                        </page>
+                        <page string="Check Tasks">
+                            <field name="check_task_ids"/>
+                        </page>
+                        <page string="Handover Orders">
+                            <field name="handover_order_ids"/>
+                        </page>
+                        <page string="Note">
+                            <field name="note"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_wms_pick_task_form" model="ir.ui.view">
+        <field name="name">wms.pick.task.form</field>
+        <field name="model">wms.pick.task</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_start_pick" type="object" string="Start" invisible="state != 'waiting_pick'"/>
+                    <button name="action_mark_picked" type="object" string="Mark Picked" invisible="state not in ('waiting_pick', 'picking')"/>
+                    <button name="action_create_check_task" type="object" string="Create Check Task"/>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="state"/>
+                        <field name="outbound_task_id"/>
+                        <field name="warehouse_id"/>
+                        <field name="store_partner_id"/>
+                    </group>
+                    <field name="line_ids">
+                        <list editable="bottom">
+                            <field name="product_id"/>
+                            <field name="source_location_id"/>
+                            <field name="demand_qty"/>
+                            <field name="done_qty"/>
+                            <field name="lot_id"/>
+                        </list>
+                    </field>
+                    <group>
+                        <field name="note"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_wms_check_task_tree" model="ir.ui.view">
+        <field name="name">wms.check.task.tree</field>
+        <field name="model">wms.check.task</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="state"/>
+                <field name="warehouse_id"/>
+                <field name="outbound_task_id"/>
+                <field name="pick_task_id"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_wms_check_task_form" model="ir.ui.view">
+        <field name="name">wms.check.task.form</field>
+        <field name="model">wms.check.task</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_start_check" type="object" string="Start" invisible="state != 'waiting_check'"/>
+                    <button name="action_mark_checked" type="object" string="Mark Checked" invisible="state not in ('waiting_check', 'checking')"/>
+                    <button name="action_create_handover_order" type="object" string="Create Handover"/>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="state"/>
+                        <field name="warehouse_id"/>
+                        <field name="outbound_task_id"/>
+                        <field name="pick_task_id"/>
+                    </group>
+                    <group>
+                        <field name="note"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_wms_handover_order_form" model="ir.ui.view">
+        <field name="name">wms.handover.order.form</field>
+        <field name="model">wms.handover.order</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_start_handover" type="object" string="Start" invisible="state != 'waiting_handover'"/>
+                    <button name="action_mark_done" type="object" string="Mark Done" invisible="state not in ('waiting_handover', 'handover_ing')"/>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="state"/>
+                        <field name="warehouse_id"/>
+                        <field name="outbound_task_id"/>
+                        <field name="route_batch_id"/>
+                    </group>
+                    <group>
+                        <field name="driver_profile_id"/>
+                        <field name="vehicle_profile_id"/>
+                        <field name="weight_total"/>
+                        <field name="volume_total"/>
+                    </group>
+                    <group>
+                        <field name="note"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_wms_inventory_operation_tree" model="ir.ui.view">
+        <field name="name">wms.inventory.operation.tree</field>
+        <field name="model">wms.inventory.operation</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="operation_type"/>
+                <field name="state"/>
+                <field name="warehouse_id"/>
+                <field name="location_id"/>
+                <field name="line_count"/>
+                <field name="total_diff_qty"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_wms_inventory_operation_form" model="ir.ui.view">
+        <field name="name">wms.inventory.operation.form</field>
+        <field name="model">wms.inventory.operation</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_start" type="object" string="Start" invisible="state != 'draft'"/>
+                    <button name="action_load_location_quants" type="object" string="Load Quants" invisible="state == 'done'"/>
+                    <button name="action_mark_done" type="object" string="Mark Done" invisible="state in ('done', 'cancelled')"/>
+                    <button name="action_cancel" type="object" string="Cancel" invisible="state in ('done', 'cancelled')"/>
+                    <button name="action_open_operation_logs" type="object" string="Open Logs"/>
+                    <button name="action_open_source_picking" type="object" string="Open Source Picking" invisible="not has_source_picking"/>
+                    <button name="action_open_generated_picking" type="object" string="Open Generated Picking" invisible="not has_generated_picking"/>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="operation_type"/>
+                        <field name="state"/>
+                        <field name="scheduled_date"/>
+                    </group>
+                    <group>
+                        <field name="warehouse_id"/>
+                        <field name="location_id"/>
+                        <field name="return_location_id" invisible="operation_type != 'warehouse_return'"/>
+                        <field name="partner_id"/>
+                        <field name="source_picking_id"/>
+                        <field name="generated_picking_id" readonly="1"/>
+                    </group>
+                    <group>
+                        <field name="line_count" readonly="1"/>
+                        <field name="total_system_qty" readonly="1"/>
+                        <field name="total_count_qty" readonly="1"/>
+                        <field name="total_diff_qty" readonly="1"/>
+                    </group>
+                    <notebook>
+                        <page string="Lines">
+                            <field name="line_ids">
+                                <list editable="bottom">
+                                    <field name="product_id"/>
+                                    <field name="lot_id"/>
+                                    <field name="uom_id"/>
+                                    <field name="system_qty"/>
+                                    <field name="count_qty"/>
+                                    <field name="diff_qty" readonly="1"/>
+                                    <field name="note"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Note">
+                            <field name="note"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_wms_receipt_task" model="ir.actions.act_window">
+        <field name="name">WMS Receipt Tasks</field>
+        <field name="res_model">wms.receipt.task</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_wms_putaway_task" model="ir.actions.act_window">
+        <field name="name">WMS Putaway Tasks</field>
+        <field name="res_model">wms.putaway.task</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_wms_outbound_task" model="ir.actions.act_window">
+        <field name="name">WMS Outbound Tasks</field>
+        <field name="res_model">wms.outbound.task</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_wms_check_task" model="ir.actions.act_window">
+        <field name="name">WMS Check Tasks</field>
+        <field name="res_model">wms.check.task</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_wms_inventory_operation" model="ir.actions.act_window">
+        <field name="name">WMS Inventory Operations</field>
+        <field name="res_model">wms.inventory.operation</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+
+    <record id="view_wms_inventory_ledger_tree" model="ir.ui.view">
+        <field name="name">wms.inventory.ledger.tree</field>
+        <field name="model">wms.inventory.ledger</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="warehouse_id"/>
+                <field name="location_id"/>
+                <field name="product_id"/>
+                <field name="lot_id"/>
+                <field name="quantity_on_hand" sum="On Hand"/>
+                <field name="reserved_quantity" sum="Reserved"/>
+                <field name="available_quantity" sum="Available"/>
+                <field name="quant_count"/>
+                <field name="last_count_date"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_wms_inventory_ledger_pivot" model="ir.ui.view">
+        <field name="name">wms.inventory.ledger.pivot</field>
+        <field name="model">wms.inventory.ledger</field>
+        <field name="arch" type="xml">
+            <pivot string="Inventory Ledger">
+                <field name="warehouse_id" type="row"/>
+                <field name="location_id" type="row"/>
+                <field name="product_id" type="row"/>
+                <field name="quantity_on_hand" type="measure"/>
+                <field name="reserved_quantity" type="measure"/>
+                <field name="available_quantity" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_wms_inventory_ledger_graph" model="ir.ui.view">
+        <field name="name">wms.inventory.ledger.graph</field>
+        <field name="model">wms.inventory.ledger</field>
+        <field name="arch" type="xml">
+            <graph string="Inventory Ledger">
+                <field name="warehouse_id"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="action_wms_inventory_ledger" model="ir.actions.act_window">
+        <field name="name">WMS Inventory Ledger</field>
+        <field name="res_model">wms.inventory.ledger</field>
+        <field name="view_mode">list,pivot,graph</field>
+    </record>
+
+    <menuitem
+        id="menu_wms_inventory_operation"
+        name="WMS Inventory Operations"
+        parent="stock.menu_stock_adjustments"
+        action="action_wms_inventory_operation"
+        groups="erp_base.group_wms_manager,erp_base.group_wms_operator"
+        sequence="30"/>
+
+    <menuitem
+        id="menu_wms_inventory_ledger"
+        name="WMS Inventory Ledger"
+        parent="stock.menu_stock_adjustments"
+        action="action_wms_inventory_ledger"
+        groups="erp_base.group_wms_manager,erp_base.group_wms_operator"
+        sequence="40"/>
+</odoo>

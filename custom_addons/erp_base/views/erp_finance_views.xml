@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ERP 财务菜单组(挂在 Invoicing 下) -->
+
+    <!-- F01/F02: 对账 -->
+    <record id="view_reconciliation_list" model="ir.ui.view">
+        <field name="name">erp.reconciliation.list</field><field name="model">erp.reconciliation</field>
+        <field name="arch" type="xml"><list><field name="name"/><field name="partner_id"/><field name="recon_type"/><field name="recon_date"/><field name="total_invoiced"/><field name="total_paid"/><field name="state"/></list></field>
+    </record>
+    <record id="view_reconciliation_form" model="ir.ui.view">
+        <field name="name">erp.reconciliation.form</field><field name="model">erp.reconciliation</field>
+        <field name="arch" type="xml">
+            <form>
+                <header><field name="state" widget="statusbar"/></header>
+                <sheet>
+                    <group><field name="name"/><field name="partner_id"/><field name="recon_type"/><field name="recon_date"/></group>
+                    <group><field name="period_start"/><field name="period_end"/></group>
+                    <group><field name="opening_balance"/><field name="total_invoiced"/><field name="total_paid"/><field name="total_adjustment"/><field name="closing_balance"/></group>
+                    <group><field name="note"/></group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- F02: 扣赔规则 -->
+    <record id="view_claim_rule_list" model="ir.ui.view">
+        <field name="name">erp.claim.rule.list</field><field name="model">erp.claim.rule</field>
+        <field name="arch" type="xml"><list><field name="sequence" widget="handle"/><field name="name"/><field name="claim_type"/><field name="source_module"/><field name="is_active"/></list></field>
+    </record>
+    <record id="view_claim_rule_form" model="ir.ui.view">
+        <field name="name">erp.claim.rule.form</field><field name="model">erp.claim.rule</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group><field name="name"/><field name="claim_type"/><field name="source_module"/></group>
+                    <group><field name="account_id"/><field name="amount_rule"/><field name="is_active"/></group>
+                    <group><field name="note"/></group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- F03: 结账 -->
+    <record id="view_period_close_list" model="ir.ui.view">
+        <field name="name">erp.period.close.list</field><field name="model">erp.period.close</field>
+        <field name="arch" type="xml"><list><field name="name"/><field name="period_start"/><field name="period_end"/><field name="state"/><field name="closed_by"/><field name="closed_at"/></list></field>
+    </record>
+    <record id="view_period_close_form" model="ir.ui.view">
+        <field name="name">erp.period.close.form</field><field name="model">erp.period.close</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_close" string="结账" type="object" class="btn-primary"/>
+                    <button name="action_reopen" string="反结账" type="object"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <group><field name="name"/><field name="period_start"/><field name="period_end"/></group>
+                    <group><field name="closed_by"/><field name="closed_at"/><field name="reopened_by"/><field name="reopened_at"/></group>
+                    <group><field name="note"/></group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- C04: 销售退货 -->
+    <record id="view_sale_return_list" model="ir.ui.view">
+        <field name="name">erp.sale.return.list</field><field name="model">erp.sale.return</field>
+        <field name="arch" type="xml"><list><field name="name"/><field name="partner_id"/><field name="return_date"/><field name="return_reason"/><field name="amount_total"/><field name="state"/></list></field>
+    </record>
+    <record id="view_sale_return_form" model="ir.ui.view">
+        <field name="name">erp.sale.return.form</field><field name="model">erp.sale.return</field>
+        <field name="arch" type="xml">
+            <form>
+                <header><field name="state" widget="statusbar"/></header>
+                <sheet>
+                    <group><field name="name"/><field name="sale_order_id"/><field name="partner_id"/></group>
+                    <group><field name="return_date"/><field name="return_reason"/><field name="amount_total"/></group>
+                    <group><field name="refund_invoice_id"/><field name="note"/></group>
+                    <field name="picking_ids" widget="many2many_tags"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ===== 菜单 ===== -->
+    <record id="action_reconciliation" model="ir.actions.act_window">
+        <field name="name">客户/供应商对账</field><field name="res_model">erp.reconciliation</field><field name="view_mode">list,form</field>
+    </record>
+    <record id="action_claim_rule" model="ir.actions.act_window">
+        <field name="name">扣赔核销规则</field><field name="res_model">erp.claim.rule</field><field name="view_mode">list,form</field>
+    </record>
+    <record id="action_period_close" model="ir.actions.act_window">
+        <field name="name">结账/反结账</field><field name="res_model">erp.period.close</field><field name="view_mode">list,form</field>
+    </record>
+    <record id="action_sale_return" model="ir.actions.act_window">
+        <field name="name">销售退货单</field><field name="res_model">erp.sale.return</field><field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_reconciliation" name="客户/供应商对账" action="action_reconciliation" parent="account.menu_finance" sequence="50"/>
+    <menuitem id="menu_claim_rule" name="扣赔核销规则" action="action_claim_rule" parent="account.menu_finance" sequence="55"/>
+    <menuitem id="menu_period_close" name="结账/反结账" action="action_period_close" parent="account.menu_finance" sequence="60"/>
+    <menuitem id="menu_sale_return" name="销售退货单" action="action_sale_return" parent="sale.sale_menu_root" sequence="40"/>
+
+</odoo>

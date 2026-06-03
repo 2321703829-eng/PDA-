@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- actions must be defined before menus that reference them -->
+    <record id="action_cart_draft" model="ir.actions.act_window">
+        <field name="name">B2B 购物车</field><field name="res_model">b2b.cart.draft</field><field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_b2b_root" name="B2B 商城" parent="sale.sale_menu_root" sequence="100"/>
+    <menuitem id="menu_catalog_scope" name="B2B 可见范围" action="b2b_storefront.action_catalog_scope" parent="menu_b2b_root" sequence="10"/>
+    <menuitem id="menu_b2b_cart" name="B2B 购物车" action="b2b_storefront.action_cart_draft" parent="menu_b2b_root" sequence="20"/>
+    <menuitem id="menu_b2b_after_sale" name="B2B 售后" action="b2b_storefront.action_after_sale" parent="menu_b2b_root" sequence="30"/>
+</odoo>

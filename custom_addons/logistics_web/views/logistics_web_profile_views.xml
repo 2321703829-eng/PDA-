@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_logistics_web_partner_profile_form_inherit" model="ir.ui.view">
+        <field name="name">res.partner.logistics.profile.form.logistics.web</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="logistics_base.view_res_partner_logistics_profile_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form/sheet" position="inside">
+                <div class="oe_button_box" name="button_box">
+                    <button
+                        name="action_open_customer_profile_export_result"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-download"
+                        groups="logistics_dispatch.group_logistics_export_user"
+                        string="导出结果"/>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_logistics_web_product_unit_form_inherit" model="ir.ui.view">
+        <field name="name">logistics.product.unit.form.logistics.web</field>
+        <field name="model">logistics.product.unit</field>
+        <field name="inherit_id" ref="logistics_base.view_logistics_product_unit_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form/sheet" position="inside">
+                <div class="oe_button_box" name="button_box">
+                    <button
+                        name="action_open_product_profile_export_result"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-download"
+                        groups="logistics_dispatch.group_logistics_export_user"
+                        string="导出结果"/>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_logistics_web_product_template_form_inherit" model="ir.ui.view">
+        <field name="name">product.template.form.logistics.web</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_only_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button
+                    name="action_open_product_profile_export_result"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-download"
+                    groups="logistics_dispatch.group_logistics_export_user"
+                    string="导出结果"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

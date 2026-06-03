@@ -20,9 +20,12 @@ Odoo 19.0 logistics customization project.
 
 Current effective business baseline:
 
-- execution main line: `wave -> batch -> waybill -> waybill order lines`
+- execution main line: `wave -> batch -> waybill -> customer_line -> order_line -> goods_line`
+- page main reading chain: `waybill -> customer_line -> order_line`
+- image reading chain: `waybill -> customer_line -> 图片预览 / 留痕 / 证据`
 - trace main line: `waybill -> trace -> evidence -> exception`
 - `waybill` is the current trace main object
+- `customer_line` is the current store-side reading entry, but it does not replace `trace_event` as the formal trace event anchor
 - logistics core capability should be carried by custom addons
 
 ## Read Order
@@ -102,8 +105,8 @@ Current active custom direction is:
 - `logistics_base`
 - `logistics_dispatch`
 - `logistics_trace_core`
+- `logistics_trace_evidence`
 - `logistics_trace_exception`
-- future `logistics_trace_evidence`
 - future `logistics_trace_dashboard`
 
 Historical names such as `logistics_order`, `logistics_trace`, and `logistics_exception` should be treated as bridge or archive terminology unless a document explicitly says it is historical.
@@ -119,6 +122,8 @@ Historical names such as `logistics_order`, `logistics_trace`, and `logistics_ex
 - For non-trivial changes, define `Outcome`, `Behavior`, and `Boundary` before coding.
 - If module boundary, behavior, interface, event, table, index, page structure, naming, enum, or state rules change, update the spec before code.
 - Treat `waybill` as the current trace main object; orders are subordinate fulfillment details unless a task explicitly targets a future order-level design.
+- Treat `customer_line` as the current page-level reading entry for store-side facts, images, trace summaries, and related order details.
+- Do not turn `customer_line` into the formal replacement for `trace_event` or `evidence` object anchoring unless a task explicitly updates the trace-object design first.
 - Keep warehouse-side trace and loading trace as high-priority evidence points.
 - Treat store-side trace as light proof with multiple images; do not assume store-side photos prove per-item quantity.
 - Keep batch and dock/location association explicit when dispatch or loading is involved.

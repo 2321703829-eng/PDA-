@@ -1,12 +1,12 @@
-# logistics_trace_evidence Addon 设计稿
+﻿# logistics_trace_evidence Addon 设计稿
 
 适用范围：
 - 证据层模块 `logistics_trace_evidence`
 - 图片、备注、签名等证据对象的 Odoo 承接设计
 
 优先基准：
-- `ai-code/Odoo19物流留痕系统运单主对象与留痕主流程设计.md`
-- `ai-code/Odoo19物流留痕系统五人分工与前端改造安排.md`
+- `ai-code/docs/context/Odoo19物流留痕系统运单主对象与留痕主流程设计.md`
+- `ai-code/docs/dev/project_coordination/Odoo19物流留痕系统五人分工与前端改造安排.md`
 - `ai-code/docs/architecture/ARCHITECTURE.md`
 - `ai-code/docs/architecture/custom_addons_blueprint.md`
 - `ai-code/docs/architecture/logistics_trace_core_addon_design.md`
@@ -342,10 +342,10 @@ logistics_trace_evidence/
 
 `logistics_trace_evidence` 直接支撑这些前端文档：
 
-1. `前端相关设计/00_导航与总纲/管理员后台界面改造方案.md`
-2. `前端相关设计/00_导航与总纲/老板追溯界面改造方案.md`
-3. `前端相关设计/03_落地与联调/P0页面Odoo落地实现清单.md`
-4. `前端相关设计/02_跨模块规范/02_交互与组件/时间线与证据区widget结构草案.md`
+1. `专题设计/前端设计/一期前端相关设计/00_导航与总纲/管理员后台界面改造方案.md`
+2. `专题设计/前端设计/一期前端相关设计/00_导航与总纲/老板追溯界面改造方案.md`
+3. `专题设计/前端设计/一期前端相关设计/03_落地与联调/P0页面Odoo落地实现清单.md`
+4. `专题设计/前端设计/一期前端相关设计/02_跨模块规范/02_交互与组件/时间线与证据区widget结构草案.md`
 
 主要支撑场景：
 
@@ -384,3 +384,4 @@ logistics_trace_evidence/
 - 前端证据查看需求
 - 外部图片服务边界
 - 后续继续扩展签名、备注、票据类证据的空间
+

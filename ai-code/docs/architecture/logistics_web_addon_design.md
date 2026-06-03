@@ -1,4 +1,4 @@
-# logistics_web Addon Design
+﻿# logistics_web Addon Design
 
 适用范围：
 - `custom_addons/logistics_web`
@@ -6,16 +6,16 @@
 - 面向后台 Web 端的页面增强、组件、client action、widget 与聚合前端能力
 
 优先基准：
-- `ai-code/Odoo19物流留痕系统运单主对象与留痕主流程设计.md`
-- `ai-code/Odoo19物流留痕系统五人分工与前端改造安排.md`
+- `ai-code/docs/context/Odoo19物流留痕系统运单主对象与留痕主流程设计.md`
+- `ai-code/docs/dev/project_coordination/Odoo19物流留痕系统五人分工与前端改造安排.md`
 - `ai-code/docs/architecture/前端代码目录规划.md`
-- `ai-code/前端相关设计/00_导航与总纲/Odoo物流后台前端总体设计总览.md`
+- `ai-code/专题设计/前端设计/一期前端相关设计/00_导航与总纲/前端总体设计总览.md`
 
 关联文档：
-- `ai-code/前端相关设计/03_落地与联调/P0页面Odoo落地实现清单.md`
-- `ai-code/前端相关设计/02_跨模块规范/02_交互与组件/后台组件规范总表.md`
-- `ai-code/前端相关设计/02_跨模块规范/01_接口与数据/最终接口总表.md`
-- `ai-code/前端相关设计/02_跨模块规范/01_接口与数据/接口路线决策文档.md`
+- `ai-code/专题设计/前端设计/一期前端相关设计/03_落地与联调/P0页面Odoo落地实现清单.md`
+- `ai-code/专题设计/前端设计/一期前端相关设计/02_跨模块规范/02_交互与组件/后台组件规范总表.md`
+- `ai-code/专题设计/前端设计/一期前端相关设计/02_跨模块规范/01_接口与数据/最终接口总表.md`
+- `ai-code/专题设计/前端设计/一期前端相关设计/02_跨模块规范/01_接口与数据/接口路线决策文档.md`
 
 ---
 
@@ -535,3 +535,4 @@ custom_addons/logistics_web/
 - Odoo Web 宿主模式
 - GitHub 协作模式
 - 前端负责人单独负责页面增强工作的团队结构
+

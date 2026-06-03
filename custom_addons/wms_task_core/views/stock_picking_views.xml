@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_stock_picking_form_wms_task_core" model="ir.ui.view">
+        <field name="name">stock.picking.form.wms.task.core</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/notebook" position="before">
+                <group string="WMS / TMS Summary">
+                    <group>
+                        <field name="erp_source_type"/>
+                        <field name="wms_flow_stage"/>
+                    </group>
+                    <group>
+                        <field name="tms_handover_status"/>
+                        <field name="store_partner_id"/>
+                        <field name="wms_task_ref"/>
+                    </group>
+                </group>
+                <group string="WMS Quick Actions">
+                    <button name="action_create_wms_task" type="object" string="Create WMS Task" class="btn-primary"/>
+                    <button name="action_open_wms_tasks" type="object" string="Open WMS Tasks"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -20,3 +20,12 @@ class LogisticsTraceEvent(models.Model):
     def _compute_evidence_count(self):
         for record in self:
             record.evidence_count = len(record.evidence_ids)
+
+    def action_back_to_evidences(self):
+        self.ensure_one()
+        action = self.env["ir.actions.actions"]._for_xml_id(
+            "logistics_trace_evidence.action_logistics_trace_evidence"
+        )
+        action["target"] = "current"
+        action["domain"] = [("trace_event_id", "=", self.id)]
+        return action

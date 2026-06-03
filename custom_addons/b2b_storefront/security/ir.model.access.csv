@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_b2b_catalog_scope_all,b2b.catalog.scope.all,model_b2b_catalog_scope,base.group_user,1,1,1,1
+access_b2b_cart_draft_all,b2b.cart.draft.all,model_b2b_cart_draft,base.group_user,1,1,1,1
+access_b2b_cart_line_all,b2b.cart.line.all,model_b2b_cart_draft_line,base.group_user,1,1,1,1
+access_b2b_after_sale_all,b2b.after.sale.all,model_b2b_after_sale_ticket,base.group_user,1,1,1,1

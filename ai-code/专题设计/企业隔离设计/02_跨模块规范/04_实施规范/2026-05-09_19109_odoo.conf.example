@@ -1,0 +1,37 @@
+[options]
+; Template for the 19109 enterprise-isolation runtime.
+; Deploy target example: /opt/enterprise-multidb-odoo19/config/odoo.conf
+;
+; Important host-to-db rule:
+;   hq.odoo.test        -> tenant_hq
+;   kebi.odoo.test      -> tenant_kebi
+;   template.odoo.test  -> tenant_template
+;
+; Do not switch to tenant-hq.odoo.test while keeping dbfilter = ^tenant_%d$.
+; In Odoo, %d expands to the first host label, so tenant-hq.odoo.test would
+; expand to tenant-hq and fail to match tenant_hq.
+
+admin_passwd = <replace-with-master-password>
+
+db_host = enterprise-isolation-pg18
+db_port = 5432
+db_user = odoo
+db_password = <replace-with-db-password>
+
+addons_path = /mnt/extra-addons,/usr/lib/python3/dist-packages/odoo/addons
+data_dir = /var/lib/odoo
+
+http_interface = 127.0.0.1
+http_port = 19109
+proxy_mode = True
+
+list_db = False
+dbfilter = ^tenant_%d$
+
+logfile = /var/log/odoo/odoo.log
+
+; Optional hardening / operational items. Uncomment when your runtime needs them.
+; limit_time_cpu = 600
+; limit_time_real = 1200
+; workers = 2
+; max_cron_threads = 1
