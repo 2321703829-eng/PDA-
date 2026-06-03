@@ -17,7 +17,18 @@
   --b2b-radius: 8px;
 }
 .b2b-wrap { min-height:100vh; background:var(--b2b-bg); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-.b2b-nav { background:linear-gradient(135deg, #0f1f3d 0%, #1a3a5c 50%, #1a56db 100%); padding:0 24px; height:56px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
+.b2b-system-header { height:56px; display:flex; align-items:center; gap:22px; padding:0 24px; background:linear-gradient(90deg,#0f4c81,#2f7fbd); color:#fff; box-shadow:0 8px 22px rgba(15,76,129,.18); position:sticky; top:0; z-index:120; }
+.b2b-system-brand { color:#fff; font-size:18px; font-weight:700; text-decoration:none; white-space:nowrap; }
+.b2b-system-brand:hover { color:#fff; text-decoration:none; }
+.b2b-system-menu { display:flex; align-items:center; gap:8px; flex:1; min-width:0; overflow:hidden; }
+.b2b-system-menu a { color:rgba(255,255,255,.92); text-decoration:none; font-size:15px; font-weight:600; padding:8px 12px; border-radius:6px; white-space:nowrap; }
+.b2b-system-menu a:hover,.b2b-system-menu a.active { background:rgba(255,255,255,.14); color:#fff; text-decoration:none; }
+.b2b-system-right { display:flex; align-items:center; gap:10px; }
+.b2b-system-chip { color:#fff; text-decoration:none; font-weight:600; padding:8px 14px; border-radius:18px; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.18); white-space:nowrap; }
+.b2b-system-chip:hover { color:#fff; background:rgba(255,255,255,.2); text-decoration:none; }
+.b2b-system-company { color:rgba(255,255,255,.9); font-weight:600; padding:8px 12px; border-radius:8px; background:rgba(255,255,255,.1); white-space:nowrap; }
+.b2b-system-avatar { width:34px; height:34px; border-radius:8px; background:#2fb3a3; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; }
+.b2b-nav { background:var(--b2b-primary); padding:0 24px; height:56px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:56px; z-index:100; }
 .b2b-nav a { color:#fff; text-decoration:none; font-size:15px; font-weight:500; padding:8px 12px; border-radius:6px; transition:background .15s; }
 .b2b-nav a:hover { background:rgba(255,255,255,.15); }
 .b2b-nav .nav-right { display:flex; align-items:center; gap:4px; }
@@ -83,6 +94,25 @@ select.b2b-form-control { appearance:auto; }
 </template>
 
 <!-- ===== 导航栏 ===== -->
+<!-- ===== B2B 商城 首页 ===== -->
+<template id="b2b_system_header" name="B2B System Header">
+    <div class="b2b-system-header">
+        <a class="b2b-system-brand" href="/web#action=logistics_web.action_logistics_web_home">天枢科技物流系统</a>
+        <div class="b2b-system-menu">
+            <a href="/web#action=logistics_web.action_logistics_web_home">首页</a>
+            <a class="active" href="/b2b/products">B2B 商城</a>
+            <a href="/web#action=b2b_storefront.action_catalog_scope">B2B 可见范围</a>
+            <a href="/web#action=b2b_storefront.action_cart_draft">B2B 购物车</a>
+            <a href="/web#action=b2b_storefront.action_after_sale">B2B 售后</a>
+        </div>
+        <div class="b2b-system-right">
+            <a class="b2b-system-chip" href="/web#action=logistics_web.action_logistics_web_home">企业首页</a>
+            <span class="b2b-system-company">My Company</span>
+            <span class="b2b-system-avatar">A</span>
+        </div>
+    </div>
+</template>
+
 <template id="b2b_navbar" name="B2B Navbar">
     <div class="b2b-nav">
         <div class="nav-right">
@@ -90,18 +120,18 @@ select.b2b-form-control { appearance:auto; }
             <a href="/b2b/cart">购物车 <t t-if="cart_count" class="cart-badge"><t t-esc="cart_count"/></t></a>
             <a href="/b2b/orders">我的订单</a>
         </div>
-        <div class="nav-right">
-            <span style="color:rgba(255,255,255,.85);font-size:14px"><t t-esc="request.env.user.partner_id.name"/></span>
-            <a href="/web/session/logout">退出</a>
-        </div>
+
     </div>
 </template>
 
 <!-- ===== 商品列表页 ===== -->
 <template id="product_list_page" name="B2B Product List">
     <t t-call="website.layout">
+        <t t-set="no_header" t-value="True"/>
+        <t t-set="no_footer" t-value="True"/>
         <t t-call="b2b_storefront.b2b_styles"/>
         <div class="b2b-wrap">
+            <t t-call="b2b_storefront.b2b_system_header"/>
             <t t-call="b2b_storefront.b2b_navbar"/>
             <div class="b2b-container">
                 <form method="get" action="/b2b/products" style="display:flex;gap:8px;margin-bottom:24px">
@@ -145,8 +175,11 @@ select.b2b-form-control { appearance:auto; }
 <!-- ===== 购物车页 ===== -->
 <template id="cart_page" name="B2B Cart">
     <t t-call="website.layout">
+        <t t-set="no_header" t-value="True"/>
+        <t t-set="no_footer" t-value="True"/>
         <t t-call="b2b_storefront.b2b_styles"/>
         <div class="b2b-wrap">
+            <t t-call="b2b_storefront.b2b_system_header"/>
             <t t-call="b2b_storefront.b2b_navbar"/>
             <div class="b2b-container" style="max-width:960px">
                 <div class="flex-between mb-16"><h3 style="margin:0">我的购物车</h3><a href="/b2b/products" class="b2b-btn b2b-btn-outline b2b-btn-sm">← 继续选购</a></div>
@@ -219,11 +252,17 @@ select.b2b-form-control { appearance:auto; }
 <!-- ===== 下单页 ===== -->
 <template id="checkout_page" name="B2B Checkout">
     <t t-call="website.layout">
+        <t t-set="no_header" t-value="True"/>
+        <t t-set="no_footer" t-value="True"/>
         <t t-call="b2b_storefront.b2b_styles"/>
         <div class="b2b-wrap">
+            <t t-call="b2b_storefront.b2b_system_header"/>
             <t t-call="b2b_storefront.b2b_navbar"/>
             <div class="b2b-container" style="max-width:800px">
-                <h3>确认订单</h3>
+                <div class="flex-between mb-16">
+                    <h3 style="margin:0">确认订单</h3>
+                    <a href="/web#action=logistics_web.action_logistics_web_home" class="b2b-btn b2b-btn-outline b2b-btn-sm">返回首页</a>
+                </div>
                 <t t-if="error"><div class="b2b-alert b2b-alert-error"><t t-esc="error"/></div></t>
                 <form method="post" action="/b2b/orders/submit">
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
@@ -276,8 +315,11 @@ select.b2b-form-control { appearance:auto; }
 <!-- ===== 订单列表页 ===== -->
 <template id="order_list_page" name="B2B Order List">
     <t t-call="website.layout">
+        <t t-set="no_header" t-value="True"/>
+        <t t-set="no_footer" t-value="True"/>
         <t t-call="b2b_storefront.b2b_styles"/>
         <div class="b2b-wrap">
+            <t t-call="b2b_storefront.b2b_system_header"/>
             <t t-call="b2b_storefront.b2b_navbar"/>
             <div class="b2b-container" style="max-width:960px">
                 <h3 class="mb-16">我的订单</h3>
@@ -314,8 +356,11 @@ select.b2b-form-control { appearance:auto; }
 <!-- ===== 订单详情页 ===== -->
 <template id="order_detail_page" name="B2B Order Detail">
     <t t-call="website.layout">
+        <t t-set="no_header" t-value="True"/>
+        <t t-set="no_footer" t-value="True"/>
         <t t-call="b2b_storefront.b2b_styles"/>
         <div class="b2b-wrap">
+            <t t-call="b2b_storefront.b2b_system_header"/>
             <t t-call="b2b_storefront.b2b_navbar"/>
             <div class="b2b-container" style="max-width:960px">
                 <a href="/b2b/orders" class="b2b-btn b2b-btn-outline b2b-btn-sm mb-16">← 返回</a>

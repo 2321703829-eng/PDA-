@@ -6,6 +6,7 @@
     "license": "LGPL-3",
     "depends": [
         "contacts",
+        "base_geolocalize",
         "hr",
         "product",
         "stock",
