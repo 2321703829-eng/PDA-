@@ -1,24 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <menuitem id="menu_logistics_dispatch_root" name="天枢科技物流系统" sequence="10"/>
+    <menuitem id="menu_logistics_dispatch_root" name="物流" sequence="20"/>
 
     <menuitem
         id="menu_logistics_dispatch"
-        name="物流"
+        name="物流工作区"
         parent="menu_logistics_dispatch_root"
-        sequence="30"/>
+        sequence="10"/>
 
     <menuitem
         id="menu_logistics_dispatch_scheduling"
         name="调度"
-        parent="menu_logistics_dispatch"
-        sequence="10"/>
+        parent="menu_logistics_dispatch_root"
+        action="action_logistics_dispatch_batch"
+        groups="base.group_user"
+        sequence="20"/>
 
     <menuitem
         id="menu_logistics_dispatch_batch"
         name="批次"
         parent="menu_logistics_dispatch_scheduling"
         action="action_logistics_dispatch_batch"
+        groups="base.group_user"
         sequence="10"/>
 
     <menuitem
@@ -26,14 +29,23 @@
         name="波次"
         parent="menu_logistics_dispatch_scheduling"
         action="action_logistics_dispatch_wave"
+        groups="base.group_user"
         sequence="20"/>
+
+    <menuitem
+        id="menu_logistics_dispatch_order_line"
+        name="订单明细"
+        parent="menu_logistics_dispatch_scheduling"
+        action="action_logistics_dispatch_waybill_order_line"
+        groups="base.group_user"
+        sequence="30"/>
 
     <menuitem
         id="menu_logistics_dispatch_waybill_center"
         name="运单"
-        parent="menu_logistics_dispatch"
+        parent="menu_logistics_dispatch_root"
         action="action_logistics_dispatch_waybill"
-        sequence="20"/>
+        sequence="30"/>
 
     <menuitem
         id="menu_logistics_dispatch_waybill"
@@ -44,7 +56,7 @@
 
     <menuitem
         id="menu_logistics_dispatch_waybill_customer_line"
-        name="客户明细"
+        name="配送节点明细"
         parent="menu_logistics_dispatch_waybill_center"
         action="action_logistics_dispatch_waybill_customer_line"
         sequence="20"/>
@@ -59,9 +71,9 @@
     <menuitem
         id="menu_logistics_dispatch_import_center"
         name="导入中心"
-        parent="menu_logistics_dispatch"
+        parent="menu_logistics_dispatch_root"
         action="action_logistics_dispatch_waybill_import_center_direct"
-        sequence="60"/>
+        sequence="70"/>
 
     <menuitem
         id="menu_logistics_dispatch_import_waybill"
@@ -73,7 +85,7 @@
 
     <menuitem
         id="menu_logistics_dispatch_import_customer_line"
-        name="客户明细导入"
+        name="配送节点明细导入"
         parent="menu_logistics_dispatch_import_center"
         action="action_logistics_dispatch_waybill_customer_line_import_center_direct"
         groups="base.group_no_one"
@@ -86,6 +98,7 @@
         action="action_logistics_dispatch_waybill_customer_goods_line_import_center_direct"
         groups="base.group_no_one"
         sequence="30"/>
+
 
     <record id="menu_logistics_dispatch_import_waybill" model="ir.ui.menu">
         <field name="active" eval="False"/>

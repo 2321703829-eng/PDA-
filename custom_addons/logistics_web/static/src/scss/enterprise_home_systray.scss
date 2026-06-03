@@ -1,0 +1,43 @@
+.o_tianshu_home_systray {
+    display: flex;
+    align-items: center;
+    margin-inline-end: 8px;
+}
+
+.o_tianshu_home_systray_btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 36px;
+    padding: 0 14px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1;
+    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.o_tianshu_home_systray_btn:hover,
+.o_tianshu_home_systray_btn:focus {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.28);
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+.o_tianshu_home_systray_btn i {
+    font-size: 14px;
+}
+
+@media (max-width: 991.98px) {
+    .o_tianshu_home_systray_btn span {
+        display: none;
+    }
+
+    .o_tianshu_home_systray_btn {
+        padding: 0 11px;
+    }
+}

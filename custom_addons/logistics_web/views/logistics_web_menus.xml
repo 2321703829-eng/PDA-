@@ -1,16 +1,22 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <menuitem
+        id="menu_tianshu_enterprise_root"
+        name="天枢科技物流系统"
+        action="action_logistics_web_home"
+        sequence="5"/>
+
+    <menuitem
         id="menu_logistics_web_home"
         name="首页"
-        parent="logistics_dispatch.menu_logistics_dispatch_root"
+        parent="menu_tianshu_enterprise_root"
         action="action_logistics_web_home"
         sequence="10"/>
 
     <menuitem
         id="menu_logistics_web"
         name="所有统计图表"
-        parent="logistics_dispatch.menu_logistics_dispatch_root"
+        parent="menu_tianshu_enterprise_root"
         action="action_logistics_web_stats_center"
         groups="base.group_system,logistics_web.group_logistics_analysis_viewer"
         sequence="60"/>
@@ -26,10 +32,18 @@
     <menuitem
         id="menu_logistics_web_driver_management"
         name="司机管理"
-        parent="logistics_dispatch.menu_logistics_dispatch"
+        parent="logistics_dispatch.menu_logistics_dispatch_root"
         action="action_logistics_web_driver_management"
         groups="base.group_system,logistics_web.group_logistics_driver_management_viewer"
-        sequence="40"/>
+        sequence="80"/>
+
+    <menuitem
+        id="menu_logistics_web_vehicle_management"
+        name="车辆管理"
+        parent="logistics_dispatch.menu_logistics_dispatch_root"
+        action="action_logistics_web_vehicle_management"
+        groups="base.group_system,logistics_web.group_logistics_vehicle_management_viewer"
+        sequence="90"/>
 
     <menuitem
         id="menu_logistics_web_dashboard"

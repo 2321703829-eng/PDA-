@@ -4,20 +4,35 @@
         <div class="o_action o_logistics_web_home_action">
             <Layout display="display">
                 <div class="o_logistics_web_page o_logistics_web_homepage">
-                    <div class="o_logistics_web_page_header o_logistics_web_home_hero">
-                        <div class="o_logistics_web_home_hero_main">
+                    <div class="o_logistics_home_topbar">
+                        <div class="o_logistics_home_identity">
+                            <span class="o_logistics_home_identity_mark">TS</span>
+                            <span>天枢科技物流系统</span>
+                        </div>
+                        <div class="o_logistics_home_toolbar">
+                            <span>Enterprise Console</span>
+                            <span><t t-esc="this.ui.badgeSecondary"/></span>
+                        </div>
+                    </div>
+                    <div class="o_logistics_web_page_header o_logistics_web_page_hero o_logistics_web_home_hero">
+                        <div class="o_logistics_web_page_hero_main o_logistics_web_home_hero_main">
                             <div class="o_logistics_web_home_brandline">
                                 <span class="o_logistics_web_home_brand"><t t-esc="this.ui.brandTitle"/></span>
                                 <span class="o_logistics_web_status_tag o_logistics_web_status_tag_brand"><t t-esc="this.ui.badgePrimary"/></span>
                             </div>
-                            <h1><t t-esc="this.ui.heroTitle"/></h1>
-                            <p><t t-esc="this.ui.heroSubtitle"/></p>
+                            <div class="o_logistics_home_console_strip" aria-hidden="true">
+                                <span>ERP</span>
+                                <span>B2B</span>
+                                <span>WMS</span>
+                                <span>TMS</span>
+                                <span>BI</span>
+                            </div>
                         </div>
-                        <div class="o_logistics_web_home_hero_side">
+                        <div class="o_logistics_web_page_hero_aside o_logistics_web_home_hero_side">
                             <span class="o_logistics_web_status_tag"><t t-esc="this.ui.badgeSecondary"/></span>
-                            <div class="o_logistics_web_home_hero_note">
+                            <div class="o_logistics_web_page_note o_logistics_web_home_hero_note">
                                 <strong>首页原则</strong>
-                                <span>先选企业模块，再看物流重点，再决定进入哪个工作区继续处理。</span>
+                                <span>先从企业总入口确认模块，再进入对应工作区继续处理。</span>
                             </div>
                         </div>
                     </div>
@@ -34,14 +49,18 @@
                             </div>
                         </t>
 
-                        <section class="o_logistics_web_dashboard_section">
+                        <section class="o_logistics_web_dashboard_section o_logistics_home_modules_section">
                             <div class="o_logistics_web_section_heading">
                                 <h2><t t-esc="this.ui.sectionModules"/></h2>
                                 <p><t t-esc="this.ui.sectionModulesHint"/></p>
                             </div>
                             <div class="o_logistics_web_home_module_grid">
                                 <t t-foreach="state.moduleCards" t-as="item" t-key="item.key">
-                                    <div class="o_logistics_web_placeholder_panel o_logistics_web_clickable o_logistics_web_home_module_card" t-on-click="() => this.onModuleCardClick(item)">
+                                    <div
+                                        class="o_logistics_web_placeholder_panel o_logistics_web_clickable o_logistics_web_home_module_card"
+                                        t-att-data-module="item.key"
+                                        t-on-click="() => this.onModuleCardClick(item)">
+                                        <span class="o_logistics_home_module_icon" aria-hidden="true"></span>
                                         <strong><t t-esc="item.title"/></strong>
                                         <p><t t-esc="item.hint"/></p>
                                     </div>
@@ -49,7 +68,7 @@
                             </div>
                         </section>
 
-                        <section class="o_logistics_web_dashboard_section">
+                        <section class="o_logistics_web_dashboard_section o_logistics_home_section">
                             <div class="o_logistics_web_section_heading">
                                 <h2><t t-esc="this.ui.sectionHeadline"/></h2>
                                 <p><t t-esc="this.ui.sectionHeadlineHint"/></p>
@@ -64,7 +83,7 @@
                             </div>
                         </section>
 
-                        <section class="o_logistics_web_dashboard_section">
+                        <section class="o_logistics_web_dashboard_section o_logistics_home_section">
                             <div class="o_logistics_web_section_heading">
                                 <h2><t t-esc="this.ui.sectionMetrics"/></h2>
                                 <p><t t-esc="this.ui.sectionMetricsHint"/></p>
@@ -81,7 +100,7 @@
                             </div>
                         </section>
 
-                        <section class="o_logistics_web_dashboard_section">
+                        <section class="o_logistics_web_dashboard_section o_logistics_home_section">
                             <div class="o_logistics_web_section_heading">
                                 <h2><t t-esc="this.ui.sectionTrends"/></h2>
                                 <p><t t-esc="this.ui.sectionTrendsHint"/></p>
@@ -97,7 +116,7 @@
                             </div>
                         </section>
 
-                        <section class="o_logistics_web_dashboard_section">
+                        <section class="o_logistics_web_dashboard_section o_logistics_home_section">
                             <div class="o_logistics_web_section_heading">
                                 <h2><t t-esc="this.ui.sectionCockpit"/></h2>
                                 <p><t t-esc="this.ui.sectionCockpitHint"/></p>
@@ -124,7 +143,7 @@
                         </section>
 
                         <div class="o_logistics_web_home_grid">
-                            <section class="o_logistics_web_dashboard_section">
+                            <section class="o_logistics_web_dashboard_section o_logistics_home_section">
                                 <div class="o_logistics_web_section_heading">
                                     <h2><t t-esc="this.ui.sectionQuick"/></h2>
                                     <p><t t-esc="this.ui.sectionQuickHint"/></p>
@@ -139,7 +158,7 @@
                                 </div>
                             </section>
 
-                            <section class="o_logistics_web_dashboard_section">
+                            <section class="o_logistics_web_dashboard_section o_logistics_home_section">
                                 <div class="o_logistics_web_section_heading">
                                     <h2><t t-esc="this.ui.sectionGuides"/></h2>
                                     <p><t t-esc="this.ui.sectionGuidesHint"/></p>
@@ -155,7 +174,7 @@
                             </section>
                         </div>
 
-                        <section class="o_logistics_web_dashboard_section">
+                        <section class="o_logistics_web_dashboard_section o_logistics_home_section">
                             <div class="o_logistics_web_section_heading">
                                 <h2><t t-esc="this.ui.sectionRecent"/></h2>
                                 <p><t t-esc="this.ui.sectionRecentHint"/></p>

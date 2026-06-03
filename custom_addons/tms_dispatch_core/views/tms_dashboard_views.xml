@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- 配送调度工作台 — 模块卡片仪表盘 -->
+    <record id="view_tms_dashboard_kanban" model="ir.ui.view">
+        <field name="name">tms.dashboard.kanban</field>
+        <field name="model">tms.dispatch.order</field>
+        <field name="priority" eval="100"/>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_dashboard" create="false" delete="false" edit="false">
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click" style="cursor:default">
+                            <div class="o_kanban_record_body">
+                                <div class="oe_kanban_content">
+                                    <div class="o_kanban_record_top">
+                                        <div class="o_kanban_record_headings">
+                                            <strong class="o_kanban_record_title"><t t-esc="record.name.value"/></strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- 替换调度工作台为 QWeb 仪表盘 -->
+    <record id="action_tms_dashboard" model="ir.actions.client">
+        <field name="name">配送调度工作台</field>
+        <field name="tag">tms_dispatch_core.dashboard</field>
+    </record>
+
+    <!-- 更新菜单 397 指向新仪表盘 -->
+    <record id="menu_tms_dashboard_update" model="ir.ui.menu">
+        <field name="id" ref="logistics_dispatch.menu_tms_dispatch_workbench" search="[['name','ilike','%调度工作台%']]"/>
+    </record>
+
+</odoo>

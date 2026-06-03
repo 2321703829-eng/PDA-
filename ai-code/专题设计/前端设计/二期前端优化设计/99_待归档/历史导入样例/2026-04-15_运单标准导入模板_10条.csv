@@ -1,0 +1,11 @@
+waybill_no,batch_no,delivery_date,state,exception_status,evidence_status,risk_level,route_seq,remark
+WB260415-10001,BT260414-0001,2026-04-16,ready,none,missing,low,10,sample-01
+WB260415-10002,BT260414-0001,2026-04-16,ready,open,partial,medium,20,sample-02
+WB260415-10003,BT260414-0001,2026-04-16,in_transit,processing,complete,high,30,sample-03
+WB260415-10004,BT260414-0001,2026-04-16,arrived,none,complete,low,40,sample-04
+WB260415-10005,BT260414-0001,2026-04-16,signed,closed,complete,low,50,sample-05
+WB260415-10006,BT260414-0001,2026-04-17,ready,none,missing,medium,60,sample-06
+WB260415-10007,BT260414-0001,2026-04-17,in_transit,open,partial,high,70,sample-07
+WB260415-10008,BT260414-0001,2026-04-17,arrived,processing,partial,medium,80,sample-08
+WB260415-10009,BT260414-0001,2026-04-17,signed,closed,complete,low,90,sample-09
+WB260415-10010,BT260414-0001,2026-04-18,done,closed,complete,low,100,sample-10

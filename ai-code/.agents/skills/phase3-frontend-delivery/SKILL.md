@@ -1,4 +1,4 @@
-# phase3-frontend-delivery
+﻿# phase3-frontend-delivery
 
 ## 通用协作约束
 
@@ -56,7 +56,7 @@
 2. `docs/context/odoo_logistics_context.md`
 3. `docs/context/odoo_logistics_feasibility.md`
 4. `docs/architecture/ARCHITECTURE.md`
-5. `前端设计/三期前端优化设计/00_导航与总纲/2026-04-17_Odoo物流后台三期前端优化设计总纲.md`
+5. `前端设计/三期前端优化设计/00_导航与总纲/2026-04-17_三期前端优化设计总纲.md`
 6. `前端设计/三期前端优化设计/00_导航与总纲/三期待补文档清单.md`
 7. `前端设计/三期前端优化设计/02_验收与联调/当前已验证通过项与待修项.md`
 8. `前端设计/三期前端优化设计/02_跨模块规范/04_实施规范/三期开发启动与代码落位说明.md`

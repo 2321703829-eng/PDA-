@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_wms_handover_order_form_tms_dispatch_core" model="ir.ui.view">
+        <field name="name">wms.handover.order.form.tms.dispatch.core</field>
+        <field name="model">wms.handover.order</field>
+        <field name="inherit_id" ref="wms_task_core.view_wms_handover_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_create_dispatch_order" type="object" string="Create Dispatch Order"/>
+                <button name="action_open_dispatch_orders" type="object" string="Open Dispatch Orders"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_tms_dispatch_order_tree" model="ir.ui.view">
+        <field name="name">tms.dispatch.order.tree</field>
+        <field name="model">tms.dispatch.order</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="state"/>
+                <field name="route_batch_id"/>
+                <field name="warehouse_id"/>
+                <field name="driver_profile_id"/>
+                <field name="vehicle_profile_id"/>
+                <field name="driver_task_count"/>
+                <field name="exception_count"/>
+                <field name="freight_fee_total"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_tms_dispatch_order_form" model="ir.ui.view">
+        <field name="name">tms.dispatch.order.form</field>
+        <field name="model">tms.dispatch.order</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_dispatch" type="object" string="Dispatch" invisible="state != 'waiting_dispatch'"/>
+                    <button name="action_depart" type="object" string="Depart" invisible="state not in ('waiting_dispatch', 'dispatched')"/>
+                    <button name="action_generate_freight_lines" type="object" string="Generate Freight Lines"/>
+                    <button name="action_open_related_waybills" type="object" string="Open Related Waybills"/>
+                    <button name="action_open_freight_lines" type="object" string="Open Freight Lines"/>
+                    <button name="action_open_operation_logs" type="object" string="Open Logs"/>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="state"/>
+                        <field name="route_batch_id"/>
+                        <field name="handover_order_id"/>
+                        <field name="warehouse_id"/>
+                    </group>
+                    <group>
+                        <field name="driver_profile_id"/>
+                        <field name="vehicle_profile_id"/>
+                    </group>
+                    <group>
+                        <field name="driver_task_count" readonly="1"/>
+                        <field name="departed_task_count" readonly="1"/>
+                        <field name="in_transit_task_count" readonly="1"/>
+                        <field name="signed_task_count" readonly="1"/>
+                    </group>
+                    <group>
+                        <field name="signoff_receipt_count" readonly="1"/>
+                        <field name="exception_count" readonly="1"/>
+                        <field name="freight_fee_total" readonly="1"/>
+                    </group>
+                    <notebook>
+                        <page string="Driver Tasks">
+                            <field name="driver_task_ids"/>
+                        </page>
+                        <page string="Freight Lines">
+                            <field name="freight_fee_line_ids">
+                                <list editable="bottom">
+                                    <field name="fee_type"/>
+                                    <field name="amount"/>
+                                    <field name="partner_id"/>
+                                    <field name="note"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Note">
+                            <field name="note"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_tms_driver_task_tree" model="ir.ui.view">
+        <field name="name">tms.driver.task.tree</field>
+        <field name="model">tms.driver.task</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="state"/>
+                <field name="dispatch_order_id"/>
+                <field name="waybill_id"/>
+                <field name="store_profile_id"/>
+                <field name="latest_node_state"/>
+                <field name="latest_node_time"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_tms_driver_task_form" model="ir.ui.view">
+        <field name="name">tms.driver.task.form</field>
+        <field name="model">tms.driver.task</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_arrive_warehouse" type="object" string="Arrive Warehouse"/>
+                    <button name="action_start_delivery" type="object" string="Start Delivery" invisible="state not in ('waiting_dispatch', 'dispatched', 'departed')"/>
+                    <button name="action_log_in_transit" type="object" string="Update Transit" invisible="state not in ('departed', 'in_transit', 'arrived_store')"/>
+                    <button name="action_arrive_store" type="object" string="Arrive Store" invisible="state != 'in_transit'"/>
+                    <button name="action_mark_delivering" type="object" string="Mark Delivering" invisible="state != 'arrived_store'"/>
+                    <button name="action_create_signoff_receipt" type="object" string="Create Signoff"/>
+                    <button name="action_create_exception" type="object" string="Create Exception"/>
+                    <button name="action_open_waybill" type="object" string="Open Waybill" invisible="not waybill_id"/>
+                    <button name="action_open_operation_logs" type="object" string="Open Logs"/>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="state"/>
+                        <field name="dispatch_order_id"/>
+                        <field name="waybill_id"/>
+                        <field name="store_profile_id"/>
+                    </group>
+                    <group>
+                        <field name="latest_node_state" readonly="1"/>
+                        <field name="latest_node_time" readonly="1"/>
+                        <field name="latest_longitude" readonly="1"/>
+                        <field name="latest_latitude" readonly="1"/>
+                    </group>
+                    <group>
+                        <field name="node_count" readonly="1"/>
+                        <field name="signoff_receipt_count" readonly="1"/>
+                        <field name="exception_count" readonly="1"/>
+                    </group>
+                    <notebook>
+                        <page string="Nodes">
+                            <field name="node_ids">
+                                <list editable="bottom">
+                                    <field name="event_time"/>
+                                    <field name="state"/>
+                                    <field name="longitude"/>
+                                    <field name="latitude"/>
+                                    <field name="note"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Signoff">
+                            <button name="action_open_signoff_receipts" type="object" string="Open Signoff Receipts"/>
+                        </page>
+                        <page string="Exceptions">
+                            <button name="action_open_delivery_exceptions" type="object" string="Open Delivery Exceptions"/>
+                        </page>
+                        <page string="Note">
+                            <field name="note"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_tms_signoff_receipt_tree" model="ir.ui.view">
+        <field name="name">tms.signoff.receipt.tree</field>
+        <field name="model">tms.signoff.receipt</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="state"/>
+                <field name="driver_task_id"/>
+                <field name="signer_name"/>
+                <field name="signed_at"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_tms_signoff_receipt_form" model="ir.ui.view">
+        <field name="name">tms.signoff.receipt.form</field>
+        <field name="model">tms.signoff.receipt</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_confirm_signoff" type="object" string="Confirm Signoff" invisible="state not in ('waiting_dispatch', 'arrived_store', 'in_transit')"/>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="state"/>
+                        <field name="driver_task_id"/>
+                        <field name="signer_name"/>
+                        <field name="signed_at"/>
+                        <field name="signed_qty"/>
+                        <field name="photo_count"/>
+                    </group>
+                    <group>
+                        <field name="note"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_tms_delivery_exception_tree" model="ir.ui.view">
+        <field name="name">tms.delivery.exception.tree</field>
+        <field name="model">tms.delivery.exception</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="state"/>
+                <field name="exception_type"/>
+                <field name="driver_task_id"/>
+                <field name="amount"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_tms_delivery_exception_form" model="ir.ui.view">
+        <field name="name">tms.delivery.exception.form</field>
+        <field name="model">tms.delivery.exception</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="state"/>
+                        <field name="exception_type"/>
+                        <field name="driver_task_id"/>
+                        <field name="waybill_id"/>
+                        <field name="amount"/>
+                    </group>
+                    <group>
+                        <field name="note"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_tms_freight_fee_line_tree" model="ir.ui.view">
+        <field name="name">tms.freight.fee.line.tree</field>
+        <field name="model">tms.freight.fee.line</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="dispatch_order_id"/>
+                <field name="fee_type"/>
+                <field name="amount"/>
+                <field name="partner_id"/>
+                <field name="note"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_tms_dispatch_order" model="ir.actions.act_window">
+        <field name="name">TMS Dispatch Orders</field>
+        <field name="res_model">tms.dispatch.order</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_tms_driver_task" model="ir.actions.act_window">
+        <field name="name">TMS Driver Tasks</field>
+        <field name="res_model">tms.driver.task</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_tms_signoff_receipt" model="ir.actions.act_window">
+        <field name="name">TMS Signoff Receipts</field>
+        <field name="res_model">tms.signoff.receipt</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_tms_delivery_exception" model="ir.actions.act_window">
+        <field name="name">TMS Delivery Exceptions</field>
+        <field name="res_model">tms.delivery.exception</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_tms_freight_fee_line" model="ir.actions.act_window">
+        <field name="name">TMS Freight Fee Lines</field>
+        <field name="res_model">tms.freight.fee.line</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

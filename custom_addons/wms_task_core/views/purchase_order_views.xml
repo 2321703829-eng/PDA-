@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_purchase_order_form_wms_task_core" model="ir.ui.view">
+        <field name="name">purchase.order.form.wms.task.core</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button
+                    name="action_open_receipt_tasks"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-truck"
+                    invisible="receipt_task_count == 0">
+                    <field name="receipt_task_count" string="Receipt Tasks" widget="statinfo"/>
+                </button>
+            </xpath>
+            <xpath expr="//header" position="inside">
+                <button
+                    name="action_create_receipt_tasks"
+                    type="object"
+                    string="Create Receipt Tasks"
+                    invisible="state not in ('purchase', 'done')"/>
+                <button
+                    name="action_open_receipt_tasks"
+                    type="object"
+                    string="Open Receipt Tasks"
+                    invisible="receipt_task_count == 0"/>
+            </xpath>
+            <xpath expr="//field[@name='date_order']" position="after">
+                <field name="arrival_plan_date"/>
+            </xpath>
+            <xpath expr="//field[@name='partner_ref']" position="after">
+                <field name="wms_receipt_status" readonly="1"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_purchase_order_list_wms_task_core" model="ir.ui.view">
+        <field name="name">purchase.order.list.wms.task.core</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//list/field[@name='date_planned']" position="after">
+                <field name="arrival_plan_date" optional="show"/>
+                <field name="wms_receipt_status" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_wms_arrival_plan" model="ir.actions.act_window">
+        <field name="name">到货计划</field>
+        <field name="res_model">purchase.order</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('state', 'in', ['purchase', 'done'])]</field>
+        <field name="context">{}</field>
+    </record>
+</odoo>

@@ -1,3 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_logistics_trace_exception_user,logistics.trace.exception user,model_logistics_trace_exception,base.group_user,1,1,1,1
-access_logistics_trace_exception_process_log_user,logistics.trace.exception.process.log user,model_logistics_trace_exception_process_log,base.group_user,1,1,1,1
+access_logistics_trace_exception_user,logistics.trace.exception user,model_logistics_trace_exception,base.group_user,1,0,1,1
+access_logistics_trace_exception_manager,logistics.trace.exception manager,model_logistics_trace_exception,logistics_trace_evidence.group_logistics_trace_manager,1,1,1,1
+access_logistics_trace_exception_process_log_user,logistics.trace.exception.process.log user,model_logistics_trace_exception_process_log,base.group_user,1,0,0,0
+access_logistics_trace_exception_process_log_manager,logistics.trace.exception.process.log manager,model_logistics_trace_exception_process_log,logistics_trace_evidence.group_logistics_trace_manager,1,0,0,0

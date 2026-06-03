@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_logistics_dispatch_waybill_form_tms_dispatch_core" model="ir.ui.view">
+        <field name="name">logistics.dispatch.waybill.form.tms.dispatch.core</field>
+        <field name="model">logistics.dispatch.waybill</field>
+        <field name="inherit_id" ref="logistics_dispatch.view_logistics_dispatch_waybill_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button
+                    name="action_open_related_dispatch_orders"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-random">
+                    <field name="tms_dispatch_order_count" string="Dispatch Orders" widget="statinfo"/>
+                </button>
+                <button
+                    name="action_open_related_driver_tasks"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-motorcycle">
+                    <field name="tms_driver_task_count" string="Driver Tasks" widget="statinfo"/>
+                </button>
+                <button
+                    name="action_open_related_signoff_receipts"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-check-square-o">
+                    <field name="tms_signoff_receipt_count" string="Signoff Receipts" widget="statinfo"/>
+                </button>
+                <button
+                    name="action_open_related_delivery_exceptions"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-exclamation-triangle">
+                    <field name="tms_exception_count" string="Delivery Exceptions" widget="statinfo"/>
+                </button>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="rule_tms_dispatch_order_driver_own" model="ir.rule">
+        <field name="name">TMS dispatch order driver own</field>
+        <field name="model_id" ref="model_tms_dispatch_order"/>
+        <field name="groups" eval="[(4, ref('erp_base.group_tms_driver'))]"/>
+        <field name="domain_force">[('driver_profile_id.employee_id.user_id', '=', user.id)]</field>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="0"/>
+        <field name="perm_create" eval="0"/>
+        <field name="perm_unlink" eval="0"/>
+    </record>
+
+    <record id="rule_tms_driver_task_driver_own" model="ir.rule">
+        <field name="name">TMS driver task own</field>
+        <field name="model_id" ref="model_tms_driver_task"/>
+        <field name="groups" eval="[(4, ref('erp_base.group_tms_driver'))]"/>
+        <field name="domain_force">[('dispatch_order_id.driver_profile_id.employee_id.user_id', '=', user.id)]</field>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="0"/>
+        <field name="perm_unlink" eval="0"/>
+    </record>
+
+    <record id="rule_tms_driver_task_node_driver_own" model="ir.rule">
+        <field name="name">TMS driver task node own</field>
+        <field name="model_id" ref="model_tms_driver_task_node"/>
+        <field name="groups" eval="[(4, ref('erp_base.group_tms_driver'))]"/>
+        <field name="domain_force">[('driver_task_id.dispatch_order_id.driver_profile_id.employee_id.user_id', '=', user.id)]</field>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="0"/>
+    </record>
+
+    <record id="rule_tms_signoff_receipt_driver_own" model="ir.rule">
+        <field name="name">TMS signoff receipt driver own</field>
+        <field name="model_id" ref="model_tms_signoff_receipt"/>
+        <field name="groups" eval="[(4, ref('erp_base.group_tms_driver'))]"/>
+        <field name="domain_force">[('driver_task_id.dispatch_order_id.driver_profile_id.employee_id.user_id', '=', user.id)]</field>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="0"/>
+    </record>
+
+    <record id="rule_tms_delivery_exception_driver_own" model="ir.rule">
+        <field name="name">TMS delivery exception driver own</field>
+        <field name="model_id" ref="model_tms_delivery_exception"/>
+        <field name="groups" eval="[(4, ref('erp_base.group_tms_driver'))]"/>
+        <field name="domain_force">[('driver_task_id.dispatch_order_id.driver_profile_id.employee_id.user_id', '=', user.id)]</field>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="0"/>
+    </record>
+</odoo>

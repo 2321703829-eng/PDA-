@@ -11,4 +11,25 @@
             <meta name="theme-color" content="#123d70"/>
         </xpath>
     </template>
+
+    <template id="logistics_web_auth_signup_login_links_db_guard" inherit_id="auth_signup.login">
+        <xpath expr="//a[contains(@t-attf-href, '/web/signup?')]" position="replace">
+            <a t-if="signup_enabled" class="btn btn-link btn-sm mt-2" t-attf-href="/web/signup{{ '?db=' + request.db if request.db else '' }}">Don't have an account?</a>
+        </xpath>
+        <xpath expr="//a[contains(@t-attf-href, '/web/reset_password?')]" position="replace">
+            <a t-if="reset_password_enabled" class="btn btn-link btn-sm" tabindex="1" t-attf-href="/web/reset_password{{ '?db=' + request.db if request.db else '' }}">Reset Password</a>
+        </xpath>
+    </template>
+
+    <template id="logistics_web_auth_signup_back_to_login_db_guard" inherit_id="auth_signup.signup">
+        <xpath expr="//a[contains(@t-attf-href, '/web/login?')]" position="replace">
+            <a t-attf-href="/web/login{{ '?db=' + request.db if request.db else '' }}" class="btn btn-link btn-sm mt-2" role="button">Already have an account?</a>
+        </xpath>
+    </template>
+
+    <template id="logistics_web_auth_reset_back_to_login_db_guard" inherit_id="auth_signup.reset_password">
+        <xpath expr="//a[contains(@t-attf-href, '/web/login?')]" position="replace">
+            <a t-if="not token" t-attf-href="/web/login{{ '?db=' + request.db if request.db else '' }}">Back to Login</a>
+        </xpath>
+    </template>
 </odoo>

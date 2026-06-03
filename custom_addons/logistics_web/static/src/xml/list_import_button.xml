@@ -2,13 +2,27 @@
 <templates xml:space="preserve">
 
     <t t-name="logistics_web.ListView.ImportButton" t-inherit="web.ListView" t-inherit-mode="extension">
-        <xpath expr="//t[@t-set-slot='control-panel-create-button']/button[contains(@class, 'o_list_button_add')]" position="after">
+        <xpath expr="//t[@t-set-slot='control-panel-create-button']" position="inside">
+            <button
+                t-if="!editedRecord and showLogisticsDeleteButton"
+                type="button"
+                class="btn btn-outline-danger ms-2 o_logistics_delete_button"
+                t-on-click="onClickLogisticsDelete">
+                删除
+            </button>
             <button
                 t-if="!editedRecord and showLogisticsImportButton"
                 type="button"
                 class="btn btn-secondary ms-2 o_logistics_import_button"
                 t-on-click="onClickLogisticsImport">
                 导入
+            </button>
+            <button
+                t-if="!editedRecord and showLogisticsExportButton"
+                type="button"
+                class="btn btn-secondary ms-2 o_logistics_export_button"
+                t-on-click="onClickLogisticsExport">
+                导出
             </button>
         </xpath>
     </t>

@@ -5,8 +5,19 @@
         <field name="model">logistics.dispatch.waybill</field>
         <field name="inherit_id" ref="logistics_dispatch.view_logistics_dispatch_waybill_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//form" position="attributes">
-                <attribute name="js_class">logistics_waybill_form</attribute>
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button
+                    name="action_open_export_result"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-download"
+                    string="导出结果"/>
+                <button
+                    name="action_open_evidence_image_export_result"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-picture-o"
+                    string="导出证据原图"/>
             </xpath>
             <xpath expr="//notebook" position="inside">
                 <page string="留痕与证据">
@@ -25,16 +36,26 @@
                                 <span>只在需要追责、补证据或跟进处理时继续下钻。</span>
                             </div>
                         </div>
+
                         <div class="o_logistics_waybill_widget_block">
                             <h3 class="o_logistics_waybill_widget_heading">留痕时间线</h3>
-                            <div class="o_logistics_waybill_timeline_host o_logistics_waybill_widget_host"/>
+                            <field
+                                name="latest_trace_summary"
+                                widget="logistics_trace_timeline"
+                                nolabel="1"
+                                readonly="1"/>
                         </div>
 
                         <div class="o_logistics_waybill_widget_block">
                             <h3 class="o_logistics_waybill_widget_heading">证据查看</h3>
-                            <div class="o_logistics_waybill_evidence_host o_logistics_waybill_widget_host"/>
+                            <field
+                                name="partner_name"
+                                widget="logistics_evidence_viewer"
+                                nolabel="1"
+                                readonly="1"/>
                         </div>
                     </div>
+
                     <div class="o_logistics_waybill_enhanced_detail o_logistics_waybill_fallback_section">
                         <separator string="原始关联数据（调试）"/>
                         <div class="o_form_label text-muted o_logistics_waybill_fallback_hint">
@@ -43,7 +64,7 @@
 
                         <group string="留痕记录（原始）" col="1">
                             <field name="trace_event_ids" readonly="1">
-                                <list create="0" delete="0" open_form_view="1">
+                                <list create="0" delete="0" open_form_view="0">
                                     <field name="trace_time"/>
                                     <field name="event_type"/>
                                     <field name="submit_user_name"/>
@@ -53,11 +74,15 @@
                                 </list>
                             </field>
                         </group>
+
                         <group string="证据记录（原始）" col="1">
                             <field name="evidence_ids" readonly="1">
                                 <list create="0" delete="0" open_form_view="1">
                                     <field name="name"/>
-                                    <field name="trace_event_id"/>
+                                    <field name="trace_event_type"/>
+                                    <field name="trace_event_time"/>
+                                    <field name="trace_event_display_name" optional="hide"/>
+                                    <field name="trace_event_id" optional="hide"/>
                                     <field name="uploaded_at"/>
                                     <field name="uploader_name"/>
                                     <field name="is_exception_related"/>

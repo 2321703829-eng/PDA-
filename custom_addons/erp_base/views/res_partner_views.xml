@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- 客户表单扩展：经营与配送字段 -->
+    <record id="res_partner_form_erp" model="ir.ui.view">
+        <field name="name">res.partner.form.erp</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='category_id']" position="after">
+                <field name="partner_code"/>
+                <field name="partner_type_ext"/>
+            </xpath>
+            <xpath expr="//page[@name='sales_purchases']" position="before">
+                <page string="经营属性" name="erp_business">
+                    <group>
+                        <group>
+                            <field name="customer_level"/>
+                            <field name="credit_days"/>
+                            <field name="settlement_method"/>
+                        </group>
+                        <group>
+                            <field name="is_logistics_serviceable"/>
+                            <field name="is_store"/>
+                            <field name="store_code" invisible="not is_store"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+            <xpath expr="//page[@name='sales_purchases']" position="inside">
+                <group string="配送备注" name="erp_delivery">
+                    <field name="delivery_note" colspan="2"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- 客户列表扩展 -->
+    <record id="res_partner_tree_erp" model="ir.ui.view">
+        <field name="name">res.partner.tree.erp</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='email']" position="after">
+                <field name="partner_code" optional="show"/>
+                <field name="partner_type_ext" optional="show"/>
+                <field name="customer_level" optional="show"/>
+                <field name="is_store" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- 客户搜索扩展 -->
+    <record id="res_partner_search_erp" model="ir.ui.view">
+        <field name="name">res.partner.search.erp</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_res_partner_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='supplier']" position="after">
+                <separator/>
+                <filter name="erp_store" string="门店" domain="[('is_store','=',True)]"/>
+                <filter name="erp_serviceable" string="可配送" domain="[('is_logistics_serviceable','=',True)]"/>
+                <filter name="erp_customer_level" string="客户等级" domain="[]" context="{'group_by':'customer_level'}"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

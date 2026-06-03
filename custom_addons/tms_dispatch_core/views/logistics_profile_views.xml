@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_logistics_store_profile_form_tms_dispatch_core" model="ir.ui.view">
+        <field name="name">logistics.store.profile.form.tms.dispatch.core</field>
+        <field name="model">logistics.store.profile</field>
+        <field name="inherit_id" ref="logistics_base.view_logistics_store_profile_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/group[1]" position="after">
+                <group string="TMS Dispatch">
+                    <field name="dispatch_priority"/>
+                    <field name="default_route_code"/>
+                    <field name="default_vehicle_type"/>
+                    <field name="default_delivery_order"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_logistics_driver_profile_form_tms_dispatch_core" model="ir.ui.view">
+        <field name="name">logistics.driver.profile.form.tms.dispatch.core</field>
+        <field name="model">logistics.driver.profile</field>
+        <field name="inherit_id" ref="logistics_base.view_logistics_driver_profile_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/group[1]" position="after">
+                <group string="TMS Dispatch">
+                    <field name="dispatch_status"/>
+                    <field name="home_warehouse_id"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_logistics_vehicle_profile_form_tms_dispatch_core" model="ir.ui.view">
+        <field name="name">logistics.vehicle.profile.form.tms.dispatch.core</field>
+        <field name="model">logistics.vehicle.profile</field>
+        <field name="inherit_id" ref="logistics_base.view_logistics_vehicle_profile_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/group[1]" position="after">
+                <group string="TMS Dispatch">
+                    <field name="dispatch_status"/>
+                    <field name="home_warehouse_id"/>
+                    <field name="default_driver_profile_id"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

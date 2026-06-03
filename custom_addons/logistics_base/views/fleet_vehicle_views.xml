@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_fleet_vehicle_form_logistics_base" model="ir.ui.view">
+        <field name="name">fleet.vehicle.form.logistics.base</field>
+        <field name="model">fleet.vehicle</field>
+        <field name="inherit_id" ref="fleet.fleet_vehicle_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/div[@name='button_box']" position="inside">
+                <button
+                    name="action_open_or_create_vehicle_profile"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-truck">
+                    <field name="logistics_vehicle_profile_count" widget="statinfo" string="车辆画像"/>
+                </button>
+            </xpath>
+            <xpath expr="//field[@name='location']" position="after">
+                <field name="organization_name"/>
+                <field name="vehicle_status"/>
+                <field name="vehicle_type_name"/>
+                <field name="brand_name"/>
+                <field name="model_name"/>
+                <field name="energy_type"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

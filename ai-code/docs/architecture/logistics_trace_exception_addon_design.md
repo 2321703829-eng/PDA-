@@ -1,12 +1,12 @@
-# logistics_trace_exception Addon 设计稿
+﻿# logistics_trace_exception Addon 设计稿
 
 适用范围：
 - 异常层模块 `logistics_trace_exception`
 - 建立在批次 / 运单上下文与留痕事实之上的异常对象与处理流程设计
 
 优先基准：
-- `ai-code/Odoo19物流留痕系统运单主对象与留痕主流程设计.md`
-- `ai-code/Odoo19物流留痕系统五人分工与前端改造安排.md`
+- `ai-code/docs/context/Odoo19物流留痕系统运单主对象与留痕主流程设计.md`
+- `ai-code/docs/dev/project_coordination/Odoo19物流留痕系统五人分工与前端改造安排.md`
 - `ai-code/docs/architecture/logistics_dispatch_addon_design.md`
 - `ai-code/docs/architecture/logistics_trace_core_addon_design.md`
 - `ai-code/docs/architecture/ARCHITECTURE.md`

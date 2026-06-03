@@ -1,0 +1,418 @@
+﻿# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* logistics_web
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"POT-Creation-Date: 2026-04-14 00:00+0000\n"
+"PO-Revision-Date: 2026-04-14 00:00+0000\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#. module: logistics_web
+msgid "Frontend"
+msgstr "运营与追溯"
+
+#. module: logistics_web
+msgid "Management Dashboard"
+msgstr "运营工作台"
+
+#. module: logistics_web
+msgid "Boss Trace Overview"
+msgstr "管理层总览"
+
+#. module: logistics_web
+msgid "运营与追溯"
+msgstr "运营与追溯"
+
+#. module: logistics_web
+msgid "运营工作台"
+msgstr "运营工作台"
+
+#. module: logistics_web
+msgid "管理层总览"
+msgstr "管理层总览"
+
+#. module: logistics_web
+msgid "P0 Entry"
+msgstr "P0入口"
+
+#. module: logistics_web
+msgid "Admin View"
+msgstr "管理视角"
+
+#. module: logistics_web
+msgid "Executive View"
+msgstr "管理层视角"
+
+#. module: logistics_web
+msgid "Dispute Focus"
+msgstr "争议聚焦"
+
+#. module: logistics_web
+msgid "See what needs attention first, then drill into waybills, batches, and exceptions."
+msgstr "先看哪些对象需要关注，再下钻到运单、批次和异常。"
+
+#. module: logistics_web
+msgid "See the decision summary first, then drill into the disputes that need attention."
+msgstr "先看决策摘要，再下钻到需要关注的争议。"
+
+#. module: logistics_web
+msgid "Today at a Glance"
+msgstr "今日概览"
+
+#. module: logistics_web
+msgid "Use these cards to decide what to inspect first."
+msgstr "通过这些卡片先判断应优先查看哪些对象。"
+
+#. module: logistics_web
+msgid "Priority Queue"
+msgstr "优先处理队列"
+
+#. module: logistics_web
+msgid "Objects that should be reviewed before normal browsing."
+msgstr "这些对象应在常规浏览前优先处理。"
+
+#. module: logistics_web
+msgid "Recent Changes"
+msgstr "最近变更"
+
+#. module: logistics_web
+msgid "Quick signal feed for new abnormal or evidence events."
+msgstr "快速查看最新异常或证据变化。"
+
+#. module: logistics_web
+msgid "Next Drill-Down Targets"
+msgstr "下一步下钻目标"
+
+#. module: logistics_web
+msgid "The dashboard should guide users into waybill, exception, and batch detail pages."
+msgstr "工作台应引导用户进入运单、异常和批次详情页。"
+
+#. module: logistics_web
+msgid "Headline Signals"
+msgstr "核心信号"
+
+#. module: logistics_web
+msgid "Use these cards to decide whether to go to disputes or batch-level risk review."
+msgstr "通过这些卡片判断是进入争议处理还是批次级风险查看。"
+
+#. module: logistics_web
+msgid "Dispute Focus Objects"
+msgstr "争议焦点对象"
+
+#. module: logistics_web
+msgid "These are the current disputes most likely to need management attention."
+msgstr "这些是当前最可能需要管理层关注的争议对象。"
+
+#. module: logistics_web
+msgid "No priority objects require review right now."
+msgstr "当前没有需要优先查看的对象。"
+
+#. module: logistics_web
+msgid "No recent changes are available yet."
+msgstr "当前还没有最近变更。"
+
+#. module: logistics_web
+msgid "No dispute focus objects need management attention right now."
+msgstr "当前没有需要管理层重点关注的争议对象。"
+
+#. module: logistics_web
+msgid "Pending Exceptions"
+msgstr "待处理异常"
+
+#. module: logistics_web
+msgid "Evidence Missing"
+msgstr "证据缺失"
+
+#. module: logistics_web
+msgid "High Risk Batches"
+msgstr "高风险批次"
+
+#. module: logistics_web
+msgid "New Disputes Today"
+msgstr "今日新增争议"
+
+#. module: logistics_web
+msgid "Open Disputes"
+msgstr "待处理争议"
+
+#. module: logistics_web
+msgid "Critical Disputes"
+msgstr "严重争议"
+
+#. module: logistics_web
+msgid "New Today"
+msgstr "今日新增"
+
+#. module: logistics_web
+msgid "Owner"
+msgstr "负责人"
+
+#. module: logistics_web
+msgid "Waybill"
+msgstr "运单"
+
+#. module: logistics_web
+msgid "Batch"
+msgstr "批次"
+
+#. module: logistics_web
+msgid "Waybill Tracking"
+msgstr "运单追踪"
+
+#. module: logistics_web
+msgid "Open Exception"
+msgstr "打开异常"
+
+#. module: logistics_web
+msgid "Open Waybill"
+msgstr "打开运单"
+
+#. module: logistics_web
+msgid "Open Batch"
+msgstr "打开批次"
+
+#. module: logistics_web
+msgid "Open Current Exceptions"
+msgstr "打开当前异常"
+
+#. module: logistics_web
+msgid "Open High Risk Batches"
+msgstr "打开高风险批次"
+
+#. module: logistics_web
+msgid "Open Today's Exceptions"
+msgstr "打开今日异常"
+
+#. module: logistics_web
+msgid "Open Evidence Missing Exceptions"
+msgstr "打开证据缺失异常"
+
+#. module: logistics_web
+msgid "Open Waybill Tracking"
+msgstr "打开运单追踪"
+
+#. module: logistics_web
+msgid "Open Batch Tracking"
+msgstr "打开批次追踪"
+
+#. module: logistics_web
+msgid "Open Batches"
+msgstr "打开批次列表"
+
+#. module: logistics_web
+msgid "Open Waves"
+msgstr "打开波次列表"
+
+#. module: logistics_web
+msgid "Open Exceptions"
+msgstr "打开异常列表"
+
+#. module: logistics_web
+msgid "Delay"
+msgstr "延误"
+
+#. module: logistics_web
+msgid "Damage"
+msgstr "破损"
+
+#. module: logistics_web
+msgid "Missing"
+msgstr "缺失"
+
+#. module: logistics_web
+msgid "Rejected"
+msgstr "拒收"
+
+#. module: logistics_web
+msgid "Store Closed"
+msgstr "门店关闭"
+
+#. module: logistics_web
+msgid "Signoff Problem"
+msgstr "签收异常"
+
+#. module: logistics_web
+msgid "Other"
+msgstr "其他"
+
+#. module: logistics_web
+msgid "Low"
+msgstr "低"
+
+#. module: logistics_web
+msgid "Medium"
+msgstr "中"
+
+#. module: logistics_web
+msgid "High"
+msgstr "高"
+
+#. module: logistics_web
+msgid "Critical"
+msgstr "严重"
+
+#. module: logistics_web
+msgid "Draft"
+msgstr "草稿"
+
+#. module: logistics_web
+msgid "Open"
+msgstr "打开"
+
+#. module: logistics_web
+msgid "Processing"
+msgstr "处理中"
+
+#. module: logistics_web
+msgid "Resolved"
+msgstr "已解决"
+
+#. module: logistics_web
+msgid "Closed"
+msgstr "已关闭"
+
+#. module: logistics_web
+msgid "Cancelled"
+msgstr "已取消"
+
+#. module: logistics_web
+msgid "Trace Timeline"
+msgstr "留痕时间线"
+
+#. module: logistics_web
+msgid "Trace Timeline Fallback"
+msgstr "留痕回退展示"
+
+#. module: logistics_web
+msgid "Evidence Viewer"
+msgstr "证据查看器"
+
+#. module: logistics_web
+msgid "Evidence Fallback"
+msgstr "证据回退展示"
+
+#. module: logistics_web
+msgid "Only With Images"
+msgstr "仅看有图"
+
+#. module: logistics_web
+msgid "Only Exceptions"
+msgstr "仅看异常"
+
+#. module: logistics_web
+msgid "Open Evidence"
+msgstr "打开证据"
+
+#. module: logistics_web
+msgid "Open Related Trace"
+msgstr "打开关联留痕"
+
+#. module: logistics_web
+msgid "Open Related Exceptions"
+msgstr "打开关联异常"
+
+#. module: logistics_web
+msgid "Open Full Image"
+msgstr "打开原图"
+
+#. module: logistics_web
+msgid "By"
+msgstr "提交人"
+
+#. module: logistics_web
+msgid "Check evidence in context before making a handling decision."
+msgstr "做处理判断前，请结合上下文查看证据。"
+
+#. module: logistics_web
+msgid "No trace events are available yet for this waybill."
+msgstr "当前运单还没有留痕事件。"
+
+#. module: logistics_web
+msgid "No evidence images are available yet for this waybill."
+msgstr "当前运单还没有证据图片。"
+
+#. module: logistics_web
+msgid "Latest Trace"
+msgstr "最新留痕"
+
+#. module: logistics_web
+msgid "Arrival Trace Status"
+msgstr "到场留痕状态"
+
+#. module: logistics_web
+msgid "Signoff Trace Status"
+msgstr "签收留痕状态"
+
+#. module: logistics_web
+msgid "Store"
+msgstr "门店"
+
+#. module: logistics_web
+msgid "Customer"
+msgstr "客户"
+
+#. module: logistics_web
+msgid "Driver"
+msgstr "司机"
+
+#. module: logistics_web
+msgid "Evidence"
+msgstr "证据"
+
+#. module: logistics_web
+msgid "Unknown"
+msgstr "未知"
+
+#. module: logistics_web
+msgid "Unknown Waybill"
+msgstr "未知运单"
+
+#. module: logistics_web
+msgid "Exception"
+msgstr "异常"
+
+#. module: logistics_web
+msgid "Trace Event"
+msgstr "留痕事件"
+
+#. module: logistics_web
+msgid "Evidence Preview"
+msgstr "证据预览"
+
+#. module: logistics_web
+msgid "Latest evidence context."
+msgstr "最新证据上下文。"
+
+#. module: logistics_web
+msgid "Latest trace summary will appear here."
+msgstr "最新留痕摘要会显示在这里。"
+
+#. module: logistics_web
+msgid "pending"
+msgstr "待处理"
+
+#. module: logistics_web
+msgid "signoff issue"
+msgstr "签收异常"
+
+#. module: logistics_web
+msgid "Open related trace is not available for this evidence item yet."
+msgstr "当前证据项暂时还不能打开关联留痕。"
+
+#. module: logistics_web
+msgid "Open related exceptions is not available for this evidence item yet."
+msgstr "当前证据项暂时还不能打开关联异常。"
+
+#. module: logistics_web
+msgid "Previous"
+msgstr "上一张"
+
+#. module: logistics_web
+msgid "Next"
+msgstr "下一张"

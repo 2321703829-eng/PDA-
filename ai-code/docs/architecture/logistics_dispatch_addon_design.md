@@ -1,12 +1,12 @@
-# logistics_dispatch Addon 设计稿
+﻿# logistics_dispatch Addon 设计稿
 
 适用范围：
 - 执行主线模块 `logistics_dispatch`
 - 波次、批次、运单、车辆、司机、仓侧执行上下文等对象的 Odoo 承接设计
 
 优先基准：
-- `ai-code/Odoo19物流留痕系统运单主对象与留痕主流程设计.md`
-- `ai-code/Odoo19物流留痕系统五人分工与前端改造安排.md`
+- `ai-code/docs/context/Odoo19物流留痕系统运单主对象与留痕主流程设计.md`
+- `ai-code/docs/dev/project_coordination/Odoo19物流留痕系统五人分工与前端改造安排.md`
 - `ai-code/docs/architecture/ARCHITECTURE.md`
 - `ai-code/docs/architecture/custom_addons_blueprint.md`
 
@@ -354,7 +354,7 @@ logistics_dispatch/
 
 - `运输与调度模块前端设计草案.md`
 - `后台按波次批次运单追溯页面设计.md`
-- `Odoo物流后台前端总体设计总览.md`
+- `前端总体设计总览.md`
 
 对应的前端页面至少包括：
 

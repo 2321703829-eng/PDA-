@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="group_logistics_exception_handler" model="res.groups">
+        <field name="name">Logistics Exception Handler</field>
+        <field name="comment">Can process, resolve, and close logistics exceptions inside the current tenant database.</field>
+        <field name="sequence">234</field>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <record id="rule_logistics_trace_exception_own_read" model="ir.rule">
+        <field name="name">logistics.trace.exception own read</field>
+        <field name="model_id" ref="model_logistics_trace_exception"/>
+        <field name="domain_force">[('reporter_user_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_logistics_trace_exception_manager_read" model="ir.rule">
+        <field name="name">logistics.trace.exception manager read</field>
+        <field name="model_id" ref="model_logistics_trace_exception"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('logistics_trace_evidence.group_logistics_trace_manager'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_logistics_trace_exception_system_read" model="ir.rule">
+        <field name="name">logistics.trace.exception system read</field>
+        <field name="model_id" ref="model_logistics_trace_exception"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('base.group_system'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_logistics_trace_exception_dispatch_manager_read" model="ir.rule">
+        <field name="name">logistics.trace.exception dispatch manager read</field>
+        <field name="model_id" ref="model_logistics_trace_exception"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('logistics_dispatch.group_logistics_dispatch_manager'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_logistics_trace_exception_dispatch_operator_read" model="ir.rule">
+        <field name="name">logistics.trace.exception dispatch operator read</field>
+        <field name="model_id" ref="model_logistics_trace_exception"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('logistics_trace_core.group_logistics_dispatch_operator'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_logistics_trace_exception_readonly_viewer_read" model="ir.rule">
+        <field name="name">logistics.trace.exception readonly viewer read</field>
+        <field name="model_id" ref="model_logistics_trace_exception"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('logistics_trace_core.group_logistics_readonly_viewer'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_logistics_trace_exception_handler_read" model="ir.rule">
+        <field name="name">logistics.trace.exception handler read</field>
+        <field name="model_id" ref="model_logistics_trace_exception"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_logistics_exception_handler'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_logistics_trace_exception_process_log_own_read" model="ir.rule">
+        <field name="name">logistics.trace.exception.process.log own read</field>
+        <field name="model_id" ref="model_logistics_trace_exception_process_log"/>
+        <field name="domain_force">[('exception_id.reporter_user_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_logistics_trace_exception_process_log_manager_read" model="ir.rule">
+        <field name="name">logistics.trace.exception.process.log manager read</field>
+        <field name="model_id" ref="model_logistics_trace_exception_process_log"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('logistics_trace_evidence.group_logistics_trace_manager'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_logistics_trace_exception_process_log_system_read" model="ir.rule">
+        <field name="name">logistics.trace.exception.process.log system read</field>
+        <field name="model_id" ref="model_logistics_trace_exception_process_log"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('base.group_system'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_logistics_trace_exception_process_log_dispatch_manager_read" model="ir.rule">
+        <field name="name">logistics.trace.exception.process.log dispatch manager read</field>
+        <field name="model_id" ref="model_logistics_trace_exception_process_log"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('logistics_dispatch.group_logistics_dispatch_manager'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_logistics_trace_exception_process_log_dispatch_operator_read" model="ir.rule">
+        <field name="name">logistics.trace.exception.process.log dispatch operator read</field>
+        <field name="model_id" ref="model_logistics_trace_exception_process_log"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('logistics_trace_core.group_logistics_dispatch_operator'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_logistics_trace_exception_process_log_readonly_viewer_read" model="ir.rule">
+        <field name="name">logistics.trace.exception.process.log readonly viewer read</field>
+        <field name="model_id" ref="model_logistics_trace_exception_process_log"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('logistics_trace_core.group_logistics_readonly_viewer'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_logistics_trace_exception_process_log_handler_read" model="ir.rule">
+        <field name="name">logistics.trace.exception.process.log handler read</field>
+        <field name="model_id" ref="model_logistics_trace_exception_process_log"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_logistics_exception_handler'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+</odoo>

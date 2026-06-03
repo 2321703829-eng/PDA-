@@ -1,0 +1,15 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_bi_daily_kpi_snapshot_viewer,bi.daily.kpi.snapshot viewer,model_bi_daily_kpi_snapshot,erp_base.group_bi_viewer,1,0,0,0
+access_bi_daily_kpi_snapshot_admin,bi.daily.kpi.snapshot admin,model_bi_daily_kpi_snapshot,erp_base.group_system_admin,1,1,1,0
+access_bi_order_dashboard_snapshot_viewer,bi.order.dashboard.snapshot viewer,model_bi_order_dashboard_snapshot,erp_base.group_bi_viewer,1,0,0,0
+access_bi_order_dashboard_snapshot_admin,bi.order.dashboard.snapshot admin,model_bi_order_dashboard_snapshot,erp_base.group_system_admin,1,1,1,0
+access_bi_warehouse_dashboard_snapshot_viewer,bi.warehouse.dashboard.snapshot viewer,model_bi_warehouse_dashboard_snapshot,erp_base.group_bi_viewer,1,0,0,0
+access_bi_warehouse_dashboard_snapshot_admin,bi.warehouse.dashboard.snapshot admin,model_bi_warehouse_dashboard_snapshot,erp_base.group_system_admin,1,1,1,0
+access_bi_dispatch_dashboard_snapshot_viewer,bi.dispatch.dashboard.snapshot viewer,model_bi_dispatch_dashboard_snapshot,erp_base.group_bi_viewer,1,0,0,0
+access_bi_dispatch_dashboard_snapshot_admin,bi.dispatch.dashboard.snapshot admin,model_bi_dispatch_dashboard_snapshot,erp_base.group_system_admin,1,1,1,0
+access_bi_exception_snapshot_viewer,bi.exception.snapshot viewer,model_bi_exception_snapshot,erp_base.group_bi_viewer,1,0,0,0
+access_bi_exception_snapshot_admin,bi.exception.snapshot admin,model_bi_exception_snapshot,erp_base.group_system_admin,1,1,1,0
+access_bi_cost_profit_snapshot_viewer,bi.cost.profit.snapshot viewer,model_bi_cost_profit_snapshot,erp_base.group_bi_viewer,1,0,0,0
+access_bi_cost_profit_snapshot_admin,bi.cost.profit.snapshot admin,model_bi_cost_profit_snapshot,erp_base.group_system_admin,1,1,1,0
+access_bi_ops_dashboard_board_viewer,bi.ops.dashboard.board viewer,model_bi_ops_dashboard_board,erp_base.group_bi_viewer,1,1,1,1
+access_bi_ops_dashboard_board_admin,bi.ops.dashboard.board admin,model_bi_ops_dashboard_board,erp_base.group_system_admin,1,1,1,1

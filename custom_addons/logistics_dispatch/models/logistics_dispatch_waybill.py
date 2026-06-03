@@ -3,82 +3,72 @@ from odoo.exceptions import ValidationError
 
 
 class LogisticsDispatchWaybill(models.Model):
-    @api.model
-    def get_import_templates(self):
-        return [
-            {
-                "label": _("下载标准模板（英文列头）"),
-                "template": "/api/admin/logistics/imports/waybill-standard/template/download?template_code=TSL-IMPORT-WAYBILL-V2&template_version=v2&template_locale=en_US",
-            },
-            {
-                "label": _("下载标准模板（中文列头）"),
-                "template": "/api/admin/logistics/imports/waybill-standard/template/download?template_code=TSL-IMPORT-WAYBILL-V2&template_version=v2&template_locale=zh_CN",
-            },
-        ]
-
     _name = "logistics.dispatch.waybill"
     _description = "物流运单"
     _order = "delivery_date desc, id desc"
     _rec_name = "name"
 
+    _uniq_waybill_no = models.Constraint(
+        "unique(name)",
+        "运单号必须唯一。",
+    )
+
+    @api.model
+    def get_import_templates(self):
+        return [
+            {
+                "label": _("下载标准模板（英文列头）"),
+                "template": "/api/admin/logistics/imports/waybill-standard/template/download?template_code=TSL-IMPORT-WAYBILL-V3&template_version=v3&template_locale=en_US",
+            },
+            {
+                "label": _("下载标准模板（中文列头）"),
+                "template": "/api/admin/logistics/imports/waybill-standard/template/download?template_code=TSL-IMPORT-WAYBILL-V3&template_version=v3&template_locale=zh_CN",
+            },
+        ]
+
     name = fields.Char(string="运单号", required=True, copy=False, default="新建", index=True)
-    waybill_no = fields.Char(
-        string="运单号（导入导出）",
-        compute="_compute_waybill_no",
-        inverse="_inverse_waybill_no",
-    )
-    delivery_date = fields.Date(string="配送日期", default=fields.Date.context_today)
-    store_id = fields.Many2one(
-        "res.partner",
-        string="门店",
-        domain="[('is_logistics_store', '=', True)]",
-    )
-    store_no = fields.Char(
-        string="门店号（导入导出）",
-        compute="_compute_store_no",
-        inverse="_inverse_store_no",
-    )
-    store_name = fields.Char(
-        string="门店名称（导入导出）",
-        compute="_compute_store_name",
-        inverse="_inverse_store_name",
-    )
-    customer_id = fields.Many2one(
+    waybill_no = fields.Char(string="运单号（导入导出）", compute="_compute_waybill_no", inverse="_inverse_waybill_no")
+    waybill_group_no = fields.Char(string="运单分组号", size=64, index=True)
+    active = fields.Boolean(default=True, index=True)
+    delivery_date = fields.Date(string="配送日期", default=fields.Date.context_today, index=True)
+
+    partner_id = fields.Many2one(
         "res.partner",
         string="客户",
-        domain="[('is_logistics_customer', '=', True)]",
+        store=True,
+        domain="[('is_logistics_partner', '=', True)]",
+        ondelete="set null",
     )
-    customer_no = fields.Char(
-        string="客户号（导入导出）",
-        compute="_compute_customer_no",
-        inverse="_inverse_customer_no",
+    partner_no = fields.Char(string="客户号（导入导出）", compute="_compute_partner_fields", inverse="_inverse_partner_no", store=True)
+    partner_name = fields.Char(string="客户名称（导入导出）", compute="_compute_partner_fields", inverse="_inverse_partner_name", store=True)
+
+    # 兼容字段：保留底层导入与旧联调口径，但用户界面不再直接暴露。
+    store_id = fields.Many2one(
+        "res.partner",
+        string="客户（兼容门店）",
+        domain="[('is_logistics_partner', '=', True)]",
+        ondelete="set null",
     )
+    store_no = fields.Char(string="客户号（兼容门店）", compute="_compute_store_no", inverse="_inverse_store_no")
+    store_name = fields.Char(string="客户名称（兼容门店）", compute="_compute_store_name", inverse="_inverse_store_name")
+    customer_id = fields.Many2one(
+        "res.partner",
+        string="客户（兼容）",
+        domain="[('is_logistics_partner', '=', True)]",
+        ondelete="set null",
+    )
+    customer_no = fields.Char(string="客户号（兼容）", compute="_compute_customer_no", inverse="_inverse_customer_no")
     customer_name = fields.Char(
-        string="客户名称（导入导出）",
+        string="客户名称（兼容）",
         compute="_compute_customer_name",
         inverse="_inverse_customer_name",
     )
-    batch_id = fields.Many2one("logistics.dispatch.batch", string="批次", ondelete="set null")
-    batch_no = fields.Char(
-        string="批次号（导入导出）",
-        compute="_compute_batch_no",
-        inverse="_inverse_batch_no",
-    )
-    wave_id = fields.Many2one(
-        "logistics.dispatch.wave",
-        string="波次",
-        related="batch_id.wave_id",
-        store=True,
-        readonly=True,
-    )
+
+    batch_id = fields.Many2one("logistics.dispatch.batch", string="批次", ondelete="cascade", index=True)
+    batch_no = fields.Char(string="批次号（导入导出）", compute="_compute_batch_no", inverse="_inverse_batch_no")
+    wave_id = fields.Many2one("logistics.dispatch.wave", string="波次", related="batch_id.wave_id", store=True, readonly=True)
     warehouse_id = fields.Many2one("stock.warehouse", string="仓库")
-    vehicle_id = fields.Many2one(
-        "fleet.vehicle",
-        string="车辆",
-        related="batch_id.vehicle_id",
-        store=True,
-        readonly=True,
-    )
+    vehicle_id = fields.Many2one("fleet.vehicle", string="车辆", related="batch_id.vehicle_id", store=True, readonly=True)
     driver_employee_id = fields.Many2one(
         "hr.employee",
         string="司机",
@@ -86,7 +76,10 @@ class LogisticsDispatchWaybill(models.Model):
         store=True,
         readonly=True,
     )
-    route_seq = fields.Integer(string="路线顺序", default=10)
+    organization_name_snapshot = fields.Char(string="组织快照", size=64)
+    warehouse_name_snapshot = fields.Char(string="仓库快照", size=64)
+    route_name_snapshot = fields.Char(string="线路快照", size=64)
+    route_seq = fields.Integer(string="线路顺序", default=10)
     state = fields.Selection(
         [
             ("draft", "草稿"),
@@ -102,93 +95,51 @@ class LogisticsDispatchWaybill(models.Model):
         required=True,
     )
     arrive_trace_status = fields.Selection(
-        [("pending", "待补充"), ("partial", "部分完成"), ("done", "已完成")],
+        [("pending", "待补全"), ("partial", "部分完成"), ("done", "已完成")],
         string="到店留痕",
         default="pending",
     )
     signoff_trace_status = fields.Selection(
-        [("pending", "待补充"), ("partial", "部分完成"), ("done", "已完成")],
+        [("pending", "待补全"), ("partial", "部分完成"), ("done", "已完成")],
         string="签收留痕",
         default="pending",
     )
     exception_status = fields.Selection(
-        [
-            ("none", "无异常"),
-            ("open", "待处理"),
-            ("processing", "处理中"),
-            ("closed", "已关闭"),
-        ],
+        [("none", "无异常"), ("open", "待处理"), ("processing", "处理中"), ("closed", "已关闭")],
         string="异常状态",
         default="none",
         required=True,
     )
     evidence_status = fields.Selection(
-        [("missing", "待补充"), ("partial", "部分齐全"), ("complete", "已齐全")],
+        [("missing", "待补全"), ("partial", "部分齐全"), ("complete", "已齐全")],
         string="证据状态",
         default="missing",
         required=True,
     )
-    risk_level = fields.Selection(
-        [("low", "低"), ("medium", "中"), ("high", "高")],
-        string="风险等级",
-        default="low",
-    )
+    risk_level = fields.Selection([("low", "低"), ("medium", "中"), ("high", "高")], string="风险等级", default="low")
     latest_trace_time = fields.Datetime(string="最新留痕时间")
     latest_trace_type = fields.Char(string="最新留痕类型")
     latest_trace_summary = fields.Char(string="最新留痕摘要")
     trace_count = fields.Integer(string="留痕数", default=0)
     evidence_count = fields.Integer(string="证据数", default=0)
     open_exception_count = fields.Integer(string="待处理异常数", default=0)
-    order_line_ids = fields.One2many(
-        "logistics.dispatch.waybill.order.line",
-        "waybill_id",
-        string="订单明细",
-    )
-    customer_line_ids = fields.One2many(
+    order_line_ids = fields.One2many("logistics.dispatch.waybill.order.line", "waybill_id", string="订单明细")
+    customer_line_ids = fields.One2many("logistics.dispatch.waybill.customer.line", "waybill_id", string="配送节点明细")
+    stop_ids = fields.One2many(
         "logistics.dispatch.waybill.customer.line",
         "waybill_id",
-        string="客户明细",
+        string="停靠点（兼容）",
     )
-    goods_line_ids = fields.One2many(
-        "logistics.dispatch.waybill.customer.goods.line",
-        "waybill_id",
-        string="货物明细",
-    )
-    order_line_count = fields.Integer(
-        string="明细数",
-        compute="_compute_order_line_count",
-        store=True,
-    )
-    customer_line_count = fields.Integer(
-        string="客户数",
-        compute="_compute_detail_counts",
-        store=True,
-    )
-    goods_line_count = fields.Integer(
-        string="货物条数",
-        compute="_compute_detail_counts",
-        store=True,
-    )
-    total_goods_qty = fields.Float(
-        string="货物总数量",
-        compute="_compute_detail_counts",
-        store=True,
-    )
-    total_package_count = fields.Integer(
-        string="货物总件数",
-        compute="_compute_detail_counts",
-        store=True,
-    )
-    total_goods_weight = fields.Float(
-        string="货物总重量",
-        compute="_compute_detail_counts",
-        store=True,
-    )
-    total_goods_volume = fields.Float(
-        string="货物总体积",
-        compute="_compute_detail_counts",
-        store=True,
-    )
+    goods_line_ids = fields.One2many("logistics.dispatch.waybill.customer.goods.line", "waybill_id", string="货物明细")
+    order_line_count = fields.Integer(string="订单数", compute="_compute_order_line_count", store=True)
+    order_refs_summary = fields.Char(string="订单号汇总", compute="_compute_order_summary", store=True)
+    customer_line_count = fields.Integer(string="配送节点数", compute="_compute_detail_counts", store=True)
+    goods_line_count = fields.Integer(string="货物条数", compute="_compute_detail_counts", store=True)
+    total_goods_qty = fields.Float(string="货物总数量", compute="_compute_detail_counts", store=True)
+    total_package_count = fields.Integer(string="货物总件数", compute="_compute_detail_counts", store=True)
+    total_goods_weight = fields.Float(string="货物总重量", compute="_compute_detail_counts", store=True)
+    total_goods_volume = fields.Float(string="货物总体积", compute="_compute_detail_counts", store=True)
+    delivery_remark_snapshot = fields.Text(string="运单备注")
     remark = fields.Text(string="备注")
 
     @api.depends("name")
@@ -201,25 +152,51 @@ class LogisticsDispatchWaybill(models.Model):
         for record in self:
             record.batch_no = record.batch_id.name or ""
 
-    @api.depends("customer_id.logistics_customer_code")
+    @api.depends("customer_id.logistics_customer_code", "customer_id.logistics_store_code", "customer_id.external_customer_code")
     def _compute_customer_no(self):
         for record in self:
-            record.customer_no = record.customer_id.logistics_customer_code or ""
+            record.customer_no = (
+                record.customer_id.external_customer_code
+                or record.customer_id.logistics_customer_code
+                or record.customer_id.logistics_store_code
+                or ""
+            )
 
     @api.depends("customer_id.name")
     def _compute_customer_name(self):
         for record in self:
             record.customer_name = record.customer_id.name or ""
 
-    @api.depends("store_id.logistics_store_code")
+    @api.depends("store_id.logistics_store_code", "store_id.external_customer_code", "store_id.logistics_customer_code")
     def _compute_store_no(self):
         for record in self:
-            record.store_no = record.store_id.logistics_store_code or ""
+            record.store_no = record.store_id.external_customer_code or record.store_id.logistics_customer_code or record.store_id.logistics_store_code or ""
 
     @api.depends("store_id.name")
     def _compute_store_name(self):
         for record in self:
             record.store_name = record.store_id.name or ""
+
+    @api.depends(
+        "partner_id",
+        "partner_id.external_customer_code",
+        "partner_id.internal_customer_code",
+        "partner_id.logistics_customer_code",
+        "partner_id.name",
+        "customer_id",
+        "store_id",
+    )
+    def _compute_partner_fields(self):
+        for record in self:
+            partner = record.partner_id or record.customer_id or record.store_id
+            record.partner_no = (
+                partner.external_customer_code
+                or partner.internal_customer_code
+                or partner.logistics_customer_code
+                or partner.logistics_store_code
+                or ""
+            )
+            record.partner_name = partner.name or ""
 
     def _inverse_waybill_no(self):
         for record in self:
@@ -233,31 +210,63 @@ class LogisticsDispatchWaybill(models.Model):
     def _inverse_customer_no(self):
         for record in self:
             customer_no = (record.customer_no or "").strip()
-            record.customer_id = self._resolve_partner_by_code(customer_no, "customer") if customer_no else False
+            partner = self._resolve_partner_by_code(customer_no) if customer_no else False
+            record._apply_partner_link(partner)
 
     def _inverse_customer_name(self):
         for record in self:
             customer_name = (record.customer_name or "").strip()
-            record.customer_id = (
-                self._resolve_partner_by_name(customer_name, "customer") if customer_name else False
-            )
+            partner = self._resolve_partner_by_name(customer_name) if customer_name else False
+            record._apply_partner_link(partner)
 
     def _inverse_store_no(self):
         for record in self:
             store_no = (record.store_no or "").strip()
-            record.store_id = self._resolve_partner_by_code(store_no, "store") if store_no else False
+            partner = self._resolve_partner_by_code(store_no) if store_no else False
+            record._apply_partner_link(partner)
 
     def _inverse_store_name(self):
         for record in self:
             store_name = (record.store_name or "").strip()
-            record.store_id = self._resolve_partner_by_name(store_name, "store") if store_name else False
+            partner = self._resolve_partner_by_name(store_name) if store_name else False
+            record._apply_partner_link(partner)
+
+    def _inverse_partner_id(self):
+        for record in self:
+            record._apply_partner_link(record.partner_id)
+
+    def _inverse_partner_no(self):
+        for record in self:
+            partner_no = (record.partner_no or "").strip()
+            partner = self._resolve_partner_by_code(partner_no) if partner_no else False
+            record._apply_partner_link(partner)
+
+    def _inverse_partner_name(self):
+        for record in self:
+            partner_name = (record.partner_name or "").strip()
+            partner = self._resolve_partner_by_name(partner_name) if partner_name else False
+            record._apply_partner_link(partner)
+
+    def _apply_partner_link(self, partner):
+        link_vals = self._prepare_partner_link_vals(partner)
+        for record in self:
+            record.update(link_vals)
+
+    @api.model
+    def _prepare_partner_link_vals(self, partner):
+        partner_id = partner.id if partner else False
+        return {
+            "partner_id": partner_id,
+            "customer_id": partner_id,
+            "store_id": partner_id,
+        }
 
     @api.model
     def _ensure_unique_record(self, records, field_label, value):
         if not records:
-            raise ValidationError(f"未找到{field_label}“{value}”对应的记录。")
+            raise ValidationError(f"未找到“{field_label} = {value}”对应的记录。")
         if len(records) > 1:
-            raise ValidationError(f"{field_label}“{value}”匹配到多条记录，请先去重。")
+            raise ValidationError(f"“{field_label} = {value}”匹配到多条记录，请先去重。")
         return records
 
     @api.model
@@ -266,30 +275,143 @@ class LogisticsDispatchWaybill(models.Model):
         return self._ensure_unique_record(batches, "批次号", batch_no)
 
     @api.model
-    def _resolve_partner_by_code(self, code, partner_type):
-        field_name = "logistics_customer_code" if partner_type == "customer" else "logistics_store_code"
-        flag_name = "is_logistics_customer" if partner_type == "customer" else "is_logistics_store"
-        label = "客户号" if partner_type == "customer" else "门店号"
+    def _resolve_partner_by_code(self, code):
         partners = self.env["res.partner"].search(
-            [(field_name, "=", code), (flag_name, "=", True)],
+            [
+                ("is_logistics_partner", "=", True),
+                "|",
+                "|",
+                "|",
+                ("external_customer_code", "=", code),
+                ("internal_customer_code", "=", code),
+                ("logistics_customer_code", "=", code),
+                ("logistics_store_code", "=", code),
+            ],
             limit=2,
         )
-        return self._ensure_unique_record(partners, label, code)
+        return self._ensure_unique_record(partners, "客户号", code)
 
     @api.model
-    def _resolve_partner_by_name(self, name, partner_type):
-        flag_name = "is_logistics_customer" if partner_type == "customer" else "is_logistics_store"
-        label = "客户名称" if partner_type == "customer" else "门店名称"
+    def _resolve_partner_by_name(self, name):
         partners = self.env["res.partner"].search(
-            [("name", "=", name), (flag_name, "=", True)],
+            [("name", "=", name), ("is_logistics_partner", "=", True)],
             limit=2,
         )
-        return self._ensure_unique_record(partners, label, name)
+        return self._ensure_unique_record(partners, "客户名称", name)
+
+    @api.model
+    def _build_snapshot_vals(self, normalized_vals):
+        batch = self.env["logistics.dispatch.batch"].browse(normalized_vals.get("batch_id"))
+        warehouse = self.env["stock.warehouse"].browse(normalized_vals.get("warehouse_id")) or batch.warehouse_id
+        partner = self.env["res.partner"].browse(normalized_vals.get("partner_id"))
+        return {
+            "organization_name_snapshot": partner.organization_name or batch.wave_id.organization_name_snapshot or warehouse.company_id.name or False,
+            "warehouse_name_snapshot": warehouse.name or False,
+            "route_name_snapshot": batch.route_name_snapshot or batch.route_summary or False,
+            "delivery_remark_snapshot": normalized_vals.get("delivery_remark_snapshot") or normalized_vals.get("remark") or False,
+        }
+
+    @api.model
+    def _normalize_partner_vals(self, vals):
+        normalized_vals = dict(vals)
+        partner = False
+        partner_fields = {
+            "partner_id",
+            "customer_id",
+            "store_id",
+            "partner_no",
+            "customer_no",
+            "store_no",
+            "partner_name",
+            "customer_name",
+            "store_name",
+        }
+        partner_supplied = any(field_name in normalized_vals for field_name in partner_fields)
+
+        if "partner_id" in normalized_vals:
+            partner = self.env["res.partner"].browse(normalized_vals["partner_id"]) if normalized_vals["partner_id"] else False
+        elif "customer_id" in normalized_vals and normalized_vals["customer_id"]:
+            partner = self.env["res.partner"].browse(normalized_vals["customer_id"])
+        elif "store_id" in normalized_vals and normalized_vals["store_id"]:
+            partner = self.env["res.partner"].browse(normalized_vals["store_id"])
+        elif "partner_no" in normalized_vals:
+            partner_no = (normalized_vals.pop("partner_no") or "").strip()
+            partner = self._resolve_partner_by_code(partner_no) if partner_no else False
+        elif "customer_no" in normalized_vals:
+            customer_no = (normalized_vals.pop("customer_no") or "").strip()
+            partner = self._resolve_partner_by_code(customer_no) if customer_no else False
+        elif "store_no" in normalized_vals:
+            store_no = (normalized_vals.pop("store_no") or "").strip()
+            partner = self._resolve_partner_by_code(store_no) if store_no else False
+        elif "partner_name" in normalized_vals:
+            partner_name = (normalized_vals.pop("partner_name") or "").strip()
+            partner = self._resolve_partner_by_name(partner_name) if partner_name else False
+        elif "customer_name" in normalized_vals:
+            customer_name = (normalized_vals.pop("customer_name") or "").strip()
+            partner = self._resolve_partner_by_name(customer_name) if customer_name else False
+        elif "store_name" in normalized_vals:
+            store_name = (normalized_vals.pop("store_name") or "").strip()
+            partner = self._resolve_partner_by_name(store_name) if store_name else False
+
+        if "waybill_no" in normalized_vals:
+            normalized_vals["name"] = (normalized_vals.pop("waybill_no") or "").strip() or normalized_vals.get("name") or "新建"
+        if "batch_no" in normalized_vals and not normalized_vals.get("batch_id"):
+            batch_no = (normalized_vals.pop("batch_no") or "").strip()
+            normalized_vals["batch_id"] = self._resolve_batch_by_no(batch_no).id if batch_no else False
+
+        batch_id = normalized_vals.get("batch_id")
+        if batch_id and not normalized_vals.get("warehouse_id"):
+            batch = self.env["logistics.dispatch.batch"].browse(batch_id)
+            normalized_vals["warehouse_id"] = batch.warehouse_id.id
+
+        if partner_supplied:
+            normalized_vals.update(self._prepare_partner_link_vals(partner))
+
+        refresh_snapshot = not self.env.context.get("skip_waybill_snapshot_sync") and (
+            self.env.context.get("waybill_snapshot_force")
+            or any(
+                field_name in normalized_vals
+                for field_name in (
+                    "batch_id",
+                    "warehouse_id",
+                    "partner_id",
+                    "customer_id",
+                    "store_id",
+                    "remark",
+                )
+            )
+        )
+        if refresh_snapshot:
+            snapshot_vals = self._build_snapshot_vals(normalized_vals)
+            for field_name, field_value in snapshot_vals.items():
+                if field_name not in normalized_vals:
+                    normalized_vals[field_name] = field_value
+
+        return normalized_vals
+
+    @api.constrains("batch_id", "warehouse_id")
+    def _check_batch_warehouse_consistency(self):
+        for record in self:
+            if record.batch_id and not record.warehouse_id:
+                raise ValidationError("Waybill warehouse is required when batch_id is set.")
+            if record.batch_id and record.warehouse_id and record.batch_id.warehouse_id != record.warehouse_id:
+                raise ValidationError("Waybill warehouse must match its batch warehouse.")
 
     @api.depends("order_line_ids")
     def _compute_order_line_count(self):
         for record in self:
             record.order_line_count = len(record.order_line_ids)
+
+    @api.depends("order_line_ids.order_no", "order_line_ids.sales_order_no")
+    def _compute_order_summary(self):
+        for record in self:
+            order_refs = []
+            for line in record.order_line_ids:
+                for value in (line.sales_order_no, line.order_no):
+                    normalized = (value or "").strip()
+                    if normalized and normalized not in order_refs:
+                        order_refs.append(normalized)
+            record.order_refs_summary = " / ".join(order_refs[:5])
 
     @api.depends(
         "customer_line_ids",
@@ -308,72 +430,167 @@ class LogisticsDispatchWaybill(models.Model):
             record.total_goods_weight = sum(record.goods_line_ids.mapped("weight"))
             record.total_goods_volume = sum(record.goods_line_ids.mapped("volume"))
 
-    @api.onchange("store_id")
-    def _onchange_store_id(self):
+    @api.onchange("partner_id")
+    def _onchange_partner_id(self):
         for record in self:
-            if record.store_id and record.store_id.parent_id and not record.customer_id:
-                record.customer_id = record.store_id.parent_id
+            record._apply_partner_link(record.partner_id)
 
     @api.onchange("batch_id")
     def _onchange_batch_id(self):
         for record in self:
-            if record.batch_id and not record.warehouse_id:
+            if record.batch_id:
                 record.warehouse_id = record.batch_id.warehouse_id
 
     @api.model_create_multi
     def create(self, vals_list):
+        normalized_vals_list = []
         for vals in vals_list:
-            if "waybill_no" in vals:
-                vals["name"] = (vals.pop("waybill_no") or "").strip() or vals.get("name") or "新建"
-            if "batch_no" in vals and not vals.get("batch_id"):
-                batch_no = (vals.pop("batch_no") or "").strip()
-                vals["batch_id"] = self._resolve_batch_by_no(batch_no).id if batch_no else False
-            if "customer_no" in vals and not vals.get("customer_id"):
-                customer_no = (vals.pop("customer_no") or "").strip()
-                vals["customer_id"] = (
-                    self._resolve_partner_by_code(customer_no, "customer").id if customer_no else False
-                )
-            if "customer_name" in vals and not vals.get("customer_id"):
-                customer_name = (vals.pop("customer_name") or "").strip()
-                vals["customer_id"] = (
-                    self._resolve_partner_by_name(customer_name, "customer").id if customer_name else False
-                )
-            if "store_no" in vals and not vals.get("store_id"):
-                store_no = (vals.pop("store_no") or "").strip()
-                vals["store_id"] = self._resolve_partner_by_code(store_no, "store").id if store_no else False
-            if "store_name" in vals and not vals.get("store_id"):
-                store_name = (vals.pop("store_name") or "").strip()
-                vals["store_id"] = self._resolve_partner_by_name(store_name, "store").id if store_name else False
-            if vals.get("name", "新建") in ("New", "新建"):
-                vals["name"] = self.env["ir.sequence"].next_by_code("logistics.dispatch.waybill") or "新建"
-        return super().create(vals_list)
+            normalized_vals = self.with_context(waybill_snapshot_force=True)._normalize_partner_vals(vals)
+            if normalized_vals.get("name", "新建") in ("New", "新建"):
+                normalized_vals["name"] = self.env["ir.sequence"].next_by_code("logistics.dispatch.waybill") or "新建"
+            normalized_vals_list.append(normalized_vals)
+        return super().create(normalized_vals_list)
 
     def write(self, vals):
-        vals = dict(vals)
-        if "waybill_no" in vals:
-            waybill_no = (vals.pop("waybill_no") or "").strip()
-            if waybill_no:
-                vals["name"] = waybill_no
-        if "batch_no" in vals and "batch_id" not in vals:
-            batch_no = (vals.pop("batch_no") or "").strip()
-            vals["batch_id"] = self._resolve_batch_by_no(batch_no).id if batch_no else False
-        if "customer_no" in vals and "customer_id" not in vals:
-            customer_no = (vals.pop("customer_no") or "").strip()
-            vals["customer_id"] = (
-                self._resolve_partner_by_code(customer_no, "customer").id if customer_no else False
-            )
-        if "customer_name" in vals and "customer_id" not in vals:
-            customer_name = (vals.pop("customer_name") or "").strip()
-            vals["customer_id"] = (
-                self._resolve_partner_by_name(customer_name, "customer").id if customer_name else False
-            )
-        if "store_no" in vals and "store_id" not in vals:
-            store_no = (vals.pop("store_no") or "").strip()
-            vals["store_id"] = self._resolve_partner_by_code(store_no, "store").id if store_no else False
-        if "store_name" in vals and "store_id" not in vals:
-            store_name = (vals.pop("store_name") or "").strip()
-            vals["store_id"] = self._resolve_partner_by_name(store_name, "store").id if store_name else False
-        return super().write(vals)
+        normalized_vals = self._normalize_partner_vals(vals)
+        res = super().write(normalized_vals)
+        # P5: 状态推进自动生成留痕事件
+        if "state" in vals:
+            for waybill in self:
+                waybill._auto_create_trace_event(vals.get("state"))
+                # P4: 状态变为 ready → 自动生成 TMS 派车单和司机任务
+                if vals.get("state") in ("ready", "in_transit"):
+                    waybill._auto_generate_tms_objects()
+        return res
+
+    def _auto_create_trace_event(self, new_state):
+        """运单状态变化 → 自动创建 logistics.trace.event"""
+        self.ensure_one()
+        # 如果 logistics_trace_core 模块未加载,跳过
+        if "logistics.trace.event" not in self.env.registry:
+            return
+        state_trace_type = {
+            "ready": "arrive",       # 到仓
+            "in_transit": "leave",   # 发车
+            "arrived": "arrive",     # 到店
+            "signed": "sign",        # 签收
+        }
+        trace_type = state_trace_type.get(new_state)
+        if not trace_type:
+            return
+        # 检查是否已有同类留痕
+        existing = self.env["logistics.trace.event"].sudo().search([
+            ("waybill_id", "=", self.id),
+            ("trace_type", "=", trace_type),
+        ], limit=1)
+        if existing:
+            return
+        self.env["logistics.trace.event"].sudo().create({
+            "biz_type": "waybill",
+            "waybill_no": self.waybill_no or self.name,
+            "batch_no": self.batch_id.batch_no if self.batch_id else "",
+            "trace_type": trace_type,
+            "waybill_id": self.id,
+            "batch_id": self.batch_id.id,
+        })
+        # 反写证据状态
+        if new_state == "signed":
+            self.write({"evidence_status": "available"})
+
+    # ========== P4: 运单/批次 → TMS 对象自动生成 ==========
+    def _auto_generate_tms_objects(self):
+        """运单 ready 后自动生成 TMS 派车单 + 司机任务 + 节点"""
+        self.ensure_one()
+        batch = self.batch_id
+        if not batch:
+            return
+        # P5: 确保车辆主档存在
+        vehicle = self._ensure_vehicle(batch)
+        driver_employee = batch.driver_employee_id
+        # 生成派车单
+        existing_dispatch = self.env["tms.dispatch.order"].sudo().search([
+            ("route_batch_id", "=", batch.id),
+        ], limit=1)
+        if not existing_dispatch:
+            dispatch = self.env["tms.dispatch.order"].sudo().create({
+                "route_batch_id": batch.id,
+                "warehouse_id": self.warehouse_id.id,
+                "driver_profile_id": self._ensure_driver_profile(driver_employee).id,
+                "vehicle_profile_id": self._ensure_vehicle_profile(vehicle).id,
+                "state": "dispatched",
+            })
+            # 绑定车辆和司机到批次
+            batch.write({
+                "vehicle_id": vehicle.id if vehicle else False,
+                "driver_employee_id": driver_employee.id if driver_employee else False,
+            })
+        else:
+            dispatch = existing_dispatch
+        # 生成司机任务(已有则跳过)
+        existing_task = self.env["tms.driver.task"].sudo().search([
+            ("dispatch_order_id", "=", dispatch.id),
+            ("waybill_id", "=", self.id),
+        ], limit=1)
+        if not existing_task:
+            task = self.env["tms.driver.task"].sudo().create({
+                "dispatch_order_id": dispatch.id,
+                "waybill_id": self.id,
+                "state": "waiting_dispatch",
+                "waybill_no": self.waybill_no or self.name,
+            })
+            # 为每条配送节点创建 TMS 节点
+            for cust_line in self.customer_line_ids:
+                self.env["tms.driver.task.node"].sudo().create({
+                    "driver_task_id": task.id,
+                    "store_id": cust_line.partner_id.id,
+                    "sequence": cust_line.sequence or 1,
+                    "state": "departed",
+                })
+
+    def _ensure_vehicle(self, batch):
+        """P5: 确保车辆主档存在,没有就创建一个默认车辆"""
+        if batch.vehicle_id:
+            return batch.vehicle_id
+        vehicle = self.env["fleet.vehicle"].sudo().search([], limit=1)
+        if not vehicle:
+            model = self.env["fleet.vehicle.model"].sudo().search([], limit=1)
+            if not model:
+                brand = self.env["fleet.vehicle.model.brand"].sudo().search([], limit=1)
+                if not brand:
+                    brand = self.env["fleet.vehicle.model.brand"].sudo().create({"name": "默认品牌"})
+                model = self.env["fleet.vehicle.model"].sudo().create({
+                    "name": "默认车型",
+                    "brand_id": brand.id,
+                })
+            vehicle = self.env["fleet.vehicle"].sudo().create({
+                "model_id": model.id,
+                "license_plate": "DEFAULT-001",
+            })
+        return vehicle
+
+    def _ensure_driver_profile(self, driver_employee):
+        profile = self.env["logistics.driver.profile"].sudo().search([
+            ("employee_id", "=", driver_employee.id),
+        ], limit=1) if driver_employee else None
+        if not profile and driver_employee:
+            profile = self.env["logistics.driver.profile"].sudo().create({
+                "name": driver_employee.name,
+                "employee_id": driver_employee.id,
+            })
+        return profile
+
+    def _ensure_vehicle_profile(self, vehicle):
+        if not vehicle:
+            return None
+        profile = self.env["logistics.vehicle.profile"].sudo().search([
+            ("vehicle_id", "=", vehicle.id),
+        ], limit=1)
+        if not profile:
+            profile = self.env["logistics.vehicle.profile"].sudo().create({
+                "name": vehicle.license_plate or vehicle.name,
+                "vehicle_id": vehicle.id,
+            })
+        return profile
 
     def action_open_batch(self):
         self.ensure_one()
@@ -404,11 +621,35 @@ class LogisticsDispatchWaybill(models.Model):
             "context": {"default_waybill_id": self.id},
         }
 
+    def _logistics_delete_related(self, model_name, domain):
+        if model_name not in self.env.registry:
+            return
+        records = self.env[model_name].sudo().search(domain)
+        if not records:
+            return
+        if hasattr(records, "action_logistics_delete"):
+            records.action_logistics_delete()
+            return
+        records.unlink()
+
+    def action_logistics_delete(self):
+        waybill_ids = self.ids
+        self._logistics_delete_related("logistics.trace.exception", [("waybill_id", "in", waybill_ids)])
+        self._logistics_delete_related("logistics.trace.evidence", [("waybill_id", "in", waybill_ids)])
+        self._logistics_delete_related("logistics.trace.event", [("waybill_id", "in", waybill_ids)])
+        self.customer_line_ids.action_logistics_delete()
+        self.order_line_ids.action_logistics_delete()
+        self.unlink()
+        return True
+
+    def action_logistics_archive(self):
+        return self.action_logistics_delete()
+
     def action_open_customer_lines(self):
         self.ensure_one()
         return {
             "type": "ir.actions.act_window",
-            "name": _("客户明细"),
+            "name": _("配送节点明细"),
             "res_model": "logistics.dispatch.waybill.customer.line",
             "view_mode": "list,form",
             "domain": [("waybill_id", "=", self.id)],
@@ -425,37 +666,3 @@ class LogisticsDispatchWaybill(models.Model):
             "domain": [("waybill_id", "=", self.id)],
             "context": {"default_waybill_id": self.id},
         }
-    def action_open_trace_events(self):
-        self.ensure_one()
-        return {
-            "type": "ir.actions.act_window",
-            "name": _("Trace Events"),
-            "res_model": "logistics.trace.event",
-            "view_mode": "list,form",
-            "domain": [("waybill_id", "=", self.id)],
-            "context": {
-                "default_waybill_id": self.id,
-                "default_batch_id": self.batch_id.id,
-                "default_object_type": "waybill",
-            },
-        }
-
-    def action_open_evidences(self):
-        self.ensure_one()
-        return {
-            "type": "ir.actions.act_window",
-            "name": _("Image Evidences"),
-            "res_model": "logistics.trace.evidence",
-            "view_mode": "list,form",
-            "domain": [("waybill_id", "=", self.id)],
-            "context": {
-                "default_waybill_id": self.id,
-                "search_default_waybill_id": self.id,
-            },
-        }
-
-    def unlink(self):
-        legacy_stop_keys = self.mapped("stop_ids")._legacy_stop_keys()
-        result = super().unlink()
-        self.env["logistics.dispatch.waybill.stop"]._delete_legacy_stop_rows(legacy_stop_keys)
-        return result

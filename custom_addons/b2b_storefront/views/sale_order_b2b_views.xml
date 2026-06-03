@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="sale_order_form_b2b" model="ir.ui.view">
+        <field name="name">sale.order.form.b2b</field><field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="source_channel"/>
+                <field name="store_partner_id"/>
+            </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page string="B2B 信息" name="b2b_info">
+                    <group><field name="b2b_payment_method"/><field name="b2b_submit_user_id"/></group>
+                    <group><field name="delivery_time_required"/><field name="b2b_submit_note"/></group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

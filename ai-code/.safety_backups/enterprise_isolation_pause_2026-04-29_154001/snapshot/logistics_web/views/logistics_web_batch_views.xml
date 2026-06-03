@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_logistics_web_batch_form_inherit_driver_export" model="ir.ui.view">
+        <field name="name">logistics.dispatch.batch.form.logistics.web.driver.export</field>
+        <field name="model">logistics.dispatch.batch</field>
+        <field name="inherit_id" ref="logistics_dispatch.view_logistics_dispatch_batch_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form/sheet/group[1]" position="before">
+                <div name="button_box" class="oe_button_box">
+                    <button
+                        name="action_open_driver_route_export"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-road"
+                        groups="logistics_dispatch.group_logistics_export_user"
+                        string="司机路线导出"/>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

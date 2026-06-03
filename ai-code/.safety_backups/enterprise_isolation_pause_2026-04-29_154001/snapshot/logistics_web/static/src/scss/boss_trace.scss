@@ -1,0 +1,424 @@
+.o_logistics_boss_page {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.o_logistics_web_page_header.o_logistics_web_page_hero.o_logistics_boss_page_hero,
+.o_logistics_web_page_hero.o_logistics_boss_page_hero {
+    align-items: stretch;
+    border-color: rgba(255, 255, 255, 0.14) !important;
+    background-color: #123d67 !important;
+    background:
+        radial-gradient(circle at 16% 18%, rgba(118, 230, 255, 0.16), transparent 24%),
+        radial-gradient(circle at 78% 16%, rgba(255, 217, 138, 0.12), transparent 18%),
+        radial-gradient(circle at 86% 78%, rgba(42, 231, 203, 0.16), transparent 26%),
+        linear-gradient(135deg, rgba(10, 58, 96, 0.99) 0%, rgba(16, 102, 143, 0.97) 54%, rgba(24, 163, 169, 0.95) 100%) !important;
+    box-shadow: 0 26px 48px rgba(9, 54, 86, 0.24) !important;
+}
+
+.o_logistics_web_page_header.o_logistics_web_page_hero.o_logistics_boss_page_hero::before,
+.o_logistics_web_page_hero.o_logistics_boss_page_hero::before {
+    inset: auto -40px -58px auto;
+    width: 210px;
+    height: 210px;
+    background: radial-gradient(circle, rgba(133, 237, 255, 0.16) 0%, rgba(133, 237, 255, 0) 72%) !important;
+}
+
+.o_logistics_web_page_header.o_logistics_web_page_hero.o_logistics_boss_page_hero::after,
+.o_logistics_web_page_hero.o_logistics_boss_page_hero::after {
+    background: linear-gradient(90deg, rgba(5, 28, 46, 0.18) 0%, rgba(5, 28, 46, 0.06) 42%, rgba(5, 28, 46, 0.01) 100%) !important;
+}
+
+.o_logistics_boss_page_hero .o_logistics_web_page_kicker {
+    background: rgba(255, 255, 255, 0.16);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 10px 24px rgba(32, 29, 78, 0.16);
+}
+
+.o_logistics_boss_page_hero h1 {
+    margin: 0;
+    font-family: var(--lw-font-display);
+    font-size: clamp(30px, 4vw, 42px);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: #ffffff;
+    text-shadow: 0 6px 24px rgba(17, 18, 44, 0.28);
+}
+
+.o_logistics_boss_page_hero p {
+    max-width: 760px;
+    font-size: 15px;
+    line-height: 1.75;
+    color: rgba(248, 248, 255, 0.92);
+}
+
+.o_logistics_boss_page_hero .o_logistics_web_status_tag {
+    color: #3a336f;
+    background: rgba(249, 248, 255, 0.96);
+    border-color: rgba(255, 255, 255, 0.26);
+    box-shadow: 0 10px 22px rgba(28, 28, 64, 0.14);
+}
+
+.o_logistics_boss_page_hero .o_logistics_web_page_note {
+    background: rgba(36, 33, 76, 0.24);
+    border-color: rgba(255, 255, 255, 0.16);
+    box-shadow: 0 18px 34px rgba(28, 25, 68, 0.18);
+    backdrop-filter: blur(12px);
+}
+
+.o_logistics_boss_page_hero .o_logistics_web_page_note span {
+    color: rgba(248, 248, 255, 0.9);
+}
+
+.o_logistics_boss_section {
+    margin-bottom: 0;
+}
+
+.o_logistics_boss_section .o_logistics_web_section_heading {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 18px;
+}
+
+.o_logistics_boss_section .o_logistics_web_section_heading h2 {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+}
+
+.o_logistics_boss_section .o_logistics_web_section_heading p {
+    max-width: 780px;
+    line-height: 1.7;
+}
+
+.o_logistics_boss_summary_band {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.o_logistics_boss_summary_card {
+    position: relative;
+    min-height: 192px;
+    justify-content: space-between;
+    padding: 22px 20px 20px;
+    border: 1px solid rgba(35, 72, 111, 0.1);
+    border-radius: 24px;
+    background:
+        radial-gradient(circle at top right, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0) 38%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.99) 0%, rgba(244, 248, 253, 0.98) 100%);
+    box-shadow: 0 18px 32px rgba(16, 44, 74, 0.09);
+    overflow: hidden;
+}
+
+.o_logistics_boss_summary_card::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 5px;
+    background: linear-gradient(90deg, rgba(159, 177, 194, 0.9) 0%, rgba(159, 177, 194, 0) 84%);
+}
+
+.o_logistics_boss_summary_card::after {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 5px;
+    background: linear-gradient(180deg, #9eacc0 0%, #d5dfeb 100%);
+}
+
+.o_logistics_boss_summary_card[data-tone="info"] {
+    background:
+        radial-gradient(circle at top right, rgba(150, 207, 255, 0.2), rgba(150, 207, 255, 0) 34%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.99) 0%, rgba(243, 248, 255, 0.99) 100%);
+}
+
+.o_logistics_boss_summary_card[data-tone="info"]::after {
+    background: linear-gradient(180deg, #4b87d3 0%, #87b7f0 100%);
+}
+
+.o_logistics_boss_summary_card[data-tone="info"]::before {
+    background: linear-gradient(90deg, rgba(75, 135, 211, 0.9) 0%, rgba(75, 135, 211, 0) 84%);
+}
+
+.o_logistics_boss_summary_card[data-tone="warning"] {
+    background:
+        radial-gradient(circle at top right, rgba(255, 216, 144, 0.2), rgba(255, 216, 144, 0) 34%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.99) 0%, rgba(255, 250, 241, 0.99) 100%);
+}
+
+.o_logistics_boss_summary_card[data-tone="warning"]::after {
+    background: linear-gradient(180deg, #d88c30 0%, #f3c772 100%);
+}
+
+.o_logistics_boss_summary_card[data-tone="warning"]::before {
+    background: linear-gradient(90deg, rgba(216, 140, 48, 0.9) 0%, rgba(216, 140, 48, 0) 84%);
+}
+
+.o_logistics_boss_summary_card[data-tone="danger"] {
+    background:
+        radial-gradient(circle at top right, rgba(255, 178, 166, 0.18), rgba(255, 178, 166, 0) 34%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.99) 0%, rgba(255, 244, 242, 0.99) 100%);
+}
+
+.o_logistics_boss_summary_card[data-tone="danger"]::after {
+    background: linear-gradient(180deg, #cc5c4a 0%, #efaa9f 100%);
+}
+
+.o_logistics_boss_summary_card[data-tone="danger"]::before {
+    background: linear-gradient(90deg, rgba(204, 92, 74, 0.9) 0%, rgba(204, 92, 74, 0) 84%);
+}
+
+.o_logistics_boss_summary_card[data-tone="success"] {
+    background:
+        radial-gradient(circle at top right, rgba(149, 227, 184, 0.18), rgba(149, 227, 184, 0) 34%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.99) 0%, rgba(242, 252, 246, 0.99) 100%);
+}
+
+.o_logistics_boss_summary_card[data-tone="success"]::after {
+    background: linear-gradient(180deg, #3b9b67 0%, #86d7aa 100%);
+}
+
+.o_logistics_boss_summary_card[data-tone="success"]::before {
+    background: linear-gradient(90deg, rgba(59, 155, 103, 0.9) 0%, rgba(59, 155, 103, 0) 84%);
+}
+
+.o_logistics_boss_summary_card .o_logistics_web_summary_card_label {
+    color: #455b76;
+    font-size: 14px;
+    letter-spacing: 0.01em;
+}
+
+.o_logistics_boss_summary_card .o_logistics_web_summary_card_value {
+    font-size: clamp(34px, 3vw, 42px);
+    letter-spacing: -0.04em;
+    color: var(--lw-text-main);
+}
+
+.o_logistics_boss_summary_card .o_logistics_web_summary_card_meta {
+    max-width: 24ch;
+    line-height: 1.72;
+}
+
+.o_logistics_boss_summary_card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(43, 95, 147, 0.18);
+    box-shadow: 0 22px 36px rgba(16, 44, 74, 0.12);
+}
+
+.o_logistics_boss_overview_grid,
+.o_logistics_boss_analysis_grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.95fr);
+    gap: 18px;
+    align-items: start;
+}
+
+.o_logistics_boss_column,
+.o_logistics_boss_analysis_panel {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.o_logistics_boss_priority_stack,
+.o_logistics_boss_watch_stack {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.o_logistics_boss_focus_card {
+    padding: 18px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 12px 24px rgba(16, 44, 74, 0.06);
+}
+
+.o_logistics_boss_focus_card:hover {
+    border-color: rgba(68, 88, 161, 0.18);
+    box-shadow: 0 18px 30px rgba(24, 34, 78, 0.1);
+}
+
+.o_logistics_boss_entry_grid,
+.o_logistics_boss_signal_grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.o_logistics_boss_entry_card,
+.o_logistics_boss_signal_card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 170px;
+    padding: 18px;
+    border: 1px solid rgba(35, 72, 111, 0.08);
+    border-radius: 20px;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(246, 248, 254, 0.96) 100%);
+    box-shadow: 0 12px 24px rgba(16, 44, 74, 0.05);
+}
+
+.o_logistics_boss_entry_card strong,
+.o_logistics_boss_signal_card strong {
+    color: var(--lw-text-main);
+}
+
+.o_logistics_boss_entry_card p,
+.o_logistics_boss_signal_card .o_logistics_web_summary_card_meta {
+    line-height: 1.65;
+}
+
+.o_logistics_boss_entry_card .btn {
+    width: fit-content;
+    margin-top: auto;
+}
+
+.o_logistics_boss_entry_card[data-tone="danger"] {
+    background:
+        radial-gradient(circle at top right, rgba(255, 171, 153, 0.14), transparent 34%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 245, 243, 0.97) 100%);
+}
+
+.o_logistics_boss_entry_card[data-tone="warning"] {
+    background:
+        radial-gradient(circle at top right, rgba(255, 214, 133, 0.16), transparent 34%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 250, 239, 0.97) 100%);
+}
+
+.o_logistics_boss_entry_card[data-tone="info"] {
+    background:
+        radial-gradient(circle at top right, rgba(125, 184, 255, 0.14), transparent 34%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(244, 249, 255, 0.97) 100%);
+}
+
+.o_logistics_boss_signal_card[data-tone="danger"] {
+    border-color: rgba(221, 117, 101, 0.18);
+}
+
+.o_logistics_boss_signal_card[data-tone="warning"] {
+    border-color: rgba(231, 180, 86, 0.18);
+}
+
+.o_logistics_boss_signal_card[data-tone="info"] {
+    border-color: rgba(112, 160, 222, 0.18);
+}
+
+.o_logistics_boss_severity_row,
+.o_logistics_boss_owner_meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+.o_logistics_boss_owner_panel {
+    padding: 18px;
+    border: 1px solid rgba(35, 72, 111, 0.08);
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.78);
+    box-shadow: 0 10px 20px rgba(16, 44, 74, 0.05);
+}
+
+.o_logistics_boss_owner_panel > strong {
+    display: block;
+    margin-bottom: 14px;
+    color: var(--lw-text-main);
+}
+
+.o_logistics_boss_owner_list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.o_logistics_boss_owner_item {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: center;
+    padding: 12px 0;
+    border-top: 1px solid rgba(35, 72, 111, 0.08);
+}
+
+.o_logistics_boss_owner_item:first-child {
+    padding-top: 0;
+    border-top: 0;
+}
+
+.o_logistics_boss_owner_main {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.o_logistics_boss_owner_main span {
+    color: var(--lw-text-subtle);
+    font-size: 13px;
+}
+
+.o_logistics_boss_state_panel,
+.o_logistics_boss_placeholder {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+}
+
+.o_logistics_boss_state_panel strong,
+.o_logistics_boss_placeholder strong {
+    font-size: 18px;
+    color: var(--lw-text-main);
+}
+
+.o_logistics_boss_state_panel p,
+.o_logistics_boss_placeholder p {
+    margin: 0;
+    line-height: 1.7;
+    color: var(--lw-text-subtle);
+}
+
+@media (max-width: 1180px) {
+    .o_logistics_boss_summary_band {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .o_logistics_boss_entry_grid,
+    .o_logistics_boss_signal_grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .o_logistics_boss_overview_grid,
+    .o_logistics_boss_analysis_grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 760px) {
+    .o_logistics_boss_summary_band,
+    .o_logistics_boss_entry_grid,
+    .o_logistics_boss_signal_grid {
+        grid-template-columns: 1fr;
+    }
+
+    .o_logistics_boss_summary_card,
+    .o_logistics_boss_entry_card,
+    .o_logistics_boss_signal_card,
+    .o_logistics_boss_focus_card,
+    .o_logistics_boss_owner_panel {
+        padding: 16px;
+        border-radius: 18px;
+    }
+
+    .o_logistics_boss_summary_card {
+        min-height: 0;
+    }
+
+    .o_logistics_boss_entry_card .btn,
+    .o_logistics_boss_focus_card .btn {
+        width: 100%;
+    }
+}

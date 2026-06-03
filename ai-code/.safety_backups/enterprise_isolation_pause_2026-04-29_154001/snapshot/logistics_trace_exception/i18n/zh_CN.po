@@ -1,0 +1,304 @@
+﻿# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* logistics_trace_exception
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-04-14 00:00+0000\n"
+"PO-Revision-Date: 2026-04-14 00:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#. module: logistics_trace_exception
+#: model_terms:ir.ui.view,arch_db:logistics_trace_exception.view_logistics_trace_exception_form
+msgid "<span class=\"o_stat_text\">Open Batch</span>"
+msgstr "<span class=\"o_stat_text\">打开批次</span>"
+
+#. module: logistics_trace_exception
+#: model_terms:ir.ui.view,arch_db:logistics_trace_exception.view_logistics_trace_exception_form
+msgid "<span class=\"o_stat_text\">Open Trace</span>"
+msgstr "<span class=\"o_stat_text\">打开留痕</span>"
+
+#. module: logistics_trace_exception
+#: model_terms:ir.ui.view,arch_db:logistics_trace_exception.view_logistics_trace_exception_form
+msgid "<span class=\"o_stat_text\">Waybill</span>"
+msgstr "<span class=\"o_stat_text\">运单</span>"
+
+#. module: logistics_trace_exception
+msgid "Action Time"
+msgstr "操作时间"
+
+#. module: logistics_trace_exception
+msgid "Action Type"
+msgstr "操作类型"
+
+#. module: logistics_trace_exception
+msgid "Active"
+msgstr "处理中"
+
+#. module: logistics_trace_exception
+msgid "Batch"
+msgstr "批次"
+
+#. module: logistics_trace_exception
+msgid "Cancelled"
+msgstr "已取消"
+
+#. module: logistics_trace_exception
+msgid "Close"
+msgstr "关闭"
+
+#. module: logistics_trace_exception
+msgid "Close Summary"
+msgstr "关闭说明"
+
+#. module: logistics_trace_exception
+msgid "Closed"
+msgstr "已关闭"
+
+#. module: logistics_trace_exception
+msgid "Closed Time"
+msgstr "关闭时间"
+
+#. module: logistics_trace_exception
+msgid "Critical"
+msgstr "严重"
+
+#. module: logistics_trace_exception
+msgid "Damage"
+msgstr "破损"
+
+#. module: logistics_trace_exception
+msgid "Delay"
+msgstr "延迟"
+
+#. module: logistics_trace_exception
+msgid "Describe the business problem and current impact"
+msgstr "请描述业务问题和当前影响"
+
+#. module: logistics_trace_exception
+msgid "Description"
+msgstr "异常描述"
+
+#. module: logistics_trace_exception
+msgid "Draft"
+msgstr "草稿"
+
+#. module: logistics_trace_exception
+msgid "Evidence"
+msgstr "证据"
+
+#. module: logistics_trace_exception
+msgid "Evidence Count"
+msgstr "证据数量"
+
+#. module: logistics_trace_exception
+msgid "Evidence Missing"
+msgstr "证据缺失"
+
+#. module: logistics_trace_exception
+msgid "Exception Event"
+msgstr "异常事件"
+
+#. module: logistics_trace_exception
+msgid "Exception No"
+msgstr "异常单号"
+
+#. module: logistics_trace_exception
+msgid "Exception Queue"
+msgstr "异常队列"
+
+#. module: logistics_trace_exception
+msgid "Exception Status"
+msgstr "异常状态"
+
+#. module: logistics_trace_exception
+msgid "Exception Type"
+msgstr "异常类型"
+
+#. module: logistics_trace_exception
+msgid "Exceptions"
+msgstr "异常"
+
+#. module: logistics_trace_exception
+msgid "From State"
+msgstr "原状态"
+
+#. module: logistics_trace_exception
+msgid "High"
+msgstr "高"
+
+#. module: logistics_trace_exception
+msgid "High Severity"
+msgstr "高严重度"
+
+#. module: logistics_trace_exception
+msgid "Low"
+msgstr "低"
+
+#. module: logistics_trace_exception
+msgid "Logistics Trace Exception"
+msgstr "物流留痕异常"
+
+#. module: logistics_trace_exception
+msgid "Mark Processing"
+msgstr "标记处理中"
+
+#. module: logistics_trace_exception
+msgid "Medium"
+msgstr "中"
+
+#. module: logistics_trace_exception
+msgid "Missing"
+msgstr "缺失"
+
+#. module: logistics_trace_exception
+msgid "No Exception"
+msgstr "无异常"
+
+#. module: logistics_trace_exception
+msgid "No active exceptions are waiting in the queue."
+msgstr "当前没有等待处理的异常。"
+
+#. module: logistics_trace_exception
+msgid "Note"
+msgstr "备注"
+
+#. module: logistics_trace_exception
+msgid "Open"
+msgstr "打开"
+
+#. module: logistics_trace_exception
+msgid "Open Evidence"
+msgstr "打开证据"
+
+#. module: logistics_trace_exception
+msgid "Open Exception Count"
+msgstr "未关闭异常数"
+
+#. module: logistics_trace_exception
+msgid "Other"
+msgstr "其他"
+
+#. module: logistics_trace_exception
+msgid "Overdue"
+msgstr "已逾期"
+
+#. module: logistics_trace_exception
+msgid "Owner"
+msgstr "负责人"
+
+#. module: logistics_trace_exception
+msgid "Process Logs"
+msgstr "处理记录"
+
+#. module: logistics_trace_exception
+msgid "Process Owner"
+msgstr "处理负责人"
+
+#. module: logistics_trace_exception
+msgid "Process Owner Name"
+msgstr "处理负责人姓名"
+
+#. module: logistics_trace_exception
+msgid "Processing"
+msgstr "处理中"
+
+#. module: logistics_trace_exception
+msgid "Record the final handling result before closing"
+msgstr "请在关闭前记录最终处理结果"
+
+#. module: logistics_trace_exception
+msgid "Rejected"
+msgstr "拒收"
+
+#. module: logistics_trace_exception
+msgid "Related Context"
+msgstr "关联上下文"
+
+#. module: logistics_trace_exception
+msgid "Remark"
+msgstr "备注"
+
+#. module: logistics_trace_exception
+msgid "Report Time"
+msgstr "上报时间"
+
+#. module: logistics_trace_exception
+msgid "Reported By"
+msgstr "上报人"
+
+#. module: logistics_trace_exception
+msgid "Reporter Name"
+msgstr "上报人姓名"
+
+#. module: logistics_trace_exception
+msgid "Resolve"
+msgstr "解决"
+
+#. module: logistics_trace_exception
+msgid "Resolved"
+msgstr "已解决"
+
+#. module: logistics_trace_exception
+msgid "Risk Level"
+msgstr "风险等级"
+
+#. module: logistics_trace_exception
+msgid "Severity"
+msgstr "严重程度"
+
+#. module: logistics_trace_exception
+msgid "Signoff Problem"
+msgstr "签收问题"
+
+#. module: logistics_trace_exception
+msgid "State"
+msgstr "状态"
+
+#. module: logistics_trace_exception
+msgid "State Change"
+msgstr "状态变更"
+
+#. module: logistics_trace_exception
+msgid "Store Closed"
+msgstr "门店关闭"
+
+#. module: logistics_trace_exception
+msgid "Summaries"
+msgstr "摘要"
+
+#. module: logistics_trace_exception
+msgid "To State"
+msgstr "目标状态"
+
+#. module: logistics_trace_exception
+msgid "Trace Event"
+msgstr "留痕事件"
+
+#. module: logistics_trace_exception
+msgid "Trace Exception"
+msgstr "留痕异常"
+
+#. module: logistics_trace_exception
+msgid "Trace Exceptions"
+msgstr "留痕异常"
+
+#. module: logistics_trace_exception
+msgid "Waybill"
+msgstr "运单"
+
+#. module: logistics_trace_exception
+msgid "Waybill Exceptions"
+msgstr "运单异常"
+
+#. module: logistics_trace_exception
+msgid "Create a trace exception or clear the default <strong>Active</strong> filter to review historical records."
+msgstr "创建一条留痕异常，或清除默认的<strong>处理中</strong>筛选以查看历史记录。"

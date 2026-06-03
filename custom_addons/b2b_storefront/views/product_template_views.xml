@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="product_template_form_b2b" model="ir.ui.view">
+        <field name="name">product.template.form.b2b</field><field name="model">product.template</field>
+        <field name="inherit_id" ref="erp_base.product_template_form_erp"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='erp_business']" position="inside">
+                <group string="B2B 展示" name="b2b_display">
+                    <field name="is_b2b_visible"/><field name="b2b_sort_no"/>
+                    <field name="b2b_min_qty"/><field name="b2b_saleable_desc"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

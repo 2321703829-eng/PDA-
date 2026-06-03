@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Dashboard URL actions — 点击导航菜单项时打开对应dashboard页面 -->
+
+    <record id="action_base_dashboard" model="ir.actions.act_url">
+        <field name="name">基础资料</field>
+        <field name="url">/base/dashboard</field>
+        <field name="target">self</field>
+    </record>
+
+    <record id="action_erp_dashboard" model="ir.actions.act_url">
+        <field name="name">订单经营 ERP</field>
+        <field name="url">/erp/dashboard</field>
+        <field name="target">self</field>
+    </record>
+
+    <record id="action_b2b_dashboard" model="ir.actions.act_url">
+        <field name="name">B2B 商城</field>
+        <field name="url">/b2b/dashboard</field>
+        <field name="target">self</field>
+    </record>
+
+    <record id="action_wms_dashboard" model="ir.actions.act_url">
+        <field name="name">仓库作业 WMS</field>
+        <field name="url">/wms/dashboard</field>
+        <field name="target">self</field>
+    </record>
+
+    <record id="action_tms_dashboard" model="ir.actions.act_url">
+        <field name="name">配送调度 TMS</field>
+        <field name="url">/tms/dashboard</field>
+        <field name="target">self</field>
+    </record>
+
+    <record id="action_bi_dashboard" model="ir.actions.act_url">
+        <field name="name">数据看板 BI</field>
+        <field name="url">/bi/dashboard</field>
+        <field name="target">self</field>
+    </record>
+
+    <!-- 导航菜单 (logistics_web 最后加载,所有依赖已就绪) -->
+    <menuitem id="menu_base_nav" name="基础资料" action="action_base_dashboard" parent="menu_tianshu_enterprise_root" sequence="20"/>
+    <menuitem id="menu_erp_nav" name="订单经营 ERP" action="action_erp_dashboard" parent="menu_tianshu_enterprise_root" sequence="25"/>
+    <menuitem id="menu_wms_nav" name="仓库作业 WMS" action="action_wms_dashboard" parent="menu_tianshu_enterprise_root" sequence="35"/>
+    <menuitem id="menu_tms_nav" name="配送调度 TMS" action="action_tms_dashboard" parent="menu_tianshu_enterprise_root" sequence="40"/>
+    <menuitem id="menu_bi_nav" name="数据看板 BI" action="action_bi_dashboard" parent="menu_tianshu_enterprise_root" sequence="45"/>
+
+</odoo>

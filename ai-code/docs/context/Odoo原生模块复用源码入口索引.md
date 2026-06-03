@@ -1,4 +1,4 @@
-# Odoo 原生模块复用源码入口索引
+﻿# Odoo 原生模块复用源码入口索引
 
 适用范围：
 
@@ -7,8 +7,8 @@
 
 优先基准：
 
-- `ai-code/Odoo19物流留痕系统运单主对象与留痕主流程设计.md`
-- `ai-code/Odoo19物流留痕系统五人分工与前端改造安排.md`
+- `ai-code/docs/context/Odoo19物流留痕系统运单主对象与留痕主流程设计.md`
+- `ai-code/docs/dev/project_coordination/Odoo19物流留痕系统五人分工与前端改造安排.md`
 - `ai-code/docs/context/odoo_logistics_feasibility.md`
 - `ai-code/docs/architecture/logistics_dispatch_addon_design.md`
 
@@ -34,9 +34,9 @@
 
 - `docs/context/odoo_logistics_feasibility.md`
 - `docs/architecture/logistics_dispatch_addon_design.md`
-- `前端相关设计/01_模块设计/06_业务单据/业务单据前端接入设计草案.md`
-- `前端相关设计/01_模块设计/07_商品与基础资料/商品与基础资料模块前端设计草案.md`
-- `前端相关设计/01_模块设计/04_运输与调度/运输与调度模块前端设计草案.md`
+- `专题设计/前端设计/一期前端相关设计/01_模块设计/06_业务单据/业务单据前端接入设计草案.md`
+- `专题设计/前端设计/一期前端相关设计/01_模块设计/07_商品与基础资料/商品与基础资料模块前端设计草案.md`
+- `专题设计/前端设计/一期前端相关设计/01_模块设计/04_运输与调度/运输与调度模块前端设计草案.md`
 
 总体判断：
 
@@ -454,3 +454,4 @@
 - `fleet` 还是自定义 dispatch
 
 这些地方反复绕圈。
+

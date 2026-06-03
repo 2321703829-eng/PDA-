@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_logistics_customer_profile_tree" model="ir.ui.view">
+        <field name="name">logistics.customer.profile.tree</field>
+        <field name="model">logistics.customer.profile</field>
+        <field name="arch" type="xml">
+            <list string="客户经营画像">
+                <field name="partner_id"/>
+                <field name="customer_level"/>
+                <field name="customer_status"/>
+                <field name="allow_cash_on_delivery"/>
+                <field name="internal_counterparty_flag"/>
+                <field name="invoice_type"/>
+                <field name="customer_seq_no"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_logistics_customer_profile_form" model="ir.ui.view">
+        <field name="name">logistics.customer.profile.form</field>
+        <field name="model">logistics.customer.profile</field>
+        <field name="arch" type="xml">
+            <form string="客户经营画像">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="partner_id"/>
+                            <field name="customer_level"/>
+                            <field name="customer_status"/>
+                            <field name="allow_cash_on_delivery"/>
+                            <field name="internal_counterparty_flag"/>
+                        </group>
+                        <group>
+                            <field name="invoice_type"/>
+                            <field name="registered_phone"/>
+                            <field name="customer_seq_no"/>
+                            <field name="registered_address"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_logistics_customer_profile" model="ir.actions.act_window">
+        <field name="name">客户经营画像</field>
+        <field name="res_model">logistics.customer.profile</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="view_logistics_store_profile_tree" model="ir.ui.view">
+        <field name="name">logistics.store.profile.tree</field>
+        <field name="model">logistics.store.profile</field>
+        <field name="arch" type="xml">
+            <list string="门店配送画像">
+                <field name="partner_id"/>
+                <field name="address_code"/>
+                <field name="customer_name"/>
+                <field name="receive_start_time"/>
+                <field name="receive_end_time"/>
+                <field name="illegal_parking_flag"/>
+                <field name="free_parking_minutes"/>
+                <field name="warehouse_preference"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_logistics_store_profile_form" model="ir.ui.view">
+        <field name="name">logistics.store.profile.form</field>
+        <field name="model">logistics.store.profile</field>
+        <field name="arch" type="xml">
+            <form string="门店配送画像">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="partner_id"/>
+                            <field name="address_code"/>
+                            <field name="external_customer_code"/>
+                            <field name="customer_name"/>
+                            <field name="address_full"/>
+                            <field name="longitude"/>
+                            <field name="latitude"/>
+                            <field name="address_region_json" widget="json"/>
+                        </group>
+                        <group>
+                            <field name="receive_start_time"/>
+                            <field name="receive_end_time"/>
+                            <field name="delivery_week_flags"/>
+                            <field name="default_signoff_requirement"/>
+                            <field name="delivery_access_flags"/>
+                            <field name="warehouse_preference"/>
+                            <field name="route_preference"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="停车与卸货">
+                            <field name="illegal_parking_flag"/>
+                            <field name="free_parking_minutes"/>
+                            <field name="parking_fee_per_hour"/>
+                            <field name="parking_location_text"/>
+                            <field name="parking_mode_text"/>
+                            <field name="unload_entrance_text"/>
+                            <field name="unload_location_text"/>
+                        </group>
+                        <group string="时间与楼层">
+                            <field name="delivery_window_text"/>
+                            <field name="receive_time_slots_text"/>
+                            <field name="no_receive_time_slots_text"/>
+                            <field name="upstairs_floor_count"/>
+                            <field name="basement_height_limit_text"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_logistics_store_profile" model="ir.actions.act_window">
+        <field name="name">门店配送画像</field>
+        <field name="res_model">logistics.store.profile</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="view_logistics_driver_profile_tree" model="ir.ui.view">
+        <field name="name">logistics.driver.profile.tree</field>
+        <field name="model">logistics.driver.profile</field>
+        <field name="arch" type="xml">
+            <list string="司机画像">
+                <field name="employee_id"/>
+                <field name="internal_driver_code"/>
+                <field name="driver_name"/>
+                <field name="driver_phone"/>
+                <field name="driver_license_level"/>
+                <field name="allow_night_shift"/>
+                <field name="major_accident_record_flag"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_logistics_driver_profile_form" model="ir.ui.view">
+        <field name="name">logistics.driver.profile.form</field>
+        <field name="model">logistics.driver.profile</field>
+        <field name="arch" type="xml">
+            <form string="司机画像">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="employee_id"/>
+                            <field name="internal_driver_code"/>
+                            <field name="driver_name"/>
+                            <field name="driver_phone"/>
+                            <field name="driver_license_level"/>
+                            <field name="first_license_date"/>
+                            <field name="driver_license_valid_from"/>
+                            <field name="driver_license_valid_to"/>
+                            <field name="allow_night_shift"/>
+                        </group>
+                        <group>
+                            <field name="id_card_no"/>
+                            <field name="driver_license_no"/>
+                            <field name="wechat_no"/>
+                            <field name="contact_phone_1"/>
+                            <field name="contact_phone_2"/>
+                            <field name="emergency_contact_name"/>
+                            <field name="emergency_contact_relation"/>
+                            <field name="emergency_contact_phone_1"/>
+                            <field name="emergency_contact_phone_2"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="补充画像">
+                            <field name="native_place"/>
+                            <field name="ethnicity_name"/>
+                            <field name="political_status"/>
+                            <field name="marital_status"/>
+                            <field name="military_years_text"/>
+                            <field name="current_residence_region"/>
+                            <field name="current_address"/>
+                        </group>
+                        <group string="风险与财务">
+                            <field name="bank_name"/>
+                            <field name="bank_card_no"/>
+                            <field name="contract_start_date"/>
+                            <field name="contract_end_date"/>
+                            <field name="major_accident_record_flag"/>
+                            <field name="health_status_text"/>
+                            <field name="violation_record_text"/>
+                            <field name="credit_status_text"/>
+                            <field name="driver_remark"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_logistics_driver_profile" model="ir.actions.act_window">
+        <field name="name">司机画像</field>
+        <field name="res_model">logistics.driver.profile</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="view_logistics_vehicle_profile_tree" model="ir.ui.view">
+        <field name="name">logistics.vehicle.profile.tree</field>
+        <field name="model">logistics.vehicle.profile</field>
+        <field name="arch" type="xml">
+            <list string="车辆画像">
+                <field name="vehicle_id"/>
+                <field name="internal_vehicle_code"/>
+                <field name="purchase_mode"/>
+                <field name="approved_load_ton"/>
+                <field name="approved_volume_m3"/>
+                <field name="standby_site_name"/>
+                <field name="major_accident_record_flag"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_logistics_vehicle_profile_form" model="ir.ui.view">
+        <field name="name">logistics.vehicle.profile.form</field>
+        <field name="model">logistics.vehicle.profile</field>
+        <field name="arch" type="xml">
+            <form string="车辆画像">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="vehicle_id"/>
+                            <field name="internal_vehicle_code"/>
+                            <field name="factory_date"/>
+                            <field name="purchase_mode"/>
+                            <field name="vehicle_spec"/>
+                            <field name="color_name"/>
+                            <field name="vin_no"/>
+                            <field name="engine_no"/>
+                            <field name="approved_load_ton"/>
+                            <field name="approved_volume_m3"/>
+                        </group>
+                        <group>
+                            <field name="standby_site_name"/>
+                            <field name="operation_type"/>
+                            <field name="driving_license_no"/>
+                            <field name="transport_license_no"/>
+                            <field name="inspection_valid_to"/>
+                            <field name="transport_license_valid_to"/>
+                            <field name="annual_check_due_date"/>
+                            <field name="gps_device_no"/>
+                            <field name="etc_no"/>
+                            <field name="fuel_or_power_card_no"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="保险">
+                            <field name="insurance_company_name"/>
+                            <field name="compulsory_policy_no"/>
+                            <field name="commercial_policy_no"/>
+                            <field name="compulsory_insurance_due_date"/>
+                            <field name="commercial_insurance_due_date"/>
+                            <field name="vehicle_vessel_tax_due_date"/>
+                        </group>
+                        <group string="备注">
+                            <field name="major_accident_record_flag"/>
+                            <field name="vehicle_remark"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_logistics_vehicle_profile" model="ir.actions.act_window">
+        <field name="name">车辆画像</field>
+        <field name="res_model">logistics.vehicle.profile</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="view_logistics_product_unit_tree" model="ir.ui.view">
+        <field name="name">logistics.product.unit.tree</field>
+        <field name="model">logistics.product.unit</field>
+        <field name="arch" type="xml">
+            <list string="商品规格">
+                <field name="product_tmpl_id"/>
+                <field name="sku_code"/>
+                <field name="spec_desc"/>
+                <field name="unit_name"/>
+                <field name="sale_unit_name"/>
+                <field name="barcode"/>
+                <field name="standard_price"/>
+                <field name="convert_to_base"/>
+                <field name="weight"/>
+                <field name="volume"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_logistics_product_unit_form" model="ir.ui.view">
+        <field name="name">logistics.product.unit.form</field>
+        <field name="model">logistics.product.unit</field>
+        <field name="arch" type="xml">
+            <form string="商品规格">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="product_tmpl_id"/>
+                            <field name="sku_code"/>
+                            <field name="spec_desc"/>
+                            <field name="full_category_name"/>
+                            <field name="unit_name"/>
+                            <field name="sale_unit_name"/>
+                            <field name="convert_to_base"/>
+                            <field name="barcode"/>
+                        </group>
+                        <group>
+                            <field name="standard_price"/>
+                            <field name="purchase_price"/>
+                            <field name="retail_price"/>
+                            <field name="sale_tax_rate"/>
+                            <field name="weight"/>
+                            <field name="volume"/>
+                            <field name="min_order_qty"/>
+                            <field name="can_press_stock"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="补充">
+                            <field name="brand_owner_name"/>
+                            <field name="default_vendor_name"/>
+                            <field name="buyer_name"/>
+                            <field name="length_cm"/>
+                            <field name="width_cm"/>
+                            <field name="height_cm"/>
+                            <field name="unit_remark"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_logistics_product_unit" model="ir.actions.act_window">
+        <field name="name">商品规格</field>
+        <field name="res_model">logistics.product.unit</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_logistics_customer_profile" name="客户经营画像" parent="contacts.res_partner_menu_config" action="action_logistics_customer_profile" sequence="90" groups="logistics_base.group_logistics_profile_manager"/>
+    <menuitem id="menu_logistics_store_profile" name="门店配送画像" parent="contacts.res_partner_menu_config" action="action_logistics_store_profile" sequence="91" groups="logistics_base.group_logistics_profile_manager"/>
+    <menuitem id="menu_logistics_driver_profile" name="司机画像" parent="hr.menu_config_employee" action="action_logistics_driver_profile" sequence="90" groups="logistics_base.group_logistics_profile_manager"/>
+    <menuitem id="menu_logistics_vehicle_profile" name="车辆画像" parent="fleet.fleet_configuration" action="action_logistics_vehicle_profile" sequence="90" groups="logistics_base.group_logistics_profile_manager"/>
+    <menuitem id="menu_logistics_product_unit" name="商品规格" parent="stock.menu_product_variant_config_stock" action="action_logistics_product_unit" sequence="90"/>
+    <menuitem id="menu_logistics_partner_profile" name="物流客户画像" parent="contacts.res_partner_menu_config" action="logistics_base.action_logistics_partner_profile" sequence="89" groups="logistics_base.group_logistics_profile_manager"/>
+
+    <record id="menu_logistics_customer_profile" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+
+    <record id="menu_logistics_store_profile" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+</odoo>

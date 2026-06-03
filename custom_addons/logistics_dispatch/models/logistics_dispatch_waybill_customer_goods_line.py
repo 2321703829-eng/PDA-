@@ -176,3 +176,10 @@ class LogisticsDispatchWaybillCustomerGoodsLine(models.Model):
                 raise ValidationError("货物件数不能小于 0。")
             if record.weight < 0 or record.volume < 0:
                 raise ValidationError("货物重量和体积不能为负数。")
+
+    def action_logistics_delete(self):
+        self.unlink()
+        return True
+
+    def action_logistics_archive(self):
+        return self.action_logistics_delete()

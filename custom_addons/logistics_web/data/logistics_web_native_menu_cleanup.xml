@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Keep native models available, but avoid exposing unrelated Odoo app entries to business users. -->
+    <record id="sale.sale_menu_root" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+    <record id="purchase.menu_purchase_root" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+    <record id="stock.menu_stock_root" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+    <record id="contacts.menu_contacts" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+    <record id="account.menu_finance" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+    <record id="hr.menu_hr_root" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+    <record id="fleet.menu_root" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+    <record id="logistics_dispatch.menu_logistics_dispatch_root" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+    <record id="sale.menu_sale_invoicing" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+    <record id="sale.menu_sale_order_invoice" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+    <record id="sale.menu_sale_order_upselling" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+    <record id="sale.menu_products" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+    <record id="purchase.product_product_menu" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+    <record id="stock.product_product_menu" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+    <record id="sale.menu_product_tags" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+    <record id="sale.menu_product_attribute_action" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+    <record id="sale.menu_product_combos" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+    <record id="sale.menu_product_categories" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+    <record id="sale.menu_sales_config" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+    <record id="sale.sale_menu_config_activities" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+    <record id="sale.payment_menu" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+    <record id="purchase.menu_product_attribute_action" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+    <record id="purchase.menu_product_category_config_purchase" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+    <record id="stock.menu_product_variant_config_stock" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+    <record id="stock.menu_attribute_action" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+    <record id="stock.menu_product_category_config_stock" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+</odoo>

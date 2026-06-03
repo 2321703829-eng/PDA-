@@ -194,3 +194,12 @@ class LogisticsDispatchWaybillCustomerLine(models.Model):
         for record in self:
             if record.store_id and record.store_id.parent_id and not record.customer_id:
                 record.customer_id = record.store_id.parent_id
+
+    def action_logistics_delete(self):
+        self.goods_line_ids.action_logistics_delete()
+        self.order_line_ids.action_logistics_delete()
+        self.unlink()
+        return True
+
+    def action_logistics_archive(self):
+        return self.action_logistics_delete()

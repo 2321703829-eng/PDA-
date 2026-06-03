@@ -106,9 +106,23 @@ python .\odoo-bin -c .\odoo_local.conf -d odoo_logistics_dev -u logistics_dispat
 - `docs/context`
 - `ARCHITECTURE.md`
 - `doc_sync.md`
+- `docs/versioning/version_tag_governance.md`
+- `document_directory_governance.md`
 - `change_notes`
 
 需要检查是否同步更新。
+
+### 改版本基线或准备打 tag
+
+- 是否已经明确本轮目标属于 `baseline / milestone / release` 哪一层
+- 是否已补本轮 `change_notes`
+- 是否已检查正式入口文档没有继续描述过期目录现实
+- 是否已完成最小安装、升级或静态验证
+
+相关规范：
+
+- [version_tag_governance.md](/d:/Desktop/Odoo/ai-code/docs/versioning/version_tag_governance.md:1)
+- [document_directory_governance.md](/d:/Desktop/Odoo/ai-code/docs/review/document_directory_governance.md:1)
 
 ## 8. 失败处理规则
 
@@ -122,3 +136,22 @@ python .\odoo-bin -c .\odoo_local.conf -d odoo_logistics_dev -u logistics_dispat
 - 用真实菜单路径手工打开页面
 - 用至少两类角色检查权限
 - 对运单、留痕、异常重点检查附件与关联跳转
+
+## 10. 四期首轮范围收口专项说明
+
+如果当前任务属于“四期首轮范围收口”这一批改动，优先查看：
+
+- [phase4_first_round_scope_alignment_upgrade_runbook.md](/d:/Desktop/Odoo/ai-code/docs/dev/phase4_first_round_scope_alignment_upgrade_runbook.md:1)
+
+这批改动包含：
+
+- 删除首轮不保留的调度状态表和历史表入口
+- `logistics_product_unit` 由多套单位字段改为单销售单位结构
+- 地址改为“完整地址 + 经纬度 + 结构化地址 JSON”
+- 司机/车辆前端服务改为基于 `batch` 实时推导运行态
+
+对这批改动，默认推荐：
+
+1. 新建开发数据库
+2. 重新安装 `logistics_base, logistics_dispatch, logistics_web`
+3. 再做页面与接口回归

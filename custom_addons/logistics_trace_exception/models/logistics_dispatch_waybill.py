@@ -7,29 +7,29 @@ class LogisticsDispatchWaybill(models.Model):
     exception_ids = fields.One2many(
         "logistics.trace.exception",
         "waybill_id",
-        string="Exceptions",
+        string="异常",
     )
     open_exception_count = fields.Integer(
-        string="Open Exception Count",
+        string="待处理异常数",
         compute="_compute_exception_metrics",
         store=True,
         readonly=True,
     )
     exception_status = fields.Selection(
         [
-            ("none", "No Exception"),
-            ("open", "Open"),
-            ("processing", "Processing"),
-            ("closed", "Closed"),
+            ("none", "无异常"),
+            ("open", "待处理"),
+            ("processing", "处理中"),
+            ("closed", "已关闭"),
         ],
-        string="Exception Status",
+        string="异常状态",
         compute="_compute_exception_metrics",
         store=True,
         readonly=True,
     )
     risk_level = fields.Selection(
-        [("low", "Low"), ("medium", "Medium"), ("high", "High")],
-        string="Risk Level",
+        [("low", "低"), ("medium", "中"), ("high", "高")],
+        string="风险等级",
         compute="_compute_exception_metrics",
         store=True,
         readonly=True,
@@ -66,7 +66,7 @@ class LogisticsDispatchWaybill(models.Model):
         self.ensure_one()
         return {
             "type": "ir.actions.act_window",
-            "name": _("Waybill Exceptions"),
+            "name": _("运单异常"),
             "res_model": "logistics.trace.exception",
             "view_mode": "list,form",
             "domain": [("waybill_id", "=", self.id)],

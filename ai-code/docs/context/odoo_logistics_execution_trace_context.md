@@ -1,4 +1,4 @@
-# Odoo Logistics Execution / Trace Context
+﻿# Odoo Logistics Execution / Trace Context
 
 > 状态说明：
 > - 本文档当前作为执行主线与追溯主线的现行中间上下文文档使用。
@@ -10,7 +10,7 @@
 - 用于在项目级上下文与正式 addon 设计稿之间，提供一份更偏业务草图、但已经符合当前主线口径的设计说明
 
 优先基准：
-- `ai-code/Odoo19物流留痕系统运单主对象与留痕主流程设计.md`
+- `ai-code/docs/context/Odoo19物流留痕系统运单主对象与留痕主流程设计.md`
 - `ai-code/docs/context/odoo_logistics_context.md`
 - `ai-code/docs/architecture/logistics_dispatch_addon_design.md`
 - `ai-code/docs/architecture/logistics_trace_core_addon_design.md`
@@ -40,7 +40,7 @@
 当前一期最核心的业务主线是：
 
 ```text
-波次记录 -> 批次 -> 运单号 -> 运单下订单列表 -> 留痕事件 -> 证据图片/备注 -> 异常对象
+波次记录 -> 批次 -> 运单号 -> 门店节点 customer_line -> 订单行 order_line -> 货物行 goods_line
 ```
 
 可以把它理解成两条互相咬合的链：
@@ -48,7 +48,7 @@
 ### 2.1 执行主线
 
 ```text
-波次 -> 批次 -> 运单
+波次 -> 批次 -> 运单 -> customer_line -> order_line -> goods_line
 ```
 
 这条线回答的是：
@@ -61,7 +61,7 @@
 ### 2.2 追溯主线
 
 ```text
-运单 -> 留痕 -> 证据 -> 异常
+运单 / customer_line 上下文 -> 留痕 -> 证据 -> 异常
 ```
 
 这条线回答的是：
@@ -73,7 +73,14 @@
 
 最关键的一句话是：
 
-**运单是现场追溯主对象，订单只是运单下的业务明细。**
+**运单是现场追溯主对象，`customer_line` 是门店节点主阅读层，订单只是门店节点下的业务明细。**
+
+### 2.3 页面阅读链
+
+```text
+运单 -> customer_line -> order_line
+运单 -> customer_line -> 图片预览 / 留痕 / 证据
+```
 
 ---
 
@@ -84,7 +91,9 @@
 - `logistics.dispatch.wave`
 - `logistics.dispatch.batch`
 - `logistics.dispatch.waybill`
+- `logistics.dispatch.waybill.customer.line`
 - `logistics.dispatch.waybill.order.line`
+- `logistics.dispatch.waybill.customer.goods.line`
 - `logistics.trace.event`
 - `logistics.trace.evidence`
 - `logistics.trace.exception`
@@ -95,7 +104,9 @@
 - 波次：调度组织层对象
 - 批次：执行组织层对象
 - 运单：现场追溯主对象
-- 运单下订单列表：业务明细层
+- 门店节点：运单下核心阅读层与门店事实层
+- 订单行：业务明细层
+- 货物行：底层货物事实层
 - 留痕事件：事实层对象
 - 证据对象：材料层对象
 - 异常对象：问题与处理层对象
@@ -109,7 +120,9 @@
 ```text
 wave 1 -> n batch
 batch 1 -> n waybill
-waybill 1 -> n waybill_order_line
+waybill 1 -> n customer_line
+customer_line 1 -> n order_line
+order_line 1 -> n goods_line
 
 batch 1 -> n trace_event
 waybill 1 -> n trace_event
@@ -137,6 +150,7 @@ exception 1 -> n exception_process_log
 主入口应是：
 
 - 运单追溯
+- 门店节点阅读区
 - 批次追溯
 - 留痕时间线
 - 证据查看
@@ -179,6 +193,7 @@ exception 1 -> n exception_process_log
 ### 6.1 已较成熟，可以继续往正式设计推进
 
 - 波次 / 批次 / 运单主线
+- `customer_line` 门店节点阅读链
 - 运单级与批次级留痕
 - 证据挂留痕的结构
 - 异常围绕运单 / 批次 / 留痕展开的口径
@@ -199,6 +214,7 @@ exception 1 -> n exception_process_log
 下面这些旧理解，不应再在后续设计里继续沿用：
 
 - “订单是系统追溯主对象”
+- “门店节点只是兼容层，不是正式阅读层”
 - “留痕围绕订单展开”
 - “异常围绕订单展开”
 - “图片可以直接挂订单主体”

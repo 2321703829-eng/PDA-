@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- C02: 销售订单扩展 -->
+    <record id="sale_order_form_erp" model="ir.ui.view">
+        <field name="name">sale.order.form.erp</field><field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="batch_ref"/>
+                <field name="is_urgent"/>
+                <field name="delivery_deadline"/>
+            </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page string="ERP 物流状态" name="erp_logistics">
+                    <group><field name="wms_status"/><field name="tms_status"/><field name="store_count"/></group>
+                    <group><field name="delivery_note"/></group>
+                </page>
+            </xpath>
+            <xpath expr="//field[@name='product_id']" position="after">
+                <field name="store_id" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- E01: 采购订单扩展 -->
+    <record id="purchase_order_form_erp" model="ir.ui.view">
+        <field name="name">purchase.order.form.erp</field><field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="batch_ref"/>
+                <field name="expected_arrival"/>
+                <field name="warehouse_id"/>
+            </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page string="ERP 收货状态" name="erp_receiving">
+                    <group><field name="receiving_status"/></group>
+                    <group><field name="logistics_note"/></group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

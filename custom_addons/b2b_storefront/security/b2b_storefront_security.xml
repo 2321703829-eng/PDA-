@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="group_b2b_customer" model="res.groups">
+        <field name="name">B2B 客户</field>
+        <field name="comment">可访问 B2B 前台订货</field>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+</odoo>
