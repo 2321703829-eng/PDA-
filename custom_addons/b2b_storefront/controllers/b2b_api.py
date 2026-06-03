@@ -5,6 +5,24 @@ from odoo.http import request
 
 class B2bApi(http.Controller):
 
+    def _get_stores(self):
+        Partner = request.env["res.partner"].sudo()
+        stores = Partner.search(
+            [("is_b2b_store", "=", True), ("b2b_enabled", "=", True)],
+            order="logistics_store_code, name",
+        )
+        if "is_logistics_store" in Partner._fields:
+            logistics_domain = [("is_logistics_store", "=", True)]
+            if "logistics_store_status" in Partner._fields:
+                logistics_domain.append(("logistics_store_status", "in", [False, "active"]))
+            stores = stores | Partner.search(logistics_domain, order="logistics_store_code, name")
+        default_store = request.env.user.partner_id.b2b_default_store_id
+        if default_store:
+            stores = default_store | stores
+        if not stores:
+            stores = request.env.user.partner_id
+        return stores
+
     # ========== B01: 商品列表接口(加入可见范围校验) ==========
     @http.route("/api/open/logistics/b2b/products", type="http", auth="user", methods=["GET"], csrf=False)
     def b2b_products(self, **kw):
@@ -78,7 +96,7 @@ class B2bApi(http.Controller):
         cart = request.env["b2b.cart.draft"].sudo().search([("partner_id", "=", partner_id), ("state", "=", "draft")], limit=1)
         if not cart or not cart.line_ids:
             return request.make_response(json.dumps({"ok": False, "message": "购物车为空"}), headers=[("Content-Type", "application/json")])
-        stores = request.env["res.partner"].sudo().search([("is_b2b_store", "=", True)])
+        stores = self._get_stores()
         return request.make_response(json.dumps({"ok": True, "data": {"cart_id": cart.id, "total_amount": cart.total_amount, "total_qty": cart.total_qty, "store_id": cart.store_id.id, "stores": [{"id": s.id, "name": s.name} for s in stores], "payment_method": partner.b2b_payment_method_default or "credit"}}), headers=[("Content-Type", "application/json")])
 
     @http.route("/api/open/logistics/b2b/orders/submit", type="http", auth="user", methods=["POST"], csrf=False)

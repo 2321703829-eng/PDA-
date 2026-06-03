@@ -47,9 +47,9 @@ class HrEmployee(models.Model):
         if self.logistics_role != "driver":
             raise ValidationError(_("Only employees with logistics role 'driver' can create a driver profile."))
 
-        profile = self.env["logistics.driver.profile"].sudo().search([("employee_id", "=", self.id)], limit=1)
+        profile = self.env["logistics.driver.profile"].search([("employee_id", "=", self.id)], limit=1)
         if not profile:
-            profile = self.env["logistics.driver.profile"].sudo().create(
+            profile = self.env["logistics.driver.profile"].create(
                 {
                     "employee_id": self.id,
                     "current_residence_region": self._get_employee_region_label(),
