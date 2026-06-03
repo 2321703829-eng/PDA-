@@ -8,7 +8,8 @@
                     <p style="color:#6b7280;margin-bottom:24px">WMS 仓储全流程作业管理</p>
                     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px">
                         <t t-foreach="cards" t-as="card">
-                            <a t-att-href="'/web#action=' + card['action'].split(',')[1] + '&amp;model=' + card['model'] + '&amp;view_type=list'"
+                            <a t-att-href="'#' if card.get('disabled') else '/web#action=' + card['action'].split(',')[1] + '&amp;model=' + card['model'] + '&amp;view_type=list'"
+                               t-att-class="'o_wms_dashboard_card disabled' if card.get('disabled') else 'o_wms_dashboard_card'"
                                style="display:block;background:#fff;border:1px solid #e5e7eb;border-radius:12px;
                                       padding:24px 20px;text-decoration:none;transition:box-shadow .15s,border-color .15s;
                                       cursor:pointer"

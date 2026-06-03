@@ -1,4 +1,5 @@
 from odoo import _, fields, models
+from odoo.exceptions import UserError
 
 from .selection_options import TMS_ROUTE_STATUS_SELECTION
 
@@ -153,13 +154,19 @@ class LogisticsRoutePlanningBatch(models.Model):
                 "vehicle_profile_id": self.vehicle_profile_id.id,
             })
             stop_lines = self.stop_line_ids.sorted(key=lambda line: (line.stop_seq, line.id))
+            failed_messages = []
             for stop_line in stop_lines:
                 try:
                     self.env["tms.driver.task"].create(
                         dispatch_order._prepare_driver_task_vals(stop_line)
                     )
-                except Exception:
-                    continue
+                except Exception as exc:
+                    failed_messages.append("%s: %s" % (stop_line.display_name, exc))
+            if failed_messages:
+                raise UserError(
+                    _("司机任务创建失败，派车单未完成推送：\n%s")
+                    % "\n".join(failed_messages[:10])
+                )
             dispatch_order.write({"state": "dispatched"})
             self.env["core.operation.audit.log"].log_action(
                 business_domain="tms",

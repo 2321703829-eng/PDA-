@@ -26,7 +26,7 @@ class KebiProfileController(http.Controller):
         }
         return request.render("kebi_website_custom.profile_template", values)
 
-    @http.route("/my/profile/save", type="http", auth="user", website=True, methods=["POST"], csrf=False)
+    @http.route("/my/profile/save", type="http", auth="user", website=True, methods=["POST"])
     def profile_save(self, **kw):
         partner = request.env.user.partner_id
         vals = {}

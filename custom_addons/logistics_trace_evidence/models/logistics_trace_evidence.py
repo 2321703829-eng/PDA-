@@ -286,8 +286,12 @@ class LogisticsTraceEvidence(models.Model):
         """P7: 证据上传后反写 waybill/batch evidence_status"""
         for rec in self:
             for ref in (rec.trace_event_id.waybill_id, rec.trace_event_id.batch_id):
-                if ref and hasattr(ref, 'evidence_status') and ref.evidence_status != 'available':
-                    ref.write({"evidence_status": "available"})
+                if not ref or "evidence_status" not in ref._fields:
+                    continue
+                selection = dict(ref._fields["evidence_status"].selection)
+                target_status = "partial" if "partial" in selection else "complete"
+                if target_status in selection and ref.evidence_status != "complete":
+                    ref.write({"evidence_status": target_status})
 
     def _resolve_upload_role(self, vals):
         raw = vals.get("upload_role") or vals.get("uploadRole") or vals.get("uploader_role") or vals.get("role")
