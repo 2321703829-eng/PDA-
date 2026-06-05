@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="logistics_web.ERPDocumentQueryAction">
+        <div class="o_action o_logistics_erp_document_query_action">
+            <Layout display="display">
+                <div class="o_logistics_web_page o_logistics_erp_document_page">
+                    <div class="o_logistics_web_page_header o_logistics_web_dashboard_header o_logistics_web_page_hero o_logistics_erp_document_page_hero">
+                        <div class="o_logistics_web_page_hero_main">
+                            <span class="o_logistics_web_page_kicker">ERP Document Query</span>
+                            <h1><t t-esc="ui.title"/></h1>
+                            <p><t t-esc="ui.subtitle"/></p>
+                        </div>
+                        <div class="o_logistics_web_page_hero_aside">
+                            <div class="o_logistics_web_dashboard_header_meta">
+                                <span class="o_logistics_web_status_tag"><t t-esc="ui.badgePrimary"/></span>
+                                <span class="o_logistics_web_status_tag"><t t-esc="ui.badgeSecondary"/></span>
+                            </div>
+                            <div class="o_logistics_web_page_note">
+                                <strong><t t-esc="ui.noteTitle"/></strong>
+                                <span><t t-esc="ui.noteBody"/></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_erp_doc_filters_section">
+                        <div class="o_logistics_web_section_heading">
+                            <h2><t t-esc="ui.filterTitle"/></h2>
+                            <p><t t-esc="ui.filterHint"/></p>
+                        </div>
+                        <div class="o_logistics_erp_doc_filters">
+                            <label class="o_logistics_erp_doc_filter_item">
+                                <span><t t-esc="ui.docType"/></span>
+                                <select class="form-select" t-on-change="(ev) => this.onTypeChange(ev.target.value)">
+                                    <t t-foreach="typeOptions" t-as="option" t-key="option.key">
+                                        <option t-att-value="option.key" t-att-selected="state.filters.documentType === option.key">
+                                            <t t-esc="option.label"/>（<t t-esc="formatNumber(option.count)"/>）
+                                        </option>
+                                    </t>
+                                </select>
+                            </label>
+                            <label class="o_logistics_erp_doc_filter_item o_logistics_erp_doc_filter_keyword">
+                                <span><t t-esc="ui.keyword"/></span>
+                                <input type="search"
+                                       class="form-control"
+                                       t-att-placeholder="ui.keywordPlaceholder"
+                                       t-att-value="state.filters.keyword"
+                                       t-on-input="(ev) => this.onFilterFieldChange('keyword', ev.target.value)"
+                                       t-on-keydown="(ev) => this.onKeywordKeydown(ev)"/>
+                            </label>
+                            <label class="o_logistics_erp_doc_filter_item">
+                                <span><t t-esc="ui.dateFrom"/></span>
+                                <input type="date"
+                                       class="form-control"
+                                       t-att-value="state.filters.dateFrom"
+                                       t-on-change="(ev) => this.onFilterFieldChange('dateFrom', ev.target.value)"/>
+                            </label>
+                            <label class="o_logistics_erp_doc_filter_item">
+                                <span><t t-esc="ui.dateTo"/></span>
+                                <input type="date"
+                                       class="form-control"
+                                       t-att-value="state.filters.dateTo"
+                                       t-on-change="(ev) => this.onFilterFieldChange('dateTo', ev.target.value)"/>
+                            </label>
+                            <label class="o_logistics_erp_doc_filter_item">
+                                <span><t t-esc="ui.pageSize"/></span>
+                                <select class="form-select" t-on-change="(ev) => this.onPageSizeChange(ev.target.value)">
+                                    <t t-foreach="pageSizeOptions" t-as="size" t-key="size">
+                                        <option t-att-value="size" t-att-selected="state.filters.pageSize === size"><t t-esc="size"/></option>
+                                    </t>
+                                </select>
+                            </label>
+                            <div class="o_logistics_erp_doc_filter_actions">
+                                <button type="button" class="btn btn-primary" t-on-click="() => this.onRefresh()">
+                                    <t t-esc="ui.refresh"/>
+                                </button>
+                                <button type="button" class="btn btn-secondary" t-on-click="() => this.onResetFilters()">
+                                    <t t-esc="ui.reset"/>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="o_logistics_erp_doc_type_strip">
+                            <t t-foreach="typeOptions" t-as="option" t-key="option.key">
+                                <button type="button"
+                                        class="o_logistics_erp_doc_type_chip"
+                                        t-att-class="option.active ? 'o_logistics_erp_doc_type_chip_active' : ''"
+                                        t-on-click="() => this.onTypeChange(option.key)">
+                                    <span><t t-esc="option.label"/></span>
+                                    <strong><t t-esc="formatNumber(option.count)"/></strong>
+                                </button>
+                            </t>
+                        </div>
+                    </section>
+
+                    <section class="o_logistics_web_dashboard_section o_logistics_erp_doc_summary_band">
+                        <t t-foreach="summaryCards" t-as="card" t-key="card.key">
+                            <div class="o_logistics_web_summary_card o_logistics_erp_doc_summary_card" t-att-data-tone="card.tone">
+                                <span class="o_logistics_web_summary_card_label"><t t-esc="card.label"/></span>
+                                <strong class="o_logistics_web_summary_card_value"><t t-esc="card.value"/></strong>
+                                <span class="o_logistics_web_summary_card_meta"><t t-esc="card.caption"/></span>
+                            </div>
+                        </t>
+                    </section>
+
+                    <section class="o_logistics_web_dashboard_section o_logistics_web_panel_shell o_logistics_erp_doc_table_section">
+                        <div class="o_logistics_web_section_heading o_logistics_erp_doc_table_heading">
+                            <div>
+                                <h2>单据明细</h2>
+                                <p>点击右侧“查看”可进入原始业务单据，原有流程和表单不做改动。</p>
+                            </div>
+                            <div class="o_logistics_erp_doc_pagination_hint">
+                                <span>第 <t t-esc="state.pagination.page"/> / <t t-esc="state.pagination.total_pages"/> 页</span>
+                                <span>共 <t t-esc="formatNumber(state.pagination.total)"/> 条</span>
+                            </div>
+                        </div>
+
+                        <t t-if="state.loading">
+                            <div class="o_logistics_web_placeholder_panel o_logistics_web_state_panel">
+                                <strong>正在查询</strong>
+                                <p><t t-esc="ui.loading"/></p>
+                            </div>
+                        </t>
+                        <t t-elif="state.pageError">
+                            <div class="o_logistics_web_feedback_strip">
+                                <p><t t-esc="state.pageError"/></p>
+                            </div>
+                        </t>
+                        <t t-elif="!state.records.length">
+                            <div class="o_logistics_web_placeholder_panel o_logistics_web_state_panel">
+                                <strong>暂无数据</strong>
+                                <p><t t-esc="ui.noData"/></p>
+                            </div>
+                        </t>
+                        <t t-else="">
+                            <div class="o_logistics_erp_doc_table_wrap">
+                                <table class="o_logistics_erp_doc_table">
+                                    <thead>
+                                        <tr>
+                                            <th>类型</th>
+                                            <th>单据编号</th>
+                                            <th>往来对象/商品</th>
+                                            <th>业务日期</th>
+                                            <th>状态</th>
+                                            <th>金额/数量</th>
+                                            <th>仓库/位置</th>
+                                            <th>最近更新</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="state.records" t-as="record" t-key="record.id">
+                                            <tr>
+                                                <td>
+                                                    <span class="o_logistics_erp_doc_badge"><t t-esc="record.document_type_label"/></span>
+                                                    <small><t t-esc="record.category"/></small>
+                                                </td>
+                                                <td>
+                                                    <strong><t t-esc="record.name"/></strong>
+                                                    <small t-if="record.source"><t t-esc="record.source"/></small>
+                                                </td>
+                                                <td>
+                                                    <span><t t-esc="record.partner or '--'"/></span>
+                                                    <small t-if="record.hint"><t t-esc="record.hint"/></small>
+                                                </td>
+                                                <td><t t-esc="record.business_date or '--'"/></td>
+                                                <td>
+                                                    <span class="o_logistics_erp_doc_state"><t t-esc="record.state_label or record.state or '--'"/></span>
+                                                </td>
+                                                <td><t t-esc="record.amount or '--'"/></td>
+                                                <td><t t-esc="record.warehouse or '--'"/></td>
+                                                <td><t t-esc="record.updated_at_display or '--'"/></td>
+                                                <td>
+                                                    <button type="button" class="btn btn-sm btn-secondary o_logistics_erp_doc_open_btn" t-on-click="() => this.openRecord(record)">
+                                                        <t t-esc="ui.openRecord"/>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </t>
+
+                        <div class="o_logistics_erp_doc_pagination">
+                            <button type="button"
+                                    class="btn btn-secondary"
+                                    t-att-disabled="!canPreviousPage"
+                                    t-on-click="() => this.onPreviousPage()">
+                                <t t-esc="ui.previous"/>
+                            </button>
+                            <span>第 <t t-esc="state.pagination.page"/> / <t t-esc="state.pagination.total_pages"/> 页</span>
+                            <button type="button"
+                                    class="btn btn-secondary"
+                                    t-att-disabled="!canNextPage"
+                                    t-on-click="() => this.onNextPage()">
+                                <t t-esc="ui.next"/>
+                            </button>
+                        </div>
+                    </section>
+                </div>
+            </Layout>
+        </div>
+    </t>
+</templates>

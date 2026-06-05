@@ -11,3 +11,4 @@ import "./export_result_action";
 import "./driver_management_action_v2";
 import "./vehicle_management_action_v2";
 import "./stats_center_action";
+import "./erp_document_query_action";

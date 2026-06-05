@@ -295,4 +295,10 @@
               parent="menu_enterprise_bi"
               action="action_logistics_web_stats_center"
               sequence="20"/>
+
+    <menuitem id="menu_enterprise_bi_erp_documents"
+              name="ERP&#21333;&#25454;&#26597;&#35810;"
+              parent="menu_enterprise_bi"
+              action="action_logistics_web_erp_document_query"
+              sequence="30"/>
 </odoo>

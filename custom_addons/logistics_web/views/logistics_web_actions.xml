@@ -15,6 +15,11 @@
         <field name="tag">logistics_web.stats_center</field>
     </record>
 
+    <record id="action_logistics_web_erp_document_query" model="ir.actions.client">
+        <field name="name">ERP单据查询</field>
+        <field name="tag">logistics_web.erp_document_query</field>
+    </record>
+
     <record id="action_logistics_web_boss_trace" model="ir.actions.client">
         <field name="name">管理看板</field>
         <field name="tag">logistics_web.boss_trace</field>

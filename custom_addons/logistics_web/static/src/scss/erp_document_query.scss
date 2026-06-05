@@ -1,0 +1,288 @@
+.o_logistics_erp_document_query_action {
+  min-height: 100%;
+}
+
+.o_logistics_erp_document_page {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.o_logistics_erp_document_page_hero .o_logistics_web_page_note {
+  max-width: 360px;
+}
+
+.o_logistics_erp_doc_filters_section {
+  padding: 22px;
+}
+
+.o_logistics_erp_doc_filters {
+  display: grid;
+  grid-template-columns: minmax(180px, 1.1fr) minmax(240px, 1.6fr) repeat(3, minmax(150px, .8fr)) auto;
+  gap: 14px;
+  align-items: end;
+}
+
+.o_logistics_erp_doc_filter_item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.o_logistics_erp_doc_filter_item > span {
+  color: var(--ts-muted, #66727f);
+  font-size: 13px;
+  font-weight: 760;
+}
+
+.o_logistics_erp_doc_filter_item .form-control,
+.o_logistics_erp_doc_filter_item .form-select {
+  min-height: 42px;
+  border-color: var(--ts-line, #e2e7ec);
+  border-radius: var(--ts-radius, 8px);
+  color: var(--ts-ink, #12161c);
+  background: #ffffff;
+  font-weight: 650;
+}
+
+.o_logistics_erp_doc_filter_actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.o_logistics_erp_doc_filter_actions .btn {
+  min-height: 42px;
+  min-width: 78px;
+  border-radius: var(--ts-radius, 8px);
+  font-weight: 760;
+}
+
+.o_logistics_erp_doc_type_strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(142px, 1fr));
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.o_logistics_erp_doc_type_chip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 50px;
+  padding: 10px 12px;
+  border: 1px solid var(--ts-line, #e2e7ec);
+  border-radius: var(--ts-radius, 8px);
+  color: var(--ts-ink, #12161c);
+  background:
+    linear-gradient(135deg, rgba(10, 166, 200, 0.08), rgba(255, 255, 255, 0) 42%),
+    #ffffff;
+  box-shadow: 0 8px 18px rgba(18, 22, 28, 0.05);
+  text-align: left;
+}
+
+.o_logistics_erp_doc_type_chip span {
+  overflow: hidden;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 760;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.o_logistics_erp_doc_type_chip strong {
+  color: #0b6f86;
+  font-size: 15px;
+  font-weight: 850;
+}
+
+.o_logistics_erp_doc_type_chip:hover,
+.o_logistics_erp_doc_type_chip_active {
+  border-color: var(--ts-line-strong, #cbd4dc);
+  background:
+    linear-gradient(135deg, rgba(10, 166, 200, 0.16), rgba(244, 160, 42, 0.08) 100%),
+    #ffffff;
+  box-shadow: 0 12px 26px rgba(18, 22, 28, 0.09);
+}
+
+.o_logistics_erp_doc_summary_band {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.o_logistics_erp_doc_summary_card {
+  min-height: 124px;
+  padding: 18px;
+}
+
+.o_logistics_erp_doc_summary_card[data-tone="neutral"]::after {
+  background: linear-gradient(180deg, rgba(18, 22, 28, 0.12), transparent);
+}
+
+.o_logistics_erp_doc_table_section {
+  padding: 22px;
+}
+
+.o_logistics_erp_doc_table_heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.o_logistics_erp_doc_pagination_hint {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+  color: var(--ts-muted, #66727f);
+  font-size: 13px;
+  font-weight: 720;
+}
+
+.o_logistics_erp_doc_pagination_hint span {
+  display: inline-flex;
+  min-height: 32px;
+  align-items: center;
+  padding: 0 10px;
+  border: 1px solid var(--ts-line, #e2e7ec);
+  border-radius: var(--ts-radius, 8px);
+  background: #f8fafb;
+}
+
+.o_logistics_erp_doc_table_wrap {
+  overflow-x: auto;
+  margin-top: 16px;
+  border: 1px solid var(--ts-line, #e2e7ec);
+  border-radius: var(--ts-radius, 8px);
+  background: #ffffff;
+  box-shadow: 0 12px 26px rgba(18, 22, 28, 0.06);
+}
+
+.o_logistics_erp_doc_table {
+  width: 100%;
+  min-width: 1120px;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.o_logistics_erp_doc_table th,
+.o_logistics_erp_doc_table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--ts-line, #e2e7ec);
+  color: var(--ts-ink, #12161c);
+  vertical-align: top;
+}
+
+.o_logistics_erp_doc_table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #f7fafc;
+  color: #424b55;
+  font-size: 12px;
+  font-weight: 820;
+  text-align: left;
+}
+
+.o_logistics_erp_doc_table tr:last-child td {
+  border-bottom: 0;
+}
+
+.o_logistics_erp_doc_table td strong,
+.o_logistics_erp_doc_table td span,
+.o_logistics_erp_doc_table td small {
+  display: block;
+  max-width: 260px;
+  overflow-wrap: anywhere;
+}
+
+.o_logistics_erp_doc_table td small {
+  margin-top: 5px;
+  color: var(--ts-muted, #66727f);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.o_logistics_erp_doc_badge,
+.o_logistics_erp_doc_state {
+  display: inline-flex !important;
+  width: fit-content;
+  min-height: 26px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 9px;
+  border-radius: var(--ts-radius, 8px);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.o_logistics_erp_doc_badge {
+  color: #0a5263;
+  background: rgba(10, 166, 200, 0.12);
+}
+
+.o_logistics_erp_doc_state {
+  color: #6b4308;
+  background: rgba(244, 160, 42, 0.16);
+}
+
+.o_logistics_erp_doc_open_btn {
+  min-width: 64px;
+  border-radius: var(--ts-radius, 8px);
+  font-weight: 760;
+}
+
+.o_logistics_erp_doc_pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 16px;
+  color: var(--ts-muted, #66727f);
+  font-size: 13px;
+  font-weight: 760;
+}
+
+.o_logistics_erp_doc_pagination .btn {
+  min-width: 84px;
+  border-radius: var(--ts-radius, 8px);
+  font-weight: 760;
+}
+
+@media (max-width: 1280px) {
+  .o_logistics_erp_doc_filters {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .o_logistics_erp_doc_filter_actions {
+    justify-content: flex-start;
+  }
+
+  .o_logistics_erp_doc_summary_band {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .o_logistics_erp_doc_filters,
+  .o_logistics_erp_doc_summary_band {
+    grid-template-columns: 1fr;
+  }
+
+  .o_logistics_erp_doc_filter_actions,
+  .o_logistics_erp_doc_pagination,
+  .o_logistics_erp_doc_table_heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .o_logistics_erp_doc_filter_actions .btn,
+  .o_logistics_erp_doc_pagination .btn {
+    width: 100%;
+  }
+}
