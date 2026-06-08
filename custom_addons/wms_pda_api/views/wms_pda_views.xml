@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_wms_api_token_tree" model="ir.ui.view">
+        <field name="name">wms.api.token.tree</field>
+        <field name="model">wms.api.token</field>
+        <field name="arch" type="xml">
+            <list create="0">
+                <field name="user_id"/>
+                <field name="device_id"/>
+                <field name="warehouse_id"/>
+                <field name="is_active"/>
+                <field name="is_expired"/>
+                <field name="expires_at"/>
+                <field name="last_used_at"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_wms_api_token_form" model="ir.ui.view">
+        <field name="name">wms.api.token.form</field>
+        <field name="model">wms.api.token</field>
+        <field name="arch" type="xml">
+            <form create="0">
+                <header>
+                    <button name="action_revoke" type="object" string="Revoke Token" invisible="not is_active"/>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="user_id"/>
+                        <field name="device_id"/>
+                        <field name="warehouse_id"/>
+                        <field name="token" readonly="1"/>
+                        <field name="is_active"/>
+                        <field name="is_expired"/>
+                        <field name="expires_at"/>
+                        <field name="last_used_at"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_wms_api_token" model="ir.actions.act_window">
+        <field name="name">PDA Token</field>
+        <field name="res_model">wms.api.token</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="view_wms_task_lock_tree" model="ir.ui.view">
+        <field name="name">wms.task.lock.tree</field>
+        <field name="model">wms.task.lock</field>
+        <field name="arch" type="xml">
+            <list create="0">
+                <field name="task_model"/>
+                <field name="task_id"/>
+                <field name="user_id"/>
+                <field name="warehouse_id"/>
+                <field name="is_active"/>
+                <field name="locked_at"/>
+                <field name="expires_at"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_wms_task_lock" model="ir.actions.act_window">
+        <field name="name">PDA Task Locks</field>
+        <field name="res_model">wms.task.lock</field>
+        <field name="view_mode">list</field>
+    </record>
+
+    <record id="view_wms_task_photo_tree" model="ir.ui.view">
+        <field name="name">wms.task.photo.tree</field>
+        <field name="model">wms.task.photo</field>
+        <field name="arch" type="xml">
+            <list create="0">
+                <field name="task_model"/>
+                <field name="task_id"/>
+                <field name="operator_id"/>
+                <field name="warehouse_id"/>
+                <field name="device_id"/>
+                <field name="photo_url"/>
+                <field name="create_date"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_wms_task_photo_form" model="ir.ui.view">
+        <field name="name">wms.task.photo.form</field>
+        <field name="model">wms.task.photo</field>
+        <field name="arch" type="xml">
+            <form create="0">
+                <sheet>
+                    <group>
+                        <field name="task_model"/>
+                        <field name="task_id"/>
+                        <field name="operator_id"/>
+                        <field name="warehouse_id"/>
+                        <field name="device_id"/>
+                        <field name="gps"/>
+                        <field name="photo_url"/>
+                        <field name="note"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_wms_task_photo" model="ir.actions.act_window">
+        <field name="name">PDA Task Photos</field>
+        <field name="res_model">wms.task.photo</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem
+        id="menu_wms_pda_root"
+        name="PDA Warehouse"
+        parent="stock.menu_stock_adjustments"
+        groups="wms_pda_api.group_pda_admin,wms_pda_api.group_pda_leader"
+        sequence="45"/>
+
+    <menuitem
+        id="menu_wms_api_token"
+        name="PDA Token"
+        parent="menu_wms_pda_root"
+        action="action_wms_api_token"
+        groups="wms_pda_api.group_pda_admin"
+        sequence="10"/>
+
+    <menuitem
+        id="menu_wms_task_lock"
+        name="PDA Task Locks"
+        parent="menu_wms_pda_root"
+        action="action_wms_task_lock"
+        groups="wms_pda_api.group_pda_admin,wms_pda_api.group_pda_leader"
+        sequence="20"/>
+
+    <menuitem
+        id="menu_wms_task_photo"
+        name="PDA Task Photos"
+        parent="menu_wms_pda_root"
+        action="action_wms_task_photo"
+        groups="wms_pda_api.group_pda_admin,wms_pda_api.group_pda_leader"
+        sequence="30"/>
+</odoo>

@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_wms_api_token_admin,wms.api.token admin,model_wms_api_token,wms_pda_api.group_pda_admin,1,1,1,1
+access_wms_api_token_leader,wms.api.token leader,model_wms_api_token,wms_pda_api.group_pda_leader,1,1,0,0
+access_wms_task_lock_admin,wms.task.lock admin,model_wms_task_lock,wms_pda_api.group_pda_admin,1,1,1,1
+access_wms_task_lock_leader,wms.task.lock leader,model_wms_task_lock,wms_pda_api.group_pda_leader,1,1,1,0
+access_wms_task_lock_user,wms.task.lock user,model_wms_task_lock,wms_pda_api.group_pda_user,1,1,1,0
+access_wms_task_photo_admin,wms.task.photo admin,model_wms_task_photo,wms_pda_api.group_pda_admin,1,1,1,1
+access_wms_task_photo_leader,wms.task.photo leader,model_wms_task_photo,wms_pda_api.group_pda_leader,1,1,1,0
+access_wms_task_photo_user,wms.task.photo user,model_wms_task_photo,wms_pda_api.group_pda_user,1,1,1,0
