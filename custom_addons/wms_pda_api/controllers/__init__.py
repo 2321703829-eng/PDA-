@@ -2,6 +2,8 @@ from . import auth
 from . import barcode
 from . import check
 from . import config
+from . import handover
+from . import inventory
 from . import pick
 from . import putaway
 from . import receipt
