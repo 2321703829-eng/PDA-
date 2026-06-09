@@ -7,3 +7,6 @@ access_wms_task_lock_user,wms.task.lock user,model_wms_task_lock,wms_pda_api.gro
 access_wms_task_photo_admin,wms.task.photo admin,model_wms_task_photo,wms_pda_api.group_pda_admin,1,1,1,1
 access_wms_task_photo_leader,wms.task.photo leader,model_wms_task_photo,wms_pda_api.group_pda_leader,1,1,1,0
 access_wms_task_photo_user,wms.task.photo user,model_wms_task_photo,wms_pda_api.group_pda_user,1,1,1,0
+access_wms_pda_check_line_admin,wms.pda.check.line admin,model_wms_pda_check_line,wms_pda_api.group_pda_admin,1,1,1,1
+access_wms_pda_check_line_leader,wms.pda.check.line leader,model_wms_pda_check_line,wms_pda_api.group_pda_leader,1,1,1,0
+access_wms_pda_check_line_user,wms.pda.check.line user,model_wms_pda_check_line,wms_pda_api.group_pda_user,1,1,1,0
