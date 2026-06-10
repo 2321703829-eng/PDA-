@@ -4,7 +4,9 @@ from . import check
 from . import config
 from . import handover
 from . import inventory
+from . import offline
 from . import pick
+from . import photos
 from . import putaway
 from . import receipt
 from . import review

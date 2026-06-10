@@ -10,3 +10,9 @@ access_wms_task_photo_user,wms.task.photo user,model_wms_task_photo,wms_pda_api.
 access_wms_pda_check_line_admin,wms.pda.check.line admin,model_wms_pda_check_line,wms_pda_api.group_pda_admin,1,1,1,1
 access_wms_pda_check_line_leader,wms.pda.check.line leader,model_wms_pda_check_line,wms_pda_api.group_pda_leader,1,1,1,0
 access_wms_pda_check_line_user,wms.pda.check.line user,model_wms_pda_check_line,wms_pda_api.group_pda_user,1,1,1,0
+access_wms_pda_request_log_admin,wms.pda.request.log admin,model_wms_pda_request_log,wms_pda_api.group_pda_admin,1,1,1,1
+access_wms_pda_request_log_leader,wms.pda.request.log leader,model_wms_pda_request_log,wms_pda_api.group_pda_leader,1,0,0,0
+access_wms_pda_request_log_user,wms.pda.request.log user,model_wms_pda_request_log,wms_pda_api.group_pda_user,1,0,0,0
+access_wms_pda_offline_sync_admin,wms.pda.offline.sync admin,model_wms_pda_offline_sync,wms_pda_api.group_pda_admin,1,1,1,1
+access_wms_pda_offline_sync_leader,wms.pda.offline.sync leader,model_wms_pda_offline_sync,wms_pda_api.group_pda_leader,1,0,0,0
+access_wms_pda_offline_sync_user,wms.pda.offline.sync user,model_wms_pda_offline_sync,wms_pda_api.group_pda_user,1,0,0,0

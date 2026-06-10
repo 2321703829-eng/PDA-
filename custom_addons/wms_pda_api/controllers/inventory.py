@@ -31,7 +31,7 @@ class WmsPdaInventoryController(WmsPdaBaseController):
     @http.route("/api/pda/wms/v1/inventory/search", type="http", auth="public", methods=["POST"], csrf=False)
     def search_inventory(self, **kwargs):
         payload = self._get_payload()
-        return self._handle_request(lambda user, wh, token: self._search_inventory(user, wh, payload))
+        return self._handle_idempotent_request(payload, lambda user, wh, token: self._search_inventory(user, wh, payload))
 
     def _product_inventory(self, user, warehouse, payload):
         self._require_warehouse(warehouse)

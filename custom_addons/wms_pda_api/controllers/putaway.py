@@ -37,7 +37,7 @@ class WmsPdaPutawayController(WmsPdaBaseController):
     )
     def confirm_putaway(self, task_id, **kwargs):
         payload = self._get_payload()
-        return self._handle_request(lambda user, wh, token: self._confirm_putaway(user, wh, task_id, payload))
+        return self._handle_idempotent_request(payload, lambda user, wh, token: self._confirm_putaway(user, wh, task_id, payload))
 
     @http.route(
         "/api/pda/wms/v1/putaway/tasks/<int:task_id>/complete",
@@ -47,7 +47,8 @@ class WmsPdaPutawayController(WmsPdaBaseController):
         csrf=False,
     )
     def complete_putaway(self, task_id, **kwargs):
-        return self._handle_request(lambda user, wh, token: self._complete_task(user, wh, task_id))
+        payload = self._get_payload()
+        return self._handle_idempotent_request(payload, lambda user, wh, token: self._complete_task(user, wh, task_id))
 
     def _list_tasks(self, user, warehouse, payload):
         if not warehouse:

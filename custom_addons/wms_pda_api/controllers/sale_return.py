@@ -33,7 +33,7 @@ class WmsPdaSaleReturnController(WmsPdaBaseController):
     )
     def confirm_sale_return_line(self, task_id, **kwargs):
         payload = self._get_payload()
-        return self._handle_request(lambda user, wh, token: self._confirm_line(user, wh, task_id, payload))
+        return self._handle_idempotent_request(payload, lambda user, wh, token: self._confirm_line(user, wh, task_id, payload))
 
     @http.route(
         "/api/pda/wms/v1/sale-return/tasks/<int:task_id>/complete",
@@ -44,7 +44,7 @@ class WmsPdaSaleReturnController(WmsPdaBaseController):
     )
     def complete_sale_return_task(self, task_id, **kwargs):
         payload = self._get_payload()
-        return self._handle_request(lambda user, wh, token: self._complete_task(user, wh, task_id, payload))
+        return self._handle_idempotent_request(payload, lambda user, wh, token: self._complete_task(user, wh, task_id, payload))
 
     def _list_tasks(self, user, warehouse, payload):
         self._require_warehouse(warehouse)

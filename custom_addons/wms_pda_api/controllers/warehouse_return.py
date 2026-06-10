@@ -17,7 +17,7 @@ class WmsPdaWarehouseReturnController(WmsPdaBaseController):
     @http.route("/api/pda/wms/v1/return/create", type="http", auth="public", methods=["POST"], csrf=False)
     def create_return_operation(self, **kwargs):
         payload = self._get_payload()
-        return self._handle_request(lambda user, wh, token: self._create_operation(user, wh, payload))
+        return self._handle_idempotent_request(payload, lambda user, wh, token: self._create_operation(user, wh, payload))
 
     @http.route(
         "/api/pda/wms/v1/return/<int:operation_id>/add-line",
@@ -28,7 +28,7 @@ class WmsPdaWarehouseReturnController(WmsPdaBaseController):
     )
     def add_return_line(self, operation_id, **kwargs):
         payload = self._get_payload()
-        return self._handle_request(lambda user, wh, token: self._add_line(user, wh, operation_id, payload))
+        return self._handle_idempotent_request(payload, lambda user, wh, token: self._add_line(user, wh, operation_id, payload))
 
     @http.route(
         "/api/pda/wms/v1/return/<int:operation_id>/confirm",
@@ -38,7 +38,8 @@ class WmsPdaWarehouseReturnController(WmsPdaBaseController):
         csrf=False,
     )
     def confirm_return_operation(self, operation_id, **kwargs):
-        return self._handle_request(lambda user, wh, token: self._confirm_operation(user, wh, operation_id))
+        payload = self._get_payload()
+        return self._handle_idempotent_request(payload, lambda user, wh, token: self._confirm_operation(user, wh, operation_id))
 
     def _create_operation(self, user, warehouse, payload):
         self._require_warehouse(warehouse)

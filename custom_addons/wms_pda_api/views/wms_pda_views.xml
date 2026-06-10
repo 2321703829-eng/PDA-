@@ -111,6 +111,104 @@
         <field name="view_mode">list,form</field>
     </record>
 
+    <record id="view_wms_pda_request_log_tree" model="ir.ui.view">
+        <field name="name">wms.pda.request.log.tree</field>
+        <field name="model">wms.pda.request.log</field>
+        <field name="arch" type="xml">
+            <list create="0">
+                <field name="request_id"/>
+                <field name="endpoint"/>
+                <field name="method"/>
+                <field name="state"/>
+                <field name="user_id"/>
+                <field name="warehouse_id"/>
+                <field name="device_id"/>
+                <field name="created_at"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_wms_pda_request_log_form" model="ir.ui.view">
+        <field name="name">wms.pda.request.log.form</field>
+        <field name="model">wms.pda.request.log</field>
+        <field name="arch" type="xml">
+            <form create="0" edit="0">
+                <sheet>
+                    <group>
+                        <field name="request_id"/>
+                        <field name="endpoint"/>
+                        <field name="method"/>
+                        <field name="state"/>
+                        <field name="user_id"/>
+                        <field name="warehouse_id"/>
+                        <field name="device_id"/>
+                        <field name="payload_hash"/>
+                        <field name="created_at"/>
+                    </group>
+                    <group>
+                        <field name="error_message"/>
+                        <field name="response_json"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_wms_pda_request_log" model="ir.actions.act_window">
+        <field name="name">PDA Request Logs</field>
+        <field name="res_model">wms.pda.request.log</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="view_wms_pda_offline_sync_tree" model="ir.ui.view">
+        <field name="name">wms.pda.offline.sync.tree</field>
+        <field name="model">wms.pda.offline.sync</field>
+        <field name="arch" type="xml">
+            <list create="0">
+                <field name="sync_id"/>
+                <field name="state"/>
+                <field name="request_count"/>
+                <field name="success_count"/>
+                <field name="failed_count"/>
+                <field name="user_id"/>
+                <field name="warehouse_id"/>
+                <field name="device_id"/>
+                <field name="created_at"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_wms_pda_offline_sync_form" model="ir.ui.view">
+        <field name="name">wms.pda.offline.sync.form</field>
+        <field name="model">wms.pda.offline.sync</field>
+        <field name="arch" type="xml">
+            <form create="0" edit="0">
+                <sheet>
+                    <group>
+                        <field name="sync_id"/>
+                        <field name="state"/>
+                        <field name="request_count"/>
+                        <field name="success_count"/>
+                        <field name="failed_count"/>
+                        <field name="user_id"/>
+                        <field name="warehouse_id"/>
+                        <field name="device_id"/>
+                        <field name="created_at"/>
+                    </group>
+                    <group>
+                        <field name="results_json"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_wms_pda_offline_sync" model="ir.actions.act_window">
+        <field name="name">PDA Offline Sync Logs</field>
+        <field name="res_model">wms.pda.offline.sync</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
     <menuitem
         id="menu_wms_pda_root"
         name="PDA Warehouse"
@@ -141,4 +239,20 @@
         action="action_wms_task_photo"
         groups="wms_pda_api.group_pda_admin,wms_pda_api.group_pda_leader"
         sequence="30"/>
+
+    <menuitem
+        id="menu_wms_pda_request_log"
+        name="PDA Request Logs"
+        parent="menu_wms_pda_root"
+        action="action_wms_pda_request_log"
+        groups="wms_pda_api.group_pda_admin,wms_pda_api.group_pda_leader"
+        sequence="40"/>
+
+    <menuitem
+        id="menu_wms_pda_offline_sync"
+        name="PDA Offline Sync Logs"
+        parent="menu_wms_pda_root"
+        action="action_wms_pda_offline_sync"
+        groups="wms_pda_api.group_pda_admin,wms_pda_api.group_pda_leader"
+        sequence="50"/>
 </odoo>

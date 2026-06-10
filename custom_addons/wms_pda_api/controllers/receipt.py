@@ -30,7 +30,7 @@ class WmsPdaReceiptController(WmsPdaBaseController):
     )
     def confirm_receipt_line(self, task_id, **kwargs):
         payload = self._get_payload()
-        return self._handle_request(lambda user, wh, token: self._confirm_line(user, wh, task_id, payload))
+        return self._handle_idempotent_request(payload, lambda user, wh, token: self._confirm_line(user, wh, task_id, payload))
 
     @http.route(
         "/api/pda/wms/v1/receipt/tasks/<int:task_id>/complete",
@@ -40,7 +40,8 @@ class WmsPdaReceiptController(WmsPdaBaseController):
         csrf=False,
     )
     def complete_receipt_task(self, task_id, **kwargs):
-        return self._handle_request(lambda user, wh, token: self._complete_task(user, wh, task_id))
+        payload = self._get_payload()
+        return self._handle_idempotent_request(payload, lambda user, wh, token: self._complete_task(user, wh, task_id))
 
     def _list_tasks(self, user, warehouse, payload):
         if not warehouse:

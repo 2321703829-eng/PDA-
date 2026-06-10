@@ -37,7 +37,7 @@ class WmsPdaPickController(WmsPdaBaseController):
     )
     def confirm_pick_line(self, task_id, **kwargs):
         payload = self._get_payload()
-        return self._handle_request(lambda user, wh, token: self._confirm_line(user, wh, task_id, payload))
+        return self._handle_idempotent_request(payload, lambda user, wh, token: self._confirm_line(user, wh, task_id, payload))
 
     @http.route(
         "/api/pda/wms/v1/pick/tasks/<int:task_id>/complete",
@@ -48,7 +48,7 @@ class WmsPdaPickController(WmsPdaBaseController):
     )
     def complete_pick_task(self, task_id, **kwargs):
         payload = self._get_payload()
-        return self._handle_request(lambda user, wh, token: self._complete_task(user, wh, task_id, payload))
+        return self._handle_idempotent_request(payload, lambda user, wh, token: self._complete_task(user, wh, task_id, payload))
 
     @http.route(
         "/api/pda/wms/v1/pick/tasks/<int:task_id>/summary",

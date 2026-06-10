@@ -36,7 +36,8 @@ class WmsPdaHandoverController(WmsPdaBaseController):
         csrf=False,
     )
     def confirm_handover_order(self, order_id, **kwargs):
-        return self._handle_request(lambda user, wh, token: self._confirm_order(user, wh, order_id))
+        payload = self._get_payload()
+        return self._handle_idempotent_request(payload, lambda user, wh, token: self._confirm_order(user, wh, order_id))
 
     @http.route(
         "/api/pda/wms/v1/handover/orders/<int:order_id>/complete",
@@ -46,7 +47,8 @@ class WmsPdaHandoverController(WmsPdaBaseController):
         csrf=False,
     )
     def complete_handover_order(self, order_id, **kwargs):
-        return self._handle_request(lambda user, wh, token: self._complete_order(user, wh, order_id))
+        payload = self._get_payload()
+        return self._handle_idempotent_request(payload, lambda user, wh, token: self._complete_order(user, wh, order_id))
 
     @http.route(
         "/api/pda/wms/v1/handover/orders/<int:order_id>/prepare-route-batch",
@@ -56,7 +58,8 @@ class WmsPdaHandoverController(WmsPdaBaseController):
         csrf=False,
     )
     def prepare_route_batch(self, order_id, **kwargs):
-        return self._handle_request(lambda user, wh, token: self._prepare_route_batch(user, wh, order_id))
+        payload = self._get_payload()
+        return self._handle_idempotent_request(payload, lambda user, wh, token: self._prepare_route_batch(user, wh, order_id))
 
     def _list_orders(self, user, warehouse, payload):
         if not warehouse:
@@ -147,10 +150,17 @@ class WmsPdaHandoverController(WmsPdaBaseController):
             warehouse_id=warehouse.id if warehouse else False,
         )
         action()
+        route_batch = handover.route_batch_id
+        waybills = self._related_waybills(handover)
+        stop_lines = self._route_batch_stop_lines(route_batch)
         return self._success(
             {
                 "order": self._format_order(handover, include_lock=True),
-                "route_batch": self._format_route_batch(handover.route_batch_id),
+                "route_batch_id": route_batch.id if route_batch else False,
+                "route_batch_name": route_batch.display_name if route_batch else "",
+                "waybill_ids": waybills.ids,
+                "stop_line_ids": stop_lines.ids,
+                "route_batch": self._format_route_batch(route_batch),
             },
             tts="排线批次已准备",
         )
@@ -226,7 +236,7 @@ class WmsPdaHandoverController(WmsPdaBaseController):
             waybills |= dispatch_orders.mapped("driver_task_ids.waybill_id")
         route_batch = handover.route_batch_id
         if route_batch and "stop_line_ids" in route_batch._fields:
-            waybill_names = [name for name in route_batch.stop_line_ids.mapped("waybill_no") if name]
+            waybill_names = [name for name in self._route_batch_stop_lines(route_batch).mapped("waybill_no") if name]
             if waybill_names:
                 waybills |= Waybill.search([("name", "in", waybill_names)])
         outbound = handover.outbound_task_id
@@ -249,9 +259,34 @@ class WmsPdaHandoverController(WmsPdaBaseController):
     def _format_route_batch(self, route_batch):
         if not route_batch:
             return {}
+        stop_lines = self._route_batch_stop_lines(route_batch)
         return {
             "id": route_batch.id,
             "name": route_batch.display_name,
             "batch_no": route_batch.batch_no if "batch_no" in route_batch._fields else "",
             "delivery_date": route_batch.delivery_date if "delivery_date" in route_batch._fields else False,
+            "stop_line_ids": stop_lines.ids,
+            "stop_lines": [self._format_stop_line(line) for line in stop_lines],
+        }
+
+    def _route_batch_stop_lines(self, route_batch):
+        StopLine = request.env["logistics.route.planning.stop.line"].sudo()
+        if not route_batch:
+            return StopLine.browse()
+        return request.env["logistics.route.planning.stop.line"].sudo().search(
+            [("batch_id", "=", route_batch.id)],
+            order="stop_seq asc, id asc",
+        )
+
+    def _format_stop_line(self, stop_line):
+        return {
+            "id": stop_line.id,
+            "waybill_no": stop_line.waybill_no,
+            "stop_seq": stop_line.stop_seq,
+            "store_name": stop_line.store_name,
+            "longitude": stop_line.longitude,
+            "latitude": stop_line.latitude,
+            "address_detail": stop_line.address_detail,
+            "contact_phone": stop_line.contact_phone or "",
+            "cargo_summary": stop_line.cargo_summary or "",
         }
