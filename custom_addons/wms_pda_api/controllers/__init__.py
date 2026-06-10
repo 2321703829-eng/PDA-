@@ -7,3 +7,5 @@ from . import inventory
 from . import pick
 from . import putaway
 from . import receipt
+from . import sale_return
+from . import warehouse_return
