@@ -17,6 +17,41 @@ class TmsDispatchMixin(models.AbstractModel):
     def _next_sequence(self, code, fallback):
         return self.env["ir.sequence"].next_by_code(code) or fallback
 
+    def _chain_warning(self, title):
+        return {
+            "type": "ir.actions.client",
+            "tag": "display_notification",
+            "params": {
+                "title": _("提示"),
+                "message": _("当前记录暂未找到可打开的%s。") % title,
+                "type": "warning",
+            },
+        }
+
+    def _action_open_chain_records(self, title, model_name, records):
+        records = records.exists()
+        if not records:
+            return self._chain_warning(title)
+        action = {
+            "type": "ir.actions.act_window",
+            "name": title,
+            "res_model": model_name,
+            "target": "current",
+        }
+        if len(records) == 1:
+            action.update({"view_mode": "form", "res_id": records.id})
+        else:
+            action.update({"view_mode": "list,form", "domain": [("id", "in", records.ids)]})
+        return action
+
+    def _sale_orders_from_waybills(self, waybills):
+        sale_orders = self.env["sale.order"].browse()
+        if waybills and "logistics.dispatch.waybill.order.line" in self.env.registry:
+            sale_orders |= self.env["logistics.dispatch.waybill.order.line"].sudo().search(
+                [("waybill_id", "in", waybills.ids)]
+            ).mapped("sale_order_id")
+        return sale_orders
+
 
 class TmsDispatchOrder(models.Model):
     _name = "tms.dispatch.order"
@@ -47,6 +82,9 @@ class TmsDispatchOrder(models.Model):
     departed_task_count = fields.Integer(string="Departed Tasks", compute="_compute_counts")
     in_transit_task_count = fields.Integer(string="In Transit Tasks", compute="_compute_counts")
     signed_task_count = fields.Integer(string="Signed Tasks", compute="_compute_counts")
+    order_refs_summary = fields.Char(string="订单号", compute="_compute_chain_trace_fields")
+    waybill_nos_summary = fields.Char(string="运单号", compute="_compute_chain_trace_fields")
+    store_names_summary = fields.Char(string="门店", compute="_compute_chain_trace_fields")
 
     @api.depends("driver_task_ids.state", "driver_task_ids", "freight_fee_line_ids.amount")
     def _compute_counts(self):
@@ -58,6 +96,28 @@ class TmsDispatchOrder(models.Model):
             record.departed_task_count = len(record.driver_task_ids.filtered(lambda task: task.state == "departed"))
             record.in_transit_task_count = len(record.driver_task_ids.filtered(lambda task: task.state in ("in_transit", "arrived_store")))
             record.signed_task_count = len(record.driver_task_ids.filtered(lambda task: task.state in ("signed_full", "signed_partial")))
+
+    @api.depends(
+        "driver_task_ids.waybill_id",
+        "driver_task_ids.waybill_id.order_refs_summary",
+        "driver_task_ids.waybill_id.name",
+        "driver_task_ids.waybill_id.store_name",
+        "route_batch_id.stop_line_ids.waybill_no",
+        "route_batch_id.stop_line_ids.store_name",
+    )
+    def _compute_chain_trace_fields(self):
+        for record in self:
+            waybills = record.driver_task_ids.mapped("waybill_id")
+            order_refs = [value for value in waybills.mapped("order_refs_summary") if value]
+            waybill_nos = [waybill.waybill_no or waybill.name for waybill in waybills if waybill]
+            store_names = [value for value in waybills.mapped("store_name") if value]
+            if not waybill_nos and record.route_batch_id:
+                stop_lines = record.route_batch_id.stop_line_ids
+                waybill_nos = [value for value in stop_lines.mapped("waybill_no") if value]
+                store_names = [value for value in stop_lines.mapped("store_name") if value]
+            record.order_refs_summary = " / ".join(dict.fromkeys(order_refs))
+            record.waybill_nos_summary = " / ".join(dict.fromkeys(waybill_nos))
+            record.store_names_summary = " / ".join(dict.fromkeys(store_names))
 
     @api.model
     def create_from_handover(self, handover_order):
@@ -257,6 +317,26 @@ class TmsDispatchOrder(models.Model):
             "domain": [("id", "in", self.driver_task_ids.mapped("waybill_id").ids)],
         }
 
+    def action_open_chain_sale_orders(self):
+        self.ensure_one()
+        return self._action_open_chain_records(
+            _("销售订单"),
+            "sale.order",
+            self._sale_orders_from_waybills(self.driver_task_ids.mapped("waybill_id")),
+        )
+
+    def action_open_chain_route_batch(self):
+        self.ensure_one()
+        return self._action_open_chain_records(_("排线批次"), "logistics.route.planning.batch", self.route_batch_id)
+
+    def action_open_chain_handover_order(self):
+        self.ensure_one()
+        return self._action_open_chain_records(_("交接单"), "wms.handover.order", self.handover_order_id)
+
+    def action_open_chain_driver_tasks(self):
+        self.ensure_one()
+        return self._action_open_chain_records(_("司机任务"), "tms.driver.task", self.driver_task_ids)
+
     def action_open_freight_lines(self):
         if not self:
             return {
@@ -338,6 +418,9 @@ class TmsDriverTask(models.Model):
     latest_latitude = fields.Float(string="Latest Latitude", compute="_compute_latest_node", digits=(16, 8))
     signoff_receipt_count = fields.Integer(string="Signoff Count", compute="_compute_related_counts")
     exception_count = fields.Integer(string="Exception Count", compute="_compute_related_counts")
+    order_refs_summary = fields.Char(string="订单号", compute="_compute_chain_trace_fields")
+    waybill_no = fields.Char(string="运单号", compute="_compute_chain_trace_fields")
+    store_name = fields.Char(string="门店", compute="_compute_chain_trace_fields")
 
     @api.depends("node_ids.event_time", "node_ids.state")
     def _compute_latest_node(self):
@@ -355,6 +438,19 @@ class TmsDriverTask(models.Model):
         for record in self:
             record.signoff_receipt_count = self.env["tms.signoff.receipt"].search_count([("driver_task_id", "=", record.id)])
             record.exception_count = self.env["tms.delivery.exception"].search_count([("driver_task_id", "=", record.id)])
+
+    @api.depends("waybill_id", "waybill_id.order_refs_summary", "waybill_id.name", "waybill_id.store_name", "store_profile_id.partner_id")
+    def _compute_chain_trace_fields(self):
+        for record in self:
+            waybill = record.waybill_id
+            record.order_refs_summary = waybill.order_refs_summary if waybill else ""
+            record.waybill_no = (waybill.waybill_no or waybill.name) if waybill else ""
+            record.store_name = (
+                (waybill.store_name if waybill else "")
+                or record.store_profile_id.display_name
+                or record.store_profile_id.partner_id.display_name
+                or ""
+            )
 
     def _log_node(self, node_state, note=None):
         for record in self:
@@ -702,6 +798,22 @@ class TmsDriverTask(models.Model):
             "res_id": self.waybill_id.id,
         }
 
+    def action_open_chain_sale_orders(self):
+        self.ensure_one()
+        return self._action_open_chain_records(
+            _("销售订单"),
+            "sale.order",
+            self._sale_orders_from_waybills(self.waybill_id),
+        )
+
+    def action_open_chain_dispatch_order(self):
+        self.ensure_one()
+        return self._action_open_chain_records(_("派车单"), "tms.dispatch.order", self.dispatch_order_id)
+
+    def action_open_chain_route_batch(self):
+        self.ensure_one()
+        return self._action_open_chain_records(_("排线批次"), "logistics.route.planning.batch", self.dispatch_order_id.route_batch_id)
+
     def action_open_record(self):
         if not self:
             return {
@@ -774,6 +886,16 @@ class TmsSignoffReceipt(models.Model):
     signed_qty = fields.Float(string="Signed Qty", digits=(16, 4), default=0.0)
     photo_count = fields.Integer(string="Photo Count", default=0)
     note = fields.Text(string="Note")
+    order_refs_summary = fields.Char(string="订单号", compute="_compute_chain_trace_fields")
+    waybill_no = fields.Char(string="运单号", compute="_compute_chain_trace_fields")
+    store_name = fields.Char(string="门店", compute="_compute_chain_trace_fields")
+
+    @api.depends("driver_task_id.order_refs_summary", "driver_task_id.waybill_no", "driver_task_id.store_name")
+    def _compute_chain_trace_fields(self):
+        for record in self:
+            record.order_refs_summary = record.driver_task_id.order_refs_summary
+            record.waybill_no = record.driver_task_id.waybill_no
+            record.store_name = record.driver_task_id.store_name
 
     def action_confirm_signoff(self):
         if not self:
@@ -850,6 +972,18 @@ class TmsDeliveryException(models.Model):
     waybill_id = fields.Many2one("logistics.dispatch.waybill", string="Waybill", ondelete="set null", index=True)
     amount = fields.Float(string="Settlement Amount", digits=(16, 2), default=0.0)
     note = fields.Text(string="Note")
+    order_refs_summary = fields.Char(string="订单号", compute="_compute_chain_trace_fields")
+    waybill_no = fields.Char(string="运单号", compute="_compute_chain_trace_fields")
+    store_name = fields.Char(string="门店", compute="_compute_chain_trace_fields")
+
+    @api.depends("driver_task_id.order_refs_summary", "driver_task_id.waybill_no", "driver_task_id.store_name", "waybill_id")
+    def _compute_chain_trace_fields(self):
+        for record in self:
+            task = record.driver_task_id
+            waybill = record.waybill_id or task.waybill_id
+            record.order_refs_summary = task.order_refs_summary or (waybill.order_refs_summary if waybill else "")
+            record.waybill_no = task.waybill_no or ((waybill.waybill_no or waybill.name) if waybill else "")
+            record.store_name = task.store_name or (waybill.store_name if waybill else "")
 
     def action_open_record(self):
         if not self:

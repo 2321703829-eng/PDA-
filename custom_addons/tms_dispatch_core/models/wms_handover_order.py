@@ -1,9 +1,54 @@
-from odoo import _, fields, models
+from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 
 
 class WmsHandoverOrder(models.Model):
     _inherit = "wms.handover.order"
+
+    order_refs_summary = fields.Char(string="订单号汇总", compute="_compute_chain_trace_fields", store=True, compute_sudo=True)
+    waybill_nos_summary = fields.Char(string="运单号", compute="_compute_chain_trace_fields", store=True, compute_sudo=True)
+    chain_step_summary = fields.Char(string="当前步骤", compute="_compute_chain_trace_fields", store=True, compute_sudo=True)
+
+    @api.depends("outbound_task_id.stock_picking_id", "route_batch_id.stop_line_ids.waybill_no", "state")
+    def _compute_chain_trace_fields(self):
+        for record in self:
+            picking = record.outbound_task_id.stock_picking_id if record.outbound_task_id else False
+            sale_order = picking.sale_id if picking and "sale_id" in picking._fields else False
+            waybills = record._chain_waybills()
+            order_refs = [value for value in waybills.mapped("order_refs_summary") if value]
+            if sale_order:
+                order_refs.append(sale_order.name)
+            waybill_nos = [waybill.waybill_no or waybill.name for waybill in waybills if waybill]
+            if not waybill_nos and record.route_batch_id:
+                waybill_nos = [value for value in record.route_batch_id.stop_line_ids.mapped("waybill_no") if value]
+            record.order_refs_summary = " / ".join(dict.fromkeys(order_refs))
+            record.waybill_nos_summary = " / ".join(dict.fromkeys(waybill_nos))
+            record.chain_step_summary = record._chain_step_label()
+
+    def _chain_step_label(self):
+        self.ensure_one()
+        labels = {
+            "waiting_handover": _("待交接"),
+            "handover_ing": _("交接中"),
+            "handover_done": _("已交接"),
+        }
+        if self.route_batch_id:
+            return _("已进入排线")
+        return labels.get(self.state, self.state or "")
+
+    def _chain_waybills(self):
+        self.ensure_one()
+        waybills = self.env["logistics.dispatch.waybill"].browse()
+        picking = self.outbound_task_id.stock_picking_id if self.outbound_task_id else False
+        if "logistics.dispatch.waybill.order.line" in self.env.registry and picking:
+            waybills |= self.env["logistics.dispatch.waybill.order.line"].sudo().search(
+                [("stock_picking_id", "=", picking.id)]
+            ).mapped("waybill_id")
+        if not waybills and self.route_batch_id:
+            names = [name for name in self.route_batch_id.stop_line_ids.mapped("waybill_no") if name]
+            if names:
+                waybills |= self.env["logistics.dispatch.waybill"].sudo().search([("name", "in", names)])
+        return waybills
 
     def action_create_dispatch_order(self):
         if not self:
@@ -49,6 +94,85 @@ class WmsHandoverOrder(models.Model):
             "domain": [("handover_order_id", "=", self.id)],
             "context": {"default_handover_order_id": self.id},
         }
+
+    def action_open_chain_sale_orders(self):
+        self.ensure_one()
+        sale_orders = self.env["sale.order"].browse()
+        picking = self.outbound_task_id.stock_picking_id if self.outbound_task_id else False
+        if picking and "sale_id" in picking._fields and picking.sale_id:
+            sale_orders |= picking.sale_id
+        if "logistics.dispatch.waybill.order.line" in self.env.registry:
+            domain = []
+            if picking:
+                domain = [("stock_picking_id", "=", picking.id)]
+            elif sale_orders:
+                domain = [("sale_order_id", "in", sale_orders.ids)]
+            if domain:
+                sale_orders |= self.env["logistics.dispatch.waybill.order.line"].sudo().search(domain).mapped("sale_order_id")
+        return self._action_open_chain_records(_("销售订单"), "sale.order", sale_orders)
+
+    def action_open_chain_outbound_tasks(self):
+        self.ensure_one()
+        return self._action_open_chain_records(_("出库任务"), "wms.outbound.task", self.outbound_task_id)
+
+    def action_open_chain_waybills(self):
+        self.ensure_one()
+        waybills = self.env["logistics.dispatch.waybill"].browse()
+        picking = self.outbound_task_id.stock_picking_id if self.outbound_task_id else False
+        if "logistics.dispatch.waybill.order.line" in self.env.registry and picking:
+            waybills |= self.env["logistics.dispatch.waybill.order.line"].sudo().search(
+                [("stock_picking_id", "=", picking.id)]
+            ).mapped("waybill_id")
+        if not waybills and self.route_batch_id:
+            names = [name for name in self.route_batch_id.stop_line_ids.mapped("waybill_no") if name]
+            if names:
+                waybills |= self.env["logistics.dispatch.waybill"].sudo().search([("name", "in", names)])
+        return self._action_open_chain_records(_("运单"), "logistics.dispatch.waybill", waybills)
+
+    def action_wms_trace_open_sale_orders(self):
+        return self.action_open_chain_sale_orders()
+
+    def action_wms_trace_open_outbound_tasks(self):
+        return self.action_open_chain_outbound_tasks()
+
+    def action_wms_trace_open_pick_tasks(self):
+        self.ensure_one()
+        return self._action_open_chain_records(_("拣货任务"), "wms.pick.task", self.outbound_task_id.pick_task_ids)
+
+    def action_wms_trace_open_check_tasks(self):
+        self.ensure_one()
+        return self._action_open_chain_records(_("复核任务"), "wms.check.task", self.outbound_task_id.check_task_ids)
+
+    def action_wms_trace_open_waybills(self):
+        return self.action_open_chain_waybills()
+
+    def action_wms_trace_open_route_batches(self):
+        self.ensure_one()
+        return self._action_open_chain_records(_("排线批次"), "logistics.route.planning.batch", self.route_batch_id)
+
+    def _action_open_chain_records(self, title, model_name, records):
+        records = records.exists()
+        if not records:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("提示"),
+                    "message": _("当前交接单暂未找到可打开的%s。") % title,
+                    "type": "warning",
+                },
+            }
+        action = {
+            "type": "ir.actions.act_window",
+            "name": title,
+            "res_model": model_name,
+            "target": "current",
+        }
+        if len(records) == 1:
+            action.update({"view_mode": "form", "res_id": records.id})
+        else:
+            action.update({"view_mode": "list,form", "domain": [("id", "in", records.ids)]})
+        return action
 
     def action_prepare_route_batch(self):
         if not self:

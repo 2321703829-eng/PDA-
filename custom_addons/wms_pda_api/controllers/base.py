@@ -1,10 +1,14 @@
 import hashlib
 import json
+import logging
 import uuid
 
 from odoo import http
 from odoo.exceptions import AccessError, ValidationError
 from odoo.http import Response, request
+
+
+_logger = logging.getLogger(__name__)
 
 
 class WmsPdaBaseController(http.Controller):
@@ -78,6 +82,7 @@ class WmsPdaBaseController(http.Controller):
         except ValueError as exc:
             return self._error(self.ERR_BAD_PARAM, str(exc), status=400)
         except Exception as exc:
+            _logger.exception("PDA API request failed")
             return self._error(self.ERR_INTERNAL, str(exc), status=500)
 
     def _request_id(self, prefix):
@@ -100,6 +105,7 @@ class WmsPdaBaseController(http.Controller):
         except ValueError as exc:
             return self._error(self.ERR_BAD_PARAM, str(exc), status=400)
         except Exception as exc:
+            _logger.exception("PDA idempotent API request failed")
             return self._error(self.ERR_INTERNAL, str(exc), status=500)
 
     def _run_idempotent(self, payload, user, warehouse, token, callback, endpoint=None, method=None):

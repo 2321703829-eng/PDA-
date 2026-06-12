@@ -44,7 +44,7 @@ class WmsPdaPhotosController(WmsPdaBaseController):
 
     def _bind(self, user, warehouse, token, payload):
         urls = self._photo_urls(payload)
-        task = self._get_task(user, warehouse, payload)
+        task = self._photo_get_task(user, warehouse, payload)
         Photo = request.env["wms.task.photo"].sudo()
         device_id = (payload.get("device_id") or getattr(token, "device_id", "") or "").strip()
         photos = Photo.browse()
@@ -55,7 +55,7 @@ class WmsPdaPhotosController(WmsPdaBaseController):
                     "task_id": task.id,
                     "photo_url": url,
                     "operator_id": user.id,
-                    "warehouse_id": warehouse.id if warehouse else self._task_warehouse_id(task),
+                    "warehouse_id": warehouse.id if warehouse else self._photo_task_warehouse_id(task),
                     "device_id": device_id,
                     "gps": (payload.get("gps") or "").strip(),
                     "note": (payload.get("note") or "").strip(),
@@ -70,7 +70,7 @@ class WmsPdaPhotosController(WmsPdaBaseController):
         }
 
     def _list(self, user, warehouse, payload):
-        task = self._get_task(user, warehouse, payload)
+        task = self._photo_get_task(user, warehouse, payload)
         photos = request.env["wms.task.photo"].sudo().search(
             [("task_model", "=", task._name), ("task_id", "=", task.id)],
             order="id desc",
@@ -82,9 +82,9 @@ class WmsPdaPhotosController(WmsPdaBaseController):
             "photos": [self._format_photo(photo) for photo in photos],
         }
 
-    def _get_task(self, user, warehouse, payload):
-        model_name = (payload.get("task_model") or "").strip()
-        task_id = int(payload.get("task_id") or 0)
+    def _photo_get_task(self, user, warehouse, payload):
+        model_name = self._scalar_payload_value(payload, "task_model")
+        task_id = int(self._scalar_payload_value(payload, "task_id") or 0)
         if model_name not in self.ALLOWED_TASK_MODELS:
             raise ValidationError("unsupported task_model.")
         if not task_id:
@@ -96,12 +96,12 @@ class WmsPdaPhotosController(WmsPdaBaseController):
         task = TaskModel.with_user(user).sudo().browse(task_id).exists()
         if not task:
             raise ValidationError("task does not exist.")
-        task_warehouse_id = self._task_warehouse_id(task)
+        task_warehouse_id = self._photo_task_warehouse_id(task)
         if warehouse and task_warehouse_id and task_warehouse_id != warehouse.id:
             raise ValidationError("task does not belong to current warehouse.")
         return task
 
-    def _task_warehouse_id(self, task):
+    def _photo_task_warehouse_id(self, task):
         if "warehouse_id" in task._fields and task.warehouse_id:
             return task.warehouse_id.id
         if "outbound_task_id" in task._fields and task.outbound_task_id and task.outbound_task_id.warehouse_id:
@@ -112,14 +112,30 @@ class WmsPdaPhotosController(WmsPdaBaseController):
 
     def _photo_urls(self, payload):
         urls = payload.get("photo_urls") or payload.get("photo_url")
+        if isinstance(urls, dict):
+            urls = urls.get("photo_urls") or urls.get("photo_url") or urls.get("url") or urls.get("value")
         if isinstance(urls, str):
             urls = [urls]
         if not isinstance(urls, list):
             raise ValidationError("photo_url or photo_urls is required.")
-        result = [(url or "").strip() for url in urls if (url or "").strip()]
+        result = []
+        for url in urls:
+            if isinstance(url, dict):
+                url = url.get("url") or url.get("photo_url") or url.get("value")
+            url = (url or "").strip()
+            if url:
+                result.append(url)
         if not result:
             raise ValidationError("photo_url or photo_urls is required.")
         return result
+
+    def _scalar_payload_value(self, payload, key):
+        value = payload.get(key)
+        if isinstance(value, dict):
+            value = value.get(key) or value.get("value") or value.get("id") or value.get("name") or ""
+        if isinstance(value, (list, tuple)):
+            value = value[0] if value else ""
+        return str(value or "").strip()
 
     def _format_photo(self, photo):
         return {
