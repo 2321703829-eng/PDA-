@@ -10,6 +10,7 @@ class LogisticsRoutePlanningBatch(models.Model):
     warehouse_id = fields.Many2one("stock.warehouse", string="Warehouse", ondelete="set null", index=True)
     driver_profile_id = fields.Many2one("logistics.driver.profile", string="Driver Profile", ondelete="set null")
     vehicle_profile_id = fields.Many2one("logistics.vehicle.profile", string="Vehicle Profile", ondelete="set null")
+    source_handover_order_id = fields.Many2one("wms.handover.order", string="Source Handover Order", ondelete="set null", index=True)
     route_status = fields.Selection(
         selection=TMS_ROUTE_STATUS_SELECTION,
         string="Route Status",
