@@ -89,9 +89,11 @@ class WmsPdaPhotosController(WmsPdaBaseController):
             raise ValidationError("unsupported task_model.")
         if not task_id:
             raise ValidationError("task_id is required.")
-        if model_name not in request.env:
+        try:
+            TaskModel = request.env[model_name]
+        except KeyError:
             raise ValidationError("task model is not installed.")
-        task = request.env[model_name].with_user(user).sudo().browse(task_id).exists()
+        task = TaskModel.with_user(user).sudo().browse(task_id).exists()
         if not task:
             raise ValidationError("task does not exist.")
         task_warehouse_id = self._task_warehouse_id(task)
@@ -134,4 +136,3 @@ class WmsPdaPhotosController(WmsPdaBaseController):
             "note": photo.note or "",
             "create_date": photo.create_date,
         }
-

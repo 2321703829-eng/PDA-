@@ -147,6 +147,7 @@ class WmsHandoverOrder(models.Model):
                     "remark": self.note or picking.name,
                 }
             )
+        self._ensure_waybill_number(waybill)
         if not OrderLine.search([("waybill_id", "=", waybill.id), ("stock_picking_id", "=", picking.id)], limit=1):
             OrderLine.create(
                 {
@@ -166,17 +167,18 @@ class WmsHandoverOrder(models.Model):
         StopLine = self.env["logistics.route.planning.stop.line"].sudo()
         next_seq = max(batch.stop_line_ids.mapped("stop_seq") or [0]) + 1
         for waybill in waybills:
-            if StopLine.search([("batch_id", "=", batch.id), ("waybill_no", "=", waybill.name)], limit=1):
+            waybill_no = self._ensure_waybill_number(waybill)
+            if StopLine.search([("batch_id", "=", batch.id), ("waybill_no", "=", waybill_no)], limit=1):
                 continue
             partner = waybill.partner_id or waybill.store_id or waybill.customer_id or fallback_partner
             self._validate_route_partner(partner)
-            StopLine.create(self._prepare_stop_line_vals(batch, waybill, partner, picking, next_seq))
+            StopLine.create(self._prepare_stop_line_vals(batch, waybill, partner, picking, next_seq, waybill_no))
             next_seq += 1
 
-    def _prepare_stop_line_vals(self, batch, waybill, partner, picking, stop_seq):
+    def _prepare_stop_line_vals(self, batch, waybill, partner, picking, stop_seq, waybill_no):
         return {
             "batch_id": batch.id,
-            "waybill_no": waybill.name,
+            "waybill_no": waybill_no,
             "stop_seq": stop_seq,
             "store_name": partner.display_name,
             "longitude": partner.partner_longitude,
@@ -189,6 +191,16 @@ class WmsHandoverOrder(models.Model):
             "vehicle_no": batch.vehicle_no or self._vehicle_no(),
             "warehouse_name": batch.warehouse_name or (self.warehouse_id.display_name if self.warehouse_id else ""),
         }
+
+    def _ensure_waybill_number(self, waybill):
+        waybill_no = (
+            waybill.name
+            or (waybill.waybill_no if "waybill_no" in waybill._fields else False)
+            or "WMS-HO-%s-WB-%s" % (self.id, waybill.id)
+        )
+        if "name" in waybill._fields and waybill.name != waybill_no:
+            waybill.write({"name": waybill_no})
+        return waybill_no
 
     def _route_partner(self, picking):
         outbound = self.outbound_task_id
