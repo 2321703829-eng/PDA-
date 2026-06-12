@@ -40,8 +40,17 @@ class B2bCartDraft(models.Model):
         payment_method = payment_method or kwargs.get("b2b_payment_method") or "credit"
         note = note or kwargs.get("b2b_submit_note") or kwargs.get("submit_note") or ""
         submit_user_id = submit_user_id or kwargs.get("b2b_submit_user_id") or kwargs.get("user_id")
+        submit_user = kwargs.get("submit_user")
+        if submit_user and hasattr(submit_user, "id"):
+            submit_user_id = submit_user.id
         delivery_time_required = delivery_time_required or kwargs.get("delivery_time") or kwargs.get("delivery_time_required") or ""
-        store = self.env["res.partner"].sudo().browse(store_id).exists() if store_id else self.store_id
+        store = kwargs.get("store")
+        if store and hasattr(store, "exists"):
+            store = store.sudo().exists()
+        elif store:
+            store = self.env["res.partner"].sudo().browse(store).exists()
+        else:
+            store = self.env["res.partner"].sudo().browse(store_id).exists() if store_id else self.store_id
         if not store:
             raise ValidationError(_("请选择收货门店。"))
         self.write({"state": "submitted", "store_id": store.id})
