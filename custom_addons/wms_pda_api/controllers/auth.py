@@ -51,11 +51,13 @@ class WmsPdaAuthController(WmsPdaBaseController):
         }
 
     def _authenticate_password(self, login, password):
+        credential = {"login": login, "password": password, "type": "password"}
         try:
-            uid = request.session.authenticate(request.db, login, password)
+            uid = request.session.authenticate(request.env, credential)
         except TypeError:
-            credential = {"login": login, "password": password, "type": "password"}
-            uid = request.session.authenticate(request.db, credential)
+            uid = request.session.authenticate(request.db, login, password)
+        if isinstance(uid, dict):
+            uid = uid.get("uid") or uid.get("user_id") or request.session.uid
         return uid or request.session.uid
 
     def _available_warehouses(self, user_id):
@@ -70,7 +72,8 @@ class WmsPdaAuthController(WmsPdaBaseController):
         return "warehouse_worker"
 
     def _has_group(self, user_id, xmlid):
-        return request.env["res.users"].with_user(user_id).has_group(xmlid)
+        user = request.env["res.users"].sudo().browse(user_id).exists()
+        return bool(user and user.has_group(xmlid))
 
     def _switch_warehouse(self, user, token, payload):
         warehouse_id = int(payload.get("warehouse_id") or 0)
