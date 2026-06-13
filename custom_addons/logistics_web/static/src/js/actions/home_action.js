@@ -109,7 +109,7 @@ export class LogisticsHomeAction extends Component {
         this.state.moduleCards = [
             { key: "erp", title: "订单经营 ERP", hint: "进入销售订单、采购订单、客户供应商和商品资料。", actionXmlid: "logistics_web.action_enterprise_sales_orders" },
             { key: "b2b", title: "B2B 商城", hint: "进入客户商品可见范围、购物车草稿、商城订单和售后处理。", targetUrl: "/b2b/products", actionXmlid: "b2b_storefront.action_cart_draft" },
-            { key: "wms", title: "仓库作业 WMS", hint: "进入收货、出库、出入库单和库存查询。", actionXmlid: "logistics_web.action_enterprise_wms_receipts" },
+            { key: "wms", title: "仓库作业 WMS", hint: "进入收货、上架、出库、拣货、复核、交接、出入库单和库存查询。", actionXmlid: "logistics_web.action_enterprise_wms_receipts" },
             { key: "tms", title: "配送调度 TMS", hint: "进入调度工作台、派车单、司机任务、签收和异常。", actionXmlid: "logistics_web.action_logistics_web_dashboard" },
             { key: "bi", title: "数据看板 BI", hint: "查看订单、仓库、配送、异常和运营指标。", actionXmlid: "logistics_web.action_logistics_web_stats_center" },
             { key: "master", title: "基础资料", hint: "维护客户/供应商、商品等主数据。", actionXmlid: "logistics_web.action_enterprise_partners" },

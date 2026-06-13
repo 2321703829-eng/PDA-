@@ -49,9 +49,37 @@
         <field name="context">{}</field>
     </record>
 
+    <record id="action_enterprise_wms_putaway" model="ir.actions.act_window">
+        <field name="name">上架任务</field>
+        <field name="res_model">wms.putaway.task</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{}</field>
+    </record>
+
     <record id="action_enterprise_wms_outbound" model="ir.actions.act_window">
         <field name="name">&#20986;&#24211;&#20219;&#21153;</field>
         <field name="res_model">wms.outbound.task</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{}</field>
+    </record>
+
+    <record id="action_enterprise_wms_pick" model="ir.actions.act_window">
+        <field name="name">拣货任务</field>
+        <field name="res_model">wms.pick.task</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{}</field>
+    </record>
+
+    <record id="action_enterprise_wms_check" model="ir.actions.act_window">
+        <field name="name">复核任务</field>
+        <field name="res_model">wms.check.task</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{}</field>
+    </record>
+
+    <record id="action_enterprise_wms_handover" model="ir.actions.act_window">
+        <field name="name">交接单</field>
+        <field name="res_model">wms.handover.order</field>
         <field name="view_mode">list,form</field>
         <field name="context">{}</field>
     </record>
@@ -165,23 +193,47 @@
               action="action_enterprise_wms_receipts"
               sequence="10"/>
 
+    <menuitem id="menu_enterprise_wms_putaway"
+              name="上架任务"
+              parent="menu_enterprise_wms"
+              action="action_enterprise_wms_putaway"
+              sequence="20"/>
+
     <menuitem id="menu_enterprise_wms_outbound"
               name="&#20986;&#24211;&#20219;&#21153;"
               parent="menu_enterprise_wms"
               action="action_enterprise_wms_outbound"
-              sequence="20"/>
+              sequence="30"/>
+
+    <menuitem id="menu_enterprise_wms_pick"
+              name="拣货任务"
+              parent="menu_enterprise_wms"
+              action="action_enterprise_wms_pick"
+              sequence="40"/>
+
+    <menuitem id="menu_enterprise_wms_check"
+              name="复核任务"
+              parent="menu_enterprise_wms"
+              action="action_enterprise_wms_check"
+              sequence="50"/>
+
+    <menuitem id="menu_enterprise_wms_handover"
+              name="交接单"
+              parent="menu_enterprise_wms"
+              action="action_enterprise_wms_handover"
+              sequence="60"/>
 
     <menuitem id="menu_enterprise_wms_pickings"
               name="&#20986;&#20837;&#24211;&#21333;"
               parent="menu_enterprise_wms"
               action="action_enterprise_stock_pickings"
-              sequence="30"/>
+              sequence="70"/>
 
     <menuitem id="menu_enterprise_wms_stock"
               name="&#24211;&#23384;&#26597;&#35810;"
               parent="menu_enterprise_wms"
               action="action_enterprise_stock_quants"
-              sequence="40"/>
+              sequence="80"/>
 
     <menuitem id="menu_enterprise_tms"
               name="&#37197;&#36865;&#35843;&#24230; TMS"
