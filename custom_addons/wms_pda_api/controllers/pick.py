@@ -16,7 +16,7 @@ class WmsPdaPickController(WmsPdaBaseController):
     @http.route("/api/pda/wms/v1/pick/tasks", type="http", auth="public", methods=["GET"], csrf=False)
     def list_pick_tasks(self, **kwargs):
         payload = self._get_payload()
-        return self._handle_request(lambda user, wh, token: self._list_tasks(user, wh, payload))
+        return self._handle_request(lambda user, wh, token: self._pick_list_tasks(user, wh, payload))
 
     @http.route(
         "/api/pda/wms/v1/pick/tasks/<int:task_id>/lines",
@@ -26,7 +26,7 @@ class WmsPdaPickController(WmsPdaBaseController):
         csrf=False,
     )
     def get_pick_task_lines(self, task_id, **kwargs):
-        return self._handle_request(lambda user, wh, token: self._get_lines(user, wh, task_id, lock=True))
+        return self._handle_request(lambda user, wh, token: self._pick_get_lines(user, wh, task_id, lock=True))
 
     @http.route(
         "/api/pda/wms/v1/pick/tasks/<int:task_id>/confirm-line",
@@ -37,7 +37,7 @@ class WmsPdaPickController(WmsPdaBaseController):
     )
     def confirm_pick_line(self, task_id, **kwargs):
         payload = self._get_payload()
-        return self._handle_idempotent_request(payload, lambda user, wh, token: self._confirm_line(user, wh, task_id, payload))
+        return self._handle_idempotent_request(payload, lambda user, wh, token: self._pick_confirm_line(user, wh, task_id, payload))
 
     @http.route(
         "/api/pda/wms/v1/pick/tasks/<int:task_id>/complete",
@@ -48,7 +48,7 @@ class WmsPdaPickController(WmsPdaBaseController):
     )
     def complete_pick_task(self, task_id, **kwargs):
         payload = self._get_payload()
-        return self._handle_idempotent_request(payload, lambda user, wh, token: self._complete_task(user, wh, task_id, payload))
+        return self._handle_idempotent_request(payload, lambda user, wh, token: self._pick_complete_task(user, wh, task_id, payload))
 
     @http.route(
         "/api/pda/wms/v1/pick/tasks/<int:task_id>/summary",
@@ -58,9 +58,9 @@ class WmsPdaPickController(WmsPdaBaseController):
         csrf=False,
     )
     def get_pick_summary(self, task_id, **kwargs):
-        return self._handle_request(lambda user, wh, token: self._summary_response(user, wh, task_id))
+        return self._handle_request(lambda user, wh, token: self._pick_summary_response(user, wh, task_id))
 
-    def _list_tasks(self, user, warehouse, payload):
+    def _pick_list_tasks(self, user, warehouse, payload):
         if not warehouse:
             raise ValidationError("请先选择仓库。")
         offset = int(payload.get("offset") or 0)
@@ -69,10 +69,10 @@ class WmsPdaPickController(WmsPdaBaseController):
         Task = request.env["wms.pick.task"].with_user(user).sudo()
         total = Task.search_count(domain)
         tasks = Task.search(domain, offset=offset, limit=limit, order="create_date asc, id asc")
-        return {"total": total, "records": [self._format_task(task) for task in tasks]}
+        return {"total": total, "records": [self._pick_format_task(task) for task in tasks]}
 
-    def _get_lines(self, user, warehouse, task_id, lock=False):
-        task = self._get_task(user, warehouse, task_id)
+    def _pick_get_lines(self, user, warehouse, task_id, lock=False):
+        task = self._pick_get_task(user, warehouse, task_id)
         if task.state == "waiting_pick":
             task.action_start_pick()
         if lock:
@@ -83,13 +83,13 @@ class WmsPdaPickController(WmsPdaBaseController):
                 warehouse_id=warehouse.id if warehouse else False,
             )
         return {
-            "task": self._format_task(task, include_lock=True),
-            "lines": [self._format_line(line, idx + 1) for idx, line in enumerate(self._ordered_lines(task))],
-            "progress": self._progress(task),
+            "task": self._pick_format_task(task, include_lock=True),
+            "lines": [self._pick_format_line(line, idx + 1) for idx, line in enumerate(self._pick_ordered_lines(task))],
+            "progress": self._pick_progress(task),
         }
 
-    def _confirm_line(self, user, warehouse, task_id, payload):
-        task = self._get_task(user, warehouse, task_id)
+    def _pick_confirm_line(self, user, warehouse, task_id, payload):
+        task = self._pick_get_task(user, warehouse, task_id)
         if task.state == "picked":
             return self._error(self.ERR_STATE_CONFLICT, "拣货任务已完成，不能重复确认。", status=400, tts="任务已完成")
         request.env["wms.task.lock"].sudo().acquire(
@@ -100,13 +100,13 @@ class WmsPdaPickController(WmsPdaBaseController):
         )
         if task.state == "waiting_pick":
             task.action_start_pick()
-        line = self._get_line(task, payload)
+        line = self._pick_get_line(task, payload)
         product_barcode = (payload.get("product_barcode") or payload.get("barcode") or "").strip()
         location_barcode = (payload.get("location_barcode") or "").strip()
-        done_qty = self._float_payload(payload, "done_qty")
+        done_qty = self._pick_float_payload(payload, "done_qty")
         if done_qty <= 0:
             raise ValidationError("拣货数量必须大于 0。")
-        if product_barcode and not self._product_matches_barcode(line.product_id, product_barcode):
+        if product_barcode and not self._pick_product_matches_barcode(line.product_id, product_barcode):
             return self._error(self.ERR_BARCODE_UNKNOWN, "扫描商品与当前拣货行不一致。", status=400, tts="商品不匹配")
         if location_barcode and line.source_location_id and line.source_location_id.barcode != location_barcode:
             return self._error(self.ERR_STATE_CONFLICT, "扫描库位与当前拣货行不一致。", status=400, tts="库位不匹配")
@@ -116,7 +116,7 @@ class WmsPdaPickController(WmsPdaBaseController):
             status = "partial"
         elif done_qty > line.demand_qty:
             status = "over"
-        next_line = self._next_line(task)
+        next_line = self._pick_next_line(task)
         return self._success(
             {
                 "line_id": line.id,
@@ -124,37 +124,37 @@ class WmsPdaPickController(WmsPdaBaseController):
                 "done_qty": done_qty,
                 "demand_qty": line.demand_qty,
                 "status": status,
-                "next_line": self._format_next_line(next_line) if next_line else {},
+                "next_line": self._pick_format_next_line(next_line) if next_line else {},
             },
-            tts=self._pick_tts(line, next_line),
+            tts=self._pick_pick_tts(line, next_line),
         )
 
-    def _complete_task(self, user, warehouse, task_id, payload):
-        task = self._get_task(user, warehouse, task_id)
+    def _pick_complete_task(self, user, warehouse, task_id, payload):
+        task = self._pick_get_task(user, warehouse, task_id)
         if task.state == "picked":
-            return {"task_state": task.state, "summary": self._completion_summary(task), "next_step": "check"}
+            return {"task_state": task.state, "summary": self._pick_completion_summary(task), "next_step": "check"}
         if task.state not in ("waiting_pick", "picking"):
             return self._error(self.ERR_STATE_CONFLICT, "当前状态不能完成拣货。", status=400, tts="状态不允许")
-        self._sync_lines_to_stock_moves(task)
+        self._pick_sync_lines_to_stock_moves(task)
         task.action_mark_picked()
-        self._validate_picking(task)
-        self._save_photos(task, user, warehouse, payload)
+        self._pick_validate_picking(task)
+        self._pick_save_photos(task, user, warehouse, payload)
         request.env["wms.task.lock"].sudo().release(task._name, task.id, user_id=user.id)
         return self._success(
-            {"task_state": task.state, "summary": self._completion_summary(task), "next_step": "check"},
+            {"task_state": task.state, "summary": self._pick_completion_summary(task), "next_step": "check"},
             tts="拣货完成，等待复核",
         )
 
-    def _summary_response(self, user, warehouse, task_id):
-        task = self._get_task(user, warehouse, task_id)
+    def _pick_summary_response(self, user, warehouse, task_id):
+        task = self._pick_get_task(user, warehouse, task_id)
         return {
             "task_id": task.id,
             "state": task.state,
-            "progress": self._progress(task),
+            "progress": self._pick_progress(task),
             "exceptions": [],
         }
 
-    def _get_task(self, user, warehouse, task_id):
+    def _pick_get_task(self, user, warehouse, task_id):
         domain = [("id", "=", task_id)]
         if warehouse:
             domain.append(("warehouse_id", "=", warehouse.id))
@@ -163,7 +163,7 @@ class WmsPdaPickController(WmsPdaBaseController):
             raise ValidationError("拣货任务不存在或不属于当前仓库。")
         return task
 
-    def _get_line(self, task, payload):
+    def _pick_get_line(self, task, payload):
         line_id = int(payload.get("line_id") or 0)
         if line_id:
             line = task.line_ids.filtered(lambda item: item.id == line_id)[:1]
@@ -173,20 +173,20 @@ class WmsPdaPickController(WmsPdaBaseController):
         barcode = (payload.get("product_barcode") or payload.get("barcode") or "").strip()
         if not barcode:
             raise ValidationError("请传入拣货明细或商品条码。")
-        line = task.line_ids.filtered(lambda item: self._product_matches_barcode(item.product_id, barcode))[:1]
+        line = task.line_ids.filtered(lambda item: self._pick_product_matches_barcode(item.product_id, barcode))[:1]
         if not line:
             raise ValidationError("未找到匹配的拣货明细。")
         return line
 
-    def _ordered_lines(self, task):
-        return task.line_ids.sorted(key=lambda line: self._line_sort_key(line))
+    def _pick_ordered_lines(self, task):
+        return task.line_ids.sorted(key=lambda line: self._pick_line_sort_key(line))
 
-    def _line_sort_key(self, line):
+    def _pick_line_sort_key(self, line):
         if "path_seq" in line._fields:
             return (line.path_seq or 0, line.id)
         return (line.source_location_id.id or 0, line.id)
 
-    def _format_task(self, task, include_lock=False):
+    def _pick_format_task(self, task, include_lock=False):
         picking = task.outbound_task_id.stock_picking_id
         result = {
             "id": task.id,
@@ -207,7 +207,7 @@ class WmsPdaPickController(WmsPdaBaseController):
             result["locked_by"] = request.env["wms.task.lock"].sudo().get_lock_holder(task._name, task.id)
         return result
 
-    def _format_line(self, line, seq=0):
+    def _pick_format_line(self, line, seq=0):
         product = line.product_id
         return {
             "line_id": line.id,
@@ -222,10 +222,10 @@ class WmsPdaPickController(WmsPdaBaseController):
             "done_qty": line.done_qty,
             "source_location": line.source_location_id.display_name if line.source_location_id else "",
             "source_location_barcode": line.source_location_id.barcode if line.source_location_id else "",
-            "path_seq": self._line_sort_key(line)[0],
+            "path_seq": self._pick_line_sort_key(line)[0],
         }
 
-    def _format_next_line(self, line):
+    def _pick_format_next_line(self, line):
         return {
             "line_id": line.id,
             "product_name": line.product_id.display_name,
@@ -233,10 +233,10 @@ class WmsPdaPickController(WmsPdaBaseController):
             "demand_qty": line.demand_qty,
         }
 
-    def _next_line(self, task):
-        return self._ordered_lines(task).filtered(lambda line: line.done_qty < line.demand_qty)[:1]
+    def _pick_next_line(self, task):
+        return self._pick_ordered_lines(task).filtered(lambda line: line.done_qty < line.demand_qty)[:1]
 
-    def _progress(self, task):
+    def _pick_progress(self, task):
         lines = task.line_ids
         total_lines = len(lines)
         completed_lines = len(lines.filtered(lambda line: line.done_qty >= line.demand_qty and line.demand_qty > 0))
@@ -251,7 +251,7 @@ class WmsPdaPickController(WmsPdaBaseController):
             "completion_pct": round(total_done_qty / total_demand_qty * 100, 2) if total_demand_qty else 0.0,
         }
 
-    def _completion_summary(self, task):
+    def _pick_completion_summary(self, task):
         lines = task.line_ids
         return {
             "total_lines": len(lines),
@@ -259,7 +259,7 @@ class WmsPdaPickController(WmsPdaBaseController):
             "short_lines": len(lines.filtered(lambda line: line.done_qty < line.demand_qty)),
         }
 
-    def _sync_lines_to_stock_moves(self, task):
+    def _pick_sync_lines_to_stock_moves(self, task):
         picking = task.outbound_task_id.stock_picking_id
         if not picking:
             return
@@ -269,9 +269,9 @@ class WmsPdaPickController(WmsPdaBaseController):
                 and (not line.source_location_id or item.location_id.id == line.source_location_id.id)
             )[:1]
             if move:
-                self._write_done_qty(move, line.done_qty)
+                self._pick_write_done_qty(move, line.done_qty)
 
-    def _validate_picking(self, task):
+    def _pick_validate_picking(self, task):
         picking = task.outbound_task_id.stock_picking_id
         if not picking or picking.state == "done":
             return
@@ -280,7 +280,7 @@ class WmsPdaPickController(WmsPdaBaseController):
         if hasattr(picking, "button_validate"):
             picking.button_validate()
 
-    def _save_photos(self, task, user, warehouse, payload):
+    def _pick_save_photos(self, task, user, warehouse, payload):
         for url in payload.get("photo_urls") or []:
             request.env["wms.task.photo"].sudo().create(
                 {
@@ -295,23 +295,23 @@ class WmsPdaPickController(WmsPdaBaseController):
                 }
             )
 
-    def _write_done_qty(self, move, qty):
+    def _pick_write_done_qty(self, move, qty):
         if "quantity" in move._fields:
             move.write({"quantity": qty})
             return
         if "quantity_done" in move._fields:
             move.write({"quantity_done": qty})
 
-    def _float_payload(self, payload, key):
+    def _pick_float_payload(self, payload, key):
         value = payload.get(key)
         if value in (None, ""):
             raise ValidationError("请填写拣货数量。")
         return float(value)
 
-    def _product_matches_barcode(self, product, barcode):
+    def _pick_product_matches_barcode(self, product, barcode):
         return barcode in {product.barcode, product.default_code, product.product_tmpl_id.default_code}
 
-    def _pick_tts(self, line, next_line):
+    def _pick_pick_tts(self, line, next_line):
         current = f"{line.product_id.display_name}{line.done_qty:g}{line.product_id.uom_id.name or ''}"
         if not next_line:
             return f"{current}，拣货完成"

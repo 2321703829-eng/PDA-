@@ -134,28 +134,28 @@ class WmsPdaOfflineSyncController(WmsPdaBaseController):
         controllers = self._controllers()
         match = self._match(endpoint, r"/api/pda/wms/v1/receipt/tasks/(\d+)/confirm-line")
         if match:
-            return controllers["receipt"]._confirm_line(user, warehouse, int(match.group(1)), payload)
+            return controllers["receipt"]._receipt_confirm_line(user, warehouse, int(match.group(1)), payload)
         match = self._match(endpoint, r"/api/pda/wms/v1/receipt/tasks/(\d+)/complete")
         if match:
-            return controllers["receipt"]._complete_task(user, warehouse, int(match.group(1)))
+            return controllers["receipt"]._receipt_complete_task(user, warehouse, int(match.group(1)))
         match = self._match(endpoint, r"/api/pda/wms/v1/putaway/tasks/(\d+)/confirm")
         if match:
-            return controllers["putaway"]._confirm_putaway(user, warehouse, int(match.group(1)), payload)
+            return controllers["putaway"]._putaway_confirm_putaway(user, warehouse, int(match.group(1)), payload)
         match = self._match(endpoint, r"/api/pda/wms/v1/putaway/tasks/(\d+)/complete")
         if match:
-            return controllers["putaway"]._complete_task(user, warehouse, int(match.group(1)))
+            return controllers["putaway"]._putaway_complete_task(user, warehouse, int(match.group(1)))
         match = self._match(endpoint, r"/api/pda/wms/v1/pick/tasks/(\d+)/confirm-line")
         if match:
-            return controllers["pick"]._confirm_line(user, warehouse, int(match.group(1)), payload)
+            return controllers["pick"]._pick_confirm_line(user, warehouse, int(match.group(1)), payload)
         match = self._match(endpoint, r"/api/pda/wms/v1/pick/tasks/(\d+)/complete")
         if match:
-            return controllers["pick"]._complete_task(user, warehouse, int(match.group(1)), payload)
+            return controllers["pick"]._pick_complete_task(user, warehouse, int(match.group(1)), payload)
         match = self._match(endpoint, r"/api/pda/wms/v1/check/tasks/(\d+)/confirm-line")
         if match:
-            return controllers["check"]._confirm_line(user, warehouse, int(match.group(1)), payload)
+            return controllers["check"]._check_confirm_line(user, warehouse, int(match.group(1)), payload)
         match = self._match(endpoint, r"/api/pda/wms/v1/check/tasks/(\d+)/complete")
         if match:
-            return controllers["check"]._complete_task(user, warehouse, int(match.group(1)), payload)
+            return controllers["check"]._check_complete_task(user, warehouse, int(match.group(1)), payload)
         match = self._match(endpoint, r"/api/pda/wms/v1/handover/orders/(\d+)/confirm")
         if match:
             return controllers["handover"]._confirm_order(user, warehouse, int(match.group(1)))
@@ -166,19 +166,19 @@ class WmsPdaOfflineSyncController(WmsPdaBaseController):
         if match:
             return controllers["handover"]._prepare_route_batch(user, warehouse, int(match.group(1)))
         if endpoint == "/api/pda/wms/v1/return/create":
-            return controllers["warehouse_return"]._create_operation(user, warehouse, payload)
+            return controllers["warehouse_return"]._warehouse_return_create_operation(user, warehouse, payload)
         match = self._match(endpoint, r"/api/pda/wms/v1/return/(\d+)/add-line")
         if match:
-            return controllers["warehouse_return"]._add_line(user, warehouse, int(match.group(1)), payload)
+            return controllers["warehouse_return"]._warehouse_return_add_line(user, warehouse, int(match.group(1)), payload)
         match = self._match(endpoint, r"/api/pda/wms/v1/return/(\d+)/confirm")
         if match:
-            return controllers["warehouse_return"]._confirm_operation(user, warehouse, int(match.group(1)))
+            return controllers["warehouse_return"]._warehouse_return_confirm_operation(user, warehouse, int(match.group(1)))
         match = self._match(endpoint, r"/api/pda/wms/v1/sale-return/tasks/(\d+)/confirm-line")
         if match:
-            return controllers["sale_return"]._confirm_line(user, warehouse, int(match.group(1)), payload)
+            return controllers["sale_return"]._sale_return_confirm_line(user, warehouse, int(match.group(1)), payload)
         match = self._match(endpoint, r"/api/pda/wms/v1/sale-return/tasks/(\d+)/complete")
         if match:
-            return controllers["sale_return"]._complete_task(user, warehouse, int(match.group(1)), payload)
+            return controllers["sale_return"]._sale_return_complete_task(user, warehouse, int(match.group(1)), payload)
         if endpoint == "/api/pda/wms/v1/photos/upload":
             return controllers["photos"]._upload(user, warehouse, token, payload)
         if endpoint == "/api/pda/wms/v1/photos/bind":

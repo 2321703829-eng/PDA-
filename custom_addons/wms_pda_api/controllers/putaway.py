@@ -16,7 +16,7 @@ class WmsPdaPutawayController(WmsPdaBaseController):
     @http.route("/api/pda/wms/v1/putaway/tasks", type="http", auth="public", methods=["GET"], csrf=False)
     def list_putaway_tasks(self, **kwargs):
         payload = self._get_payload()
-        return self._handle_request(lambda user, wh, token: self._list_tasks(user, wh, payload))
+        return self._handle_request(lambda user, wh, token: self._putaway_list_tasks(user, wh, payload))
 
     @http.route(
         "/api/pda/wms/v1/putaway/tasks/<int:task_id>/lines",
@@ -26,7 +26,7 @@ class WmsPdaPutawayController(WmsPdaBaseController):
         csrf=False,
     )
     def get_putaway_task_lines(self, task_id, **kwargs):
-        return self._handle_request(lambda user, wh, token: self._get_task_lines(user, wh, task_id, lock=True))
+        return self._handle_request(lambda user, wh, token: self._putaway_get_task_lines(user, wh, task_id, lock=True))
 
     @http.route(
         "/api/pda/wms/v1/putaway/tasks/<int:task_id>/confirm",
@@ -37,7 +37,7 @@ class WmsPdaPutawayController(WmsPdaBaseController):
     )
     def confirm_putaway(self, task_id, **kwargs):
         payload = self._get_payload()
-        return self._handle_idempotent_request(payload, lambda user, wh, token: self._confirm_putaway(user, wh, task_id, payload))
+        return self._handle_idempotent_request(payload, lambda user, wh, token: self._putaway_confirm_putaway(user, wh, task_id, payload))
 
     @http.route(
         "/api/pda/wms/v1/putaway/tasks/<int:task_id>/complete",
@@ -48,9 +48,9 @@ class WmsPdaPutawayController(WmsPdaBaseController):
     )
     def complete_putaway(self, task_id, **kwargs):
         payload = self._get_payload()
-        return self._handle_idempotent_request(payload, lambda user, wh, token: self._complete_task(user, wh, task_id))
+        return self._handle_idempotent_request(payload, lambda user, wh, token: self._putaway_complete_task(user, wh, task_id))
 
-    def _list_tasks(self, user, warehouse, payload):
+    def _putaway_list_tasks(self, user, warehouse, payload):
         if not warehouse:
             raise ValidationError("请先选择仓库。")
         offset = int(payload.get("offset") or 0)
@@ -61,11 +61,11 @@ class WmsPdaPutawayController(WmsPdaBaseController):
         tasks = Task.search(domain, offset=offset, limit=limit, order="id desc")
         return {
             "total": total,
-            "records": [self._format_task(task, include_summary=True) for task in tasks],
+            "records": [self._putaway_format_task(task, include_summary=True) for task in tasks],
         }
 
-    def _get_task_lines(self, user, warehouse, task_id, lock=False):
-        task = self._get_task(user, warehouse, task_id)
+    def _putaway_get_task_lines(self, user, warehouse, task_id, lock=False):
+        task = self._putaway_get_task(user, warehouse, task_id)
         if lock:
             request.env["wms.task.lock"].sudo().acquire(
                 task._name,
@@ -74,12 +74,12 @@ class WmsPdaPutawayController(WmsPdaBaseController):
                 warehouse_id=warehouse.id if warehouse else False,
             )
         return {
-            "task": self._format_task(task, include_summary=True),
-            "lines": [self._format_move(move, task) for move in self._task_moves(task)],
+            "task": self._putaway_format_task(task, include_summary=True),
+            "lines": [self._putaway_format_move(move, task) for move in self._putaway_task_moves(task)],
         }
 
-    def _confirm_putaway(self, user, warehouse, task_id, payload):
-        task = self._get_task(user, warehouse, task_id)
+    def _putaway_confirm_putaway(self, user, warehouse, task_id, payload):
+        task = self._putaway_get_task(user, warehouse, task_id)
         if task.state == "putaway_done":
             return self._error(self.ERR_STATE_CONFLICT, "上架任务已完成，不能重复确认。", status=400, tts="任务已完成")
         if task.state not in ("waiting_putaway", "putaway_ing"):
@@ -92,31 +92,31 @@ class WmsPdaPutawayController(WmsPdaBaseController):
         )
         product_barcode = (payload.get("product_barcode") or payload.get("barcode") or "").strip()
         location_barcode = (payload.get("dest_location_barcode") or payload.get("location_barcode") or "").strip()
-        qty = self._float_payload(payload, "qty")
+        qty = self._putaway_float_payload(payload, "qty")
         if qty <= 0:
             raise ValidationError("上架数量必须大于 0。")
         if not product_barcode:
             raise ValidationError("请扫描商品条码。")
         if not location_barcode:
             raise ValidationError("请扫描目标库位。")
-        move = self._match_source_move(task, product_barcode)
+        move = self._putaway_match_source_move(task, product_barcode)
         product = move.product_id
-        remaining_qty = self._remaining_qty(task, product)
+        remaining_qty = self._putaway_remaining_qty(task, product)
         if remaining_qty and qty > remaining_qty:
             return self._error(self.ERR_QTY_EXCEED, "上架数量不能超过待上架数量。", status=400, tts="数量超出")
-        dest_location = self._find_location(warehouse, location_barcode)
+        dest_location = self._putaway_find_location(warehouse, location_barcode)
         source_location = task.source_location_id or task.stock_picking_id.location_dest_id
         if not source_location:
             raise ValidationError("上架任务缺少来源库位。")
         if task.state == "waiting_putaway":
             task.action_start_putaway()
-        internal_move = self._create_done_internal_move(task, product, qty, source_location, dest_location)
+        internal_move = self._putaway_create_done_internal_move(task, product, qty, source_location, dest_location)
         task.write({"dest_location_id": dest_location.id})
         remaining_products = len(
             [
                 source_move
-                for source_move in self._task_moves(task)
-                if self._remaining_qty(task, source_move.product_id) > 0
+                for source_move in self._putaway_task_moves(task)
+                if self._putaway_remaining_qty(task, source_move.product_id) > 0
             ]
         )
         return self._success(
@@ -130,18 +130,18 @@ class WmsPdaPutawayController(WmsPdaBaseController):
             tts=f"{product.display_name}，上架到{dest_location.display_name}，{qty:g}",
         )
 
-    def _complete_task(self, user, warehouse, task_id):
-        task = self._get_task(user, warehouse, task_id)
+    def _putaway_complete_task(self, user, warehouse, task_id):
+        task = self._putaway_get_task(user, warehouse, task_id)
         if task.state == "putaway_done":
-            summary = self._summary(task)
+            summary = self._putaway_summary(task)
             return {"task_state": task.state, "summary": summary}
         if task.state not in ("waiting_putaway", "putaway_ing"):
             return self._error(self.ERR_STATE_CONFLICT, "当前状态不能完成上架。", status=400, tts="状态不允许")
         task.action_mark_done()
         request.env["wms.task.lock"].sudo().release(task._name, task.id, user_id=user.id)
-        return self._success({"task_state": task.state, "summary": self._summary(task)}, tts="上架完成")
+        return self._success({"task_state": task.state, "summary": self._putaway_summary(task)}, tts="上架完成")
 
-    def _get_task(self, user, warehouse, task_id):
+    def _putaway_get_task(self, user, warehouse, task_id):
         domain = [("id", "=", task_id)]
         if warehouse:
             domain.append(("warehouse_id", "=", warehouse.id))
@@ -150,21 +150,21 @@ class WmsPdaPutawayController(WmsPdaBaseController):
             raise ValidationError("上架任务不存在或不属于当前仓库。")
         return task
 
-    def _task_moves(self, task):
+    def _putaway_task_moves(self, task):
         picking = task.stock_picking_id
         if not picking:
             return request.env["stock.move"]
-        moves = picking.move_ids_without_package or picking.move_ids
+        moves = getattr(picking, "move_ids_without_package", False) or picking.move_ids
         return moves.filtered(lambda move: move.product_id)
 
-    def _match_source_move(self, task, barcode):
-        moves = self._task_moves(task)
-        matched = moves.filtered(lambda move: self._product_matches_barcode(move.product_id, barcode))[:1]
+    def _putaway_match_source_move(self, task, barcode):
+        moves = self._putaway_task_moves(task)
+        matched = moves.filtered(lambda move: self._putaway_product_matches_barcode(move.product_id, barcode))[:1]
         if not matched:
             raise ValidationError("未找到匹配的待上架商品。")
         return matched
 
-    def _find_location(self, warehouse, barcode):
+    def _putaway_find_location(self, warehouse, barcode):
         domain = [("barcode", "=", barcode)]
         if warehouse:
             domain = [
@@ -178,9 +178,8 @@ class WmsPdaPutawayController(WmsPdaBaseController):
             raise ValidationError("目标库位不存在或不属于当前仓库。")
         return location
 
-    def _create_done_internal_move(self, task, product, qty, source_location, dest_location):
+    def _putaway_create_done_internal_move(self, task, product, qty, source_location, dest_location):
         vals = {
-            "name": f"上架: {task.name} - {product.display_name}",
             "product_id": product.id,
             "product_uom_qty": qty,
             "product_uom": product.uom_id.id,
@@ -188,6 +187,8 @@ class WmsPdaPutawayController(WmsPdaBaseController):
             "location_dest_id": dest_location.id,
             "origin": task.name,
         }
+        if "name" in request.env["stock.move"]._fields:
+            vals["name"] = f"??: {task.name} - {product.display_name}"
         if task.stock_picking_id and "company_id" in request.env["stock.move"]._fields:
             vals["company_id"] = task.stock_picking_id.company_id.id
         if task.warehouse_id and getattr(task.warehouse_id, "int_type_id", False):
@@ -197,12 +198,14 @@ class WmsPdaPutawayController(WmsPdaBaseController):
             move._action_confirm()
         if hasattr(move, "_action_assign"):
             move._action_assign()
-        self._write_done_qty(move, qty)
+        self._putaway_write_done_qty(move, qty)
+        if "picked" in move._fields:
+            move.write({"picked": True})
         if hasattr(move, "_action_done"):
             move._action_done()
         return move
 
-    def _format_task(self, task, include_summary=False):
+    def _putaway_format_task(self, task, include_summary=False):
         result = {
             "id": task.id,
             "name": task.name,
@@ -217,19 +220,19 @@ class WmsPdaPutawayController(WmsPdaBaseController):
             "create_date": task.create_date,
         }
         if include_summary:
-            moves = self._task_moves(task)
+            moves = self._putaway_task_moves(task)
             result.update(
                 {
-                    "product_summary": self._product_summary(moves),
+                    "product_summary": self._putaway_product_summary(moves),
                     "total_qty": sum(moves.mapped("product_uom_qty")),
-                    "putaway_qty": sum(self._putaway_qty(task, move.product_id) for move in moves),
+                    "putaway_qty": sum(self._putaway_putaway_qty(task, move.product_id) for move in moves),
                 }
             )
         return result
 
-    def _format_move(self, move, task):
+    def _putaway_format_move(self, move, task):
         product = move.product_id
-        putaway_qty = self._putaway_qty(task, product)
+        putaway_qty = self._putaway_putaway_qty(task, product)
         demand_qty = move.product_uom_qty or 0.0
         return {
             "id": move.id,
@@ -243,24 +246,24 @@ class WmsPdaPutawayController(WmsPdaBaseController):
             "uom": move.product_uom.name if move.product_uom else "",
         }
 
-    def _summary(self, task):
-        moves = self._task_moves(task)
-        locations = self._putaway_moves(task).mapped("location_dest_id")
+    def _putaway_summary(self, task):
+        moves = self._putaway_task_moves(task)
+        locations = self._putaway_putaway_moves(task).mapped("location_dest_id")
         return {
             "products_count": len(moves.mapped("product_id")),
             "locations_used": len(locations),
-            "total_qty": sum(self._putaway_qty(task, move.product_id) for move in moves),
+            "total_qty": sum(self._putaway_putaway_qty(task, move.product_id) for move in moves),
         }
 
-    def _remaining_qty(self, task, product):
-        source_move = self._task_moves(task).filtered(lambda move: move.product_id.id == product.id)[:1]
-        return max((source_move.product_uom_qty or 0.0) - self._putaway_qty(task, product), 0.0)
+    def _putaway_remaining_qty(self, task, product):
+        source_move = self._putaway_task_moves(task).filtered(lambda move: move.product_id.id == product.id)[:1]
+        return max((source_move.product_uom_qty or 0.0) - self._putaway_putaway_qty(task, product), 0.0)
 
-    def _putaway_qty(self, task, product):
-        moves = self._putaway_moves(task).filtered(lambda move: move.product_id.id == product.id)
-        return sum(self._read_done_qty(move) or move.product_uom_qty or 0.0 for move in moves)
+    def _putaway_putaway_qty(self, task, product):
+        moves = self._putaway_putaway_moves(task).filtered(lambda move: move.product_id.id == product.id)
+        return sum(self._putaway_read_done_qty(move) or move.product_uom_qty or 0.0 for move in moves)
 
-    def _putaway_moves(self, task):
+    def _putaway_putaway_moves(self, task):
         return request.env["stock.move"].sudo().search(
             [
                 ("origin", "=", task.name),
@@ -268,14 +271,14 @@ class WmsPdaPutawayController(WmsPdaBaseController):
             ]
         )
 
-    def _read_done_qty(self, move):
+    def _putaway_read_done_qty(self, move):
         if "quantity" in move._fields:
             return move.quantity or 0.0
         if "quantity_done" in move._fields:
             return move.quantity_done or 0.0
         return 0.0
 
-    def _write_done_qty(self, move, qty):
+    def _putaway_write_done_qty(self, move, qty):
         if "quantity" in move._fields:
             move.write({"quantity": qty})
             return
@@ -283,16 +286,16 @@ class WmsPdaPutawayController(WmsPdaBaseController):
             move.write({"quantity_done": qty})
             return
 
-    def _float_payload(self, payload, key):
+    def _putaway_float_payload(self, payload, key):
         value = payload.get(key)
         if value in (None, ""):
             raise ValidationError("请填写上架数量。")
         return float(value)
 
-    def _product_matches_barcode(self, product, barcode):
+    def _putaway_product_matches_barcode(self, product, barcode):
         return barcode in {product.barcode, product.default_code, product.product_tmpl_id.default_code}
 
-    def _product_summary(self, moves):
+    def _putaway_product_summary(self, moves):
         products = moves.mapped("product_id")
         if not products:
             return ""

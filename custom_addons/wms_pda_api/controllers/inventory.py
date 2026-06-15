@@ -15,7 +15,7 @@ class WmsPdaInventoryController(WmsPdaBaseController):
     )
     def get_product_inventory(self, **kwargs):
         payload = self._get_payload()
-        return self._handle_request(lambda user, wh, token: self._product_inventory(user, wh, payload))
+        return self._handle_request(lambda user, wh, token: self._inventory_product_inventory(user, wh, payload))
 
     @http.route(
         ["/api/pda/wms/v1/inventory/location", "/api/pda/wms/v1/inventory/by-location"],
@@ -26,46 +26,46 @@ class WmsPdaInventoryController(WmsPdaBaseController):
     )
     def get_location_inventory(self, **kwargs):
         payload = self._get_payload()
-        return self._handle_request(lambda user, wh, token: self._location_inventory(user, wh, payload))
+        return self._handle_request(lambda user, wh, token: self._inventory_location_inventory(user, wh, payload))
 
     @http.route("/api/pda/wms/v1/inventory/search", type="http", auth="public", methods=["POST"], csrf=False)
     def search_inventory(self, **kwargs):
         payload = self._get_payload()
-        return self._handle_idempotent_request(payload, lambda user, wh, token: self._search_inventory(user, wh, payload))
+        return self._handle_idempotent_request(payload, lambda user, wh, token: self._inventory_search_inventory(user, wh, payload))
 
-    def _product_inventory(self, user, warehouse, payload):
-        self._require_warehouse(warehouse)
+    def _inventory_product_inventory(self, user, warehouse, payload):
+        self._inventory_require_warehouse(warehouse)
         code = (payload.get("barcode") or payload.get("default_code") or "").strip()
         if not code:
             raise ValidationError("请扫描商品条码或输入商品编码。")
-        product = self._find_product(user, code)
+        product = self._inventory_find_product(user, code)
         if not product:
             return self._error(self.ERR_NOT_FOUND, "商品不存在。", status=404, tts="未找到商品")
-        ledger_lines = self._ledger_model(user).search(
+        ledger_lines = self._inventory_ledger_model(user).search(
             [
                 ("warehouse_id", "=", warehouse.id),
                 ("product_id", "=", product.id),
             ],
             order="location_id asc, id asc",
         )
-        summary = self._summary(ledger_lines)
+        summary = self._inventory_summary(ledger_lines)
         return {
-            "product": self._format_product(product, summary=summary),
-            "warehouse": self._format_warehouse(warehouse),
+            "product": self._inventory_format_product(product, summary=summary),
+            "warehouse": self._inventory_format_warehouse(warehouse),
             "summary": summary,
-            "locations": [self._format_product_location(line) for line in ledger_lines],
-            "records": [self._format_ledger_line(line) for line in ledger_lines],
+            "locations": [self._inventory_format_product_location(line) for line in ledger_lines],
+            "records": [self._inventory_format_ledger_line(line) for line in ledger_lines],
         }
 
-    def _location_inventory(self, user, warehouse, payload):
-        self._require_warehouse(warehouse)
+    def _inventory_location_inventory(self, user, warehouse, payload):
+        self._inventory_require_warehouse(warehouse)
         barcode = (payload.get("location_barcode") or payload.get("barcode") or "").strip()
         if not barcode:
             raise ValidationError("请扫描库位条码。")
-        location = self._find_location(user, warehouse, barcode)
+        location = self._inventory_find_location(user, warehouse, barcode)
         if not location:
             return self._error(self.ERR_NOT_FOUND, "库位不存在或不属于当前仓库。", status=404, tts="未找到库位")
-        ledger_lines = self._ledger_model(user).search(
+        ledger_lines = self._inventory_ledger_model(user).search(
             [
                 ("warehouse_id", "=", warehouse.id),
                 ("location_id", "=", location.id),
@@ -73,15 +73,15 @@ class WmsPdaInventoryController(WmsPdaBaseController):
             order="product_id asc, id asc",
         )
         return {
-            "location": self._format_location(location),
-            "warehouse": self._format_warehouse(warehouse),
-            "summary": self._summary(ledger_lines),
-            "products": [self._format_location_product(line) for line in ledger_lines],
-            "records": [self._format_ledger_line(line) for line in ledger_lines],
+            "location": self._inventory_format_location(location),
+            "warehouse": self._inventory_format_warehouse(warehouse),
+            "summary": self._inventory_summary(ledger_lines),
+            "products": [self._inventory_format_location_product(line) for line in ledger_lines],
+            "records": [self._inventory_format_ledger_line(line) for line in ledger_lines],
         }
 
-    def _search_inventory(self, user, warehouse, payload):
-        self._require_warehouse(warehouse)
+    def _inventory_search_inventory(self, user, warehouse, payload):
+        self._inventory_require_warehouse(warehouse)
         offset = int(payload.get("offset") or 0)
         limit = min(int(payload.get("limit") or 20), 100)
         keyword = (payload.get("keyword") or payload.get("q") or "").strip()
@@ -98,7 +98,7 @@ class WmsPdaInventoryController(WmsPdaBaseController):
                 ("location_id.name", "ilike", keyword),
                 ("location_id.barcode", "ilike", keyword),
             ]
-        Ledger = self._ledger_model(user)
+        Ledger = self._inventory_ledger_model(user)
         total = Ledger.search_count(domain)
         ledger_lines = Ledger.search(domain, offset=offset, limit=limit, order="location_id asc, product_id asc, id asc")
         return {
@@ -106,18 +106,18 @@ class WmsPdaInventoryController(WmsPdaBaseController):
             "offset": offset,
             "limit": limit,
             "keyword": keyword,
-            "warehouse": self._format_warehouse(warehouse),
-            "records": [self._format_ledger_line(line) for line in ledger_lines],
+            "warehouse": self._inventory_format_warehouse(warehouse),
+            "records": [self._inventory_format_ledger_line(line) for line in ledger_lines],
         }
 
-    def _require_warehouse(self, warehouse):
+    def _inventory_require_warehouse(self, warehouse):
         if not warehouse:
             raise ValidationError("请先选择仓库。")
 
-    def _ledger_model(self, user):
+    def _inventory_ledger_model(self, user):
         return request.env["wms.inventory.ledger"].with_user(user).sudo()
 
-    def _find_product(self, user, code):
+    def _inventory_find_product(self, user, code):
         return (
             request.env["product.product"]
             .with_user(user)
@@ -125,7 +125,7 @@ class WmsPdaInventoryController(WmsPdaBaseController):
             .search(["|", ("barcode", "=", code), ("default_code", "=", code)], limit=1)
         )
 
-    def _find_location(self, user, warehouse, barcode):
+    def _inventory_find_location(self, user, warehouse, barcode):
         domain = [
             ("barcode", "=", barcode),
             "|",
@@ -134,7 +134,7 @@ class WmsPdaInventoryController(WmsPdaBaseController):
         ]
         return request.env["stock.location"].with_user(user).sudo().search(domain, limit=1)
 
-    def _summary(self, ledger_lines):
+    def _inventory_summary(self, ledger_lines):
         return {
             "line_count": len(ledger_lines),
             "quantity_on_hand": sum(ledger_lines.mapped("quantity_on_hand")),
@@ -142,7 +142,7 @@ class WmsPdaInventoryController(WmsPdaBaseController):
             "available_quantity": sum(ledger_lines.mapped("available_quantity")),
         }
 
-    def _format_ledger_line(self, line):
+    def _inventory_format_ledger_line(self, line):
         product = line.product_id
         location = line.location_id
         warehouse = line.warehouse_id
@@ -163,7 +163,7 @@ class WmsPdaInventoryController(WmsPdaBaseController):
             "warehouse_name": warehouse.display_name if warehouse else "",
         }
 
-    def _format_product_location(self, line):
+    def _inventory_format_product_location(self, line):
         location = line.location_id
         return {
             "location_id": location.id,
@@ -174,7 +174,7 @@ class WmsPdaInventoryController(WmsPdaBaseController):
             "available": line.available_quantity,
         }
 
-    def _format_location_product(self, line):
+    def _inventory_format_location_product(self, line):
         product = line.product_id
         return {
             "product_id": product.id,
@@ -187,7 +187,7 @@ class WmsPdaInventoryController(WmsPdaBaseController):
             "uom": (line.product_uom_id or product.uom_id).name if (line.product_uom_id or product.uom_id) else "",
         }
 
-    def _format_product(self, product, summary=None):
+    def _inventory_format_product(self, product, summary=None):
         summary = summary or {}
         result = {
             "id": product.id,
@@ -206,7 +206,7 @@ class WmsPdaInventoryController(WmsPdaBaseController):
             )
         return result
 
-    def _format_location(self, location):
+    def _inventory_format_location(self, location):
         return {
             "id": location.id,
             "name": location.display_name,
@@ -215,7 +215,7 @@ class WmsPdaInventoryController(WmsPdaBaseController):
             "usage_type": location.location_usage_type_ext if "location_usage_type_ext" in location._fields else "",
         }
 
-    def _format_warehouse(self, warehouse):
+    def _inventory_format_warehouse(self, warehouse):
         return {
             "id": warehouse.id,
             "name": warehouse.display_name,

@@ -45,7 +45,7 @@ class WmsInventoryLedger(models.Model):
                 JOIN product_product p ON p.id = q.product_id
                 JOIN product_template pt ON pt.id = p.product_tmpl_id
                 LEFT JOIN stock_warehouse w
-                    ON l.parent_path LIKE CONCAT('%/', w.view_location_id::text, '/%')
+                    ON l.parent_path LIKE CONCAT(w.view_location_id::text, '/%')
                 WHERE l.usage = 'internal'
                 GROUP BY
                     COALESCE(q.company_id, l.company_id),

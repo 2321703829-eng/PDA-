@@ -17,7 +17,7 @@ class WmsPdaWarehouseReturnController(WmsPdaBaseController):
     @http.route("/api/pda/wms/v1/return/create", type="http", auth="public", methods=["POST"], csrf=False)
     def create_return_operation(self, **kwargs):
         payload = self._get_payload()
-        return self._handle_idempotent_request(payload, lambda user, wh, token: self._create_operation(user, wh, payload))
+        return self._handle_idempotent_request(payload, lambda user, wh, token: self._warehouse_return_create_operation(user, wh, payload))
 
     @http.route(
         "/api/pda/wms/v1/return/<int:operation_id>/add-line",
@@ -28,7 +28,7 @@ class WmsPdaWarehouseReturnController(WmsPdaBaseController):
     )
     def add_return_line(self, operation_id, **kwargs):
         payload = self._get_payload()
-        return self._handle_idempotent_request(payload, lambda user, wh, token: self._add_line(user, wh, operation_id, payload))
+        return self._handle_idempotent_request(payload, lambda user, wh, token: self._warehouse_return_add_line(user, wh, operation_id, payload))
 
     @http.route(
         "/api/pda/wms/v1/return/<int:operation_id>/confirm",
@@ -39,17 +39,17 @@ class WmsPdaWarehouseReturnController(WmsPdaBaseController):
     )
     def confirm_return_operation(self, operation_id, **kwargs):
         payload = self._get_payload()
-        return self._handle_idempotent_request(payload, lambda user, wh, token: self._confirm_operation(user, wh, operation_id))
+        return self._handle_idempotent_request(payload, lambda user, wh, token: self._warehouse_return_confirm_operation(user, wh, operation_id))
 
-    def _create_operation(self, user, warehouse, payload):
-        self._require_warehouse(warehouse)
-        self._require_return_permission(user)
-        source_location = self._resolve_location(
+    def _warehouse_return_create_operation(self, user, warehouse, payload):
+        self._warehouse_return_require_warehouse(warehouse)
+        self._warehouse_return_require_return_permission(user)
+        source_location = self._warehouse_return_resolve_location(
             warehouse,
             payload.get("location_id"),
             payload.get("location_barcode") or payload.get("source_location_barcode"),
         ) or warehouse.lot_stock_id
-        return_location = self._resolve_location(
+        return_location = self._warehouse_return_resolve_location(
             warehouse,
             payload.get("return_location_id"),
             payload.get("return_location_barcode") or payload.get("dest_location_barcode"),
@@ -78,24 +78,24 @@ class WmsPdaWarehouseReturnController(WmsPdaBaseController):
             "return_location_name": return_location.display_name if return_location else "",
         }
 
-    def _add_line(self, user, warehouse, operation_id, payload):
-        self._require_warehouse(warehouse)
-        self._require_return_permission(user)
-        operation = self._get_operation(user, warehouse, operation_id)
+    def _warehouse_return_add_line(self, user, warehouse, operation_id, payload):
+        self._warehouse_return_require_warehouse(warehouse)
+        self._warehouse_return_require_return_permission(user)
+        operation = self._warehouse_return_get_operation(user, warehouse, operation_id)
         if operation.state not in ("draft", "in_progress"):
             return self._error(self.ERR_STATE_CONFLICT, "当前退库单状态不能继续添加明细。", status=400, tts="状态不允许")
         product_code = (payload.get("product_barcode") or payload.get("barcode") or payload.get("default_code") or "").strip()
         if not product_code:
             raise ValidationError("请扫描商品条码或输入商品编码。")
-        qty = self._float_payload(payload, "qty")
+        qty = self._warehouse_return_float_payload(payload, "qty")
         if qty <= 0:
             raise ValidationError("退库数量必须大于 0。")
-        product = self._find_product(user, product_code)
+        product = self._warehouse_return_find_product(user, product_code)
         if not product:
             return self._error(self.ERR_NOT_FOUND, "商品不存在。", status=404, tts="未找到商品")
-        system_qty = self._location_product_qty(operation.location_id, product)
+        system_qty = self._warehouse_return_location_product_qty(operation.location_id, product)
         reason = (payload.get("reason") or "other").strip()
-        note = self._build_line_note(reason, payload.get("note") or "")
+        note = self._warehouse_return_build_line_note(reason, payload.get("note") or "")
         line = request.env["wms.inventory.operation.line"].with_user(user).sudo().create(
             {
                 "operation_id": operation.id,
@@ -115,21 +115,21 @@ class WmsPdaWarehouseReturnController(WmsPdaBaseController):
                 "reason": reason,
                 "reason_label": self.RETURN_REASON_LABELS.get(reason, reason),
                 "current_line_count": len(operation.line_ids),
-                "operation": self._format_operation(operation),
+                "operation": self._warehouse_return_format_operation(operation),
             },
             tts=f"{product.display_name}{qty:g}件，{self.RETURN_REASON_LABELS.get(reason, reason)}",
         )
 
-    def _confirm_operation(self, user, warehouse, operation_id):
-        self._require_warehouse(warehouse)
-        self._require_return_permission(user)
-        operation = self._get_operation(user, warehouse, operation_id)
+    def _warehouse_return_confirm_operation(self, user, warehouse, operation_id):
+        self._warehouse_return_require_warehouse(warehouse)
+        self._warehouse_return_require_return_permission(user)
+        operation = self._warehouse_return_get_operation(user, warehouse, operation_id)
         if operation.state in ("done", "cancelled"):
             return self._error(self.ERR_STATE_CONFLICT, "当前退库单已经结束，不能重复提交。", status=400, tts="退库单已结束")
         if not operation.line_ids:
             raise ValidationError("请先添加退库明细。")
         operation.action_mark_done()
-        summary = self._operation_summary(operation)
+        summary = self._warehouse_return_operation_summary(operation)
         return self._success(
             {
                 "operation_id": operation.id,
@@ -142,7 +142,7 @@ class WmsPdaWarehouseReturnController(WmsPdaBaseController):
             tts=f"退库单已提交，共{summary['line_count']}种{summary['total_qty']:g}件",
         )
 
-    def _get_operation(self, user, warehouse, operation_id):
+    def _warehouse_return_get_operation(self, user, warehouse, operation_id):
         domain = [("id", "=", operation_id), ("operation_type", "=", "warehouse_return")]
         if warehouse:
             domain.append(("warehouse_id", "=", warehouse.id))
@@ -151,15 +151,15 @@ class WmsPdaWarehouseReturnController(WmsPdaBaseController):
             raise ValidationError("退库单不存在或不属于当前仓库。")
         return operation
 
-    def _require_warehouse(self, warehouse):
+    def _warehouse_return_require_warehouse(self, warehouse):
         if not warehouse:
             raise ValidationError("请先选择仓库。")
 
-    def _require_return_permission(self, user):
+    def _warehouse_return_require_return_permission(self, user):
         if not (user.has_group("wms_pda_api.group_pda_leader") or user.has_group("wms_pda_api.group_pda_admin")):
             raise AccessError("当前账号没有退库操作权限。")
 
-    def _resolve_location(self, warehouse, location_id=None, barcode=None, require_child=True):
+    def _warehouse_return_resolve_location(self, warehouse, location_id=None, barcode=None, require_child=True):
         Location = request.env["stock.location"].sudo()
         location = Location.browse(int(location_id)) if location_id else Location.browse()
         if not location and barcode:
@@ -178,7 +178,7 @@ class WmsPdaWarehouseReturnController(WmsPdaBaseController):
                 raise ValidationError("库位不属于当前仓库。")
         return location
 
-    def _find_product(self, user, code):
+    def _warehouse_return_find_product(self, user, code):
         return (
             request.env["product.product"]
             .with_user(user)
@@ -186,18 +186,18 @@ class WmsPdaWarehouseReturnController(WmsPdaBaseController):
             .search(["|", ("barcode", "=", code), ("default_code", "=", code)], limit=1)
         )
 
-    def _location_product_qty(self, location, product):
+    def _warehouse_return_location_product_qty(self, location, product):
         quant = request.env["stock.quant"].sudo().search(
             [("location_id", "=", location.id), ("product_id", "=", product.id)],
             limit=1,
         )
         return quant.quantity if quant else 0.0
 
-    def _build_line_note(self, reason, note):
+    def _warehouse_return_build_line_note(self, reason, note):
         reason_label = self.RETURN_REASON_LABELS.get(reason, reason)
         return f"{reason_label}: {note}" if note else reason_label
 
-    def _format_operation(self, operation):
+    def _warehouse_return_format_operation(self, operation):
         return {
             "operation_id": operation.id,
             "name": operation.name,
@@ -206,13 +206,13 @@ class WmsPdaWarehouseReturnController(WmsPdaBaseController):
             "total_qty": sum(operation.line_ids.mapped("count_qty")),
         }
 
-    def _operation_summary(self, operation):
+    def _warehouse_return_operation_summary(self, operation):
         return {
             "line_count": len(operation.line_ids),
             "total_qty": sum(operation.line_ids.mapped("count_qty")),
         }
 
-    def _float_payload(self, payload, key):
+    def _warehouse_return_float_payload(self, payload, key):
         value = payload.get(key)
         if value in (None, ""):
             raise ValidationError("请填写数量。")
