@@ -32,6 +32,7 @@
                     <button name="action_create_inventory_operation" type="object" string="Create Inventory Operation" class="btn-primary"/>
                     <button name="action_open_inventory_operations" type="object" string="Open Inventory Operations"/>
                     <button name="action_open_inventory_ledger" type="object" string="Open Inventory Ledger"/>
+                    <button name="action_print_barcode_label" type="object" string="打印库位条码"/>
                 </group>
             </xpath>
         </field>

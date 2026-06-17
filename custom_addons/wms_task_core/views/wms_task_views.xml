@@ -110,6 +110,7 @@
                     <button name="action_start_outbound" type="object" string="Start" invisible="state != 'waiting_outbound'"/>
                     <button name="action_generate_pick_task" type="object" string="Generate Pick Task"/>
                     <button name="action_mark_done" type="object" string="Mark Done" invisible="state == 'task_done'"/>
+                    <button name="action_print_barcode_label" type="object" string="打印条码"/>
                 </header>
                 <sheet>
                     <group>
@@ -221,6 +222,7 @@
                 <header>
                     <button name="action_start_handover" type="object" string="Start" invisible="state != 'waiting_handover'"/>
                     <button name="action_mark_done" type="object" string="Mark Done" invisible="state not in ('waiting_handover', 'handover_ing')"/>
+                    <button name="action_print_barcode_label" type="object" string="打印条码"/>
                 </header>
                 <sheet>
                     <group>

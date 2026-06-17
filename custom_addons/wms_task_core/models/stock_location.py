@@ -86,3 +86,12 @@ class StockLocation(models.Model):
             "domain": [("location_id", "=", self.id)],
             "context": {"search_default_location_id": self.id},
         }
+
+    def action_print_barcode_label(self):
+        self.ensure_one()
+        return {
+            "type": "ir.actions.act_url",
+            "name": _("Print Location Barcode"),
+            "url": f"/wms/barcode/label/stock.location/{self.id}",
+            "target": "new",
+        }

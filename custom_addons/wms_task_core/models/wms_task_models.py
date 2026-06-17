@@ -23,6 +23,15 @@ class WmsTaskMixin(models.AbstractModel):
         if not warehouse_id:
             raise ValidationError(_("Warehouse is required before generating the next task."))
 
+    def action_print_barcode_label(self):
+        self.ensure_one()
+        return {
+            "type": "ir.actions.act_url",
+            "name": _("Print Barcode Label"),
+            "url": f"/wms/barcode/label/{self._name}/{self.id}",
+            "target": "new",
+        }
+
 
 class WmsReceiptTask(models.Model):
     _name = "wms.receipt.task"
