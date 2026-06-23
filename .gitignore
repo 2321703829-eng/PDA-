@@ -1,4 +1,6 @@
 __pycache__/
+.venv/
+.odoo_data/
 *.pyc
 *.pyc.*
 *.pyo
@@ -8,4 +10,5 @@ __pycache__/
 .ruff_cache/
 .pyre/
 .hypothesis/
+odoo_pda_local.log
 *.bak_*

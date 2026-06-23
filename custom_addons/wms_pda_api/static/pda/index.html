@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#071521" />
+    <title>天枢科技 PDA H5</title>
+    <link rel="stylesheet" href="./assets/pda.css" />
+  </head>
+  <body>
+    <div id="app" class="pda-app">
+      <header class="pda-topbar">
+        <button id="backButton" class="icon-button" type="button" aria-label="返回">
+          <span aria-hidden="true">‹</span>
+        </button>
+        <div class="brand-lockup" aria-label="天枢科技物流系统">
+          <span class="brand-mark">TS</span>
+          <span class="brand-text">
+            <strong>天枢科技</strong>
+            <small>PDA H5</small>
+          </span>
+        </div>
+        <label class="warehouse-field" for="warehouseSelect">
+          <span>仓库</span>
+          <select id="warehouseSelect"></select>
+        </label>
+        <button id="logoutButton" class="ghost-button" type="button">退出</button>
+      </header>
+
+      <main id="viewRoot" class="pda-view" aria-live="polite"></main>
+      <div id="toast" class="toast" role="status" aria-live="assertive"></div>
+    </div>
+
+    <script src="./assets/pda.js" defer></script>
+  </body>
+</html>

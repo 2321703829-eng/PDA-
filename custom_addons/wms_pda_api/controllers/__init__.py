@@ -3,6 +3,7 @@ from . import barcode
 from . import check
 from . import config
 from . import handover
+from . import h5
 from . import inventory
 from . import offline
 from . import pick

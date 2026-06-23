@@ -79,10 +79,14 @@ class WmsInventoryOperation(models.Model):
             record.has_generated_picking = bool(record.generated_picking_id)
             record.has_source_picking = bool(record.source_picking_id)
 
+    def _log_operation_action(self, **kwargs):
+        if "core.operation.audit.log" in self.env.registry:
+            self.env["core.operation.audit.log"].log_action(**kwargs)
+
     def action_start(self):
         for record in self:
             record.write({"state": "in_progress"})
-            self.env["core.operation.audit.log"].log_action(
+            self._log_operation_action(
                 business_domain="wms",
                 action_code="inventory_operation_start",
                 record=record,
@@ -93,14 +97,13 @@ class WmsInventoryOperation(models.Model):
     def action_cancel(self):
         for record in self:
             record.write({"state": "cancelled"})
-            if "core.operation.audit.log" in self.env.registry:
-                self.env["core.operation.audit.log"].log_action(
-                    business_domain="wms",
-                    action_code="inventory_operation_cancel",
-                    action_result="cancelled",
-                    record=record,
-                    note=_("Inventory operation cancelled."),
-                )
+            self._log_operation_action(
+                business_domain="wms",
+                action_code="inventory_operation_cancel",
+                action_result="cancelled",
+                record=record,
+                note=_("Inventory operation cancelled."),
+            )
         return True
 
     def action_load_location_quants(self):
@@ -128,7 +131,7 @@ class WmsInventoryOperation(models.Model):
                     )
                 )
             record.write({"line_ids": line_commands})
-            self.env["core.operation.audit.log"].log_action(
+            self._log_operation_action(
                 business_domain="wms",
                 action_code="inventory_operation_load_quants",
                 record=record,
@@ -139,11 +142,14 @@ class WmsInventoryOperation(models.Model):
 
     def _find_internal_picking_type(self):
         self.ensure_one()
-        picking_type = self.env["stock.picking.type"].search(
-            [("warehouse_id", "=", self.warehouse_id.id), ("code", "=", "internal")],
-            order="id asc",
-            limit=1,
-        )
+        PickingType = self.env["stock.picking.type"].with_context(active_test=False)
+        picking_type = self.warehouse_id.int_type_id
+        if not picking_type:
+            picking_type = PickingType.search(
+                [("warehouse_id", "=", self.warehouse_id.id), ("code", "=", "internal")],
+                order="id asc",
+                limit=1,
+            )
         if not picking_type:
             raise ValidationError(_("Internal picking type is required before processing warehouse returns."))
         return picking_type
@@ -177,24 +183,24 @@ class WmsInventoryOperation(models.Model):
             }
         )
         move_commands = []
+        Move = self.env["stock.move"]
         for line in self.line_ids.filtered(lambda l: l.count_qty):
-            move_commands.append(
-                (
-                    0,
-                    0,
-                    {
-                        "name": line.product_id.display_name,
-                        "product_id": line.product_id.id,
-                        "product_uom_qty": line.count_qty,
-                        "product_uom": line.uom_id.id or line.product_id.uom_id.id,
-                        "location_id": self.location_id.id,
-                        "location_dest_id": destination.id,
-                    },
-                )
-            )
+            move_vals = {
+                "product_id": line.product_id.id,
+                "product_uom_qty": line.count_qty,
+                "product_uom": line.uom_id.id or line.product_id.uom_id.id,
+                "location_id": self.location_id.id,
+                "location_dest_id": destination.id,
+            }
+            if "name" in Move._fields:
+                move_vals["name"] = line.product_id.display_name
+            elif "description_picking" in Move._fields:
+                move_vals["description_picking"] = line.product_id.display_name
+            move_commands.append((0, 0, move_vals))
         if not move_commands:
             raise ValidationError(_("At least one line with quantity is required before creating a warehouse return picking."))
-        picking.write({"move_ids_without_package": move_commands})
+        move_field = "move_ids_without_package" if "move_ids_without_package" in picking._fields else "move_ids"
+        picking.write({move_field: move_commands})
         return picking
 
     def action_mark_done(self):
@@ -210,7 +216,7 @@ class WmsInventoryOperation(models.Model):
                 for line in record.line_ids:
                     record._apply_quant_count(line)
             record.state = "done"
-            self.env["core.operation.audit.log"].log_action(
+            self._log_operation_action(
                 business_domain="wms",
                 action_code="inventory_operation_done",
                 record=record,
