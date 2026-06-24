@@ -25,7 +25,7 @@
       needsLocation: false,
     },
     outbound: {
-      title: "出库处理",
+      title: "出库复核",
       subtitle: "当前沿用 PDA 复核接口完成出库前扫描确认；如后端补独立出库接口，只需替换这里的 endpoint。",
       list: `${API_PREFIX}/check/tasks`,
       lines: (id) => `${API_PREFIX}/check/tasks/${id}/lines`,
@@ -64,6 +64,14 @@
     },
   };
 
+  const HANDOVER_ENDPOINTS = {
+    title: "交接出库",
+    list: `${API_PREFIX}/handover/orders`,
+    detail: (id) => `${API_PREFIX}/handover/orders/${id}`,
+    confirm: (id) => `${API_PREFIX}/handover/orders/${id}/confirm`,
+    complete: (id) => `${API_PREFIX}/handover/orders/${id}/complete`,
+  };
+
   const FLOW_GROUPS = {
     "inbound-flow": {
       title: "入库上架",
@@ -83,15 +91,18 @@
       tabs: [
         { mode: "pick", label: "待拣货", hint: "领取任务、扫库位、扫商品确认数量" },
         { mode: "outbound", label: "待复核", hint: "复核装箱、数量确认、交接预留" },
+        { mode: "handover", label: "待交接", hint: "司机/车辆/运单核对后交接出库" },
       ],
     },
   };
 
   const HOME_MODULES = [
+    { route: "scan", icon: "SCAN", title: "扫码执行", desc: "统一识别商品、库位、任务和单据" },
     { route: "inbound-flow", icon: "IN", title: "入库上架", desc: "收货、异常预留、上架确认" },
     { route: "outbound-flow", icon: "OUT", title: "出库履约", desc: "拣货、复核、交接预留" },
     { route: "inventory", icon: "INV", title: "库存库位", desc: "商品、库位、库存明细查询" },
-    { route: "transfer", icon: "MOVE", title: "调拨下架", desc: "下架退库、移库、补货" },
+    { route: "transfer", icon: "MOVE", title: "调拨补货", desc: "下架退库、移库、补货" },
+    { route: "exceptions", icon: "EXC", title: "盘点异常", desc: "盘点、报损、禁售和异常记录" },
   ];
 
   const STATUS_LABELS = {
@@ -111,13 +122,18 @@
     checking: "复核中",
     checked: "已复核",
     check_exception: "复核异常",
+    waiting_handover: "待交接",
+    handover_ing: "交接中",
+    handover_done: "已交接",
+    handover_exception: "交接异常",
   };
 
   const STATUS_FLOWS = {
     inbound: ["waiting_receipt", "receiving", "received", "waiting_putaway", "putaway_ing", "putaway_done"],
     putaway: ["waiting_putaway", "putaway_ing", "putaway_done"],
     pick: ["waiting_pick", "picking", "picked", "waiting_check"],
-    outbound: ["waiting_check", "checking", "checked"],
+    outbound: ["waiting_check", "checking", "checked", "waiting_handover"],
+    handover: ["waiting_handover", "handover_ing", "handover_done"],
   };
 
   const NEXT_ACTION_HINTS = {
@@ -133,6 +149,9 @@
     waiting_check: "下一步：扫商品并确认复核数量。",
     checking: "下一步：继续复核，完成后进入交接预留。",
     checked: "已完成复核：可进入交接出库。",
+    waiting_handover: "下一步：核对司机、车辆、运单后开始交接。",
+    handover_ing: "下一步：现场交接确认，完成后结束出库履约。",
+    handover_done: "已完成交接：出库履约闭环完成。",
   };
 
   const DOWN_SHELF_REASONS = [
@@ -175,6 +194,8 @@
     activeTasks: {},
     activeLines: {},
     lineMatches: {},
+    lastResults: {},
+    exceptionLastDraft: null,
     downShelfOperation: null,
     downShelfLines: [],
     downShelfLastResult: null,
@@ -226,6 +247,10 @@
     }
     if (state.route === "home") {
       renderHome();
+      return;
+    }
+    if (state.route === "scan") {
+      renderScanExecution();
       return;
     }
     if (FLOW_GROUPS[state.route]) {
@@ -396,8 +421,41 @@
     `;
   }
 
+  function renderScanExecution() {
+    root.innerHTML = `
+      <section class="task-panel">
+        <div class="page-title">
+          <div>
+            <h1>扫码执行</h1>
+            <p>按 PRD 做统一扫码入口：扫任务号、单据号、商品、库位后自动跳到对应作业页面。</p>
+          </div>
+          <span class="status-pill">${escapeHtml(currentWarehouseName())}</span>
+        </div>
+        ${renderGlobalScan("scanExecutionForm", "扫商品 / 库位 / 收货单 / 拣货单 / 复核单 / 交接单")}
+        <div class="scan-support-grid">
+          ${[
+            ["任务", "收货、上架、拣货、复核、交接任务"],
+            ["商品", "优先匹配待执行任务，否则进入库存查询"],
+            ["库位", "进入库存库位，查看当前库位现存"],
+            ["单据", "识别入库、出库、交接相关单据"],
+          ].map(([title, desc]) => `
+            <article class="metric-card">
+              <strong>${escapeHtml(title)}</strong>
+              <small>${escapeHtml(desc)}</small>
+            </article>
+          `).join("")}
+        </div>
+        <div class="hint-state">
+          当前扫码会优先查找待办任务；如果没有匹配到待执行任务，再按商品或库位进入库存库位查询。
+        </div>
+      </section>
+    `;
+    document.getElementById("scanExecutionForm").addEventListener("submit", submitGlobalScan);
+    focusFirst("#scanExecutionFormCode");
+  }
+
   function renderTodoSkeleton() {
-    return ["待收货", "待上架", "待拣货", "待复核", "异常待处理"].map((label) => `
+    return ["待收货", "待上架", "待拣货", "待复核", "待交接", "异常待处理"].map((label) => `
       <button class="todo-card" type="button" disabled>
         <span>${escapeHtml(label)}</span>
         <strong>...</strong>
@@ -445,6 +503,10 @@
   async function renderFlowPage(route) {
     const group = FLOW_GROUPS[route];
     const mode = state.flowModes[route] || group.defaultMode;
+    if (mode === "handover") {
+      await renderHandoverFlowPage(route, group);
+      return;
+    }
     const config = ENDPOINTS[mode];
     root.innerHTML = `
       <section class="task-panel">
@@ -496,6 +558,64 @@
     document.getElementById("refreshTasks").addEventListener("click", () => loadTasks(mode));
     document.getElementById("completeTask").addEventListener("click", () => completeTask(mode));
     await loadTasks(mode);
+  }
+
+  async function renderHandoverFlowPage(route, group) {
+    const mode = "handover";
+    root.innerHTML = `
+      <section class="task-panel">
+        <div class="page-title">
+          <div>
+            <h1>${escapeHtml(group.title)}</h1>
+            <p>${escapeHtml(group.subtitle)}</p>
+          </div>
+          <span class="status-pill">${escapeHtml(currentWarehouseName())}</span>
+        </div>
+        ${renderGlobalScan(`${route}ScanForm`, group.scanPlaceholder)}
+        <div class="flow-tabs">
+          ${group.tabs.map((tab) => `
+            <button class="seg-button ${tab.mode === mode ? "is-active" : ""}" type="button" data-flow-route="${escapeAttr(route)}" data-flow-mode="${escapeAttr(tab.mode)}">
+              <strong>${escapeHtml(tab.label)}</strong>
+              <small>${escapeHtml(tab.hint)}</small>
+            </button>
+          `).join("")}
+        </div>
+        <div class="task-layout">
+          <section class="task-list">
+            <div class="list-header">
+              <strong>${escapeHtml(HANDOVER_ENDPOINTS.title)}</strong>
+              <button id="refreshHandover" class="refresh-button" type="button">刷新</button>
+            </div>
+            <div id="handoverItems" class="task-items">
+              <div class="empty-state">正在读取交接单...</div>
+            </div>
+          </section>
+          <section class="task-detail">
+            <div class="detail-header">
+              <strong>交接明细</strong>
+              <div class="detail-actions">
+                <button id="startHandover" class="refresh-button" type="button" disabled>开始交接</button>
+                <button id="completeHandover" class="refresh-button" type="button" disabled>完成交接</button>
+              </div>
+            </div>
+            <div id="handoverDetail" class="detail-body">
+              <div class="empty-state">请选择左侧交接单。</div>
+            </div>
+          </section>
+        </div>
+      </section>
+    `;
+    document.getElementById(`${route}ScanForm`).addEventListener("submit", submitGlobalScan);
+    root.querySelectorAll("[data-flow-mode]").forEach((button) => {
+      button.addEventListener("click", () => {
+        state.flowModes[button.dataset.flowRoute] = button.dataset.flowMode;
+        renderFlowPage(button.dataset.flowRoute);
+      });
+    });
+    document.getElementById("refreshHandover").addEventListener("click", loadHandoverOrders);
+    document.getElementById("startHandover").addEventListener("click", confirmHandoverOrder);
+    document.getElementById("completeHandover").addEventListener("click", completeHandoverOrder);
+    await loadHandoverOrders();
   }
 
   async function submitGlobalScan(event) {
@@ -621,7 +741,7 @@
             : `<div class="empty-state">当前任务已打开，请在右侧扫码处理。</div>`;
           return;
         }
-        detail.innerHTML = `<div class="empty-state">没有需要处理的任务。</div>`;
+        detail.innerHTML = `${renderLastResult(mode)}<div class="empty-state">没有需要处理的任务。</div>`;
         return;
       }
       container.innerHTML = records.map((task) => taskCard(task, activeTaskId(mode) === task.id)).join("");
@@ -634,6 +754,178 @@
       container.innerHTML = `<div class="error-state">${escapeHtml(messageOf(error))}</div>`;
       detail.innerHTML = `<div class="hint-state">如果这里是 404，说明当前后端还没有启用该 PDA 接口；H5 页面本身已做好接入。</div>`;
     }
+  }
+
+  async function loadHandoverOrders() {
+    const container = document.getElementById("handoverItems");
+    const detail = document.getElementById("handoverDetail");
+    if (!container || !detail) {
+      return;
+    }
+    container.innerHTML = `<div class="empty-state">正在读取交接单...</div>`;
+    setHandoverButtons(false);
+    try {
+      const data = await apiGet(HANDOVER_ENDPOINTS.list, { limit: 50 });
+      const records = getRecords(data);
+      state.activeTasks.handover = records;
+      if (!records.length) {
+        container.innerHTML = `<div class="empty-state">暂无待交接单。</div>`;
+        detail.innerHTML = `${renderLastResult("handover")}<div class="empty-state">复核完成后会在这里生成待交接单。</div>`;
+        return;
+      }
+      container.innerHTML = records.map((order) => handoverCard(order, activeTaskId("handover") === order.id)).join("");
+      container.querySelectorAll("[data-handover-id]").forEach((button) => {
+        button.addEventListener("click", () => selectHandoverOrder(Number(button.dataset.handoverId)));
+      });
+      const firstId = activeTaskId("handover") || records[0].id;
+      await selectHandoverOrder(firstId);
+    } catch (error) {
+      container.innerHTML = `<div class="error-state">${escapeHtml(messageOf(error))}</div>`;
+      detail.innerHTML = `<div class="hint-state">交接接口暂不可用时，复核完成结果仍会提示下一步。</div>`;
+    }
+  }
+
+  function handoverCard(order, active) {
+    const name = order.name || `交接单 ${order.id}`;
+    const summary = [
+      order.partner_name,
+      order.route_batch_name,
+      order.waybill_names && order.waybill_names.length ? `${order.waybill_names.length} 张运单` : "",
+    ].filter(Boolean).join(" · ");
+    return `
+      <button class="task-card ${active ? "is-active" : ""}" type="button" data-handover-id="${escapeAttr(order.id)}">
+        <span class="task-card-top">
+          <strong>${escapeHtml(name)}</strong>
+          <em class="state-tag ${isDoneState(order.state) ? "is-done" : isExceptionState(order.state) ? "is-error" : ""}">${escapeHtml(statusLabel(order.state))}</em>
+        </span>
+        <small>${escapeHtml(summary || order.outbound_task_name || "交接出库")}</small>
+        ${order.create_date ? `<small class="task-progress">创建 ${escapeHtml(String(order.create_date).slice(0, 16))}</small>` : ""}
+      </button>
+    `;
+  }
+
+  async function selectHandoverOrder(orderId) {
+    const detail = document.getElementById("handoverDetail");
+    state.activeTasks["handover:id"] = orderId;
+    document.querySelectorAll("[data-handover-id]").forEach((card) => {
+      card.classList.toggle("is-active", Number(card.dataset.handoverId) === orderId);
+    });
+    detail.innerHTML = `<div class="empty-state">正在读取交接明细...</div>`;
+    setHandoverButtons(false);
+    try {
+      const data = await apiGet(HANDOVER_ENDPOINTS.detail(orderId));
+      const order = data.order || findTask("handover", orderId) || {};
+      state.activeTasks["handover:focusedTask"] = order;
+      detail.innerHTML = renderHandoverDetail(order);
+      setHandoverButtons(order && order.state !== "handover_done");
+    } catch (error) {
+      detail.innerHTML = `<div class="error-state">${escapeHtml(messageOf(error))}</div>`;
+    }
+  }
+
+  function renderHandoverDetail(order) {
+    const title = order.name || `交接单 ${order.id || ""}`;
+    const waybills = Array.isArray(order.waybills) ? order.waybills : [];
+    const stopLines = order.route_batch && Array.isArray(order.route_batch.stop_lines) ? order.route_batch.stop_lines : [];
+    return `
+      ${renderTaskStatus("handover", order.state || "")}
+      ${renderLastResult("handover")}
+      <div class="scan-box">
+        <h2>${escapeHtml(title)}</h2>
+        <div class="info-grid">
+          ${infoItem("客户/门店", order.partner_name)}
+          ${infoItem("出库任务", order.outbound_task_name)}
+          ${infoItem("复核任务", order.check_task_name)}
+          ${infoItem("拣货任务", order.pick_task_name)}
+          ${infoItem("司机", order.driver_profile_name)}
+          ${infoItem("车辆", order.vehicle_profile_name)}
+          ${infoItem("重量", order.weight_total ? `${formatQty(order.weight_total)} kg` : "")}
+          ${infoItem("体积", order.volume_total ? `${formatQty(order.volume_total)} m3` : "")}
+        </div>
+      </div>
+      <div class="line-grid">
+        <article class="line-card">
+          <div>
+            <strong>关联运单</strong>
+            <small>${escapeHtml((order.waybill_names || []).join(" · ") || "暂无运单信息")}</small>
+          </div>
+          <div class="qty">${escapeHtml(String((order.waybill_names || []).length || waybills.length || 0))}</div>
+        </article>
+        ${stopLines.length ? stopLines.map((line) => `
+          <article class="line-card">
+            <div>
+              <strong>${escapeHtml(line.waybill_no || line.name || "线路停靠")}</strong>
+              <small>${escapeHtml([line.store_name, line.address_detail, line.cargo_summary].filter(Boolean).join(" · "))}</small>
+            </div>
+            <div class="qty">${escapeHtml(line.stop_seq || "-")}</div>
+          </article>
+        `).join("") : ""}
+      </div>
+      ${order.note ? `<div class="hint-state">${escapeHtml(order.note)}</div>` : ""}
+    `;
+  }
+
+  function infoItem(label, value) {
+    return `
+      <div class="info-item">
+        <span>${escapeHtml(label)}</span>
+        <strong>${escapeHtml(value || "-")}</strong>
+      </div>
+    `;
+  }
+
+  async function confirmHandoverOrder() {
+    const orderId = activeTaskId("handover");
+    const button = document.getElementById("startHandover");
+    if (!orderId || !button) {
+      return;
+    }
+    try {
+      button.disabled = true;
+      const result = await apiPost(HANDOVER_ENDPOINTS.confirm(orderId), {
+        request_id: requestId("handover_confirm"),
+        device_id: state.deviceId,
+      });
+      rememberResult("handover", "已开始交接", result);
+      showToast("已开始交接");
+      await selectHandoverOrder(orderId);
+    } catch (error) {
+      showError(error);
+    } finally {
+      button.disabled = false;
+    }
+  }
+
+  async function completeHandoverOrder() {
+    const orderId = activeTaskId("handover");
+    const button = document.getElementById("completeHandover");
+    if (!orderId || !button) {
+      return;
+    }
+    try {
+      button.disabled = true;
+      const result = await apiPost(HANDOVER_ENDPOINTS.complete(orderId), {
+        request_id: requestId("handover_complete"),
+        device_id: state.deviceId,
+      });
+      rememberResult("handover", "交接已完成", result);
+      showToast("交接已完成");
+      state.activeTasks["handover:id"] = "";
+      await loadHandoverOrders();
+    } catch (error) {
+      showError(error);
+    } finally {
+      button.disabled = false;
+    }
+  }
+
+  function setHandoverButtons(enabled) {
+    ["startHandover", "completeHandover"].forEach((id) => {
+      const button = document.getElementById(id);
+      if (button) {
+        button.disabled = !enabled;
+      }
+    });
   }
 
   function taskCard(task, active) {
@@ -687,6 +979,7 @@
     const taskState = task && task.state || "";
     return `
       ${renderTaskStatus(mode, taskState)}
+      ${renderLastResult(mode)}
       <div class="scan-box">
         <h2>${escapeHtml(taskName)}</h2>
         <form id="scanForm" class="scan-form" autocomplete="off">
@@ -797,8 +1090,9 @@
     }
     try {
       setBusy(form, true);
-      await apiPost(config.confirm(taskId), payload);
-      showToast("已确认");
+      const result = await apiPost(config.confirm(taskId), payload);
+      rememberResult(mode, "本行已确认", result);
+      showToast("本行已确认");
       await selectTask(mode, taskId);
     } catch (error) {
       showError(error);
@@ -816,10 +1110,11 @@
     const button = document.getElementById("completeTask");
     try {
       button.disabled = true;
-      await apiPost(config.complete(taskId), {
+      const result = await apiPost(config.complete(taskId), {
         request_id: requestId(`${mode}_complete`),
         device_id: state.deviceId,
       });
+      rememberResult(mode, "任务已完成", result);
       showToast("任务已完成");
       state.activeTasks[`${mode}:id`] = "";
       await loadTasks(mode);
@@ -830,12 +1125,88 @@
     }
   }
 
+  function rememberResult(mode, title, result) {
+    state.lastResults[mode] = {
+      title,
+      result: result || {},
+      time: new Date().toLocaleTimeString("zh-CN", { hour12: false }),
+    };
+  }
+
+  function renderLastResult(mode) {
+    const entry = state.lastResults[mode];
+    if (!entry) {
+      return "";
+    }
+    const result = entry.result || {};
+    const order = result.order || {};
+    const task = result.task || {};
+    const summary = result.summary || {};
+    const stateValue = result.task_state || result.operation_state || task.state || order.state || result.state || "";
+    const fields = [
+      ["状态", statusLabel(stateValue) || operationStateLabel(stateValue)],
+      ["下一步", nextStepLabel(result.next_step)],
+      ["生成上架任务", formatIdList(result.putaway_task_ids)],
+      ["生成交接单", formatIdList(result.handover_order_ids)],
+      ["明细行数", summary.line_count ?? summary.done_line_count],
+      ["数量合计", summary.total_qty ?? summary.done_qty ?? summary.checked_qty],
+      ["单据", task.name || order.name || result.operation_name || result.name],
+    ].filter(([, value]) => value !== undefined && value !== null && value !== "");
+    return `
+      <div class="result-card is-success">
+        <div class="result-card-head">
+          <strong>${escapeHtml(entry.title)}</strong>
+          <span>${escapeHtml(entry.time)}</span>
+        </div>
+        ${fields.length ? `
+          <div class="result-grid">
+            ${fields.map(([label, value]) => `
+              <div>
+                <span>${escapeHtml(label)}</span>
+                <strong>${escapeHtml(formatResultValue(value))}</strong>
+              </div>
+            `).join("")}
+          </div>
+        ` : `<small>接口已返回成功。</small>`}
+      </div>
+    `;
+  }
+
+  function formatIdList(value) {
+    return Array.isArray(value) && value.length ? value.join(", ") : "";
+  }
+
+  function formatResultValue(value) {
+    if (typeof value === "number") {
+      return formatQty(value);
+    }
+    if (Array.isArray(value)) {
+      return value.join(", ");
+    }
+    return value;
+  }
+
+  function nextStepLabel(value) {
+    const labels = {
+      putaway: "进入待上架",
+      check: "进入待复核",
+      handover: "进入待交接",
+      dispatch: "进入配送/TMS",
+      done: "已完成",
+    };
+    return labels[value] || value || "";
+  }
+
+  function operationStateLabel(value) {
+    return OPERATION_STATE_LABELS[value] || value || "";
+  }
+
   function statusLabel(stateValue) {
     return STATUS_LABELS[stateValue] || stateValue || "";
   }
 
   function isDoneState(stateValue) {
-    return ["received", "putaway_done", "picked", "checked"].includes(stateValue);
+    return ["received", "putaway_done", "picked", "checked", "handover_done"].includes(stateValue);
   }
 
   function isExceptionState(stateValue) {
@@ -898,8 +1269,8 @@
       <section class="task-panel">
         <div class="page-title">
           <div>
-            <h1>调拨下架</h1>
-            <p>处理下架退库、仓内移库和补货上架；先扫来源库位，再扫商品、数量和目标库位，提交后生成内部调拨。</p>
+            <h1>调拨补货</h1>
+            <p>处理调拨下架、仓内移库和补货上架；先扫来源库位，再扫商品、数量和目标库位，提交后生成内部调拨。</p>
           </div>
           <span class="status-pill">${escapeHtml(currentWarehouseName())}</span>
         </div>
@@ -941,7 +1312,7 @@
   function renderDownShelfCreateForm() {
     return `
       <form id="downShelfCreateForm" class="scan-box" autocomplete="off">
-        <h2>创建调拨下架作业</h2>
+        <h2>创建调拨补货作业</h2>
         <div class="scan-form">
           <label class="field">
             <span>作业类型</span>
@@ -1292,20 +1663,129 @@
   }
 
   function renderExceptionPlaceholder() {
+    const last = state.exceptionLastDraft;
     root.innerHTML = `
       <section class="task-panel">
         <div class="page-title">
           <div>
             <h1>盘点异常</h1>
-            <p>按 PRD 统一承接缺货、破损、数量不符、库位不符、交接失败等现场异常。第一版先预留入口，后续接主管审核与图片证据。</p>
+            <p>按 PRD 统一承接缺货、破损、数量不符、库位不符、交接失败等现场异常，现场先记录证据，再进入主管审核。</p>
           </div>
-          <span class="status-pill">预留</span>
+          <span class="status-pill">${escapeHtml(currentWarehouseName())}</span>
         </div>
-        <div class="hint-state">
-          当前版本先在各任务详情页保留异常入口位置，完整异常闭环将在下一阶段接入。
+        <div class="metric-grid">
+          ${[
+            ["待处理异常", "0", "后端审核接口待接入"],
+            ["盘点任务", "预留", "按库位/商品盘点"],
+            ["报损禁售", "预留", "破损、临期、禁售"],
+            ["主管审核", "预留", "异常闭环状态"],
+          ].map(([title, value, desc]) => `
+            <article class="metric-card">
+              <strong>${escapeHtml(value)}</strong>
+              <span>${escapeHtml(title)}</span>
+              <small>${escapeHtml(desc)}</small>
+            </article>
+          `).join("")}
+        </div>
+        <form id="exceptionForm" class="scan-box" autocomplete="off">
+          <h2>记录现场异常</h2>
+          <div class="scan-form">
+            <label class="field">
+              <span>异常类型</span>
+              <select class="text-input" name="type">
+                <option value="qty_mismatch">数量不符</option>
+                <option value="damaged">破损报损</option>
+                <option value="location_mismatch">库位不符</option>
+                <option value="shortage">缺货少货</option>
+                <option value="handover_failed">交接失败</option>
+                <option value="forbidden_sale">禁售/冻结</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>关联任务/单据</span>
+              <input class="text-input" name="reference" type="text" inputmode="text" placeholder="任务号或单据号" />
+            </label>
+            <label class="field">
+              <span>商品条码</span>
+              <input class="text-input" name="product_barcode" type="text" inputmode="text" placeholder="扫描商品" />
+            </label>
+            <label class="field">
+              <span>库位条码</span>
+              <input class="text-input" name="location_barcode" type="text" inputmode="text" placeholder="扫描库位" />
+            </label>
+            <label class="field">
+              <span>异常数量</span>
+              <input class="qty-input" name="qty" type="number" min="0" step="0.001" inputmode="decimal" placeholder="数量" />
+            </label>
+            <label class="field">
+              <span>图片证据</span>
+              <input class="text-input" name="photo_note" type="text" inputmode="text" placeholder="先记录照片编号/说明" />
+            </label>
+            <label class="field full-row">
+              <span>现场说明</span>
+              <input class="text-input" name="note" type="text" inputmode="text" placeholder="描述原因、处理建议或责任环节" />
+            </label>
+            <button class="primary-button full-row" type="submit">记录异常</button>
+          </div>
+        </form>
+        <div id="exceptionResult">
+          ${last ? renderExceptionDraft(last) : `<div class="hint-state">当前为前端记录页，后续接入异常提交接口后会进入主管审核队列。</div>`}
         </div>
       </section>
     `;
+    document.getElementById("exceptionForm").addEventListener("submit", submitExceptionDraft);
+    focusFirst("#exceptionForm select");
+  }
+
+  function submitExceptionDraft(event) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const data = Object.fromEntries(new FormData(form).entries());
+    state.exceptionLastDraft = {
+      type: exceptionTypeLabel(data.type),
+      reference: (data.reference || "").trim(),
+      productBarcode: (data.product_barcode || "").trim(),
+      locationBarcode: (data.location_barcode || "").trim(),
+      qty: data.qty,
+      photoNote: (data.photo_note || "").trim(),
+      note: (data.note || "").trim(),
+      time: new Date().toLocaleString("zh-CN", { hour12: false }),
+    };
+    document.getElementById("exceptionResult").innerHTML = renderExceptionDraft(state.exceptionLastDraft);
+    form.reset();
+    showToast("异常已记录，等待后端审核接口接入");
+  }
+
+  function renderExceptionDraft(item) {
+    const details = [
+      item.reference ? `任务/单据：${item.reference}` : "",
+      item.productBarcode ? `商品：${item.productBarcode}` : "",
+      item.locationBarcode ? `库位：${item.locationBarcode}` : "",
+      item.qty ? `数量：${formatQty(item.qty)}` : "",
+      item.photoNote ? `证据：${item.photoNote}` : "",
+      item.note ? `说明：${item.note}` : "",
+    ].filter(Boolean).join(" · ");
+    return `
+      <div class="result-card">
+        <div class="result-card-head">
+          <strong>${escapeHtml(item.type)}</strong>
+          <span>${escapeHtml(item.time)}</span>
+        </div>
+        <small>${escapeHtml(details || "已记录现场异常。")}</small>
+      </div>
+    `;
+  }
+
+  function exceptionTypeLabel(value) {
+    const labels = {
+      qty_mismatch: "数量不符",
+      damaged: "破损报损",
+      location_mismatch: "库位不符",
+      shortage: "缺货少货",
+      handover_failed: "交接失败",
+      forbidden_sale: "禁售/冻结",
+    };
+    return labels[value] || value || "现场异常";
   }
 
   async function switchWarehouse() {

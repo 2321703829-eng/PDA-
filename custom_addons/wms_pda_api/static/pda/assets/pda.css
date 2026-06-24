@@ -377,7 +377,7 @@ button:disabled {
 
 .todo-grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 8px;
 }
 
@@ -409,7 +409,7 @@ button:disabled {
 
 .action-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
   margin-top: 12px;
 }
@@ -468,6 +468,10 @@ button:disabled {
   border-left-color: #0f8aa5;
 }
 
+.module-button[data-route="scan"] {
+  border-left-color: #245d75;
+}
+
 .module-button[data-route="inventory"] {
   border-left-color: var(--ok);
 }
@@ -476,8 +480,16 @@ button:disabled {
   border-left-color: var(--accent);
 }
 
+.module-button[data-route="exceptions"] {
+  border-left-color: var(--danger);
+}
+
 .module-button[data-route="outbound-flow"] .module-icon {
   background: #0f6f88;
+}
+
+.module-button[data-route="scan"] .module-icon {
+  background: #245d75;
 }
 
 .module-button[data-route="inventory"] .module-icon {
@@ -486,6 +498,10 @@ button:disabled {
 
 .module-button[data-route="transfer"] .module-icon {
   background: #9a6422;
+}
+
+.module-button[data-route="exceptions"] .module-icon {
+  background: #8b2a22;
 }
 
 .page-title {
@@ -541,7 +557,7 @@ button:disabled {
 
 .flow-tabs {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
   gap: 10px;
   margin: 12px 0;
 }
@@ -590,6 +606,13 @@ button:disabled {
   padding: 10px 12px;
   border-bottom: 1px solid var(--line);
   background: #fff;
+}
+
+.detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
 .list-header strong,
@@ -689,6 +712,102 @@ button:disabled {
   border: 1px solid #bfd8e3;
   border-radius: var(--radius);
   background: #fff;
+}
+
+.result-card {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #cfdce4;
+  border-radius: var(--radius);
+  background: #fff;
+}
+
+.result-card.is-success {
+  border-color: #b7dbc9;
+  background: #f2fbf6;
+}
+
+.result-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.result-card-head strong {
+  color: var(--ink);
+  font-size: 17px;
+}
+
+.result-card-head span,
+.result-card small {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.result-grid,
+.info-grid,
+.metric-grid,
+.scan-support-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.result-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.result-grid div,
+.info-item,
+.metric-card {
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+}
+
+.result-grid span,
+.info-item span,
+.metric-card span,
+.metric-card small {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.result-grid strong,
+.info-item strong,
+.metric-card strong {
+  display: block;
+  margin-top: 5px;
+  color: var(--ink);
+  font-size: 15px;
+  overflow-wrap: anywhere;
+}
+
+.info-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.metric-grid,
+.scan-support-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-bottom: 12px;
+}
+
+.metric-card strong {
+  margin-top: 0;
+  color: var(--brand-dark);
+  font-size: 22px;
+}
+
+.metric-card small {
+  margin-top: 5px;
+  line-height: 1.4;
 }
 
 .status-summary {
@@ -971,6 +1090,16 @@ button:disabled {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
+  .info-grid,
+  .metric-grid,
+  .scan-support-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .result-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .task-layout {
     grid-template-columns: 1fr;
   }
@@ -1050,7 +1179,11 @@ button:disabled {
 
   .global-scan,
   .scan-form,
-  .inventory-mode {
+  .inventory-mode,
+  .info-grid,
+  .metric-grid,
+  .scan-support-grid,
+  .result-grid {
     grid-template-columns: 1fr;
   }
 
@@ -1105,6 +1238,17 @@ button:disabled {
     width: max-content;
     min-width: 0;
     text-align: left;
+  }
+
+  .detail-header,
+  .detail-actions,
+  .result-card-head {
+    align-items: stretch;
+  }
+
+  .detail-header,
+  .result-card-head {
+    display: grid;
   }
 
   .result-table {

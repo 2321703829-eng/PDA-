@@ -20,6 +20,7 @@ class WmsPdaWorkbenchController(WmsPdaBaseController):
                 self._todo("putaway", "待上架", "inbound-flow", "putaway", self._count("wms.putaway.task", warehouse, ["waiting_putaway", "putaway_ing"])),
                 self._todo("pick", "待拣货", "outbound-flow", "pick", self._count("wms.pick.task", warehouse, ["waiting_pick", "picking"])),
                 self._todo("check", "待复核", "outbound-flow", "outbound", self._count("wms.check.task", warehouse, ["waiting_check", "checking"])),
+                self._todo("handover", "待交接", "outbound-flow", "handover", self._count("wms.handover.order", warehouse, ["waiting_handover", "handover_ing"])),
                 self._todo("exception", "异常待处理", "exceptions", "", self._exception_count(warehouse)),
             ],
         }
@@ -47,6 +48,7 @@ class WmsPdaWorkbenchController(WmsPdaBaseController):
             ("wms.putaway.task", ["putaway_exception"]),
             ("wms.pick.task", ["pick_exception"]),
             ("wms.check.task", ["check_exception"]),
+            ("wms.handover.order", ["handover_exception"]),
         )
         total = 0
         for model_name, states in specs:
