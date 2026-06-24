@@ -346,9 +346,70 @@ button:disabled {
   font-weight: 900;
 }
 
+.section-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 14px 0 8px;
+}
+
+.section-title strong {
+  font-size: 17px;
+}
+
+.section-title small {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.global-scan {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(88px, auto);
+  gap: 10px;
+  align-items: end;
+  padding: 12px;
+  border: 1px solid #bfd8e3;
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, #ffffff 0%, #f2fafc 100%);
+}
+
+.todo-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.todo-card {
+  min-height: 78px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--brand);
+  border-radius: var(--radius);
+  background: #fff;
+  text-align: left;
+  box-shadow: 0 6px 14px rgba(31, 56, 74, 0.05);
+}
+
+.todo-card span {
+  display: block;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.todo-card strong {
+  display: block;
+  margin-top: 8px;
+  color: var(--ink);
+  font-size: 28px;
+  line-height: 1;
+}
+
 .action-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
   margin-top: 12px;
 }
@@ -403,31 +464,27 @@ button:disabled {
   font-weight: 900;
 }
 
-.module-button[data-route="outbound"],
-.module-button[data-route="putaway"] {
+.module-button[data-route="outbound-flow"] {
   border-left-color: #0f8aa5;
 }
 
-.module-button[data-route="pick"],
 .module-button[data-route="inventory"] {
   border-left-color: var(--ok);
 }
 
-.module-button[data-route="downshelf"] {
+.module-button[data-route="transfer"] {
   border-left-color: var(--accent);
 }
 
-.module-button[data-route="outbound"] .module-icon,
-.module-button[data-route="putaway"] .module-icon {
+.module-button[data-route="outbound-flow"] .module-icon {
   background: #0f6f88;
 }
 
-.module-button[data-route="pick"] .module-icon,
 .module-button[data-route="inventory"] .module-icon {
   background: #237856;
 }
 
-.module-button[data-route="downshelf"] .module-icon {
+.module-button[data-route="transfer"] .module-icon {
   background: #9a6422;
 }
 
@@ -480,6 +537,34 @@ button:disabled {
   display: grid;
   grid-template-columns: minmax(250px, 330px) minmax(0, 1fr);
   gap: 12px;
+}
+
+.flow-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.flow-tabs .seg-button {
+  display: grid;
+  gap: 4px;
+  align-content: center;
+  min-height: 68px;
+  padding: 8px 10px;
+  text-align: left;
+}
+
+.flow-tabs .seg-button strong,
+.flow-tabs .seg-button small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.flow-tabs .seg-button small {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
 }
 
 .task-list,
@@ -544,6 +629,13 @@ button:disabled {
   box-shadow: 0 6px 14px rgba(31, 56, 74, 0.05);
 }
 
+.task-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
 .task-card.is-active {
   border-color: rgba(15, 126, 163, 0.55);
   border-left-color: var(--brand);
@@ -555,6 +647,103 @@ button:disabled {
   color: var(--ink);
   font-size: 16px;
   overflow-wrap: anywhere;
+}
+
+.task-progress {
+  color: var(--brand-dark) !important;
+  font-weight: 900;
+}
+
+.state-tag {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  max-width: 96px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: var(--brand-soft);
+  color: var(--brand-dark);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 900;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.state-tag.is-done {
+  background: #e6f5ee;
+  color: var(--ok);
+}
+
+.state-tag.is-error {
+  background: #fff0ef;
+  color: var(--danger);
+}
+
+.status-panel {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #bfd8e3;
+  border-radius: var(--radius);
+  background: #fff;
+}
+
+.status-summary {
+  display: grid;
+  gap: 4px;
+}
+
+.status-summary span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.status-summary strong {
+  color: var(--ink);
+  font-size: 20px;
+}
+
+.status-summary small {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.state-flow {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.state-step {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 9px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #f7fafb;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.state-step.is-past {
+  border-color: #b7dbc9;
+  background: #eef8f3;
+  color: var(--ok);
+}
+
+.state-step.is-current {
+  border-color: var(--brand);
+  background: var(--brand-soft);
+  color: var(--brand-dark);
 }
 
 .task-card small,
@@ -572,6 +761,7 @@ button:disabled {
   display: grid;
   gap: 12px;
   padding: 12px;
+  overflow-x: auto;
 }
 
 .scan-box {
@@ -669,6 +859,10 @@ button:disabled {
   color: #7b4d08;
 }
 
+.full-row {
+  grid-column: 1 / -1;
+}
+
 .inventory-mode {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -688,8 +882,15 @@ button:disabled {
   color: var(--brand-dark);
 }
 
+.result-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+}
+
 .result-table {
   width: 100%;
+  min-width: 640px;
   border-collapse: collapse;
   overflow: hidden;
   border-radius: var(--radius);
@@ -764,6 +965,10 @@ button:disabled {
 
   .action-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .todo-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .task-layout {
@@ -843,8 +1048,25 @@ button:disabled {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .global-scan,
   .scan-form,
   .inventory-mode {
+    grid-template-columns: 1fr;
+  }
+
+  .todo-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .todo-card {
+    min-height: 72px;
+  }
+
+  .todo-card strong {
+    font-size: 24px;
+  }
+
+  .flow-tabs {
     grid-template-columns: 1fr;
   }
 

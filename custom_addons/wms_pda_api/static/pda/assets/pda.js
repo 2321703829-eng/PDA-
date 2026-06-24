@@ -64,12 +64,91 @@
     },
   };
 
+  const FLOW_GROUPS = {
+    "inbound-flow": {
+      title: "入库上架",
+      subtitle: "按 PRD 合并收货与上架：待收货、待上架在一个入口内推进，扫码贯穿商品和库位确认。",
+      scanPlaceholder: "扫收货任务 / 上架任务 / 商品 / 库位",
+      defaultMode: "inbound",
+      tabs: [
+        { mode: "inbound", label: "待收货", hint: "扫码收货、数量确认、异常预留" },
+        { mode: "putaway", label: "待上架", hint: "扫商品与目标库位，确认上架" },
+      ],
+    },
+    "outbound-flow": {
+      title: "出库履约",
+      subtitle: "按 PRD 合并拣货与复核：待拣货、待复核、待交接沿同一履约链路推进。",
+      scanPlaceholder: "扫拣货任务 / 复核任务 / 商品 / 库位 / 集货位",
+      defaultMode: "pick",
+      tabs: [
+        { mode: "pick", label: "待拣货", hint: "领取任务、扫库位、扫商品确认数量" },
+        { mode: "outbound", label: "待复核", hint: "复核装箱、数量确认、交接预留" },
+      ],
+    },
+  };
+
+  const HOME_MODULES = [
+    { route: "inbound-flow", icon: "IN", title: "入库上架", desc: "收货、异常预留、上架确认" },
+    { route: "outbound-flow", icon: "OUT", title: "出库履约", desc: "拣货、复核、交接预留" },
+    { route: "inventory", icon: "INV", title: "库存库位", desc: "商品、库位、库存明细查询" },
+    { route: "transfer", icon: "MOVE", title: "调拨下架", desc: "下架退库、移库、补货" },
+  ];
+
+  const STATUS_LABELS = {
+    waiting_receipt: "待收货",
+    receiving: "收货中",
+    received: "已收货",
+    receipt_exception: "收货异常",
+    waiting_putaway: "待上架",
+    putaway_ing: "上架中",
+    putaway_done: "已上架",
+    putaway_exception: "上架异常",
+    waiting_pick: "待拣货",
+    picking: "拣货中",
+    picked: "已拣货",
+    pick_exception: "拣货异常",
+    waiting_check: "待复核",
+    checking: "复核中",
+    checked: "已复核",
+    check_exception: "复核异常",
+  };
+
+  const STATUS_FLOWS = {
+    inbound: ["waiting_receipt", "receiving", "received", "waiting_putaway", "putaway_ing", "putaway_done"],
+    putaway: ["waiting_putaway", "putaway_ing", "putaway_done"],
+    pick: ["waiting_pick", "picking", "picked", "waiting_check"],
+    outbound: ["waiting_check", "checking", "checked"],
+  };
+
+  const NEXT_ACTION_HINTS = {
+    waiting_receipt: "下一步：扫商品并录入实收数量。",
+    receiving: "下一步：继续确认收货明细，完成后生成上架任务。",
+    received: "已完成收货：请进入待上架继续库位上架。",
+    waiting_putaway: "下一步：扫商品和目标库位，确认上架数量。",
+    putaway_ing: "下一步：继续确认上架明细，全部完成后点完成上架。",
+    putaway_done: "已完成上架：库位库存已形成。",
+    waiting_pick: "下一步：扫来源库位、商品和拣货数量。",
+    picking: "下一步：继续拣货，完成后生成复核任务。",
+    picked: "已完成拣货：请进入待复核继续出库履约。",
+    waiting_check: "下一步：扫商品并确认复核数量。",
+    checking: "下一步：继续复核，完成后进入交接预留。",
+    checked: "已完成复核：可进入交接出库。",
+  };
+
   const DOWN_SHELF_REASONS = [
-    ["damaged", "破损"],
-    ["expired", "过期"],
-    ["oversupply", "补货过多"],
-    ["slow_moving", "滞销"],
+    ["location_cleanup", "库位整理"],
+    ["replenishment", "拣货位补货"],
+    ["damaged", "破损下架"],
+    ["expired", "临期下架"],
+    ["misplaced", "错放调整"],
+    ["supervisor", "主管指令"],
     ["other", "其他"],
+  ];
+
+  const TRANSFER_TYPES = [
+    ["warehouse_return", "下架退库"],
+    ["internal_move", "仓内移库"],
+    ["replenishment", "补货上架"],
   ];
 
   const OPERATION_STATE_LABELS = {
@@ -87,6 +166,12 @@
     warehouseId: localStorage.getItem(STORAGE.warehouseId) || "",
     deviceId: ensureDeviceId(),
     inventoryMode: "product",
+    pendingInventoryCode: "",
+    flowModes: {
+      "inbound-flow": "inbound",
+      "outbound-flow": "pick",
+    },
+    workbenchSummary: null,
     activeTasks: {},
     activeLines: {},
     lineMatches: {},
@@ -143,12 +228,20 @@
       renderHome();
       return;
     }
+    if (FLOW_GROUPS[state.route]) {
+      renderFlowPage(state.route);
+      return;
+    }
     if (state.route === "inventory") {
       renderInventory();
       return;
     }
-    if (state.route === "downshelf") {
+    if (state.route === "downshelf" || state.route === "transfer") {
       renderDownShelf();
+      return;
+    }
+    if (state.route === "exceptions") {
+      renderExceptionPlaceholder();
       return;
     }
     if (ENDPOINTS[state.route]) {
@@ -243,29 +336,41 @@
         <div class="hero-content">
           <span class="eyebrow">Tianshu PDA Lite</span>
           <h1>仓库移动作业台</h1>
-          <p>入库、出库、拣货、上架、下架和库存查询，面向 PDA 扫码作业快速处理。</p>
+          <p>工作台优先展示今日待办，通过统一扫码进入入库上架、出库履约、库存库位和调拨下架。</p>
         </div>
       </section>
       <section class="work-panel">
         <div class="page-title">
           <div>
-            <h1>选择作业</h1>
+            <h1>现场工作台</h1>
             <p>${escapeHtml(currentWarehouseName())}，${escapeHtml(currentUserName())}。</p>
           </div>
+          <button id="refreshWorkbench" class="refresh-button" type="button">刷新</button>
+        </div>
+        ${renderGlobalScan("homeScanForm", "扫商品 / 库位 / 单据 / 任务号")}
+        <div class="section-title">
+          <strong>今日待办</strong>
+          <small>按当前仓库和账号聚合</small>
+        </div>
+        <div id="todoGrid" class="todo-grid">
+          ${renderTodoSkeleton()}
+        </div>
+        <div class="section-title">
+          <strong>常用作业</strong>
+          <small>按 PRD 合并后的一级入口</small>
         </div>
         <div class="action-grid">
-          ${moduleButton("inbound", "IN", "入库", "收货任务扫码确认")}
-          ${moduleButton("outbound", "OUT", "出库", "出库复核扫码处理")}
-          ${moduleButton("pick", "PICK", "拣货", "商品与库位双扫码")}
-          ${moduleButton("putaway", "PUT", "上架", "商品与目标库位双扫码")}
-          ${moduleButton("downshelf", "RET", "下架", "库位商品下架退库")}
-          ${moduleButton("inventory", "INV", "库存扫码查询", "按商品或库位实时查询")}
+          ${HOME_MODULES.map((item) => moduleButton(item.route, item.icon, item.title, item.desc)).join("")}
         </div>
       </section>
     `;
     root.querySelectorAll("[data-route]").forEach((button) => {
       button.addEventListener("click", () => navigate(button.dataset.route));
     });
+    document.getElementById("homeScanForm").addEventListener("submit", submitGlobalScan);
+    document.getElementById("refreshWorkbench").addEventListener("click", loadWorkbenchSummary);
+    loadWorkbenchSummary();
+    focusFirst("#homeScanCode");
   }
 
   function moduleButton(route, icon, title, desc) {
@@ -276,6 +381,185 @@
         <span>${escapeHtml(desc)}</span>
       </button>
     `;
+  }
+
+  function renderGlobalScan(formId, placeholder) {
+    const inputId = formId === "homeScanForm" ? "homeScanCode" : `${formId}Code`;
+    return `
+      <form id="${escapeAttr(formId)}" class="global-scan" autocomplete="off">
+        <label class="field">
+          <span>统一扫码</span>
+          <input id="${escapeAttr(inputId)}" class="text-input" name="barcode" type="text" inputmode="text" autocomplete="off" placeholder="${escapeAttr(placeholder)}" required />
+        </label>
+        <button class="primary-button" type="submit">识别</button>
+      </form>
+    `;
+  }
+
+  function renderTodoSkeleton() {
+    return ["待收货", "待上架", "待拣货", "待复核", "异常待处理"].map((label) => `
+      <button class="todo-card" type="button" disabled>
+        <span>${escapeHtml(label)}</span>
+        <strong>...</strong>
+      </button>
+    `).join("");
+  }
+
+  async function loadWorkbenchSummary() {
+    const grid = document.getElementById("todoGrid");
+    if (!grid) {
+      return;
+    }
+    grid.innerHTML = renderTodoSkeleton();
+    try {
+      const data = await apiGet(`${API_PREFIX}/workbench/summary`);
+      state.workbenchSummary = data;
+      grid.innerHTML = renderTodoGrid(data.todos || []);
+      grid.querySelectorAll("[data-todo-route]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const route = button.dataset.todoRoute;
+          const mode = button.dataset.todoMode;
+          if (mode) {
+            state.flowModes[route] = mode;
+          }
+          navigate(route);
+        });
+      });
+    } catch (error) {
+      grid.innerHTML = `<div class="error-state full-row">${escapeHtml(messageOf(error))}</div>`;
+    }
+  }
+
+  function renderTodoGrid(todos) {
+    if (!todos.length) {
+      return `<div class="empty-state full-row">暂无待办数据。</div>`;
+    }
+    return todos.map((item) => `
+      <button class="todo-card" type="button" data-todo-route="${escapeAttr(item.route || "home")}" data-todo-mode="${escapeAttr(item.mode || "")}">
+        <span>${escapeHtml(item.label)}</span>
+        <strong>${escapeHtml(item.count ?? 0)}</strong>
+      </button>
+    `).join("");
+  }
+
+  async function renderFlowPage(route) {
+    const group = FLOW_GROUPS[route];
+    const mode = state.flowModes[route] || group.defaultMode;
+    const config = ENDPOINTS[mode];
+    root.innerHTML = `
+      <section class="task-panel">
+        <div class="page-title">
+          <div>
+            <h1>${escapeHtml(group.title)}</h1>
+            <p>${escapeHtml(group.subtitle)}</p>
+          </div>
+          <span class="status-pill">${escapeHtml(currentWarehouseName())}</span>
+        </div>
+        ${renderGlobalScan(`${route}ScanForm`, group.scanPlaceholder)}
+        <div class="flow-tabs">
+          ${group.tabs.map((tab) => `
+            <button class="seg-button ${tab.mode === mode ? "is-active" : ""}" type="button" data-flow-route="${escapeAttr(route)}" data-flow-mode="${escapeAttr(tab.mode)}">
+              <strong>${escapeHtml(tab.label)}</strong>
+              <small>${escapeHtml(tab.hint)}</small>
+            </button>
+          `).join("")}
+        </div>
+        <div class="task-layout">
+          <section class="task-list">
+            <div class="list-header">
+              <strong>${escapeHtml(config.title)}</strong>
+              <button id="refreshTasks" class="refresh-button" type="button">刷新</button>
+            </div>
+            <div id="taskItems" class="task-items">
+              <div class="empty-state">正在读取任务...</div>
+            </div>
+          </section>
+          <section class="task-detail">
+            <div class="detail-header">
+              <strong>任务明细</strong>
+              <button id="completeTask" class="refresh-button" type="button" disabled>${escapeHtml(config.completeText)}</button>
+            </div>
+            <div id="detailBody" class="detail-body">
+              <div class="empty-state">请选择左侧任务。</div>
+            </div>
+          </section>
+        </div>
+      </section>
+    `;
+    document.getElementById(`${route}ScanForm`).addEventListener("submit", submitGlobalScan);
+    root.querySelectorAll("[data-flow-mode]").forEach((button) => {
+      button.addEventListener("click", () => {
+        state.flowModes[button.dataset.flowRoute] = button.dataset.flowMode;
+        renderFlowPage(button.dataset.flowRoute);
+      });
+    });
+    document.getElementById("refreshTasks").addEventListener("click", () => loadTasks(mode));
+    document.getElementById("completeTask").addEventListener("click", () => completeTask(mode));
+    await loadTasks(mode);
+  }
+
+  async function submitGlobalScan(event) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const input = form.querySelector("input[name='barcode']");
+    const barcode = (input && input.value || "").trim();
+    if (!barcode) {
+      return;
+    }
+    try {
+      setBusy(form, true);
+      const result = await apiPost(`${API_PREFIX}/scan/resolve`, {
+        barcode,
+        device_id: state.deviceId,
+        current_route: state.route,
+      });
+      handleScanResolution(result, barcode);
+      if (input) {
+        input.value = "";
+      }
+    } catch (error) {
+      showError(error);
+      if (input) {
+        input.select();
+      }
+    } finally {
+      setBusy(form, false);
+    }
+  }
+
+  function handleScanResolution(result, scannedCode) {
+    const route = result.route || "home";
+    const mode = result.mode || "";
+    if (mode && FLOW_GROUPS[route]) {
+      state.flowModes[route] = mode;
+      if (result.target_id) {
+        state.activeTasks[`${mode}:id`] = Number(result.target_id);
+      }
+      showToast(result.message || "已识别任务");
+      openRoute(route);
+      return;
+    }
+    if (route === "inventory") {
+      state.inventoryMode = result.inventory_mode || "product";
+      state.pendingInventoryCode = result.barcode || scannedCode;
+      showToast(result.message || "进入库存库位");
+      openRoute("inventory");
+      return;
+    }
+    if (route === "outbound-flow" || route === "inbound-flow") {
+      showToast(result.message || "已识别单据");
+      openRoute(route);
+      return;
+    }
+    showToast(result.message || "已识别条码");
+  }
+
+  function openRoute(route) {
+    if (state.route === route) {
+      renderFromHash();
+      return;
+    }
+    navigate(route);
   }
 
   async function renderTaskPage(mode) {
@@ -327,7 +611,16 @@
       const records = getRecords(data);
       state.activeTasks[mode] = records;
       if (!records.length) {
-        container.innerHTML = `<div class="empty-state">暂无待处理任务。</div>`;
+        const focusedId = activeTaskId(mode);
+        container.innerHTML = `<div class="empty-state">${focusedId ? "正在打开扫码指定任务..." : "暂无待处理任务。"}</div>`;
+        if (focusedId) {
+          await selectTask(mode, Number(focusedId));
+          const focusedTask = state.activeTasks[`${mode}:focusedTask`];
+          container.innerHTML = focusedTask
+            ? taskCard(focusedTask, true)
+            : `<div class="empty-state">当前任务已打开，请在右侧扫码处理。</div>`;
+          return;
+        }
         detail.innerHTML = `<div class="empty-state">没有需要处理的任务。</div>`;
         return;
       }
@@ -347,10 +640,16 @@
     const name = task.name || task.picking_name || task.outbound_task_name || `任务 ${task.id}`;
     const partner = task.partner_name || task.warehouse_name || task.source_location || "";
     const summary = task.product_summary || task.picking_name || task.outbound_task_name || task.state_label || "";
+    const status = task.state || "";
+    const progress = taskProgressText(task);
     return `
       <button class="task-card ${active ? "is-active" : ""}" type="button" data-task-id="${escapeAttr(task.id)}">
-        <strong>${escapeHtml(name)}</strong>
+        <span class="task-card-top">
+          <strong>${escapeHtml(name)}</strong>
+          ${status ? `<em class="state-tag ${isDoneState(status) ? "is-done" : isExceptionState(status) ? "is-error" : ""}">${escapeHtml(statusLabel(status))}</em>` : ""}
+        </span>
         <small>${escapeHtml([partner, summary].filter(Boolean).join(" · ") || "点击查看明细")}</small>
+        ${progress ? `<small class="task-progress">${escapeHtml(progress)}</small>` : ""}
       </button>
     `;
   }
@@ -367,9 +666,13 @@
     try {
       const data = await apiGet(config.lines(taskId));
       const lines = normalizeLines(data.lines || data.records || [], mode);
+      const task = data.task || findTask(mode, taskId);
+      if (task) {
+        state.activeTasks[`${mode}:focusedTask`] = task;
+      }
       state.activeLines[mode] = lines;
       state.lineMatches[mode] = "";
-      detail.innerHTML = renderScanBox(mode, data.task || findTask(mode, taskId), lines);
+      detail.innerHTML = renderScanBox(mode, task, lines);
       bindScanForm(mode);
       document.getElementById("completeTask").disabled = false;
       focusFirst("#productBarcode");
@@ -381,7 +684,9 @@
   function renderScanBox(mode, task, lines) {
     const config = ENDPOINTS[mode];
     const taskName = task && (task.name || task.picking_name || task.outbound_task_name) || "当前任务";
+    const taskState = task && task.state || "";
     return `
+      ${renderTaskStatus(mode, taskState)}
       <div class="scan-box">
         <h2>${escapeHtml(taskName)}</h2>
         <form id="scanForm" class="scan-form" autocomplete="off">
@@ -400,10 +705,34 @@
             <input id="qtyInput" class="qty-input" name="qty" type="number" min="0" step="0.001" inputmode="decimal" placeholder="数量" required />
           </label>
           <button class="primary-button full-row" type="submit">确认本行</button>
+          <button class="refresh-button full-row" type="button" data-route="exceptions">上报异常</button>
         </form>
       </div>
       <div class="line-grid" id="lineGrid">
         ${lines.length ? lines.map((line) => lineCard(line, state.lineMatches[mode])).join("") : `<div class="empty-state">暂无明细。</div>`}
+      </div>
+    `;
+  }
+
+  function renderTaskStatus(mode, stateValue) {
+    const label = statusLabel(stateValue);
+    const hint = NEXT_ACTION_HINTS[stateValue] || "请选择任务后按页面提示扫码处理。";
+    const flow = STATUS_FLOWS[mode] || [];
+    const currentIndex = flow.indexOf(stateValue);
+    return `
+      <div class="status-panel">
+        <div class="status-summary">
+          <span>当前状态</span>
+          <strong>${escapeHtml(label || "未选择")}</strong>
+          <small>${escapeHtml(hint)}</small>
+        </div>
+        ${flow.length ? `
+          <div class="state-flow">
+            ${flow.map((step, index) => `
+              <span class="${stateFlowClass(step, stateValue, currentIndex, index)}">${escapeHtml(statusLabel(step))}</span>
+            `).join("")}
+          </div>
+        ` : ""}
       </div>
     `;
   }
@@ -421,6 +750,9 @@
     });
     productInput.addEventListener("input", () => updateMatchedLine(mode));
     form.addEventListener("submit", (event) => confirmLine(event, mode));
+    form.querySelectorAll("[data-route]").forEach((button) => {
+      button.addEventListener("click", () => navigate(button.dataset.route));
+    });
   }
 
   function updateMatchedLine(mode) {
@@ -498,6 +830,53 @@
     }
   }
 
+  function statusLabel(stateValue) {
+    return STATUS_LABELS[stateValue] || stateValue || "";
+  }
+
+  function isDoneState(stateValue) {
+    return ["received", "putaway_done", "picked", "checked"].includes(stateValue);
+  }
+
+  function isExceptionState(stateValue) {
+    return String(stateValue || "").includes("exception");
+  }
+
+  function stateFlowClass(step, currentState, currentIndex, index) {
+    const classes = ["state-step"];
+    if (step === currentState) {
+      classes.push("is-current");
+    } else if (currentIndex >= 0 && index < currentIndex) {
+      classes.push("is-past");
+    }
+    if (isDoneState(step)) {
+      classes.push("is-terminal");
+    }
+    return classes.join(" ");
+  }
+
+  function taskProgressText(task) {
+    const parts = [];
+    if (Number.isFinite(Number(task.done_line_count)) || Number.isFinite(Number(task.line_count))) {
+      const done = Number(task.done_line_count || 0);
+      const total = Number(task.line_count || 0);
+      if (total) {
+        parts.push(`明细 ${done}/${total}`);
+      }
+    }
+    if (Number.isFinite(Number(task.done_qty)) || Number.isFinite(Number(task.putaway_qty)) || Number.isFinite(Number(task.total_demand_qty))) {
+      const doneQty = task.done_qty ?? task.putaway_qty ?? task.total_picked_qty ?? 0;
+      const demandQty = task.demand_qty ?? task.total_qty ?? task.total_demand_qty ?? "";
+      if (demandQty !== "") {
+        parts.push(`数量 ${formatQty(doneQty)}/${formatQty(demandQty)}`);
+      }
+    }
+    if (task.create_date) {
+      parts.push(`创建 ${String(task.create_date).slice(0, 16)}`);
+    }
+    return parts.join(" · ");
+  }
+
   function lineCard(line, matchedKey) {
     const isMatch = matchedKey && matchedKey === line.key;
     const qtyText = `${formatQty(line.doneQty)} / ${formatQty(line.demandQty)} ${line.uom || ""}`;
@@ -519,26 +898,26 @@
       <section class="task-panel">
         <div class="page-title">
           <div>
-            <h1>下架退库</h1>
-            <p>先扫描来源库位创建下架单，再扫描商品与数量加入明细，最后提交生成退库作业。</p>
+            <h1>调拨下架</h1>
+            <p>处理下架退库、仓内移库和补货上架；先扫来源库位，再扫商品、数量和目标库位，提交后生成内部调拨。</p>
           </div>
           <span class="status-pill">${escapeHtml(currentWarehouseName())}</span>
         </div>
         <div class="task-layout">
           <section class="task-list">
             <div class="list-header">
-              <strong>下架单</strong>
+              <strong>调拨作业</strong>
               <button id="resetDownShelf" class="refresh-button" type="button">${operation ? "新建" : "清空"}</button>
             </div>
             <div class="task-items">
-              ${operation ? renderDownShelfOperationCard(operation) : `<div class="empty-state">请先创建下架单。</div>`}
+              ${operation ? renderDownShelfOperationCard(operation) : `<div class="empty-state">请先创建调拨下架作业。</div>`}
               ${state.downShelfLastResult ? renderDownShelfResult(state.downShelfLastResult) : ""}
             </div>
           </section>
           <section class="task-detail">
             <div class="detail-header">
-              <strong>${operation ? "扫码明细" : "创建下架单"}</strong>
-              <button id="confirmDownShelf" class="refresh-button" type="button" ${operation && hasLines ? "" : "disabled"}>提交下架</button>
+              <strong>${operation ? "扫码明细" : "创建作业"}</strong>
+              <button id="confirmDownShelf" class="refresh-button" type="button" ${operation && hasLines ? "" : "disabled"}>提交作业</button>
             </div>
             <div class="detail-body">
               ${operation ? renderDownShelfLineForm(operation) : renderDownShelfCreateForm()}
@@ -562,21 +941,27 @@
   function renderDownShelfCreateForm() {
     return `
       <form id="downShelfCreateForm" class="scan-box" autocomplete="off">
-        <h2>创建下架单</h2>
+        <h2>创建调拨下架作业</h2>
         <div class="scan-form">
           <label class="field">
-            <span>来源库位条码</span>
-            <input id="downSourceLocation" class="text-input" name="source_location_barcode" type="text" inputmode="text" autocomplete="off" placeholder="扫描下架库位" required />
+            <span>作业类型</span>
+            <select class="text-input" name="operation_type">
+              ${TRANSFER_TYPES.map(([value, label]) => `<option value="${escapeAttr(value)}">${escapeHtml(label)}</option>`).join("")}
+            </select>
           </label>
           <label class="field">
-            <span>退库目标库位</span>
-            <input class="text-input" name="return_location_barcode" type="text" inputmode="text" autocomplete="off" placeholder="可选，默认按仓库规则" />
+            <span>来源库位条码</span>
+            <input id="downSourceLocation" class="text-input" name="source_location_barcode" type="text" inputmode="text" autocomplete="off" placeholder="扫描来源库位" required />
+          </label>
+          <label class="field">
+            <span>目标库位条码</span>
+            <input class="text-input" name="return_location_barcode" type="text" inputmode="text" autocomplete="off" placeholder="下架退库/移库/补货目标库位" />
           </label>
           <label class="field full-row">
             <span>备注</span>
             <input class="text-input" name="note" type="text" inputmode="text" autocomplete="off" placeholder="可选" />
           </label>
-          <button class="primary-button full-row" type="submit">创建下架单</button>
+          <button class="primary-button full-row" type="submit">创建作业</button>
         </div>
       </form>
     `;
@@ -585,14 +970,14 @@
   function renderDownShelfLineForm(operation) {
     return `
       <form id="downShelfLineForm" class="scan-box" autocomplete="off">
-        <h2>${escapeHtml(operation.name || `下架单 ${operation.id}`)}</h2>
+        <h2>${escapeHtml(operation.name || `调拨作业 ${operation.id}`)}</h2>
         <div class="scan-form">
           <label class="field">
             <span>商品条码</span>
             <input id="downProductBarcode" class="text-input" name="product_barcode" type="text" inputmode="text" autocomplete="off" placeholder="扫描或输入商品条码" required />
           </label>
           <label class="field">
-            <span>下架数量</span>
+            <span>作业数量</span>
             <input id="downShelfQty" class="qty-input" name="qty" type="number" min="0" step="0.001" inputmode="decimal" placeholder="数量" required />
           </label>
           <label class="field">
@@ -613,7 +998,7 @@
 
   function renderDownShelfLines() {
     if (!state.downShelfLines.length) {
-      return `<div class="empty-state">暂无下架明细，请扫描商品后加入。</div>`;
+      return `<div class="empty-state">暂无作业明细，请扫描商品后加入。</div>`;
     }
     return `
       <div class="line-grid">
@@ -632,7 +1017,7 @@
     ].filter(Boolean).join(" · ");
     return `
       <article class="task-card is-active">
-        <strong>${escapeHtml(operation.name || `下架单 ${operation.id}`)}</strong>
+        <strong>${escapeHtml(operation.name || `调拨作业 ${operation.id}`)}</strong>
         <small>${escapeHtml(summary)}</small>
         <small>${escapeHtml(stateLabel)}</small>
       </article>
@@ -641,7 +1026,7 @@
 
   function renderDownShelfResult(result) {
     const summary = result.summary || {};
-    const title = result.operation_name || result.name || "下架单";
+    const title = result.operation_name || result.name || "调拨作业";
     const picking = result.generated_picking_name ? `，生成调拨 ${result.generated_picking_name}` : "";
     return `
       <div class="hint-state">
@@ -657,7 +1042,7 @@
       <article class="line-card">
         <div>
           <strong>${escapeHtml(line.productName || `商品 ${index + 1}`)}</strong>
-          <small>${escapeHtml(code || "下架明细")}</small>
+          <small>${escapeHtml(code || "调拨明细")}</small>
         </div>
         <div class="qty">${escapeHtml(formatQty(line.qty))}</div>
       </article>
@@ -688,16 +1073,17 @@
       const result = await apiPost(`${API_PREFIX}/return/create`, {
         request_id: requestId("downshelf_create"),
         device_id: state.deviceId,
+        operation_type: data.operation_type || "warehouse_return",
         location_barcode: sourceLocation,
         source_location_barcode: sourceLocation,
         return_location_barcode: returnLocation,
         dest_location_barcode: returnLocation,
-        note: (data.note || "").trim(),
+        note: [transferTypeLabel(data.operation_type), (data.note || "").trim()].filter(Boolean).join("："),
       });
       state.downShelfOperation = normalizeDownShelfOperation(result);
       state.downShelfLines = [];
       state.downShelfLastResult = null;
-      showToast("下架单已创建");
+      showToast("作业已创建");
       renderDownShelf();
     } catch (error) {
       showError(error);
@@ -710,7 +1096,7 @@
     event.preventDefault();
     const operation = state.downShelfOperation;
     if (!operation || !operation.id) {
-      showToast("请先创建下架单", true);
+      showToast("请先创建调拨下架作业", true);
       return;
     }
     const form = event.currentTarget;
@@ -736,7 +1122,7 @@
         reasonLabel: result.reason_label || downShelfReasonLabel(data.reason),
       });
       state.downShelfOperation = normalizeDownShelfOperation(result.operation || result);
-      showToast("已加入下架明细");
+      showToast("已加入作业明细");
       renderDownShelf();
     } catch (error) {
       showError(error);
@@ -748,11 +1134,11 @@
   async function confirmDownShelfOperation() {
     const operation = state.downShelfOperation;
     if (!operation || !operation.id) {
-      showToast("请先创建下架单", true);
+      showToast("请先创建调拨下架作业", true);
       return;
     }
     if (!state.downShelfLines.length) {
-      showToast("请先加入下架明细", true);
+      showToast("请先加入作业明细", true);
       return;
     }
     const button = document.getElementById("confirmDownShelf");
@@ -765,7 +1151,7 @@
       state.downShelfLastResult = result;
       state.downShelfOperation = null;
       state.downShelfLines = [];
-      showToast("下架已提交");
+      showToast("作业已提交");
       renderDownShelf();
     } catch (error) {
       showError(error);
@@ -800,6 +1186,11 @@
     return found ? found[1] : (reason || "其他");
   }
 
+  function transferTypeLabel(type) {
+    const found = TRANSFER_TYPES.find(([value]) => value === type);
+    return found ? found[1] : "";
+  }
+
   function sumDownShelfQty() {
     return state.downShelfLines.reduce((total, line) => total + Number(line.qty || 0), 0);
   }
@@ -809,8 +1200,8 @@
       <section class="inventory-panel">
         <div class="page-title">
           <div>
-            <h1>库存扫码查询</h1>
-            <p>扫描商品条码或库位条码，实时查询当前库存与位置。</p>
+            <h1>库存库位</h1>
+            <p>按商品、库位两种视角查询现存、锁定和可用库存，并作为调拨下架的辅助入口。</p>
           </div>
           <span class="status-pill">${escapeHtml(currentWarehouseName())}</span>
         </div>
@@ -835,6 +1226,12 @@
       });
     });
     document.getElementById("inventoryForm").addEventListener("submit", submitInventory);
+    if (state.pendingInventoryCode) {
+      document.getElementById("inventoryCode").value = state.pendingInventoryCode;
+      state.pendingInventoryCode = "";
+      document.getElementById("inventoryForm").requestSubmit();
+      return;
+    }
     focusFirst("#inventoryCode");
   }
 
@@ -855,6 +1252,9 @@
         : { barcode: code, location_barcode: code };
       const data = await apiGet(path, query);
       result.innerHTML = renderInventoryResult(data);
+      result.querySelectorAll("[data-route]").forEach((button) => {
+        button.addEventListener("click", () => navigate(button.dataset.route));
+      });
       document.getElementById("inventoryCode").select();
     } catch (error) {
       result.innerHTML = `<div class="error-state">${escapeHtml(messageOf(error))}</div>`;
@@ -875,14 +1275,36 @@
         <td>${escapeHtml(item.product_name || item.product || item.name || "")}</td>
         <td>${escapeHtml(item.location_name || item.location || item.location_barcode || "")}</td>
         <td>${escapeHtml(formatQty(item.quantity_on_hand ?? item.qty_available ?? item.quantity ?? item.qty ?? item.available_qty ?? 0))}</td>
+        <td>${escapeHtml(formatQty(item.available_quantity ?? item.available_qty ?? 0))}</td>
+        <td>${escapeHtml(formatQty(item.reserved_quantity ?? item.reserved_qty ?? 0))}</td>
         <td>${escapeHtml(item.uom || item.product_uom || "")}</td>
       </tr>
     `).join("");
     return `
+      <div class="result-actions">
+        <button class="refresh-button" type="button" data-route="transfer">发起调拨下架</button>
+      </div>
       <table class="result-table">
-        <thead><tr><th>商品</th><th>库位</th><th>数量</th><th>单位</th></tr></thead>
+        <thead><tr><th>商品</th><th>库位</th><th>现存</th><th>可用</th><th>锁定</th><th>单位</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
+    `;
+  }
+
+  function renderExceptionPlaceholder() {
+    root.innerHTML = `
+      <section class="task-panel">
+        <div class="page-title">
+          <div>
+            <h1>盘点异常</h1>
+            <p>按 PRD 统一承接缺货、破损、数量不符、库位不符、交接失败等现场异常。第一版先预留入口，后续接主管审核与图片证据。</p>
+          </div>
+          <span class="status-pill">预留</span>
+        </div>
+        <div class="hint-state">
+          当前版本先在各任务详情页保留异常入口位置，完整异常闭环将在下一阶段接入。
+        </div>
+      </section>
     `;
   }
 

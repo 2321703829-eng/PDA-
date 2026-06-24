@@ -13,3 +13,4 @@ from . import receipt
 from . import review
 from . import sale_return
 from . import warehouse_return
+from . import workbench
