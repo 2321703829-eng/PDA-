@@ -239,18 +239,18 @@
 
   function renderHome() {
     root.innerHTML = `
-      <section class="hero">
+      <section class="hero hero-compact">
         <div class="hero-content">
           <span class="eyebrow">Tianshu PDA Lite</span>
           <h1>仓库移动作业台</h1>
-          <p>聚焦高频扫码动作：入库、出库、拣货、上架、下架和库存查询。所有操作直接调用 PDA API，不进入 Odoo 后台页面。</p>
+          <p>入库、出库、拣货、上架、下架和库存查询，面向 PDA 扫码作业快速处理。</p>
         </div>
       </section>
       <section class="work-panel">
         <div class="page-title">
           <div>
             <h1>选择作业</h1>
-            <p>${escapeHtml(currentWarehouseName())}，${escapeHtml((state.user && state.user.name) || "PDA 用户")}。</p>
+            <p>${escapeHtml(currentWarehouseName())}，${escapeHtml(currentUserName())}。</p>
           </div>
         </div>
         <div class="action-grid">
@@ -1039,6 +1039,11 @@
   function currentWarehouseName() {
     const current = state.warehouses.find((wh) => String(wh.id) === String(state.warehouseId));
     return current ? (current.name || current.display_name || `仓库 ${current.id}`) : "未选择仓库";
+  }
+
+  function currentUserName() {
+    const name = (state.user && state.user.name || "").trim();
+    return name && !/\?{2,}/.test(name) ? name : "PDA 用户";
   }
 
   function setBusy(element, busy) {
