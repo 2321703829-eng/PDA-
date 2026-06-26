@@ -200,12 +200,26 @@ class WmsPdaPickController(WmsPdaBaseController):
             "partner_id": task.store_partner_id.id if task.store_partner_id else False,
             "partner_name": task.store_partner_id.display_name if task.store_partner_id else "",
             "line_count": len(task.line_ids),
+            "product_summary": self._pick_product_summary(task.line_ids),
+            "source_location": self._pick_first_source_location(task),
             "total_demand_qty": sum(task.line_ids.mapped("demand_qty")),
+            "done_qty": sum(task.line_ids.mapped("done_qty")),
             "create_date": task.create_date,
         }
         if include_lock:
             result["locked_by"] = request.env["wms.task.lock"].sudo().get_lock_holder(task._name, task.id)
         return result
+
+    def _pick_product_summary(self, lines):
+        products = lines.mapped("product_id")
+        if not products:
+            return ""
+        first_name = products[:1].display_name
+        return first_name if len(products) == 1 else f"{first_name} 等{len(products)}种商品"
+
+    def _pick_first_source_location(self, task):
+        line = self._pick_ordered_lines(task)[:1]
+        return line.source_location_id.display_name if line and line.source_location_id else ""
 
     def _pick_format_line(self, line, seq=0):
         product = line.product_id

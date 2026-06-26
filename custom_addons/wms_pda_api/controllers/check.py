@@ -221,12 +221,33 @@ class WmsPdaCheckController(WmsPdaBaseController):
             "partner_id": task.outbound_task_id.store_partner_id.id if task.outbound_task_id.store_partner_id else False,
             "partner_name": task.outbound_task_id.store_partner_id.display_name if task.outbound_task_id.store_partner_id else "",
             "line_count": len(task.pick_task_id.line_ids),
+            "product_summary": self._check_product_summary(task),
+            "source_location": self._check_first_source_location(task),
             "total_picked_qty": sum(task.pick_task_id.line_ids.mapped("done_qty")),
+            "total_checked_qty": self._check_existing_checked_qty(task),
             "create_date": task.create_date,
         }
         if include_lock:
             result["locked_by"] = request.env["wms.task.lock"].sudo().get_lock_holder(task._name, task.id)
         return result
+
+    def _check_product_summary(self, task):
+        lines = task.pick_task_id.line_ids if task.pick_task_id else request.env["wms.pick.line"]
+        products = lines.mapped("product_id")
+        if not products:
+            return ""
+        first_name = products[:1].display_name
+        return first_name if len(products) == 1 else f"{first_name} 等{len(products)}种商品"
+
+    def _check_first_source_location(self, task):
+        line = task.pick_task_id.line_ids[:1] if task.pick_task_id else False
+        return line.source_location_id.display_name if line and line.source_location_id else ""
+
+    def _check_existing_checked_qty(self, task):
+        if "wms.pda.check.line" not in request.env.registry:
+            return 0.0
+        lines = request.env["wms.pda.check.line"].sudo().search([("task_id", "=", task.id)])
+        return sum(lines.mapped("checked_qty"))
 
     def _check_format_line(self, line, seq=0):
         product = line.product_id

@@ -174,6 +174,7 @@ class WmsPdaReceiptController(WmsPdaBaseController):
                     "done_line_count": len(done_moves),
                     "demand_qty": sum(moves.mapped("product_uom_qty")),
                     "done_qty": sum(self._receipt_read_done_qty(move) for move in moves),
+                    "product_summary": self._receipt_product_summary(moves),
                 }
             )
         return result
@@ -202,6 +203,13 @@ class WmsPdaReceiptController(WmsPdaBaseController):
         if "quantity_done" in move._fields:
             return move.quantity_done or 0.0
         return 0.0
+
+    def _receipt_product_summary(self, moves):
+        products = moves.mapped("product_id")
+        if not products:
+            return ""
+        first_name = products[:1].display_name
+        return first_name if len(products) == 1 else f"{first_name} 等{len(products)}种商品"
 
     def _receipt_write_done_qty(self, move, qty):
         if "quantity" in move._fields:

@@ -96,13 +96,16 @@
     },
   };
 
+  const MAIN_ROUTES = ["home", "operation", "mine"];
+  const OPERATION_ROUTES = ["operation", "scan", "inbound-flow", "outbound-flow", "inventory", "transfer", "exceptions", "dashboard"];
   const HOME_MODULES = [
-    { route: "scan", icon: "SCAN", title: "扫码执行", desc: "统一识别商品、库位、任务和单据" },
-    { route: "inbound-flow", icon: "IN", title: "入库上架", desc: "收货、异常预留、上架确认" },
-    { route: "outbound-flow", icon: "OUT", title: "出库履约", desc: "拣货、复核、交接预留" },
-    { route: "inventory", icon: "INV", title: "库存库位", desc: "商品、库位、库存明细查询" },
-    { route: "transfer", icon: "MOVE", title: "调拨补货", desc: "下架退库、移库、补货" },
-    { route: "exceptions", icon: "EXC", title: "盘点异常", desc: "盘点、报损、禁售和异常记录" },
+    { route: "scan", icon: "□", title: "扫码执行", desc: "商品 / 库位 / 单据 / 编号", tone: "yellow" },
+    { route: "inbound-flow", icon: "+", title: "入库上架", desc: "到货 / 收货 / 上架", tone: "blue" },
+    { route: "outbound-flow", icon: "+", title: "出库履约", desc: "领取 / 拣货 / 复核 / 交接", tone: "green" },
+    { route: "inventory", icon: "▤", title: "库存库位", desc: "库存 / 库位 / 批量移库", tone: "purple" },
+    { route: "transfer", icon: "+", title: "调拨补货", desc: "调拨 / 补货 / 其他出入库", tone: "orange" },
+    { route: "exceptions", icon: "△", title: "盘点异常", desc: "盘点 / 报损 / 禁售", tone: "red" },
+    { route: "dashboard", icon: "▭", title: "数据看板", desc: "现场进度 / 异常概览", tone: "dark" },
   ];
 
   const STATUS_LABELS = {
@@ -249,6 +252,18 @@
       renderHome();
       return;
     }
+    if (state.route === "operation") {
+      renderOperation();
+      return;
+    }
+    if (state.route === "mine") {
+      renderMine();
+      return;
+    }
+    if (state.route === "dashboard") {
+      renderDashboard();
+      return;
+    }
     if (state.route === "scan") {
       renderScanExecution();
       return;
@@ -278,6 +293,8 @@
 
   function syncChrome() {
     const loggedIn = Boolean(state.token);
+    document.body.classList.toggle("is-auth", loggedIn);
+    document.body.classList.toggle("is-main-route", loggedIn && MAIN_ROUTES.includes(state.route));
     backButton.classList.toggle("is-visible", loggedIn && state.route !== "home");
     logoutButton.classList.toggle("is-visible", loggedIn);
     warehouseField.classList.toggle("is-visible", loggedIn && state.warehouses.length > 0);
@@ -357,54 +374,335 @@
 
   function renderHome() {
     root.innerHTML = `
-      <section class="hero hero-compact">
-        <div class="hero-content">
-          <span class="eyebrow">Tianshu PDA Lite</span>
-          <h1>仓库移动作业台</h1>
-          <p>工作台优先展示今日待办，通过统一扫码进入入库上架、出库履约、库存库位和调拨下架。</p>
-        </div>
-      </section>
-      <section class="work-panel">
-        <div class="page-title">
+      <section class="app-screen">
+        <div class="app-page-title">
           <div>
-            <h1>现场工作台</h1>
-            <p>${escapeHtml(currentWarehouseName())}，${escapeHtml(currentUserName())}。</p>
+            <h1>工作台</h1>
+            <p>${escapeHtml(currentWarehouseName())} · 今日待办</p>
           </div>
-          <button id="refreshWorkbench" class="refresh-button" type="button">刷新</button>
+          <button id="refreshWorkbench" class="mini-button" type="button">刷新</button>
         </div>
-        ${renderGlobalScan("homeScanForm", "扫商品 / 库位 / 单据 / 任务号")}
-        <div class="section-title">
-          <strong>今日待办</strong>
-          <small>按当前仓库和账号聚合</small>
+        <button class="scan-hero-card" type="button" data-route="scan">
+          <span>
+            <strong>扫码执行</strong>
+            <small>扫商品 / 单据 / 库位 / 编号</small>
+          </span>
+          <em>□</em>
+        </button>
+        <div id="workbenchDashboard" class="workbench-dashboard">
+          ${renderWorkbenchSkeleton()}
         </div>
-        <div id="todoGrid" class="todo-grid">
-          ${renderTodoSkeleton()}
-        </div>
-        <div class="section-title">
-          <strong>常用作业</strong>
-          <small>按 PRD 合并后的一级入口</small>
-        </div>
-        <div class="action-grid">
-          ${HOME_MODULES.map((item) => moduleButton(item.route, item.icon, item.title, item.desc)).join("")}
-        </div>
+        ${renderBottomNav("home")}
       </section>
     `;
     root.querySelectorAll("[data-route]").forEach((button) => {
       button.addEventListener("click", () => navigate(button.dataset.route));
     });
-    document.getElementById("homeScanForm").addEventListener("submit", submitGlobalScan);
     document.getElementById("refreshWorkbench").addEventListener("click", loadWorkbenchSummary);
+    bindBottomNav();
     loadWorkbenchSummary();
-    focusFirst("#homeScanCode");
   }
 
-  function moduleButton(route, icon, title, desc) {
+  function renderOperation() {
+    root.innerHTML = `
+      <section class="app-screen">
+        <div class="app-page-title">
+          <div>
+            <h1>经营</h1>
+            <p>7 个合并功能入口</p>
+          </div>
+        </div>
+        <div class="operation-grid">
+          ${HOME_MODULES.map((item) => moduleButton(item.route, item.icon, item.title, item.desc, item.tone)).join("")}
+        </div>
+        <div class="strategy-card">
+          <strong>模块合并策略</strong>
+          <small>菜单不再平铺到首页，经营页只保留现场作业入口；明细流程进入对应业务页继续处理。</small>
+        </div>
+        ${renderFunctionBridge()}
+        <div class="chain-title">主业务状态链</div>
+        ${renderMainStatusChain()}
+        ${renderBottomNav("operation")}
+      </section>
+    `;
+    root.querySelectorAll("[data-route]").forEach((button) => {
+      button.addEventListener("click", () => navigate(button.dataset.route));
+    });
+    bindBottomNav();
+  }
+
+  function renderMine() {
+    root.innerHTML = `
+      <section class="app-screen">
+        <div class="app-page-title">
+          <div>
+            <h1>我的</h1>
+            <p>账号 · 权限 · 设置</p>
+          </div>
+        </div>
+        <div class="mine-profile">
+          <span class="avatar"></span>
+          <div>
+            <strong>${escapeHtml(currentUserName() || "仓库主管")}</strong>
+            <small>${escapeHtml(currentWarehouseName())} · 管理权限</small>
+          </div>
+        </div>
+        <div class="mine-menu">
+          ${renderMineWarehouseRow()}
+          ${[
+            ["角色权限", "主管 / 操作员权限查看"],
+            ["消息通知", "异常、任务、审核提醒"],
+            ["设备绑定", state.deviceId],
+            ["问题反馈", "记录现场问题"],
+            ["版本说明", "PDA H5 PRD 三入口版"],
+          ].map(([label, value]) => `
+            <div class="mine-row">
+              <span>${escapeHtml(label)}</span>
+              <small>${escapeHtml(value)}</small>
+              <em>&gt;</em>
+            </div>
+          `).join("")}
+        </div>
+        <button id="mineLogout" class="danger-button full-width" type="button">退出登录</button>
+        ${renderBottomNav("mine")}
+      </section>
+    `;
+    const mineWarehouse = document.getElementById("mineWarehouseSelect");
+    if (mineWarehouse) {
+      mineWarehouse.addEventListener("change", () => switchWarehouseById(mineWarehouse.value));
+    }
+    document.getElementById("mineLogout").addEventListener("click", logout);
+    bindBottomNav();
+  }
+
+  async function renderDashboard() {
+    root.innerHTML = `
+      <section class="app-screen">
+        ${renderAppHeader("数据看板", "现场只保留轻量经营指标，详细 BI 仍放后台。", {
+          action: `<button id="refreshDashboard" class="mini-button" type="button">刷新</button>`,
+        })}
+        <div id="dashboardSummary" class="workbench-dashboard">
+          ${renderWorkbenchSkeleton()}
+        </div>
+        <div class="chain-title">主业务状态链</div>
+        ${renderMainStatusChain()}
+        ${renderBottomNav("operation")}
+      </section>
+    `;
+    document.getElementById("refreshDashboard").addEventListener("click", loadDashboardSummary);
+    bindAppChrome();
+    await loadDashboardSummary();
+  }
+
+  function moduleButton(route, icon, title, desc, tone) {
     return `
-      <button class="module-button" type="button" data-route="${route}">
+      <button class="module-button tone-${escapeAttr(tone || "blue")}" type="button" data-route="${route}">
         <span class="module-icon">${escapeHtml(icon)}</span>
         <strong>${escapeHtml(title)}</strong>
         <span>${escapeHtml(desc)}</span>
       </button>
+    `;
+  }
+
+  function renderBottomNav(active) {
+    const items = [
+      ["home", "工作台"],
+      ["operation", "经营"],
+      ["mine", "我的"],
+    ];
+    return `
+      <nav class="bottom-nav" aria-label="主导航">
+        ${items.map(([route, label]) => `
+          <button class="${route === active ? "is-active" : ""}" type="button" data-main-route="${route}">
+            <span></span>
+            <strong>${escapeHtml(label)}</strong>
+          </button>
+        `).join("")}
+      </nav>
+    `;
+  }
+
+  function bindBottomNav() {
+    root.querySelectorAll("[data-main-route]").forEach((button) => {
+      button.addEventListener("click", () => navigate(button.dataset.mainRoute));
+    });
+  }
+
+  function renderAppHeader(title, subtitle, options) {
+    const config = options || {};
+    const showBack = config.back !== false;
+    return `
+      <div class="app-page-title app-sub-title">
+        ${showBack ? `<button class="app-back-button" type="button" data-app-back aria-label="返回">‹</button>` : ""}
+        <div>
+          <h1>${escapeHtml(title)}</h1>
+          <p>${escapeHtml(subtitle || "")}</p>
+        </div>
+        ${config.action || ""}
+      </div>
+    `;
+  }
+
+  function bindAppChrome() {
+    bindBottomNav();
+    root.querySelectorAll("[data-app-back]").forEach((button) => {
+      button.addEventListener("click", () => navigate(appBackRoute()));
+    });
+  }
+
+  function appBackRoute() {
+    return OPERATION_ROUTES.includes(state.route) ? "operation" : "home";
+  }
+
+  function renderMainStatusChain() {
+    return `
+      <div class="status-chain status-chain-graphic">
+        ${["到货", "收货", "上架", "库位库存", "出库任务", "拣货", "复核交接", "配送签收"].map((item, index) => `
+          <span class="${index < 3 ? "is-done" : index === 3 ? "is-current" : ""}">
+            <i>${escapeHtml(index + 1)}</i>
+            <b>${escapeHtml(item)}</b>
+          </span>
+        `).join("")}
+      </div>
+    `;
+  }
+
+  function renderWorkflowStrip(route, mode) {
+    const chains = {
+      "inbound-flow": [
+        ["arrival", "到货"],
+        ["inbound", "收货"],
+        ["putaway", "上架"],
+        ["done", "完成"],
+      ],
+      "outbound-flow": [
+        ["pick", "领"],
+        ["picking", "拣"],
+        ["staging", "集"],
+        ["outbound", "复"],
+        ["handover", "交"],
+      ],
+    };
+    const steps = chains[route] || [];
+    const activeMap = {
+      inbound: "inbound",
+      putaway: "putaway",
+      pick: "pick",
+      outbound: "outbound",
+      handover: "handover",
+    };
+    const activeKey = activeMap[mode] || mode;
+    const currentIndex = Math.max(steps.findIndex(([key]) => key === activeKey), 0);
+    if (!steps.length) {
+      return "";
+    }
+    return `
+      <div class="workflow-strip">
+        ${steps.map(([key, label], index) => `
+          <span class="${key === activeKey ? "is-current" : index < currentIndex ? "is-done" : ""}">
+            <i>${escapeHtml(index + 1)}</i>
+            <b>${escapeHtml(label)}</b>
+          </span>
+        `).join("")}
+      </div>
+    `;
+  }
+
+  function renderWorkbenchSkeleton() {
+    return `
+      <div class="kpi-grid">
+        ${["待收货", "待上架", "待领取", "待出库"].map((label) => `
+          <div class="kpi-card"><span>${escapeHtml(label)}</span><strong>...</strong><small>单</small></div>
+        `).join("")}
+      </div>
+      <div class="exception-strip"><span>异常待处理</span><strong>...</strong></div>
+      <div class="progress-card"><span>今日履约进度</span><div><i style="width: 20%"></i></div><small>正在读取</small></div>
+    `;
+  }
+
+  function renderWorkbenchDashboard(todos) {
+    const receipt = todoCount(todos, "receipt");
+    const putaway = todoCount(todos, "putaway");
+    const pick = todoCount(todos, "pick");
+    const check = todoCount(todos, "check");
+    const handover = todoCount(todos, "handover");
+    const exception = todoCount(todos, "exception");
+    const outbound = check + handover;
+    const total = receipt + putaway + pick + outbound + exception;
+    const progress = Math.max(12, Math.min(88, 88 - total * 4));
+    return `
+      <div class="kpi-grid">
+        ${renderKpi("待收货", receipt, "inbound-flow", "inbound")}
+        ${renderKpi("待上架", putaway, "inbound-flow", "putaway")}
+        ${renderKpi("待领取", pick, "outbound-flow", "pick")}
+        ${renderKpi("待出库", outbound, "outbound-flow", check ? "outbound" : "handover")}
+      </div>
+      <button class="exception-strip" type="button" data-todo-route="exceptions" data-todo-mode="">
+        <span>异常待处理</span>
+        <strong>${escapeHtml(exception)}</strong>
+      </button>
+      <div class="progress-card">
+        <span>今日履约进度</span>
+        <div><i style="width: ${progress}%"></i></div>
+        <small>${escapeHtml(total ? `待办剩余 ${total} 单` : "今日暂无待办")}</small>
+      </div>
+    `;
+  }
+
+  function renderKpi(label, count, route, mode) {
+    return `
+      <button class="kpi-card" type="button" data-todo-route="${escapeAttr(route)}" data-todo-mode="${escapeAttr(mode)}">
+        <span>${escapeHtml(label)}</span>
+        <strong>${escapeHtml(count)}</strong>
+        <small>单</small>
+      </button>
+    `;
+  }
+
+  function todoCount(todos, key) {
+    const item = (todos || []).find((todo) => todo.key === key);
+    return Number(item && item.count || 0);
+  }
+
+  function renderFunctionBridge() {
+    const items = [
+      ["扫码执行", "全局识别商品、库位、单据、编号，扫码后自动跳转业务。"],
+      ["入库上架", "合并到货签到、收货、按单收货、上架、上架执行。"],
+      ["出库履约", "合并出库、扫码拣货、集货位查询、复核装箱、装箱信息。"],
+      ["库存库位", "合并库存查询、新库位查询、库位库存查询、库位管理、批量移库。"],
+      ["调拨补货", "合并调拨、新调拨、仓内补货、其他入库、其他出库。"],
+      ["盘点异常", "合并盘点、盘点任务、仓内异常、报损、禁售任务。"],
+      ["数据看板", "移动端只保留轻量经营指标，详细 BI 仍放后台。"],
+    ];
+    return `
+      <div class="bridge-list">
+        ${items.map(([title, desc]) => `
+          <div>
+            <strong>${escapeHtml(title)}</strong>
+            <small>${escapeHtml(desc)}</small>
+          </div>
+        `).join("")}
+      </div>
+    `;
+  }
+
+  function renderMineWarehouseRow() {
+    if (!state.warehouses.length) {
+      return `
+        <div class="mine-row">
+          <span>仓库切换</span>
+          <small>暂无可选仓库</small>
+          <em>&gt;</em>
+        </div>
+      `;
+    }
+    return `
+      <label class="mine-row mine-select-row">
+        <span>仓库切换</span>
+        <select id="mineWarehouseSelect">
+          ${state.warehouses.map((wh) => `<option value="${escapeAttr(wh.id)}" ${String(wh.id) === String(state.warehouseId) ? "selected" : ""}>${escapeHtml(wh.name || wh.display_name || `仓库 ${wh.id}`)}</option>`).join("")}
+        </select>
+      </label>
     `;
   }
 
@@ -424,13 +722,9 @@
   function renderScanExecution() {
     root.innerHTML = `
       <section class="task-panel">
-        <div class="page-title">
-          <div>
-            <h1>扫码执行</h1>
-            <p>按 PRD 做统一扫码入口：扫任务号、单据号、商品、库位后自动跳到对应作业页面。</p>
-          </div>
-          <span class="status-pill">${escapeHtml(currentWarehouseName())}</span>
-        </div>
+        ${renderAppHeader("扫码执行", "扫任务号、单据号、商品、库位后自动跳到对应作业页面。", {
+          action: `<span class="mini-pill">${escapeHtml(currentWarehouseName())}</span>`,
+        })}
         ${renderGlobalScan("scanExecutionForm", "扫商品 / 库位 / 收货单 / 拣货单 / 复核单 / 交接单")}
         <div class="scan-support-grid">
           ${[
@@ -448,9 +742,11 @@
         <div class="hint-state">
           当前扫码会优先查找待办任务；如果没有匹配到待执行任务，再按商品或库位进入库存库位查询。
         </div>
+        ${renderBottomNav("operation")}
       </section>
     `;
     document.getElementById("scanExecutionForm").addEventListener("submit", submitGlobalScan);
+    bindAppChrome();
     focusFirst("#scanExecutionFormCode");
   }
 
@@ -464,28 +760,61 @@
   }
 
   async function loadWorkbenchSummary() {
+    const dashboard = document.getElementById("workbenchDashboard");
     const grid = document.getElementById("todoGrid");
-    if (!grid) {
+    if (!grid && !dashboard) {
       return;
     }
-    grid.innerHTML = renderTodoSkeleton();
+    if (dashboard) {
+      dashboard.innerHTML = renderWorkbenchSkeleton();
+    }
+    if (grid) {
+      grid.innerHTML = renderTodoSkeleton();
+    }
     try {
       const data = await apiGet(`${API_PREFIX}/workbench/summary`);
       state.workbenchSummary = data;
-      grid.innerHTML = renderTodoGrid(data.todos || []);
-      grid.querySelectorAll("[data-todo-route]").forEach((button) => {
-        button.addEventListener("click", () => {
-          const route = button.dataset.todoRoute;
-          const mode = button.dataset.todoMode;
-          if (mode) {
-            state.flowModes[route] = mode;
-          }
-          navigate(route);
-        });
-      });
+      if (dashboard) {
+        dashboard.innerHTML = renderWorkbenchDashboard(data.todos || []);
+        bindTodoButtons(dashboard);
+      }
+      if (grid) {
+        grid.innerHTML = renderTodoGrid(data.todos || []);
+        bindTodoButtons(grid);
+      }
     } catch (error) {
-      grid.innerHTML = `<div class="error-state full-row">${escapeHtml(messageOf(error))}</div>`;
+      const target = dashboard || grid;
+      target.innerHTML = `<div class="error-state full-row">${escapeHtml(messageOf(error))}</div>`;
     }
+  }
+
+  async function loadDashboardSummary() {
+    const container = document.getElementById("dashboardSummary");
+    if (!container) {
+      return;
+    }
+    container.innerHTML = renderWorkbenchSkeleton();
+    try {
+      const data = await apiGet(`${API_PREFIX}/workbench/summary`);
+      state.workbenchSummary = data;
+      container.innerHTML = renderWorkbenchDashboard(data.todos || []);
+      bindTodoButtons(container);
+    } catch (error) {
+      container.innerHTML = `<div class="error-state full-row">${escapeHtml(messageOf(error))}</div>`;
+    }
+  }
+
+  function bindTodoButtons(container) {
+    container.querySelectorAll("[data-todo-route]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const route = button.dataset.todoRoute;
+        const mode = button.dataset.todoMode;
+        if (mode) {
+          state.flowModes[route] = mode;
+        }
+        navigate(route);
+      });
+    });
   }
 
   function renderTodoGrid(todos) {
@@ -510,13 +839,10 @@
     const config = ENDPOINTS[mode];
     root.innerHTML = `
       <section class="task-panel">
-        <div class="page-title">
-          <div>
-            <h1>${escapeHtml(group.title)}</h1>
-            <p>${escapeHtml(group.subtitle)}</p>
-          </div>
-          <span class="status-pill">${escapeHtml(currentWarehouseName())}</span>
-        </div>
+        ${renderAppHeader(group.title, group.subtitle, {
+          action: `<span class="mini-pill">${escapeHtml(currentWarehouseName())}</span>`,
+        })}
+        ${renderWorkflowStrip(route, mode)}
         ${renderGlobalScan(`${route}ScanForm`, group.scanPlaceholder)}
         <div class="flow-tabs">
           ${group.tabs.map((tab) => `
@@ -546,6 +872,7 @@
             </div>
           </section>
         </div>
+        ${renderBottomNav("operation")}
       </section>
     `;
     document.getElementById(`${route}ScanForm`).addEventListener("submit", submitGlobalScan);
@@ -557,6 +884,7 @@
     });
     document.getElementById("refreshTasks").addEventListener("click", () => loadTasks(mode));
     document.getElementById("completeTask").addEventListener("click", () => completeTask(mode));
+    bindAppChrome();
     await loadTasks(mode);
   }
 
@@ -564,13 +892,10 @@
     const mode = "handover";
     root.innerHTML = `
       <section class="task-panel">
-        <div class="page-title">
-          <div>
-            <h1>${escapeHtml(group.title)}</h1>
-            <p>${escapeHtml(group.subtitle)}</p>
-          </div>
-          <span class="status-pill">${escapeHtml(currentWarehouseName())}</span>
-        </div>
+        ${renderAppHeader(group.title, group.subtitle, {
+          action: `<span class="mini-pill">${escapeHtml(currentWarehouseName())}</span>`,
+        })}
+        ${renderWorkflowStrip(route, mode)}
         ${renderGlobalScan(`${route}ScanForm`, group.scanPlaceholder)}
         <div class="flow-tabs">
           ${group.tabs.map((tab) => `
@@ -603,6 +928,7 @@
             </div>
           </section>
         </div>
+        ${renderBottomNav("operation")}
       </section>
     `;
     document.getElementById(`${route}ScanForm`).addEventListener("submit", submitGlobalScan);
@@ -615,6 +941,7 @@
     document.getElementById("refreshHandover").addEventListener("click", loadHandoverOrders);
     document.getElementById("startHandover").addEventListener("click", confirmHandoverOrder);
     document.getElementById("completeHandover").addEventListener("click", completeHandoverOrder);
+    bindAppChrome();
     await loadHandoverOrders();
   }
 
@@ -686,13 +1013,9 @@
     const config = ENDPOINTS[mode];
     root.innerHTML = `
       <section class="task-panel">
-        <div class="page-title">
-          <div>
-            <h1>${escapeHtml(config.title)}</h1>
-            <p>${escapeHtml(config.subtitle)}</p>
-          </div>
-          <span class="status-pill">${escapeHtml(currentWarehouseName())}</span>
-        </div>
+        ${renderAppHeader(config.title, config.subtitle, {
+          action: `<span class="mini-pill">${escapeHtml(currentWarehouseName())}</span>`,
+        })}
         <div class="task-layout">
           <section class="task-list">
             <div class="list-header">
@@ -713,10 +1036,12 @@
             </div>
           </section>
         </div>
+        ${renderBottomNav("operation")}
       </section>
     `;
     document.getElementById("refreshTasks").addEventListener("click", () => loadTasks(mode));
     document.getElementById("completeTask").addEventListener("click", () => completeTask(mode));
+    bindAppChrome();
     await loadTasks(mode);
   }
 
@@ -729,7 +1054,8 @@
     try {
       const data = await apiGet(config.list, { limit: 50 });
       const records = getRecords(data);
-      state.activeTasks[mode] = records;
+      const displayRecords = await enrichTaskCards(mode, records);
+      state.activeTasks[mode] = displayRecords;
       if (!records.length) {
         const focusedId = activeTaskId(mode);
         container.innerHTML = `<div class="empty-state">${focusedId ? "正在打开扫码指定任务..." : "暂无待处理任务。"}</div>`;
@@ -737,23 +1063,95 @@
           await selectTask(mode, Number(focusedId));
           const focusedTask = state.activeTasks[`${mode}:focusedTask`];
           container.innerHTML = focusedTask
-            ? taskCard(focusedTask, true)
+            ? taskCard(focusedTask, true, mode)
             : `<div class="empty-state">当前任务已打开，请在右侧扫码处理。</div>`;
           return;
         }
         detail.innerHTML = `${renderLastResult(mode)}<div class="empty-state">没有需要处理的任务。</div>`;
         return;
       }
-      container.innerHTML = records.map((task) => taskCard(task, activeTaskId(mode) === task.id)).join("");
+      container.innerHTML = displayRecords.map((task) => taskCard(task, activeTaskId(mode) === task.id, mode)).join("");
       container.querySelectorAll("[data-task-id]").forEach((button) => {
         button.addEventListener("click", () => selectTask(mode, Number(button.dataset.taskId)));
       });
-      const firstId = activeTaskId(mode) || records[0].id;
+      const firstId = activeTaskId(mode) || displayRecords[0].id;
       await selectTask(mode, firstId);
     } catch (error) {
       container.innerHTML = `<div class="error-state">${escapeHtml(messageOf(error))}</div>`;
       detail.innerHTML = `<div class="hint-state">如果这里是 404，说明当前后端还没有启用该 PDA 接口；H5 页面本身已做好接入。</div>`;
     }
+  }
+
+  async function enrichTaskCards(mode, records) {
+    return records.map((task) => ({
+      ...task,
+      card_summary: buildTaskCardSummary(mode, task, []),
+    }));
+  }
+
+  function buildTaskCardSummary(mode, task, lines) {
+    const firstLine = lines[0] || null;
+    const lineCount = lines.length || Number(task.line_count || 0);
+    const productText = firstLine
+      ? `${firstLine.productName || "商品"}${lineCount > 1 ? ` 等 ${lineCount} 种` : ""}`
+      : (task.product_summary || task.picking_name || task.outbound_task_name || "");
+    const locationText = taskCardLocationText(mode, task, firstLine);
+    const qty = taskCardQty(mode, task, lines);
+    return {
+      productText,
+      locationText,
+      qtyText: qty.text,
+      doneQty: qty.done,
+      totalQty: qty.total,
+      actionText: taskActionText(mode),
+    };
+  }
+
+  function taskCardLocationText(mode, task, line) {
+    if (mode === "putaway") {
+      return task.dest_location || task.source_location || (line && line.location) || "推荐库位待确认";
+    }
+    if (mode === "pick") {
+      return (line && line.location) || task.source_location || task.partner_name || "待拣货库位";
+    }
+    if (mode === "outbound") {
+      return task.partner_name || task.pick_task_name || (line && line.location) || "待复核确认";
+    }
+    return task.partner_name || task.warehouse_name || task.picking_name || "待收货确认";
+  }
+
+  function taskCardQty(mode, task, lines) {
+    if (lines.length) {
+      const total = lines.reduce((sum, line) => sum + Number(line.demandQty || 0), 0);
+      const done = lines.reduce((sum, line) => sum + Number(line.doneQty || 0), 0);
+      return { done, total, text: taskQtyLabel(mode, done, total) };
+    }
+    const done = Number(task.done_qty ?? task.putaway_qty ?? task.total_done_qty ?? task.total_checked_qty ?? 0);
+    const total = Number(task.demand_qty ?? task.total_qty ?? task.total_demand_qty ?? task.total_picked_qty ?? 0);
+    return { done, total, text: taskQtyLabel(mode, done, total) };
+  }
+
+  function taskQtyLabel(mode, done, total) {
+    const action = {
+      inbound: "应收",
+      putaway: "应上架",
+      pick: "应拣",
+      outbound: "应复核",
+    }[mode] || "数量";
+    const pending = Math.max(Number(total || 0) - Number(done || 0), 0);
+    if (total) {
+      return `${action} ${formatQty(total)}，剩余 ${formatQty(pending)}`;
+    }
+    return `${action}待确认`;
+  }
+
+  function taskActionText(mode) {
+    return {
+      inbound: "收货",
+      putaway: "确认上架",
+      pick: "拣货",
+      outbound: "复核",
+    }[mode] || "处理";
   }
 
   async function loadHandoverOrders() {
@@ -928,20 +1326,20 @@
     });
   }
 
-  function taskCard(task, active) {
+  function taskCard(task, active, mode) {
     const name = task.name || task.picking_name || task.outbound_task_name || `任务 ${task.id}`;
-    const partner = task.partner_name || task.warehouse_name || task.source_location || "";
-    const summary = task.product_summary || task.picking_name || task.outbound_task_name || task.state_label || "";
+    const summary = task.card_summary || buildTaskCardSummary(mode, task, []);
     const status = task.state || "";
-    const progress = taskProgressText(task);
     return `
-      <button class="task-card ${active ? "is-active" : ""}" type="button" data-task-id="${escapeAttr(task.id)}">
-        <span class="task-card-top">
+      <button class="task-card app-task-card ${active ? "is-active" : ""}" type="button" data-task-id="${escapeAttr(task.id)}">
+        <span class="app-task-main">
           <strong>${escapeHtml(name)}</strong>
           ${status ? `<em class="state-tag ${isDoneState(status) ? "is-done" : isExceptionState(status) ? "is-error" : ""}">${escapeHtml(statusLabel(status))}</em>` : ""}
+          <small>${escapeHtml(summary.productText || "待执行任务")}</small>
+          <small>${escapeHtml(summary.locationText || "请扫码处理")}</small>
+          <small class="task-progress">${escapeHtml(summary.qtyText || taskProgressText(task) || "数量待确认")}</small>
         </span>
-        <small>${escapeHtml([partner, summary].filter(Boolean).join(" · ") || "点击查看明细")}</small>
-        ${progress ? `<small class="task-progress">${escapeHtml(progress)}</small>` : ""}
+        <span class="task-action-chip">${escapeHtml(summary.actionText || taskActionText(mode))}</span>
       </button>
     `;
   }
@@ -1267,12 +1665,15 @@
     const hasLines = state.downShelfLines.length > 0;
     root.innerHTML = `
       <section class="task-panel">
-        <div class="page-title">
-          <div>
-            <h1>调拨补货</h1>
-            <p>处理调拨下架、仓内移库和补货上架；先扫来源库位，再扫商品、数量和目标库位，提交后生成内部调拨。</p>
-          </div>
-          <span class="status-pill">${escapeHtml(currentWarehouseName())}</span>
+        ${renderAppHeader("调拨补货", "处理调拨下架、仓内移库和补货上架，扫码生成内部调拨。", {
+          action: `<span class="mini-pill">${escapeHtml(currentWarehouseName())}</span>`,
+        })}
+        <div class="workflow-strip workflow-strip-short">
+          ${["建单", "扫库位", "扫商品", "提交"].map((label, index) => `
+            <span class="${operation ? index < 2 ? "is-done" : index === 2 ? "is-current" : "" : index === 0 ? "is-current" : ""}">
+              <i>${escapeHtml(index + 1)}</i><b>${escapeHtml(label)}</b>
+            </span>
+          `).join("")}
         </div>
         <div class="task-layout">
           <section class="task-list">
@@ -1296,6 +1697,7 @@
             </div>
           </section>
         </div>
+        ${renderBottomNav("operation")}
       </section>
     `;
     document.getElementById("resetDownShelf").addEventListener("click", resetDownShelfOperation);
@@ -1307,6 +1709,7 @@
       document.getElementById("downShelfCreateForm").addEventListener("submit", createDownShelfOperation);
       focusFirst("#downSourceLocation");
     }
+    bindAppChrome();
   }
 
   function renderDownShelfCreateForm() {
@@ -1569,12 +1972,15 @@
   function renderInventory() {
     root.innerHTML = `
       <section class="inventory-panel">
-        <div class="page-title">
-          <div>
-            <h1>库存库位</h1>
-            <p>按商品、库位两种视角查询现存、锁定和可用库存，并作为调拨下架的辅助入口。</p>
-          </div>
-          <span class="status-pill">${escapeHtml(currentWarehouseName())}</span>
+        ${renderAppHeader("库存库位", "按商品、库位两种视角查询现存、锁定和可用库存。", {
+          action: `<span class="mini-pill">${escapeHtml(currentWarehouseName())}</span>`,
+        })}
+        <div class="workflow-strip workflow-strip-short">
+          ${["扫码", "查询", "调拨", "复核"].map((label, index) => `
+            <span class="${index === 0 ? "is-current" : ""}">
+              <i>${escapeHtml(index + 1)}</i><b>${escapeHtml(label)}</b>
+            </span>
+          `).join("")}
         </div>
         <div class="inventory-mode" role="tablist">
           <button class="seg-button ${state.inventoryMode === "product" ? "is-active" : ""}" type="button" data-mode="product">按商品</button>
@@ -1588,6 +1994,7 @@
           <button class="primary-button" type="submit">查询</button>
         </form>
         <div id="inventoryResult" class="detail-body"></div>
+        ${renderBottomNav("operation")}
       </section>
     `;
     root.querySelectorAll("[data-mode]").forEach((button) => {
@@ -1597,6 +2004,7 @@
       });
     });
     document.getElementById("inventoryForm").addEventListener("submit", submitInventory);
+    bindAppChrome();
     if (state.pendingInventoryCode) {
       document.getElementById("inventoryCode").value = state.pendingInventoryCode;
       state.pendingInventoryCode = "";
@@ -1666,12 +2074,15 @@
     const last = state.exceptionLastDraft;
     root.innerHTML = `
       <section class="task-panel">
-        <div class="page-title">
-          <div>
-            <h1>盘点异常</h1>
-            <p>按 PRD 统一承接缺货、破损、数量不符、库位不符、交接失败等现场异常，现场先记录证据，再进入主管审核。</p>
-          </div>
-          <span class="status-pill">${escapeHtml(currentWarehouseName())}</span>
+        ${renderAppHeader("盘点异常", "现场先记录证据，再进入主管审核。", {
+          action: `<span class="mini-pill">${escapeHtml(currentWarehouseName())}</span>`,
+        })}
+        <div class="workflow-strip workflow-strip-short">
+          ${["发现", "记录", "审核", "处理"].map((label, index) => `
+            <span class="${last ? index < 2 ? "is-done" : index === 2 ? "is-current" : "" : index === 1 ? "is-current" : ""}">
+              <i>${escapeHtml(index + 1)}</i><b>${escapeHtml(label)}</b>
+            </span>
+          `).join("")}
         </div>
         <div class="metric-grid">
           ${[
@@ -1731,9 +2142,11 @@
         <div id="exceptionResult">
           ${last ? renderExceptionDraft(last) : `<div class="hint-state">当前为前端记录页，后续接入异常提交接口后会进入主管审核队列。</div>`}
         </div>
+        ${renderBottomNav("operation")}
       </section>
     `;
     document.getElementById("exceptionForm").addEventListener("submit", submitExceptionDraft);
+    bindAppChrome();
     focusFirst("#exceptionForm select");
   }
 
@@ -1789,7 +2202,10 @@
   }
 
   async function switchWarehouse() {
-    const warehouseId = warehouseSelect.value;
+    await switchWarehouseById(warehouseSelect.value);
+  }
+
+  async function switchWarehouseById(warehouseId) {
     if (!warehouseId || warehouseId === String(state.warehouseId)) {
       return;
     }
@@ -1805,7 +2221,13 @@
       state.activeLines = {};
       render();
     } catch (error) {
-      warehouseSelect.value = String(state.warehouseId);
+      if (warehouseSelect) {
+        warehouseSelect.value = String(state.warehouseId);
+      }
+      const mineWarehouse = document.getElementById("mineWarehouseSelect");
+      if (mineWarehouse) {
+        mineWarehouse.value = String(state.warehouseId);
+      }
       showError(error);
     }
   }
@@ -1925,6 +2347,9 @@
     }
     if (Array.isArray(data.records)) {
       return data.records;
+    }
+    if (Array.isArray(data.tasks)) {
+      return data.tasks;
     }
     if (Array.isArray(data.items)) {
       return data.items;
