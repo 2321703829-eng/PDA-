@@ -12,6 +12,18 @@
   };
 
   const ENDPOINTS = {
+    arrival: {
+      title: "到货签到",
+      subtitle: "核对到货单，确认车辆或供应商到达后生成收货任务。",
+      list: `${API_PREFIX}/inbound/tasks?stage=arrival`,
+      complete: (id) => `${API_PREFIX}/inbound/arrival/${id}/checkin`,
+      cancel: (id) => `${API_PREFIX}/inbound/arrival/${id}/cancel`,
+      completeText: "确认到货",
+      qtyKey: "done_qty",
+      qtyLabel: "到货数量",
+      needsLocation: false,
+      readonlyLines: true,
+    },
     inbound: {
       title: "入库收货",
       subtitle: "扫描商品条码，录入实收数量，确认后可完成收货任务。",
@@ -19,6 +31,9 @@
       lines: (id) => `${API_PREFIX}/receipt/tasks/${id}/lines`,
       confirm: (id) => `${API_PREFIX}/receipt/tasks/${id}/confirm-line`,
       complete: (id) => `${API_PREFIX}/receipt/tasks/${id}/complete`,
+      close: (id) => `${API_PREFIX}/receipt/tasks/${id}/close`,
+      manualProduct: `${API_PREFIX}/receipt/manual/product`,
+      manualCreate: `${API_PREFIX}/receipt/manual/create`,
       qtyKey: "done_qty",
       qtyLabel: "实收数量",
       completeText: "完成收货",
@@ -62,6 +77,16 @@
       locationLabel: "目标库位条码",
       locationKey: "dest_location_barcode",
     },
+    inbound_done: {
+      title: "已完成",
+      subtitle: "查看已完成上架的入库记录。",
+      list: `${API_PREFIX}/inbound/tasks?stage=done`,
+      completeText: "已完成",
+      qtyKey: "done_qty",
+      qtyLabel: "数量",
+      needsLocation: false,
+      readonlyLines: true,
+    },
   };
 
   const HANDOVER_ENDPOINTS = {
@@ -75,12 +100,14 @@
   const FLOW_GROUPS = {
     "inbound-flow": {
       title: "入库上架",
-      subtitle: "按 PRD 合并收货与上架：待收货、待上架在一个入口内推进，扫码贯穿商品和库位确认。",
+      subtitle: "到货 · 收货 · 上架",
       scanPlaceholder: "扫收货任务 / 上架任务 / 商品 / 库位",
-      defaultMode: "inbound",
+      defaultMode: "arrival",
       tabs: [
-        { mode: "inbound", label: "待收货", hint: "扫码收货、数量确认、异常预留" },
+        { mode: "arrival", label: "到货签到", hint: "确认到货后生成收货任务" },
+        { mode: "inbound", label: "收货", hint: "扫码收货、数量确认、异常预留" },
         { mode: "putaway", label: "待上架", hint: "扫商品与目标库位，确认上架" },
+        { mode: "inbound_done", label: "已完成", hint: "查看完成记录" },
       ],
     },
     "outbound-flow": {
@@ -96,6 +123,24 @@
     },
   };
 
+  const ARRIVAL_STATUS_TABS = [
+    { key: "unsigned", label: "未签到" },
+    { key: "signed", label: "已签到" },
+    { key: "cancelled", label: "已取消" },
+  ];
+
+  const RECEIPT_STATUS_TABS = [
+    { key: "waiting_receipt", label: "待收货" },
+    { key: "receiving", label: "收货中" },
+    { key: "received", label: "已完成" },
+  ];
+
+  const RECEIPT_DETAIL_STATUS_TABS = [
+    { key: "unreceived", label: "未收货" },
+    { key: "partial", label: "部分收货" },
+    { key: "complete", label: "足量收货" },
+  ];
+
   const MAIN_ROUTES = ["home", "operation", "mine"];
   const OPERATION_ROUTES = ["operation", "scan", "inbound-flow", "outbound-flow", "inventory", "transfer", "exceptions", "dashboard"];
   const HOME_MODULES = [
@@ -109,9 +154,13 @@
   ];
 
   const STATUS_LABELS = {
+    waiting_arrival: "待到货",
+    arrival_signed: "已签到",
+    arrival_cancelled: "已取消",
     waiting_receipt: "待收货",
     receiving: "收货中",
     received: "已收货",
+    closed: "已关单",
     receipt_exception: "收货异常",
     waiting_putaway: "待上架",
     putaway_ing: "上架中",
@@ -129,32 +178,6 @@
     handover_ing: "交接中",
     handover_done: "已交接",
     handover_exception: "交接异常",
-  };
-
-  const STATUS_FLOWS = {
-    inbound: ["waiting_receipt", "receiving", "received", "waiting_putaway", "putaway_ing", "putaway_done"],
-    putaway: ["waiting_putaway", "putaway_ing", "putaway_done"],
-    pick: ["waiting_pick", "picking", "picked", "waiting_check"],
-    outbound: ["waiting_check", "checking", "checked", "waiting_handover"],
-    handover: ["waiting_handover", "handover_ing", "handover_done"],
-  };
-
-  const NEXT_ACTION_HINTS = {
-    waiting_receipt: "下一步：扫商品并录入实收数量。",
-    receiving: "下一步：继续确认收货明细，完成后生成上架任务。",
-    received: "已完成收货：请进入待上架继续库位上架。",
-    waiting_putaway: "下一步：扫商品和目标库位，确认上架数量。",
-    putaway_ing: "下一步：继续确认上架明细，全部完成后点完成上架。",
-    putaway_done: "已完成上架：库位库存已形成。",
-    waiting_pick: "下一步：扫来源库位、商品和拣货数量。",
-    picking: "下一步：继续拣货，完成后生成复核任务。",
-    picked: "已完成拣货：请进入待复核继续出库履约。",
-    waiting_check: "下一步：扫商品并确认复核数量。",
-    checking: "下一步：继续复核，完成后进入交接预留。",
-    checked: "已完成复核：可进入交接出库。",
-    waiting_handover: "下一步：核对司机、车辆、运单后开始交接。",
-    handover_ing: "下一步：现场交接确认，完成后结束出库履约。",
-    handover_done: "已完成交接：出库履约闭环完成。",
   };
 
   const DOWN_SHELF_REASONS = [
@@ -190,9 +213,21 @@
     inventoryMode: "product",
     pendingInventoryCode: "",
     flowModes: {
-      "inbound-flow": "inbound",
+      "inbound-flow": "arrival",
       "outbound-flow": "pick",
     },
+    arrivalStatus: "unsigned",
+    receiptStatus: "waiting_receipt",
+    receiptSearch: "",
+    receiptDetailStatus: "unreceived",
+    receiptDetailSearch: "",
+    receiptWorkTab: "waiting",
+    receiptWorkSearch: "",
+    manualReceiptLines: [],
+    receiptCounts: {},
+    putawayStatus: "waiting",
+    putawaySearch: "",
+    putawayCounts: {},
     workbenchSummary: null,
     activeTasks: {},
     activeLines: {},
@@ -409,18 +444,13 @@
         <div class="app-page-title">
           <div>
             <h1>经营</h1>
-            <p>7 个合并功能入口</p>
+            <p>选择要处理的业务</p>
           </div>
         </div>
         <div class="operation-grid">
           ${HOME_MODULES.map((item) => moduleButton(item.route, item.icon, item.title, item.desc, item.tone)).join("")}
         </div>
-        <div class="strategy-card">
-          <strong>模块合并策略</strong>
-          <small>菜单不再平铺到首页，经营页只保留现场作业入口；明细流程进入对应业务页继续处理。</small>
-        </div>
-        ${renderFunctionBridge()}
-        <div class="chain-title">主业务状态链</div>
+        <div class="chain-title">作业进度</div>
         ${renderMainStatusChain()}
         ${renderBottomNav("operation")}
       </section>
@@ -484,7 +514,7 @@
         <div id="dashboardSummary" class="workbench-dashboard">
           ${renderWorkbenchSkeleton()}
         </div>
-        <div class="chain-title">主业务状态链</div>
+        <div class="chain-title">作业进度</div>
         ${renderMainStatusChain()}
         ${renderBottomNav("operation")}
       </section>
@@ -664,28 +694,6 @@
     return Number(item && item.count || 0);
   }
 
-  function renderFunctionBridge() {
-    const items = [
-      ["扫码执行", "全局识别商品、库位、单据、编号，扫码后自动跳转业务。"],
-      ["入库上架", "合并到货签到、收货、按单收货、上架、上架执行。"],
-      ["出库履约", "合并出库、扫码拣货、集货位查询、复核装箱、装箱信息。"],
-      ["库存库位", "合并库存查询、新库位查询、库位库存查询、库位管理、批量移库。"],
-      ["调拨补货", "合并调拨、新调拨、仓内补货、其他入库、其他出库。"],
-      ["盘点异常", "合并盘点、盘点任务、仓内异常、报损、禁售任务。"],
-      ["数据看板", "移动端只保留轻量经营指标，详细 BI 仍放后台。"],
-    ];
-    return `
-      <div class="bridge-list">
-        ${items.map(([title, desc]) => `
-          <div>
-            <strong>${escapeHtml(title)}</strong>
-            <small>${escapeHtml(desc)}</small>
-          </div>
-        `).join("")}
-      </div>
-    `;
-  }
-
   function renderMineWarehouseRow() {
     if (!state.warehouses.length) {
       return `
@@ -832,6 +840,10 @@
   async function renderFlowPage(route) {
     const group = FLOW_GROUPS[route];
     const mode = state.flowModes[route] || group.defaultMode;
+    if (route === "inbound-flow") {
+      await renderInboundFlowPage(route, group);
+      return;
+    }
     if (mode === "handover") {
       await renderHandoverFlowPage(route, group);
       return;
@@ -843,7 +855,6 @@
           action: `<span class="mini-pill">${escapeHtml(currentWarehouseName())}</span>`,
         })}
         ${renderWorkflowStrip(route, mode)}
-        ${renderGlobalScan(`${route}ScanForm`, group.scanPlaceholder)}
         <div class="flow-tabs">
           ${group.tabs.map((tab) => `
             <button class="seg-button ${tab.mode === mode ? "is-active" : ""}" type="button" data-flow-route="${escapeAttr(route)}" data-flow-mode="${escapeAttr(tab.mode)}">
@@ -875,7 +886,6 @@
         ${renderBottomNav("operation")}
       </section>
     `;
-    document.getElementById(`${route}ScanForm`).addEventListener("submit", submitGlobalScan);
     root.querySelectorAll("[data-flow-mode]").forEach((button) => {
       button.addEventListener("click", () => {
         state.flowModes[button.dataset.flowRoute] = button.dataset.flowMode;
@@ -888,6 +898,1521 @@
     await loadTasks(mode);
   }
 
+  async function renderInboundFlowPage(route, group) {
+    const mode = state.flowModes[route] || group.defaultMode;
+    if (mode === "inbound") {
+      await renderReceiptFlowPage(route, group);
+      return;
+    }
+    if (mode === "putaway") {
+      await renderPutawayFlowPage(route, group);
+      return;
+    }
+    root.innerHTML = `
+      <section class="task-panel inbound-page">
+        <div class="app-page-title inbound-title">
+          <div>
+            <h1>${escapeHtml(group.title)}</h1>
+            <p>${escapeHtml(group.subtitle)}</p>
+          </div>
+        </div>
+        <div class="inbound-status-tabs" role="tablist">
+          ${group.tabs.map((tab) => `
+            <button class="inbound-status-tab ${tab.mode === mode ? "is-active" : ""}" type="button" data-flow-route="${escapeAttr(route)}" data-flow-mode="${escapeAttr(tab.mode)}">
+              ${escapeHtml(tab.label)}
+            </button>
+          `).join("")}
+        </div>
+        ${mode === "arrival" ? renderArrivalStatusTabs() : ""}
+        <div id="taskItems" class="task-items inbound-card-list">
+          <div class="empty-state">正在读取任务...</div>
+        </div>
+        <div class="inbound-process-hint">流程：到货签到 / 收货 / 按单收货 / 上架 / 上架执行 / 上架融合</div>
+        ${renderBottomNav("operation")}
+      </section>
+    `;
+    root.querySelectorAll("[data-flow-mode]").forEach((button) => {
+      button.addEventListener("click", () => {
+        state.flowModes[button.dataset.flowRoute] = button.dataset.flowMode;
+        renderInboundFlowPage(button.dataset.flowRoute, group);
+      });
+    });
+    root.querySelectorAll("[data-arrival-status]").forEach((button) => {
+      button.addEventListener("click", () => {
+        state.arrivalStatus = button.dataset.arrivalStatus;
+        renderInboundFlowPage(route, group);
+      });
+    });
+    bindAppChrome();
+    await loadInboundTasks(mode);
+  }
+
+  function renderArrivalStatusTabs() {
+    return `
+      <div class="arrival-filter-tabs" role="tablist" aria-label="到货签到状态">
+        ${ARRIVAL_STATUS_TABS.map((tab) => `
+          <button class="arrival-filter-tab ${tab.key === state.arrivalStatus ? "is-active" : ""}" type="button" data-arrival-status="${escapeAttr(tab.key)}">
+            ${escapeHtml(tab.label)}
+          </button>
+        `).join("")}
+      </div>
+    `;
+  }
+
+  async function renderPutawayFlowPage(route, group) {
+    root.innerHTML = `
+      <section class="task-panel putaway-page">
+        <div class="receipt-nav putaway-nav">
+          <button id="backToInboundReceipt" class="app-back-button" type="button" aria-label="返回">‹</button>
+          <h1>上架</h1>
+          <span></span>
+        </div>
+        <div class="putaway-status-tabs" role="tablist" aria-label="上架状态">
+          <button class="putaway-status-tab ${state.putawayStatus === "waiting" ? "is-active" : ""}" type="button" data-putaway-status="waiting">
+            <span>待上架</span><em data-putaway-count="waiting"></em>
+          </button>
+          <button class="putaway-status-tab ${state.putawayStatus === "done" ? "is-active" : ""}" type="button" data-putaway-status="done">
+            <span>已上架</span><em data-putaway-count="done"></em>
+          </button>
+        </div>
+        <form id="putawaySearchForm" class="putaway-search" autocomplete="off">
+          <input id="putawaySearchInput" type="search" value="${escapeAttr(state.putawaySearch)}" placeholder="任务单号/商品名称/UPC/SKU" />
+          <button type="submit" aria-label="搜索">⌗</button>
+        </form>
+        <div id="putawayItems" class="putaway-card-list">
+          <div class="empty-state">正在读取上架任务...</div>
+        </div>
+        ${renderBottomNav("operation")}
+      </section>
+    `;
+    document.getElementById("backToInboundReceipt").addEventListener("click", () => {
+      state.flowModes[route] = "inbound";
+      renderReceiptFlowPage(route, group);
+    });
+    document.getElementById("putawaySearchForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+      state.putawaySearch = document.getElementById("putawaySearchInput").value.trim();
+      loadPutawayTasks();
+    });
+    document.getElementById("putawaySearchInput").addEventListener("input", (event) => {
+      state.putawaySearch = event.target.value.trim();
+      loadPutawayTasks();
+    });
+    root.querySelectorAll("[data-putaway-status]").forEach((button) => {
+      button.addEventListener("click", () => {
+        state.putawayStatus = button.dataset.putawayStatus;
+        loadPutawayTasks();
+      });
+    });
+    bindAppChrome();
+    await loadPutawayTasks();
+  }
+
+  async function loadPutawayTasks() {
+    const container = document.getElementById("putawayItems");
+    if (!container) {
+      return;
+    }
+    container.innerHTML = `<div class="empty-state">正在读取上架任务...</div>`;
+    try {
+      const groups = await Promise.all(["waiting", "done"].map(async (status) => {
+        const data = await apiGet(ENDPOINTS.putaway.list, { state: status, limit: 100 });
+        return [status, getRecords(data)];
+      }));
+      const byStatus = Object.fromEntries(groups);
+      state.putawayCounts = Object.fromEntries(groups.map(([key, records]) => [key, countPutawayRows(records, key)]));
+      updatePutawayTabs();
+      const records = filterPutawayRecords(byStatus[state.putawayStatus] || []);
+      state.activeTasks.putaway = records;
+      if (!records.length) {
+        container.innerHTML = `<div class="empty-state inbound-empty">${escapeHtml(putawayEmptyText())}</div>`;
+        return;
+      }
+      container.innerHTML = records.map(putawayCard).join("");
+      container.querySelectorAll("[data-putaway-receipt-id]").forEach((button) => {
+        button.addEventListener("click", () => renderReceiptViewDetailPage(Number(button.dataset.putawayReceiptId)));
+      });
+      container.querySelectorAll("[data-putaway-edit-id]").forEach((button) => {
+        button.addEventListener("click", () => renderInboundTaskDetailPage("putaway", Number(button.dataset.putawayEditId)));
+      });
+      container.querySelectorAll("[data-putaway-confirm-id]").forEach((button) => {
+        button.addEventListener("click", () => quickConfirmPutaway(button));
+      });
+    } catch (error) {
+      container.innerHTML = `<div class="error-state">${escapeHtml(messageOf(error))}</div>`;
+    }
+  }
+
+  function updatePutawayTabs() {
+    ["waiting", "done"].forEach((status) => {
+      const button = document.querySelector(`[data-putaway-status="${status}"]`);
+      const count = document.querySelector(`[data-putaway-count="${status}"]`);
+      if (button) {
+        button.classList.toggle("is-active", state.putawayStatus === status);
+      }
+      if (count) {
+        const value = Number(state.putawayCounts[status] || 0);
+        count.textContent = value ? (value > 99 ? "99+" : String(value)) : "";
+      }
+    });
+  }
+
+  function filterPutawayRecords(records) {
+    const keyword = state.putawaySearch.trim().toLowerCase();
+    if (!keyword) {
+      return records;
+    }
+    return records.map((task) => {
+      const lines = putawayTaskLines(task);
+      const taskMatched = [
+        task.name,
+        task.receipt_task_name,
+        task.picking_name,
+        task.product_summary,
+        task.dest_location,
+      ].filter(Boolean).some((value) => String(value).toLowerCase().includes(keyword));
+      if (taskMatched) {
+        return task;
+      }
+      const matchedLines = lines.filter((line) => [
+        line.product_name,
+        line.default_code,
+        line.barcode,
+        line.dest_location,
+      ].filter(Boolean).some((value) => String(value).toLowerCase().includes(keyword)));
+      return matchedLines.length ? { ...task, lines: matchedLines } : null;
+    }).filter(Boolean);
+  }
+
+  function countPutawayRows(records, status) {
+    return records.reduce((total, task) => total + putawayVisibleLines(task, status).length, 0);
+  }
+
+  function putawayEmptyText() {
+    if (state.putawaySearch) {
+      return `没有匹配“${state.putawaySearch}”的上架任务。`;
+    }
+    return state.putawayStatus === "done" ? "暂无已上架记录。" : "暂无待上架任务。";
+  }
+
+  function putawayCard(task) {
+    const visibleLines = putawayVisibleLines(task, state.putawayStatus);
+    return visibleLines.map((line, index) => putawayLineCard(task, line, index)).join("");
+  }
+
+  function putawayVisibleLines(task, status) {
+    const lines = putawayTaskLines(task);
+    const source = lines.length ? lines : [{}];
+    if (status !== "waiting") {
+      return source;
+    }
+    const pending = source.filter((line) => !isPutawayLineDone(task, line));
+    return pending.length ? pending : source;
+  }
+
+  function isPutawayLineDone(task, line) {
+    if (task.state === "putaway_done") {
+      return true;
+    }
+    const demandQty = Number(line.demand_qty ?? task.total_qty ?? 0);
+    const putawayQty = Number(line.putaway_qty ?? task.putaway_qty ?? 0);
+    const remainingQty = Number(line.remaining_qty ?? Math.max(demandQty - putawayQty, 0));
+    return remainingQty <= 0;
+  }
+
+  function putawayLineCard(task, line, index) {
+    const unit = displayUom(line.uom) || "份";
+    const demandQty = Number(line.demand_qty ?? task.total_qty ?? 0);
+    const putawayQty = Number(line.putaway_qty ?? task.putaway_qty ?? 0);
+    const remainingQty = Number(line.remaining_qty ?? Math.max(demandQty - putawayQty, 0));
+    const done = isPutawayLineDone(task, line);
+    const destLocation = task.dest_location || line.dest_location || "待确认";
+    const taskNo = task.name || "上架任务";
+    const cardNo = index ? `${taskNo}-${index + 1}` : taskNo;
+    return `
+      <article class="putaway-card">
+        <div class="putaway-card-head">
+          <div>
+            <span>上架</span>
+            <strong>${escapeHtml(cardNo)}</strong>
+            <small>${escapeHtml(formatDateTime(task.create_date))} 创建</small>
+          </div>
+          ${task.receipt_task_id ? `<button type="button" data-putaway-receipt-id="${escapeAttr(task.receipt_task_id)}">关联收货单 ›</button>` : `<em>关联收货单</em>`}
+        </div>
+        <div class="putaway-product">
+          <div class="receipt-line-thumb putaway-thumb">
+            <span>${escapeHtml(receiptLineAvatarText(normalizeLineLike(line)))}</span>
+          </div>
+          <div>
+          <strong>${escapeHtml(line.product_name || task.product_summary || "未命名商品")}</strong>
+          <p>UPC：${escapeHtml(line.barcode || "-")}　${escapeHtml(line.default_code ? `SKU：${line.default_code}` : "")}</p>
+          <p>规格：${escapeHtml(putawaySpecText(line))}</p>
+        </div>
+        </div>
+        <div class="putaway-metrics">
+          <span>应上架量（${escapeHtml(unit)}）</span>
+          <strong>${escapeHtml(formatQty(demandQty))}</strong>
+          <em class="${done ? "is-done" : ""}">${done ? "已完成" : "未完成"}</em>
+          <button type="button" data-putaway-edit-id="${escapeAttr(task.id)}">已上架明细 ›</button>
+          <span>剩余上架量（${escapeHtml(unit)}）</span>
+          <strong>${escapeHtml(formatQty(remainingQty))}</strong>
+          <i></i>
+          <i></i>
+          <span>已上架量（${escapeHtml(unit)}）</span>
+          <strong>${escapeHtml(formatQty(putawayQty))}</strong>
+          <i></i>
+          <i></i>
+          <span>上架库位</span>
+          <strong>${escapeHtml(destLocation)}</strong>
+        </div>
+        <div class="putaway-card-actions">
+          <button class="putaway-edit-button" type="button" data-putaway-edit-id="${escapeAttr(task.id)}">修改上架信息</button>
+          ${done
+            ? `<button class="putaway-confirm-button" type="button" disabled>已上架</button>`
+            : `<button class="putaway-confirm-button" type="button" data-putaway-confirm-id="${escapeAttr(task.id)}" data-line-barcode="${escapeAttr(line.barcode || line.default_code || "")}" data-line-qty="${escapeAttr(remainingQty)}" data-location-barcode="${escapeAttr(task.dest_location_barcode || line.dest_location_barcode || "")}">确认上架</button>`}
+        </div>
+      </article>
+    `;
+  }
+
+  function putawayTaskLines(task) {
+    return Array.isArray(task.lines) ? task.lines : [];
+  }
+
+  function normalizeLineLike(line) {
+    return {
+      productName: line.product_name || "",
+      defaultCode: line.default_code || "",
+      barcode: line.barcode || "",
+    };
+  }
+
+  function putawaySpecText(line) {
+    return line.default_code || line.barcode || "暂无规格";
+  }
+
+  async function quickConfirmPutaway(button) {
+    const taskId = Number(button.dataset.putawayConfirmId || 0);
+    const barcode = button.dataset.lineBarcode || "";
+    const qty = Number(button.dataset.lineQty || 0);
+    const locationBarcode = button.dataset.locationBarcode || "";
+    if (!taskId) {
+      return;
+    }
+    if (!barcode || !qty || !locationBarcode) {
+      showToast("请先进入修改上架信息，补充商品、数量和库位", true);
+      renderInboundTaskDetailPage("putaway", taskId);
+      return;
+    }
+    try {
+      button.disabled = true;
+      const result = await apiPost(ENDPOINTS.putaway.confirm(taskId), {
+        request_id: requestId("putaway_quick"),
+        device_id: state.deviceId,
+        product_barcode: barcode,
+        dest_location_barcode: locationBarcode,
+        qty,
+      });
+      if (Number(result.remaining_products || 0) <= 0) {
+        await apiPost(ENDPOINTS.putaway.complete(taskId), {
+          request_id: requestId("putaway_quick_complete"),
+          device_id: state.deviceId,
+        });
+        state.putawayStatus = "done";
+        showToast("上架已完成");
+      } else {
+        showToast("已确认上架");
+      }
+      await loadPutawayTasks();
+    } catch (error) {
+      showError(error);
+      button.disabled = false;
+    }
+  }
+
+  async function renderReceiptFlowPage(route, group) {
+    root.innerHTML = `
+      <section class="task-panel receipt-page">
+        <div class="receipt-nav">
+          <button id="backToInboundArrival" class="app-back-button" type="button" aria-label="返回">‹</button>
+          <h1>收货单</h1>
+          <button id="receiptFilterButton" class="receipt-filter-button" type="button">筛选</button>
+        </div>
+        <div class="inbound-status-tabs" role="tablist">
+          ${group.tabs.map((tab) => `
+            <button class="inbound-status-tab ${tab.mode === "inbound" ? "is-active" : ""}" type="button" data-flow-route="${escapeAttr(route)}" data-flow-mode="${escapeAttr(tab.mode)}">
+              ${escapeHtml(tab.label)}
+            </button>
+          `).join("")}
+        </div>
+        <form id="receiptSearchForm" class="receipt-search" autocomplete="off">
+          <input id="receiptSearchInput" type="search" value="${escapeAttr(state.receiptSearch)}" placeholder="搜索 扫描或输入单号/商品条码/发货方等" />
+          <button type="submit" aria-label="搜索">⌕</button>
+        </form>
+        <div class="receipt-state-tabs" role="tablist" aria-label="收货状态">
+          ${RECEIPT_STATUS_TABS.map((tab) => `
+            <button class="receipt-state-tab ${tab.key === state.receiptStatus ? "is-active" : ""}" type="button" data-receipt-status="${escapeAttr(tab.key)}">
+              <span>${escapeHtml(tab.label)}</span>
+              <em class="receipt-state-count" data-receipt-count="${escapeAttr(tab.key)}"></em>
+            </button>
+          `).join("")}
+        </div>
+        <div id="receiptItems" class="receipt-card-list">
+          <div class="empty-state">正在读取收货单...</div>
+        </div>
+        <button id="manualReceiptCreate" class="receipt-manual-button" type="button">手动新建</button>
+        ${renderBottomNav("operation")}
+      </section>
+    `;
+    document.getElementById("backToInboundArrival").addEventListener("click", () => {
+      state.flowModes[route] = "arrival";
+      renderInboundFlowPage(route, group);
+    });
+    document.getElementById("receiptFilterButton").addEventListener("click", () => focusFirst("#receiptSearchInput"));
+    document.getElementById("receiptSearchForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+      state.receiptSearch = document.getElementById("receiptSearchInput").value.trim();
+      loadReceiptTasks();
+    });
+    document.getElementById("receiptSearchInput").addEventListener("input", (event) => {
+      state.receiptSearch = event.target.value.trim();
+      loadReceiptTasks();
+    });
+    document.getElementById("manualReceiptCreate").addEventListener("click", () => renderManualReceiptPage(route, group));
+    root.querySelectorAll("[data-flow-mode]").forEach((button) => {
+      button.addEventListener("click", () => {
+        state.flowModes[button.dataset.flowRoute] = button.dataset.flowMode;
+        renderInboundFlowPage(button.dataset.flowRoute, group);
+      });
+    });
+    root.querySelectorAll("[data-receipt-status]").forEach((button) => {
+      button.addEventListener("click", () => {
+        state.receiptStatus = button.dataset.receiptStatus;
+        loadReceiptTasks();
+      });
+    });
+    bindBottomNav();
+    await loadReceiptTasks();
+  }
+
+  function renderManualReceiptPage(route, group) {
+    state.manualReceiptLines = [];
+    root.innerHTML = `
+      <section class="task-panel manual-receipt-page">
+        <div class="receipt-detail-nav">
+          <button id="backToReceiptList" class="app-back-button" type="button" aria-label="返回">‹</button>
+          <h1>新建收货单</h1>
+          <span></span>
+        </div>
+        <section class="manual-receipt-section">
+          <div class="manual-section-title">
+            <strong>单据信息</strong>
+            <span>${escapeHtml(currentWarehouseName())}</span>
+          </div>
+          <div class="manual-receipt-fields">
+            <label>
+              <span>发货方</span>
+              <input id="manualPartnerName" type="text" value="天枢日用品供应商" placeholder="输入供应商或发货方" />
+            </label>
+            <label>
+              <span>关联单号</span>
+              <input id="manualOrigin" type="text" value="${escapeAttr(manualReceiptDefaultNo())}" placeholder="采购单/预约单/外部单号" />
+            </label>
+            <label>
+              <span>物流单号</span>
+              <input id="manualLogisticsNo" type="text" placeholder="可选" />
+            </label>
+          </div>
+        </section>
+        <form id="manualReceiptLineForm" class="manual-receipt-section manual-product-form" autocomplete="off">
+          <div class="manual-section-title">
+            <strong>添加商品</strong>
+            <span>扫码或输入 SKU</span>
+          </div>
+          <div class="manual-product-row">
+            <label>
+              <span>商品</span>
+              <input id="manualProductCode" type="search" inputmode="text" autocomplete="off" placeholder="商品条码 / SKU / 外部编码" required />
+            </label>
+            <label>
+              <span>数量</span>
+              <input id="manualProductQty" type="number" min="0.001" step="0.001" inputmode="decimal" placeholder="数量" required />
+            </label>
+          </div>
+          <button class="receipt-work-confirm" type="submit">加入商品</button>
+          <div class="manual-sample-codes">
+            <button type="button" data-manual-code="6901234567001">抽纸</button>
+            <button type="button" data-manual-code="6901234567003">牛奶</button>
+            <button type="button" data-manual-code="6901234567004">大米</button>
+            <button type="button" data-manual-code="6901234567005">矿泉水</button>
+          </div>
+        </form>
+        <section class="manual-receipt-section">
+          <div class="manual-section-title">
+            <strong>商品明细</strong>
+            <span id="manualLineCount">0 种</span>
+          </div>
+          <div id="manualReceiptLines" class="manual-line-list">
+            <div class="empty-state">还没有商品，先扫码添加。</div>
+          </div>
+        </section>
+        <div class="manual-receipt-bottom">
+          <button id="manualCreateReceipt" type="button" disabled>生成收货单</button>
+        </div>
+      </section>
+    `;
+    document.getElementById("backToReceiptList").addEventListener("click", () => renderReceiptFlowPage(route, group));
+    document.getElementById("manualReceiptLineForm").addEventListener("submit", addManualReceiptLine);
+    document.getElementById("manualCreateReceipt").addEventListener("click", () => createManualReceipt(route, group));
+    root.querySelectorAll("[data-manual-code]").forEach((button) => {
+      button.addEventListener("click", () => {
+        document.getElementById("manualProductCode").value = button.dataset.manualCode;
+        focusFirst("#manualProductQty");
+      });
+    });
+    focusFirst("#manualProductCode");
+  }
+
+  async function addManualReceiptLine(event) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const codeInput = document.getElementById("manualProductCode");
+    const qtyInput = document.getElementById("manualProductQty");
+    const code = codeInput.value.trim();
+    const qty = Number(qtyInput.value || 0);
+    if (!code || qty <= 0) {
+      showToast("请填写商品和数量", true);
+      return;
+    }
+    try {
+      setBusy(form, true);
+      const data = await apiGet(ENDPOINTS.inbound.manualProduct, { code });
+      const product = data.product || {};
+      const existing = state.manualReceiptLines.find((line) => String(line.product_id) === String(product.id));
+      if (existing) {
+        existing.qty += qty;
+      } else {
+        state.manualReceiptLines.push({
+          product_id: product.id,
+          productName: product.product_name || product.name || code,
+          defaultCode: product.default_code || "",
+          barcode: product.barcode || code,
+          uom: displayUom(product.uom) || "件",
+          qty,
+        });
+      }
+      codeInput.value = "";
+      qtyInput.value = "";
+      renderManualReceiptLines();
+      showToast("商品已加入");
+      focusFirst("#manualProductCode");
+    } catch (error) {
+      showError(error);
+      codeInput.select();
+    } finally {
+      setBusy(form, false);
+    }
+  }
+
+  function renderManualReceiptLines() {
+    const container = document.getElementById("manualReceiptLines");
+    const count = document.getElementById("manualLineCount");
+    const createButton = document.getElementById("manualCreateReceipt");
+    if (!container) {
+      return;
+    }
+    if (count) {
+      count.textContent = `${state.manualReceiptLines.length} 种`;
+    }
+    if (createButton) {
+      createButton.disabled = !state.manualReceiptLines.length;
+    }
+    if (!state.manualReceiptLines.length) {
+      container.innerHTML = `<div class="empty-state">还没有商品，先扫码添加。</div>`;
+      return;
+    }
+    container.innerHTML = state.manualReceiptLines.map((line, index) => `
+      <article class="manual-line-card">
+        <div class="receipt-line-thumb">
+          <span>${escapeHtml(receiptLineAvatarText(line))}</span>
+        </div>
+        <div class="manual-line-main">
+          <strong>${escapeHtml(line.productName)}</strong>
+          <p>${escapeHtml([line.defaultCode, line.barcode].filter(Boolean).join(" · "))}</p>
+          <div>应收：<b>${escapeHtml(formatQty(line.qty))}${escapeHtml(displayUom(line.uom) || "件")}</b></div>
+        </div>
+        <button type="button" data-remove-manual-line="${escapeAttr(index)}">删除</button>
+      </article>
+    `).join("");
+    container.querySelectorAll("[data-remove-manual-line]").forEach((button) => {
+      button.addEventListener("click", () => {
+        state.manualReceiptLines.splice(Number(button.dataset.removeManualLine), 1);
+        renderManualReceiptLines();
+      });
+    });
+  }
+
+  async function createManualReceipt(route, group) {
+    if (!state.manualReceiptLines.length) {
+      showToast("请先添加商品", true);
+      return;
+    }
+    const button = document.getElementById("manualCreateReceipt");
+    const payload = {
+      request_id: requestId("manual_receipt"),
+      device_id: state.deviceId,
+      partner_name: document.getElementById("manualPartnerName").value.trim(),
+      origin: document.getElementById("manualOrigin").value.trim(),
+      logistics_no: document.getElementById("manualLogisticsNo").value.trim(),
+      lines: state.manualReceiptLines.map((line) => ({
+        barcode: line.barcode || line.defaultCode,
+        qty: line.qty,
+      })),
+    };
+    try {
+      button.disabled = true;
+      const result = await apiPost(ENDPOINTS.inbound.manualCreate, payload);
+      showToast("收货单已生成");
+      state.manualReceiptLines = [];
+      state.receiptStatus = "waiting_receipt";
+      state.receiptSearch = result.task && (result.task.name || result.task.origin) || "";
+      await renderReceiptFlowPage(route, group);
+    } catch (error) {
+      showError(error);
+      button.disabled = false;
+    }
+  }
+
+  function manualReceiptDefaultNo() {
+    const now = new Date();
+    const pad = (value) => String(value).padStart(2, "0");
+    return `手动收货-${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}${pad(now.getHours())}${pad(now.getMinutes())}`;
+  }
+
+  async function loadReceiptTasks() {
+    const container = document.getElementById("receiptItems");
+    if (!container) {
+      return;
+    }
+    container.innerHTML = `<div class="empty-state">正在读取收货单...</div>`;
+    try {
+      const groups = await Promise.all(RECEIPT_STATUS_TABS.map(async (tab) => {
+        const data = await apiGet(ENDPOINTS.inbound.list, { state: tab.key, limit: 100 });
+        return [tab.key, getRecords(data)];
+      }));
+      const byStatus = Object.fromEntries(groups);
+      state.receiptCounts = Object.fromEntries(groups.map(([key, records]) => [key, records.length]));
+      updateReceiptStateTabs();
+      const records = filterReceiptRecords(byStatus[state.receiptStatus] || []);
+      state.activeTasks.inbound = records;
+      if (!records.length) {
+        container.innerHTML = `<div class="empty-state receipt-empty">${escapeHtml(receiptEmptyText())}</div>`;
+        return;
+      }
+      container.innerHTML = records.map(receiptCard).join("");
+      container.querySelectorAll("[data-receipt-detail-id]").forEach((button) => {
+        button.addEventListener("click", () => renderReceiptViewDetailPage(Number(button.dataset.receiptDetailId)));
+      });
+      container.querySelectorAll("[data-receipt-work-id]").forEach((button) => {
+        button.addEventListener("click", () => renderInboundTaskDetailPage("inbound", Number(button.dataset.receiptWorkId)));
+      });
+    } catch (error) {
+      container.innerHTML = `<div class="error-state">${escapeHtml(messageOf(error))}</div>`;
+    }
+  }
+
+  function updateReceiptStateTabs() {
+    RECEIPT_STATUS_TABS.forEach((tab) => {
+      const button = document.querySelector(`[data-receipt-status="${tab.key}"]`);
+      const count = document.querySelector(`[data-receipt-count="${tab.key}"]`);
+      if (button) {
+        button.classList.toggle("is-active", tab.key === state.receiptStatus);
+      }
+      if (count) {
+        const value = Number(state.receiptCounts[tab.key] || 0);
+        count.textContent = value ? String(value) : "";
+      }
+    });
+  }
+
+  function filterReceiptRecords(records) {
+    const keyword = state.receiptSearch.trim().toLowerCase();
+    if (!keyword) {
+      return records;
+    }
+    return records.filter((task) => [
+      task.name,
+      task.picking_name,
+      task.origin,
+      task.partner_name,
+      task.product_summary,
+      task.related_no,
+      task.logistics_no,
+    ].filter(Boolean).some((value) => String(value).toLowerCase().includes(keyword)));
+  }
+
+  function receiptEmptyText() {
+    const label = receiptStatusLabel(state.receiptStatus);
+    if (state.receiptSearch) {
+      return `没有匹配“${state.receiptSearch}”的${label}收货单。`;
+    }
+    return `暂无${label}收货单。`;
+  }
+
+  function receiptCard(task) {
+    const canReceive = task.state !== "received";
+    const progress = receiptProgressText(task);
+    return `
+      <article class="receipt-card">
+        <div class="receipt-card-head">
+          <div>
+            <span class="receipt-type-tag">${escapeHtml(task.source_type_label || "采购")}</span>
+            <strong>单号 ${escapeHtml(task.origin || task.picking_name || task.name)}</strong>
+          </div>
+          <em>${escapeHtml(receiptStatusLabel(task.state))}</em>
+        </div>
+        <div class="receipt-info-list">
+          ${receiptInfoLine("发货方", task.partner_name)}
+          ${receiptInfoLine("创建人", task.create_uid_name)}
+          ${receiptInfoLine("创建时间", formatDateTime(task.create_date))}
+          ${receiptInfoLine("送达时间", formatDateTime(task.scheduled_date) || "-")}
+          ${receiptInfoLine("关联单号", task.related_no || task.picking_name)}
+          ${receiptInfoLine("物流单号", task.logistics_no)}
+        </div>
+        <div class="receipt-progress">进度：${escapeHtml(progress)}</div>
+        <div class="receipt-progress-bar" aria-hidden="true">
+          <i style="width: ${escapeAttr(receiptProgressPercent(task))}%"></i>
+        </div>
+        <div class="receipt-card-actions">
+          <button class="receipt-detail-button" type="button" data-receipt-detail-id="${escapeAttr(task.id)}">查看详情</button>
+          ${canReceive ? `<button class="receipt-work-button" type="button" data-receipt-work-id="${escapeAttr(task.id)}">收货</button>` : ""}
+        </div>
+      </article>
+    `;
+  }
+
+  function receiptInfoLine(label, value) {
+    return `<p><span>${escapeHtml(label)}：</span><strong>${escapeHtml(value || "-")}</strong></p>`;
+  }
+
+  function receiptProgressText(task) {
+    const doneLines = Number(task.done_line_count || 0);
+    const lineCount = Number(task.line_count || 0);
+    const doneQty = formatQty(task.done_qty || 0);
+    const totalQty = formatQty(task.demand_qty || 0);
+    return `商品 ${doneLines}/${lineCount}、数量 ${doneQty}/${totalQty}、箱数 ${doneQty}/${totalQty}`;
+  }
+
+  function receiptProgressPercent(task) {
+    const total = Number(task.demand_qty || 0);
+    if (!total) {
+      return 0;
+    }
+    return Math.max(0, Math.min(100, Math.round((Number(task.done_qty || 0) / total) * 100)));
+  }
+
+  function receiptStatusLabel(value) {
+    return {
+      waiting_receipt: "待收货",
+      receiving: "收货中",
+      received: "已完成",
+      closed: "已关单",
+    }[value] || statusLabel(value) || value || "";
+  }
+
+  async function renderReceiptViewDetailPage(taskId) {
+    const group = FLOW_GROUPS["inbound-flow"];
+    const task = findTask("inbound", taskId) || {};
+    state.receiptDetailStatus = defaultReceiptDetailStatus(task);
+    state.receiptDetailSearch = "";
+    root.innerHTML = `
+      <section class="task-panel receipt-detail-page">
+        <div class="receipt-detail-nav">
+          <button id="backToReceiptList" class="app-back-button" type="button" aria-label="返回">‹</button>
+          <h1>收货单详情</h1>
+          <span></span>
+        </div>
+        <div class="empty-state receipt-detail-loading">正在读取收货单明细...</div>
+      </section>
+    `;
+    document.getElementById("backToReceiptList").addEventListener("click", () => renderReceiptFlowPage("inbound-flow", group));
+    try {
+      const data = await apiGet(ENDPOINTS.inbound.lines(taskId), { lock: 0 });
+      const focusedTask = { ...task, ...(data.task || {}), id: taskId };
+      const lines = normalizeLines(data.lines || data.records || [], "inbound");
+      state.receiptDetailStatus = defaultReceiptDetailStatus(focusedTask, lines);
+      state.activeTasks.receiptDetail = focusedTask;
+      state.activeLines.receiptDetail = lines;
+      root.innerHTML = renderReceiptDetailShell(focusedTask);
+      bindReceiptDetailPage(taskId, group);
+      renderReceiptDetailLines();
+    } catch (error) {
+      root.innerHTML = `
+        <section class="task-panel receipt-detail-page">
+          <div class="receipt-detail-nav">
+            <button id="backToReceiptList" class="app-back-button" type="button" aria-label="返回">‹</button>
+            <h1>收货单详情</h1>
+            <span></span>
+          </div>
+          <div class="error-state">${escapeHtml(messageOf(error))}</div>
+        </section>
+      `;
+      document.getElementById("backToReceiptList").addEventListener("click", () => renderReceiptFlowPage("inbound-flow", group));
+    }
+  }
+
+  function renderReceiptDetailShell(task) {
+    const orderNo = task.origin || task.picking_name || task.name || "收货单";
+    return `
+      <section class="task-panel receipt-detail-page">
+        <div class="receipt-detail-nav">
+          <button id="backToReceiptList" class="app-back-button" type="button" aria-label="返回">‹</button>
+          <h1>收货单详情</h1>
+          <span></span>
+        </div>
+        <section class="receipt-detail-order">
+          <div class="receipt-detail-order-main">
+            <strong>单号 ${escapeHtml(orderNo)}</strong>
+            <div>
+              <span>${escapeHtml(receiptStatusLabel(task.state))}</span>
+              <button id="receiptDetailExpand" type="button">展开</button>
+            </div>
+          </div>
+          <div id="receiptDetailExtra" class="receipt-detail-extra" hidden>
+            ${receiptInfoLine("发货方", task.partner_name)}
+            ${receiptInfoLine("创建人", task.create_uid_name)}
+            ${receiptInfoLine("创建时间", formatDateTime(task.create_date))}
+            ${receiptInfoLine("送达时间", formatDateTime(task.scheduled_date) || "-")}
+            ${receiptInfoLine("关联单号", task.related_no || task.picking_name)}
+            ${receiptInfoLine("物流单号", task.logistics_no)}
+            ${receiptInfoLine("当前进度", receiptProgressText(task))}
+          </div>
+        </section>
+        <form id="receiptDetailSearchForm" class="receipt-detail-search" autocomplete="off">
+          <input id="receiptDetailSearchInput" type="search" value="${escapeAttr(state.receiptDetailSearch)}" placeholder="搜索 商品名称/条码/SKU/外部编码" />
+          <button class="receipt-detail-scan" type="submit" aria-label="搜索">⌗</button>
+          <button id="receiptDetailTag" class="receipt-detail-tag" type="button">标签⌄</button>
+        </form>
+        <div class="receipt-detail-tabs" role="tablist" aria-label="明细收货状态">
+          ${RECEIPT_DETAIL_STATUS_TABS.map((tab) => `
+            <button class="receipt-detail-tab ${tab.key === state.receiptDetailStatus ? "is-active" : ""}" type="button" data-receipt-detail-status="${escapeAttr(tab.key)}">
+              ${escapeHtml(tab.label)}<em data-receipt-detail-count="${escapeAttr(tab.key)}"></em>
+            </button>
+          `).join("")}
+        </div>
+        <div id="receiptDetailLines" class="receipt-line-list"></div>
+        <div class="receipt-detail-bottom-actions">
+          <button id="receiptDetailClose" type="button">关单</button>
+          <button id="receiptDetailStart" type="button">开始收货</button>
+        </div>
+      </section>
+    `;
+  }
+
+  function bindReceiptDetailPage(taskId, group) {
+    document.getElementById("backToReceiptList").addEventListener("click", () => renderReceiptFlowPage("inbound-flow", group));
+    document.getElementById("receiptDetailSearchForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+      state.receiptDetailSearch = document.getElementById("receiptDetailSearchInput").value.trim();
+      renderReceiptDetailLines();
+    });
+    document.getElementById("receiptDetailSearchInput").addEventListener("input", (event) => {
+      state.receiptDetailSearch = event.target.value.trim();
+      renderReceiptDetailLines();
+    });
+    document.getElementById("receiptDetailTag").addEventListener("click", () => showToast("标签筛选预留，当前可按状态与关键词筛选"));
+    document.getElementById("receiptDetailExpand").addEventListener("click", (event) => {
+      const extra = document.getElementById("receiptDetailExtra");
+      const expanded = extra.hasAttribute("hidden");
+      extra.toggleAttribute("hidden", !expanded);
+      event.currentTarget.textContent = expanded ? "收起" : "展开";
+    });
+    document.getElementById("receiptDetailClose").addEventListener("click", () => closeReceiptTask(taskId, group));
+    document.getElementById("receiptDetailStart").addEventListener("click", () => renderInboundTaskDetailPage("inbound", taskId));
+    root.querySelectorAll("[data-receipt-detail-status]").forEach((button) => {
+      button.addEventListener("click", () => {
+        state.receiptDetailStatus = button.dataset.receiptDetailStatus;
+        renderReceiptDetailLines();
+      });
+    });
+    focusFirst("#receiptDetailSearchInput");
+  }
+
+  async function closeReceiptTask(taskId, group) {
+    if (!window.confirm("确认关闭当前收货单？关闭后将不再进入待收货/收货中。")) {
+      return;
+    }
+    const button = document.getElementById("receiptDetailClose");
+    try {
+      if (button) {
+        button.disabled = true;
+      }
+      await apiPost(ENDPOINTS.inbound.close(taskId), {
+        request_id: requestId("receipt_close"),
+        device_id: state.deviceId,
+        reason: "PDA 关单",
+      });
+      showToast("收货单已关闭");
+      await renderReceiptFlowPage("inbound-flow", group);
+    } catch (error) {
+      showError(error);
+      if (button) {
+        button.disabled = false;
+      }
+    }
+  }
+
+  function renderReceiptDetailLines() {
+    const container = document.getElementById("receiptDetailLines");
+    if (!container) {
+      return;
+    }
+    const lines = state.activeLines.receiptDetail || [];
+    updateReceiptDetailTabs(lines);
+    const records = lines
+      .filter((line) => receiptDetailLineMatches(line, state.receiptDetailStatus))
+      .filter(receiptDetailSearchMatches);
+    if (!records.length) {
+      container.innerHTML = `<div class="receipt-detail-no-more">没有更多数据</div>`;
+      return;
+    }
+    container.innerHTML = `
+      ${records.map(receiptDetailLineCard).join("")}
+      <div class="receipt-detail-no-more">没有更多数据</div>
+    `;
+    container.querySelectorAll("[data-diff-line]").forEach((button) => {
+      button.addEventListener("click", () => showToast(`差异提报预留：${button.dataset.diffLine}`));
+    });
+  }
+
+  function updateReceiptDetailTabs(lines) {
+    RECEIPT_DETAIL_STATUS_TABS.forEach((tab) => {
+      const button = document.querySelector(`[data-receipt-detail-status="${tab.key}"]`);
+      const count = document.querySelector(`[data-receipt-detail-count="${tab.key}"]`);
+      if (button) {
+        button.classList.toggle("is-active", tab.key === state.receiptDetailStatus);
+      }
+      if (count) {
+        const value = lines.filter((line) => receiptDetailLineMatches(line, tab.key)).length;
+        count.textContent = value ? String(value) : "";
+      }
+    });
+  }
+
+  function receiptDetailLineMatches(line, status) {
+    const demandQty = Number(line.demandQty || 0);
+    const doneQty = Number(line.doneQty || 0);
+    if (status === "partial") {
+      return doneQty > 0 && (!demandQty || doneQty < demandQty);
+    }
+    if (status === "complete") {
+      return demandQty ? doneQty >= demandQty : doneQty > 0;
+    }
+    return doneQty <= 0;
+  }
+
+  function defaultReceiptDetailStatus(task, lines) {
+    if (task && task.state === "received") {
+      return "complete";
+    }
+    if (task && task.state === "waiting_receipt") {
+      return "unreceived";
+    }
+    if (Array.isArray(lines) && lines.length) {
+      return ["partial", "unreceived", "complete"].find((status) => lines.some((line) => receiptDetailLineMatches(line, status))) || "unreceived";
+    }
+    return "unreceived";
+  }
+
+  function receiptDetailSearchMatches(line) {
+    const keyword = state.receiptDetailSearch.trim().toLowerCase();
+    if (!keyword) {
+      return true;
+    }
+    return [
+      line.productName,
+      line.defaultCode,
+      line.barcode,
+      line.location,
+      line.raw && line.raw.sku,
+      line.raw && line.raw.external_code,
+      line.raw && line.raw.product_code,
+    ].filter(Boolean).some((value) => String(value).toLowerCase().includes(keyword));
+  }
+
+  function receiptDetailLineCard(line) {
+    const diffQty = receiptLineDiffQty(line);
+    const imageUrl = line.raw && (line.raw.image_url || line.raw.product_image_url || line.raw.image);
+    const spec = (line.raw && (line.raw.spec || line.raw.specification || line.raw.variant || line.raw.product_spec)) || "-";
+    const unit = displayUom(line.uom) || "件";
+    const codeText = line.barcode || line.defaultCode || "-";
+    const packageText = line.raw && (line.raw.package_ratio || line.raw.packaging_ratio) || `1${unit}/${unit}`;
+    return `
+      <article class="receipt-line-card">
+        <div class="receipt-line-thumb">
+          ${imageUrl ? `<img src="${escapeAttr(imageUrl)}" alt="" />` : `<span>${escapeHtml(receiptLineAvatarText(line))}</span>`}
+        </div>
+        <div class="receipt-line-main">
+          <strong class="receipt-line-title">${escapeHtml(line.productName || "未命名商品")}</strong>
+          <p class="receipt-line-meta">规格：${escapeHtml(spec)}</p>
+          <p class="receipt-line-meta">条码：${escapeHtml(codeText)}　共 ${escapeHtml(formatQty(line.demandQty))}${escapeHtml(unit)}</p>
+          <p class="receipt-line-meta">包装比率：${escapeHtml(packageText)}</p>
+          <div class="receipt-line-qty">
+            <span>待收：<b>${escapeHtml(formatQty(line.remainingQty))}${escapeHtml(unit)}</b></span>
+            <span>应收：<b>${escapeHtml(formatQty(line.demandQty))}${escapeHtml(unit)}</b></span>
+            <span>实收：<b>${escapeHtml(formatQty(line.doneQty))}${escapeHtml(unit)}</b></span>
+            <span>差异上报：<b>${escapeHtml(formatQty(diffQty))}${escapeHtml(unit)}</b></span>
+          </div>
+          <div class="receipt-line-actions">
+            <button type="button" data-diff-line="${escapeAttr(line.productName || line.defaultCode || line.key)}">差异提报</button>
+          </div>
+        </div>
+      </article>
+    `;
+  }
+
+  function receiptLineAvatarText(line) {
+    const value = line.defaultCode || line.barcode || line.productName || "货";
+    return String(value).replace(/[^A-Za-z0-9\u4e00-\u9fa5]/g, "").slice(0, 2).toUpperCase() || "货";
+  }
+
+  function receiptLineDiffQty(line) {
+    const raw = line.raw || {};
+    return Number(raw.exception_qty ?? raw.diff_qty ?? raw.discrepancy_qty ?? raw.reported_diff_qty ?? 0);
+  }
+
+  async function renderReceiptWorkPage(taskId) {
+    const group = FLOW_GROUPS["inbound-flow"];
+    const task = findTask("inbound", taskId) || {};
+    state.activeTasks["inbound:id"] = taskId;
+    state.receiptWorkTab = "waiting";
+    state.receiptWorkSearch = "";
+    state.lineMatches.inbound = "";
+    root.innerHTML = renderReceiptWorkShell(task);
+    bindReceiptWorkPage(taskId, group);
+    await loadReceiptWorkTask(taskId);
+  }
+
+  function renderReceiptWorkShell(task) {
+    const title = task.origin || task.picking_name || task.name || "收货单";
+    return `
+      <section class="task-panel receipt-work-page">
+        <div class="receipt-work-nav">
+          <button id="backToReceiptList" class="app-back-button" type="button" aria-label="返回">‹</button>
+          <h1>扫商品</h1>
+          <div>
+            <button id="receiptWorkDetail" type="button">详情</button>
+            <button id="receiptWorkBatch" type="button">批量收货</button>
+          </div>
+        </div>
+        <p class="receipt-work-order">${escapeHtml(title)}</p>
+        <form id="receiptWorkScanForm" class="receipt-work-scan" autocomplete="off">
+          <label class="receipt-work-search">
+            <span>商品</span>
+            <input id="receiptWorkBarcode" type="search" inputmode="text" autocomplete="off" placeholder="扫描 / 输入商品条码/SKU/外部编码" />
+            <button type="submit" aria-label="确认商品">⌗</button>
+          </label>
+          <div id="receiptWorkMatched" class="receipt-work-matched is-empty">请先扫描或选择待收商品。</div>
+          <button id="receiptWorkConfirm" class="receipt-work-confirm" type="submit" disabled>确认</button>
+        </form>
+        <div class="receipt-work-tabs" role="tablist" aria-label="收货作业状态">
+          <button class="receipt-work-tab is-active" type="button" data-receipt-work-tab="waiting">本次待收商品<em data-receipt-work-count="waiting"></em></button>
+          <button class="receipt-work-tab" type="button" data-receipt-work-tab="submitted">待提交收货<em data-receipt-work-count="submitted"></em></button>
+        </div>
+        <div id="receiptWorkLines" class="receipt-work-lines">
+          <div class="empty-state receipt-detail-loading">正在读取商品...</div>
+        </div>
+        <div class="receipt-work-bottom">
+          <button id="receiptWorkSubmit" type="button" disabled>提交收货</button>
+        </div>
+      </section>
+    `;
+  }
+
+  function bindReceiptWorkPage(taskId, group) {
+    document.getElementById("backToReceiptList").addEventListener("click", () => renderReceiptFlowPage("inbound-flow", group));
+    document.getElementById("receiptWorkDetail").addEventListener("click", () => renderReceiptViewDetailPage(taskId));
+    document.getElementById("receiptWorkBatch").addEventListener("click", () => showToast("批量收货入口已保留，当前请逐一扫码确认数量"));
+    document.getElementById("receiptWorkSubmit").addEventListener("click", () => completeTask("inbound"));
+    document.getElementById("receiptWorkScanForm").addEventListener("submit", (event) => confirmReceiptWorkLine(event));
+    document.getElementById("receiptWorkBarcode").addEventListener("input", (event) => {
+      state.receiptWorkSearch = event.target.value.trim();
+      updateReceiptWorkMatchedLine();
+      renderReceiptWorkLines();
+    });
+    root.querySelectorAll("[data-receipt-work-tab]").forEach((button) => {
+      button.addEventListener("click", () => {
+        state.receiptWorkTab = button.dataset.receiptWorkTab;
+        renderReceiptWorkLines();
+      });
+    });
+    focusFirst("#receiptWorkBarcode");
+  }
+
+  async function loadReceiptWorkTask(taskId) {
+    const linesContainer = document.getElementById("receiptWorkLines");
+    if (linesContainer) {
+      linesContainer.innerHTML = `<div class="empty-state receipt-detail-loading">正在读取商品...</div>`;
+    }
+    try {
+      const data = await apiGet(ENDPOINTS.inbound.lines(taskId));
+      const task = data.task || findTask("inbound", taskId);
+      if (task) {
+        state.activeTasks["inbound:focusedTask"] = task;
+      }
+      state.activeLines.inbound = normalizeLines(data.lines || data.records || [], "inbound");
+      updateReceiptWorkMatchedLine();
+      renderReceiptWorkLines();
+    } catch (error) {
+      if (linesContainer) {
+        linesContainer.innerHTML = `<div class="error-state">${escapeHtml(messageOf(error))}</div>`;
+      }
+    }
+  }
+
+  function updateReceiptWorkMatchedLine() {
+    const input = document.getElementById("receiptWorkBarcode");
+    const matchedBox = document.getElementById("receiptWorkMatched");
+    const confirmButton = document.getElementById("receiptWorkConfirm");
+    if (!input || !matchedBox || !confirmButton) {
+      return;
+    }
+    const keyword = input.value.trim();
+    const lines = state.activeLines.inbound || [];
+    const match = lines.find((line) => receiptWorkProductMatches(line, keyword));
+    state.lineMatches.inbound = match ? match.key : "";
+    if (!keyword) {
+      matchedBox.className = "receipt-work-matched is-empty";
+      matchedBox.innerHTML = "请先扫描或选择待收商品。";
+      confirmButton.disabled = true;
+      return;
+    }
+    if (!match) {
+      matchedBox.className = "receipt-work-matched is-empty";
+      matchedBox.innerHTML = "没有匹配到商品，请核对条码或 SKU。";
+      confirmButton.disabled = true;
+      return;
+    }
+    matchedBox.className = "receipt-work-matched";
+    matchedBox.innerHTML = renderReceiptWorkMatchedLine(match);
+    const qtyInput = document.getElementById("receiptWorkQty");
+    if (qtyInput && !qtyInput.value) {
+      qtyInput.value = formatQty(preferredQty(match) || match.remainingQty || match.demandQty || 0);
+    }
+    confirmButton.disabled = Number(match.remainingQty || 0) <= 0;
+  }
+
+  function renderReceiptWorkMatchedLine(line) {
+    const unit = displayUom(line.uom) || "件";
+    return `
+      <div>
+        <strong>${escapeHtml(line.productName || "未命名商品")}</strong>
+        <small>${escapeHtml(receiptWorkLineMeta(line))}</small>
+      </div>
+      <label>
+        <span>本次数量</span>
+        <input id="receiptWorkQty" type="number" min="0" step="0.001" inputmode="decimal" value="${escapeAttr(formatQty(preferredQty(line) || line.remainingQty || line.demandQty || 0))}" />
+        <b>${escapeHtml(unit)}</b>
+      </label>
+    `;
+  }
+
+  function renderReceiptWorkLines() {
+    const container = document.getElementById("receiptWorkLines");
+    if (!container) {
+      return;
+    }
+    const lines = state.activeLines.inbound || [];
+    updateReceiptWorkTabs(lines);
+    updateReceiptWorkSubmit(lines);
+    const source = state.receiptWorkTab === "submitted"
+      ? lines.filter((line) => Number(line.doneQty || 0) > 0)
+      : lines.filter((line) => Number(line.remainingQty || 0) > 0);
+    const records = filterReceiptWorkLines(source);
+    if (!records.length) {
+      container.innerHTML = `<div class="receipt-detail-no-more">没有更多数据</div>`;
+      return;
+    }
+    container.innerHTML = `
+      ${records.map((line) => receiptWorkLineCard(line, state.receiptWorkTab)).join("")}
+      <div class="receipt-detail-no-more">没有更多数据</div>
+    `;
+    container.querySelectorAll("[data-receipt-work-line]").forEach((button) => {
+      button.addEventListener("click", () => selectReceiptWorkLine(button.dataset.receiptWorkLine));
+    });
+  }
+
+  function updateReceiptWorkTabs(lines) {
+    const counts = {
+      waiting: lines.filter((line) => Number(line.remainingQty || 0) > 0).length,
+      submitted: lines.filter((line) => Number(line.doneQty || 0) > 0).length,
+    };
+    root.querySelectorAll("[data-receipt-work-tab]").forEach((button) => {
+      button.classList.toggle("is-active", button.dataset.receiptWorkTab === state.receiptWorkTab);
+    });
+    Object.entries(counts).forEach(([key, value]) => {
+      const target = document.querySelector(`[data-receipt-work-count="${key}"]`);
+      if (target) {
+        target.textContent = value ? String(value) : "";
+      }
+    });
+  }
+
+  function updateReceiptWorkSubmit(lines) {
+    const button = document.getElementById("receiptWorkSubmit");
+    if (!button) {
+      return;
+    }
+    const hasSubmitted = lines.some((line) => Number(line.doneQty || 0) > 0);
+    button.disabled = !hasSubmitted;
+  }
+
+  function filterReceiptWorkLines(lines) {
+    const keyword = state.receiptWorkSearch.trim().toLowerCase();
+    if (!keyword) {
+      return lines;
+    }
+    return lines.filter((line) => receiptWorkProductMatches(line, keyword, true));
+  }
+
+  function receiptWorkProductMatches(line, keyword, fuzzy) {
+    if (!keyword) {
+      return false;
+    }
+    const normalized = String(keyword).toLowerCase();
+    const exactValues = [
+      line.barcode,
+      line.defaultCode,
+      line.raw && line.raw.sku,
+      line.raw && line.raw.external_code,
+      line.raw && line.raw.product_code,
+    ].filter(Boolean).map((value) => String(value).toLowerCase());
+    if (!fuzzy) {
+      return exactValues.some((value) => value === normalized);
+    }
+    const values = [
+      ...exactValues,
+      line.productName ? String(line.productName).toLowerCase() : "",
+    ].filter(Boolean);
+    return fuzzy
+      ? values.some((value) => value.includes(normalized))
+      : false;
+  }
+
+  function selectReceiptWorkLine(lineKey) {
+    const line = (state.activeLines.inbound || []).find((item) => item.key === lineKey);
+    const input = document.getElementById("receiptWorkBarcode");
+    if (!line || !input) {
+      return;
+    }
+    input.value = line.barcode || line.defaultCode || line.productName || "";
+    state.receiptWorkSearch = input.value.trim();
+    updateReceiptWorkMatchedLine();
+    renderReceiptWorkLines();
+    const qtyInput = document.getElementById("receiptWorkQty");
+    if (qtyInput) {
+      qtyInput.select();
+    }
+  }
+
+  function receiptWorkLineCard(line, tab) {
+    const unit = displayUom(line.uom) || "件";
+    const qtyLabel = tab === "submitted" ? "已确认" : "待收";
+    const qty = tab === "submitted" ? line.doneQty : line.remainingQty;
+    const action = tab === "submitted"
+      ? `<span class="receipt-work-done">待提交</span>`
+      : `<button type="button" data-receipt-work-line="${escapeAttr(line.key)}">选择</button>`;
+    return `
+      <article class="receipt-work-line ${state.lineMatches.inbound === line.key ? "is-match" : ""}">
+        <div class="receipt-line-thumb">
+          <span>${escapeHtml(receiptLineAvatarText(line))}</span>
+        </div>
+        <div class="receipt-work-line-main">
+          <strong>${escapeHtml(line.productName || "未命名商品")}</strong>
+          <p>${escapeHtml(receiptWorkLineMeta(line))}</p>
+          <p>SKU：${escapeHtml(line.defaultCode || "-")}</p>
+          <div class="receipt-work-line-qty">${escapeHtml(qtyLabel)}：<b>${escapeHtml(formatQty(qty))}${escapeHtml(unit)}</b></div>
+        </div>
+        <div class="receipt-work-line-action">
+          ${action}
+        </div>
+      </article>
+    `;
+  }
+
+  function receiptWorkLineMeta(line) {
+    const spec = (line.raw && (line.raw.spec || line.raw.specification || line.raw.variant || line.raw.product_spec)) || "";
+    return [
+      spec ? `规格：${spec}` : "",
+      line.barcode ? `条码：${line.barcode}` : "",
+    ].filter(Boolean).join("　") || "暂无规格与条码";
+  }
+
+  async function confirmReceiptWorkLine(event) {
+    event.preventDefault();
+    const taskId = activeTaskId("inbound");
+    const form = event.currentTarget;
+    const line = (state.activeLines.inbound || []).find((item) => item.key === state.lineMatches.inbound);
+    const barcode = document.getElementById("receiptWorkBarcode").value.trim();
+    const qtyInput = document.getElementById("receiptWorkQty");
+    const qty = qtyInput && qtyInput.value;
+    if (!taskId || !line || !barcode) {
+      showToast("请先扫描或选择商品");
+      return;
+    }
+    if (!qty) {
+      showToast("请填写本次数量");
+      if (qtyInput) {
+        qtyInput.focus();
+      }
+      return;
+    }
+    try {
+      setBusy(form, true);
+      const result = await apiPost(ENDPOINTS.inbound.confirm(taskId), {
+        request_id: requestId("inbound_line"),
+        device_id: state.deviceId,
+        barcode,
+        product_barcode: barcode,
+        done_qty: qty,
+      });
+      rememberResult("inbound", "本行已确认", result);
+      showToast("本行已确认");
+      state.receiptWorkTab = "submitted";
+      state.receiptWorkSearch = "";
+      state.lineMatches.inbound = "";
+      const input = document.getElementById("receiptWorkBarcode");
+      if (input) {
+        input.value = "";
+      }
+      await loadReceiptWorkTask(taskId);
+      focusFirst("#receiptWorkBarcode");
+    } catch (error) {
+      showError(error);
+    } finally {
+      setBusy(form, false);
+      updateReceiptWorkMatchedLine();
+    }
+  }
+
+  async function loadInboundTasks(mode) {
+    const container = document.getElementById("taskItems");
+    if (!container) {
+      return;
+    }
+    const config = ENDPOINTS[mode];
+    container.innerHTML = `<div class="empty-state">正在读取任务...</div>`;
+    try {
+      const query = { limit: 50 };
+      if (mode === "arrival") {
+        query.arrival_status = state.arrivalStatus;
+      }
+      const data = await apiGet(config.list, query);
+      const records = getRecords(data);
+      const displayRecords = await enrichTaskCards(mode, records);
+      state.activeTasks[mode] = displayRecords;
+      if (!displayRecords.length) {
+        container.innerHTML = `<div class="empty-state inbound-empty">${escapeHtml(inboundEmptyText(mode))}</div>`;
+        return;
+      }
+      container.innerHTML = displayRecords.map((task) => taskCard(task, false, mode)).join("");
+      container.querySelectorAll("[data-task-detail-id]").forEach((button) => {
+        button.addEventListener("click", () => renderInboundTaskDetailPage(mode, Number(button.dataset.taskDetailId)));
+      });
+      bindTaskActionButtons(container, mode);
+    } catch (error) {
+      container.innerHTML = `<div class="error-state">${escapeHtml(messageOf(error))}</div>`;
+    }
+  }
+
+  function inboundEmptyText(mode) {
+    if (mode === "arrival") {
+      return {
+        unsigned: "暂无未签到到货单，可切换已签到、已取消查看记录。",
+        signed: "暂无已签到记录，未签到单确认到货后会出现在这里。",
+        cancelled: "暂无已取消到货单。",
+      }[state.arrivalStatus] || "暂无待到货单。";
+    }
+    return {
+      arrival: "暂无待到货单，可切换待收货、待上架查看后续任务。",
+      inbound: "暂无待收货任务，到货签到后会生成收货任务。",
+      putaway: "暂无待上架任务，收货完成后会生成上架任务。",
+      inbound_done: "暂无已完成记录。",
+    }[mode] || "暂无待处理任务。";
+  }
+
+  async function renderInboundTaskDetailPage(mode, taskId) {
+    if (mode === "arrival") {
+      renderArrivalTaskDetailPage(taskId);
+      return;
+    }
+    if (mode === "inbound_done") {
+      renderInboundDoneDetailPage(taskId);
+      return;
+    }
+    if (mode === "inbound") {
+      renderReceiptWorkPage(taskId);
+      return;
+    }
+    const group = FLOW_GROUPS["inbound-flow"];
+    const config = ENDPOINTS[mode];
+    root.innerHTML = `
+      <section class="task-panel inbound-detail-page">
+        <div class="app-page-title app-sub-title">
+          <button id="backToInboundList" class="app-back-button" type="button" aria-label="返回">‹</button>
+          <div>
+            <h1>${escapeHtml(config.title)}</h1>
+            <p>${escapeHtml(group.subtitle)}</p>
+          </div>
+          <button id="completeTask" class="mini-button" type="button" disabled>${escapeHtml(config.completeText)}</button>
+        </div>
+        ${renderWorkflowStrip("inbound-flow", mode)}
+        <section class="task-detail inbound-detail-card">
+          <div id="detailBody" class="detail-body">
+            <div class="empty-state">正在读取明细...</div>
+          </div>
+        </section>
+        ${renderBottomNav("operation")}
+      </section>
+    `;
+    document.getElementById("backToInboundList").addEventListener("click", () => renderInboundFlowPage("inbound-flow", group));
+    document.getElementById("completeTask").addEventListener("click", () => completeTask(mode));
+    bindBottomNav();
+    await selectTask(mode, taskId);
+  }
+
+  function renderArrivalTaskDetailPage(taskId) {
+    const group = FLOW_GROUPS["inbound-flow"];
+    const task = findTask("arrival", taskId) || {};
+    const arrivalStatus = task.arrival_status || "unsigned";
+    const canCheckin = arrivalStatus === "unsigned";
+    state.activeTasks["arrival:id"] = taskId;
+    root.innerHTML = `
+      <section class="task-panel inbound-detail-page">
+        <div class="app-page-title app-sub-title">
+          <button id="backToInboundList" class="app-back-button" type="button" aria-label="返回">‹</button>
+          <div>
+            <h1>到货签到</h1>
+            <p>${escapeHtml(group.subtitle)}</p>
+          </div>
+          ${canCheckin
+            ? `<div class="arrival-detail-actions">
+                <button id="cancelArrivalTask" class="mini-button is-plain" type="button">取消到货</button>
+                <button id="completeTask" class="mini-button" type="button">确认到货</button>
+              </div>`
+            : `<span class="mini-pill">${escapeHtml(arrivalStatusLabel(task))}</span>`}
+        </div>
+        <section class="task-detail inbound-detail-card">
+          <div class="detail-body">
+            ${renderLastResult("arrival")}
+            <div class="scan-box">
+              <h2>${escapeHtml(task.name || task.picking_name || "到货单")}</h2>
+              <div class="info-grid">
+                ${infoItem("签到状态", arrivalStatusLabel(task))}
+                ${infoItem("供应商", task.partner_name)}
+                ${infoItem("入库单", task.picking_name)}
+                ${infoItem("收货任务", task.receipt_task_name)}
+                ${infoItem("目标库位", task.dest_location)}
+                ${infoItem("计划到货", task.scheduled_date ? String(task.scheduled_date).slice(0, 16) : "")}
+                ${infoItem("商品", task.product_summary)}
+                ${infoItem("数量", task.demand_qty ? formatQty(task.demand_qty) : "")}
+              </div>
+            </div>
+            ${renderArrivalProductLines(task)}
+          </div>
+        </section>
+        ${renderBottomNav("operation")}
+      </section>
+    `;
+    document.getElementById("backToInboundList").addEventListener("click", () => renderInboundFlowPage("inbound-flow", group));
+    if (canCheckin) {
+      document.getElementById("completeTask").addEventListener("click", () => completeTask("arrival"));
+      document.getElementById("cancelArrivalTask").addEventListener("click", () => cancelArrivalTask(taskId));
+    }
+    bindBottomNav();
+  }
+
+  function renderArrivalProductLines(task) {
+    const lines = normalizeLines(task.lines || [], "arrival");
+    return `
+      <section class="arrival-lines-panel">
+        <div class="arrival-lines-head">
+          <strong>到货商品</strong>
+          <span>${escapeHtml(lines.length ? `${lines.length} 种` : "暂无商品")}</span>
+        </div>
+        <div class="arrival-line-list">
+          ${lines.length ? lines.map(arrivalLineCard).join("") : `<div class="empty-state">暂无商品明细。</div>`}
+        </div>
+      </section>
+    `;
+  }
+
+  function arrivalLineCard(line) {
+    const unit = displayUom(line.uom) || "件";
+    const targetLocation = line.raw && (line.raw.dest_location || line.raw.dest_location_name) || line.location || "";
+    return `
+      <article class="arrival-line-card">
+        <div class="receipt-line-thumb">
+          <span>${escapeHtml(receiptLineAvatarText(line))}</span>
+        </div>
+        <div class="arrival-line-main">
+          <strong>${escapeHtml(line.productName || "未命名商品")}</strong>
+          <p>${escapeHtml([line.defaultCode, line.barcode].filter(Boolean).join(" · ") || "暂无条码信息")}</p>
+          <p>${escapeHtml(targetLocation ? `目标：${targetLocation}` : "")}</p>
+        </div>
+        <div class="arrival-line-qty">
+          <span>应到</span>
+          <b>${escapeHtml(formatQty(line.demandQty))}${escapeHtml(unit)}</b>
+        </div>
+      </article>
+    `;
+  }
+
+  function arrivalStatusLabel(task) {
+    const status = task && task.arrival_status || state.arrivalStatus || "unsigned";
+    return {
+      unsigned: "未签到",
+      signed: "已签到",
+      cancelled: "已取消",
+    }[status] || task && task.arrival_status_label || "未签到";
+  }
+
+  function renderInboundDoneDetailPage(taskId) {
+    const group = FLOW_GROUPS["inbound-flow"];
+    const task = findTask("inbound_done", taskId) || {};
+    state.activeTasks["inbound_done:id"] = taskId;
+    root.innerHTML = `
+      <section class="task-panel inbound-detail-page">
+        <div class="app-page-title app-sub-title">
+          <button id="backToInboundList" class="app-back-button" type="button" aria-label="返回">‹</button>
+          <div>
+            <h1>已完成</h1>
+            <p>${escapeHtml(group.subtitle)}</p>
+          </div>
+          <span class="mini-pill">已完成</span>
+        </div>
+        <section class="task-detail inbound-detail-card">
+          <div class="detail-body">
+            <div class="scan-box">
+              <h2>${escapeHtml(task.name || task.picking_name || "完成记录")}</h2>
+              <div class="info-grid">
+                ${infoItem("收货任务", task.receipt_task_name)}
+                ${infoItem("入库单", task.picking_name)}
+                ${infoItem("商品", task.product_summary)}
+                ${infoItem("数量", task.total_qty ? formatQty(task.total_qty) : "")}
+                ${infoItem("上架数量", task.putaway_qty ? formatQty(task.putaway_qty) : "")}
+                ${infoItem("目标库位", task.dest_location)}
+              </div>
+            </div>
+          </div>
+        </section>
+        ${renderBottomNav("operation")}
+      </section>
+    `;
+    document.getElementById("backToInboundList").addEventListener("click", () => renderInboundFlowPage("inbound-flow", group));
+    bindBottomNav();
+  }
+
   async function renderHandoverFlowPage(route, group) {
     const mode = "handover";
     root.innerHTML = `
@@ -896,7 +2421,6 @@
           action: `<span class="mini-pill">${escapeHtml(currentWarehouseName())}</span>`,
         })}
         ${renderWorkflowStrip(route, mode)}
-        ${renderGlobalScan(`${route}ScanForm`, group.scanPlaceholder)}
         <div class="flow-tabs">
           ${group.tabs.map((tab) => `
             <button class="seg-button ${tab.mode === mode ? "is-active" : ""}" type="button" data-flow-route="${escapeAttr(route)}" data-flow-mode="${escapeAttr(tab.mode)}">
@@ -931,7 +2455,6 @@
         ${renderBottomNav("operation")}
       </section>
     `;
-    document.getElementById(`${route}ScanForm`).addEventListener("submit", submitGlobalScan);
     root.querySelectorAll("[data-flow-mode]").forEach((button) => {
       button.addEventListener("click", () => {
         state.flowModes[button.dataset.flowRoute] = button.dataset.flowMode;
@@ -983,6 +2506,12 @@
         state.activeTasks[`${mode}:id`] = Number(result.target_id);
       }
       showToast(result.message || "已识别任务");
+      if (route === "inbound-flow" && result.target_id && ENDPOINTS[mode]) {
+        state.route = route;
+        history.replaceState(null, "", `#/${route}`);
+        renderInboundTaskDetailPage(mode, Number(result.target_id));
+        return;
+      }
       openRoute(route);
       return;
     }
@@ -1071,11 +2600,16 @@
         return;
       }
       container.innerHTML = displayRecords.map((task) => taskCard(task, activeTaskId(mode) === task.id, mode)).join("");
-      container.querySelectorAll("[data-task-id]").forEach((button) => {
-        button.addEventListener("click", () => selectTask(mode, Number(button.dataset.taskId)));
+      container.querySelectorAll("[data-task-detail-id]").forEach((button) => {
+        button.addEventListener("click", () => selectTask(mode, Number(button.dataset.taskDetailId)));
       });
-      const firstId = activeTaskId(mode) || displayRecords[0].id;
-      await selectTask(mode, firstId);
+      bindTaskActionButtons(container, mode);
+      const focusedId = activeTaskId(mode);
+      if (focusedId) {
+        await selectTask(mode, focusedId);
+        return;
+      }
+      detail.innerHTML = `${renderLastResult(mode)}<div class="empty-state">点击任务里的商品和库位信息查看明细。</div>`;
     } catch (error) {
       container.innerHTML = `<div class="error-state">${escapeHtml(messageOf(error))}</div>`;
       detail.innerHTML = `<div class="hint-state">如果这里是 404，说明当前后端还没有启用该 PDA 接口；H5 页面本身已做好接入。</div>`;
@@ -1103,11 +2637,17 @@
       qtyText: qty.text,
       doneQty: qty.done,
       totalQty: qty.total,
-      actionText: taskActionText(mode),
+      actionText: taskActionText(mode, task),
     };
   }
 
   function taskCardLocationText(mode, task, line) {
+    if (mode === "arrival") {
+      return task.partner_name || task.dest_location || task.receipt_task_name || task.picking_name || "待到货确认";
+    }
+    if (mode === "inbound_done") {
+      return task.dest_location || task.picking_name || "已完成";
+    }
     if (mode === "putaway") {
       return task.dest_location || task.source_location || (line && line.location) || "推荐库位待确认";
     }
@@ -1128,13 +2668,21 @@
     }
     const done = Number(task.done_qty ?? task.putaway_qty ?? task.total_done_qty ?? task.total_checked_qty ?? 0);
     const total = Number(task.demand_qty ?? task.total_qty ?? task.total_demand_qty ?? task.total_picked_qty ?? 0);
+    if (mode === "arrival" && task.arrival_status === "signed") {
+      return { done: total, total, text: total ? `已签到 ${formatQty(total)}` : "已签到" };
+    }
+    if (mode === "arrival" && task.arrival_status === "cancelled") {
+      return { done: 0, total, text: total ? `已取消 ${formatQty(total)}` : "已取消" };
+    }
     return { done, total, text: taskQtyLabel(mode, done, total) };
   }
 
   function taskQtyLabel(mode, done, total) {
     const action = {
+      arrival: "应到",
       inbound: "应收",
       putaway: "应上架",
+      inbound_done: "已上架",
       pick: "应拣",
       outbound: "应复核",
     }[mode] || "数量";
@@ -1145,10 +2693,15 @@
     return `${action}待确认`;
   }
 
-  function taskActionText(mode) {
+  function taskActionText(mode, task) {
+    if (mode === "arrival" && task && task.arrival_status && task.arrival_status !== "unsigned") {
+      return "查看";
+    }
     return {
+      arrival: "签到",
       inbound: "收货",
       putaway: "确认上架",
+      inbound_done: "查看",
       pick: "拣货",
       outbound: "复核",
     }[mode] || "处理";
@@ -1175,8 +2728,12 @@
       container.querySelectorAll("[data-handover-id]").forEach((button) => {
         button.addEventListener("click", () => selectHandoverOrder(Number(button.dataset.handoverId)));
       });
-      const firstId = activeTaskId("handover") || records[0].id;
-      await selectHandoverOrder(firstId);
+      const focusedId = activeTaskId("handover");
+      if (focusedId) {
+        await selectHandoverOrder(focusedId);
+        return;
+      }
+      detail.innerHTML = `${renderLastResult("handover")}<div class="empty-state">点击交接单信息查看明细。</div>`;
     } catch (error) {
       container.innerHTML = `<div class="error-state">${escapeHtml(messageOf(error))}</div>`;
       detail.innerHTML = `<div class="hint-state">交接接口暂不可用时，复核完成结果仍会提示下一步。</div>`;
@@ -1226,7 +2783,6 @@
     const waybills = Array.isArray(order.waybills) ? order.waybills : [];
     const stopLines = order.route_batch && Array.isArray(order.route_batch.stop_lines) ? order.route_batch.stop_lines : [];
     return `
-      ${renderTaskStatus("handover", order.state || "")}
       ${renderLastResult("handover")}
       <div class="scan-box">
         <h2>${escapeHtml(title)}</h2>
@@ -1331,17 +2887,99 @@
     const summary = task.card_summary || buildTaskCardSummary(mode, task, []);
     const status = task.state || "";
     return `
-      <button class="task-card app-task-card ${active ? "is-active" : ""}" type="button" data-task-id="${escapeAttr(task.id)}">
-        <span class="app-task-main">
+      <article class="task-card app-task-card ${active ? "is-active" : ""}" data-task-card-id="${escapeAttr(task.id)}">
+        <button class="app-task-main task-info-button" type="button" data-task-detail-id="${escapeAttr(task.id)}" aria-label="查看任务明细">
           <strong>${escapeHtml(name)}</strong>
           ${status ? `<em class="state-tag ${isDoneState(status) ? "is-done" : isExceptionState(status) ? "is-error" : ""}">${escapeHtml(statusLabel(status))}</em>` : ""}
           <small>${escapeHtml(summary.productText || "待执行任务")}</small>
           <small>${escapeHtml(summary.locationText || "请扫码处理")}</small>
           <small class="task-progress">${escapeHtml(summary.qtyText || taskProgressText(task) || "数量待确认")}</small>
-        </span>
-        <span class="task-action-chip">${escapeHtml(summary.actionText || taskActionText(mode))}</span>
+        </button>
+        ${taskActionButtons(mode, task, summary)}
+      </article>
+    `;
+  }
+
+  function taskActionButtons(mode, task, summary) {
+    const actionText = summary.actionText || taskActionText(mode);
+    if (mode === "arrival" && (task.arrival_status || state.arrivalStatus) === "unsigned") {
+      return `
+        <div class="task-action-group">
+          <button class="task-action-chip is-secondary" type="button" data-arrival-cancel-id="${escapeAttr(task.id)}">取消</button>
+          <button class="task-action-chip" type="button" data-task-action-id="${escapeAttr(task.id)}" data-task-action-mode="${escapeAttr(mode)}">${escapeHtml(actionText)}</button>
+        </div>
+      `;
+    }
+    return `
+      <button class="task-action-chip" type="button" data-task-action-id="${escapeAttr(task.id)}" data-task-action-mode="${escapeAttr(mode)}">
+        ${escapeHtml(actionText)}
       </button>
     `;
+  }
+
+  function bindTaskActionButtons(container, mode) {
+    container.querySelectorAll("[data-task-action-id]").forEach((button) => {
+      button.addEventListener("click", () => handleTaskCardAction(button, mode));
+    });
+    container.querySelectorAll("[data-arrival-cancel-id]").forEach((button) => {
+      button.addEventListener("click", () => cancelArrivalTask(Number(button.dataset.arrivalCancelId), button));
+    });
+  }
+
+  async function cancelArrivalTask(taskId, sourceButton) {
+    if (!taskId) {
+      return;
+    }
+    if (!window.confirm("确认取消当前到货单？取消后会进入已取消列表。")) {
+      return;
+    }
+    const button = sourceButton || document.getElementById("cancelArrivalTask");
+    try {
+      if (button) {
+        button.disabled = true;
+      }
+      const result = await apiPost(ENDPOINTS.arrival.cancel(taskId), {
+        request_id: requestId("arrival_cancel"),
+        device_id: state.deviceId,
+      });
+      rememberResult("arrival", "到货已取消", result);
+      showToast("到货已取消");
+      state.flowModes["inbound-flow"] = "arrival";
+      state.arrivalStatus = "cancelled";
+      await renderInboundFlowPage("inbound-flow", FLOW_GROUPS["inbound-flow"]);
+    } catch (error) {
+      showError(error);
+      if (button) {
+        button.disabled = false;
+      }
+    }
+  }
+
+  async function handleTaskCardAction(button, mode) {
+    const taskId = Number(button.dataset.taskActionId || 0);
+    if (!taskId) {
+      return;
+    }
+    const task = findTask(mode, taskId) || {};
+    if (mode === "arrival") {
+      if ((task.arrival_status || state.arrivalStatus) === "unsigned") {
+        state.activeTasks[`${mode}:id`] = taskId;
+        try {
+          button.disabled = true;
+          await completeTask(mode);
+        } finally {
+          button.disabled = false;
+        }
+        return;
+      }
+      renderInboundTaskDetailPage(mode, taskId);
+      return;
+    }
+    if (["inbound", "putaway", "inbound_done"].includes(mode)) {
+      renderInboundTaskDetailPage(mode, taskId);
+      return;
+    }
+    await selectTask(mode, taskId);
   }
 
   async function selectTask(mode, taskId) {
@@ -1349,7 +2987,7 @@
     const detail = document.getElementById("detailBody");
     state.activeTasks[`${mode}:id`] = taskId;
     document.querySelectorAll(".task-card").forEach((card) => {
-      card.classList.toggle("is-active", Number(card.dataset.taskId) === taskId);
+      card.classList.toggle("is-active", Number(card.dataset.taskCardId) === taskId);
     });
     detail.innerHTML = `<div class="empty-state">正在读取明细...</div>`;
     document.getElementById("completeTask").disabled = true;
@@ -1374,9 +3012,7 @@
   function renderScanBox(mode, task, lines) {
     const config = ENDPOINTS[mode];
     const taskName = task && (task.name || task.picking_name || task.outbound_task_name) || "当前任务";
-    const taskState = task && task.state || "";
     return `
-      ${renderTaskStatus(mode, taskState)}
       ${renderLastResult(mode)}
       <div class="scan-box">
         <h2>${escapeHtml(taskName)}</h2>
@@ -1401,29 +3037,6 @@
       </div>
       <div class="line-grid" id="lineGrid">
         ${lines.length ? lines.map((line) => lineCard(line, state.lineMatches[mode])).join("") : `<div class="empty-state">暂无明细。</div>`}
-      </div>
-    `;
-  }
-
-  function renderTaskStatus(mode, stateValue) {
-    const label = statusLabel(stateValue);
-    const hint = NEXT_ACTION_HINTS[stateValue] || "请选择任务后按页面提示扫码处理。";
-    const flow = STATUS_FLOWS[mode] || [];
-    const currentIndex = flow.indexOf(stateValue);
-    return `
-      <div class="status-panel">
-        <div class="status-summary">
-          <span>当前状态</span>
-          <strong>${escapeHtml(label || "未选择")}</strong>
-          <small>${escapeHtml(hint)}</small>
-        </div>
-        ${flow.length ? `
-          <div class="state-flow">
-            ${flow.map((step, index) => `
-              <span class="${stateFlowClass(step, stateValue, currentIndex, index)}">${escapeHtml(statusLabel(step))}</span>
-            `).join("")}
-          </div>
-        ` : ""}
       </div>
     `;
   }
@@ -1507,19 +3120,48 @@
     }
     const button = document.getElementById("completeTask");
     try {
-      button.disabled = true;
+      if (button) {
+        button.disabled = true;
+      }
+      if (!config.complete) {
+        throw new Error("当前状态不需要提交完成。");
+      }
       const result = await apiPost(config.complete(taskId), {
         request_id: requestId(`${mode}_complete`),
         device_id: state.deviceId,
       });
-      rememberResult(mode, "任务已完成", result);
-      showToast("任务已完成");
+      const successText = {
+        arrival: "到货已签到",
+        inbound: "收货已完成",
+        putaway: "上架已完成",
+      }[mode] || "任务已完成";
+      rememberResult(mode, successText, result);
+      showToast(successText);
       state.activeTasks[`${mode}:id`] = "";
+      if (mode === "arrival") {
+        state.flowModes["inbound-flow"] = "arrival";
+        state.arrivalStatus = "signed";
+        await renderInboundFlowPage("inbound-flow", FLOW_GROUPS["inbound-flow"]);
+        return;
+      }
+      if (state.route === "inbound-flow" || ["arrival", "inbound", "putaway"].includes(mode)) {
+        const nextMode = {
+          inbound: "putaway",
+          putaway: "inbound_done",
+        }[mode];
+        if (nextMode) {
+          state.flowModes["inbound-flow"] = nextMode;
+          await renderInboundFlowPage("inbound-flow", FLOW_GROUPS["inbound-flow"]);
+          return;
+        }
+      }
       await loadTasks(mode);
     } catch (error) {
       showError(error);
     } finally {
-      button.disabled = false;
+      if (button) {
+        button.disabled = false;
+      }
     }
   }
 
@@ -1586,6 +3228,7 @@
 
   function nextStepLabel(value) {
     const labels = {
+      receipt: "进入待收货",
       putaway: "进入待上架",
       check: "进入待复核",
       handover: "进入待交接",
@@ -1609,19 +3252,6 @@
 
   function isExceptionState(stateValue) {
     return String(stateValue || "").includes("exception");
-  }
-
-  function stateFlowClass(step, currentState, currentIndex, index) {
-    const classes = ["state-step"];
-    if (step === currentState) {
-      classes.push("is-current");
-    } else if (currentIndex >= 0 && index < currentIndex) {
-      classes.push("is-past");
-    }
-    if (isDoneState(step)) {
-      classes.push("is-terminal");
-    }
-    return classes.join(" ");
   }
 
   function taskProgressText(task) {
@@ -1648,7 +3278,7 @@
 
   function lineCard(line, matchedKey) {
     const isMatch = matchedKey && matchedKey === line.key;
-    const qtyText = `${formatQty(line.doneQty)} / ${formatQty(line.demandQty)} ${line.uom || ""}`;
+    const qtyText = `${formatQty(line.doneQty)} / ${formatQty(line.demandQty)} ${displayUom(line.uom) || ""}`;
     return `
       <article class="line-card ${isMatch ? "is-match" : ""}">
         <div>
@@ -2056,7 +3686,7 @@
         <td>${escapeHtml(formatQty(item.quantity_on_hand ?? item.qty_available ?? item.quantity ?? item.qty ?? item.available_qty ?? 0))}</td>
         <td>${escapeHtml(formatQty(item.available_quantity ?? item.available_qty ?? 0))}</td>
         <td>${escapeHtml(formatQty(item.reserved_quantity ?? item.reserved_qty ?? 0))}</td>
-        <td>${escapeHtml(item.uom || item.product_uom || "")}</td>
+        <td>${escapeHtml(displayUom(item.uom || item.product_uom) || "")}</td>
       </tr>
     `).join("");
     return `
@@ -2267,7 +3897,7 @@
         demandQty,
         doneQty,
         remainingQty: Number(line.remaining_qty ?? Math.max(demandQty - doneQty, 0)),
-        uom: line.uom || "",
+        uom: displayUom(line.uom),
         raw: line,
         mode,
       };
@@ -2429,6 +4059,26 @@
   function formatQty(value) {
     const number = Number(value || 0);
     return Number.isInteger(number) ? String(number) : number.toFixed(3).replace(/0+$/, "").replace(/\.$/, "");
+  }
+
+  function displayUom(value) {
+    const text = String(value || "").trim();
+    if (!text) {
+      return "";
+    }
+    if (/^units?$/i.test(text)) {
+      return "份";
+    }
+    return text;
+  }
+
+  function formatDateTime(value) {
+    if (!value) {
+      return "";
+    }
+    const raw = String(value).replace("T", " ").slice(0, 19);
+    const [datePart, timePart = ""] = raw.split(" ");
+    return `${datePart.replace(/-/g, "/")}${timePart ? ` ${timePart}` : ""}`;
   }
 
   function escapeHtml(value) {

@@ -26,7 +26,9 @@ class WmsPdaPutawayController(WmsPdaBaseController):
         csrf=False,
     )
     def get_putaway_task_lines(self, task_id, **kwargs):
-        return self._handle_request(lambda user, wh, token: self._putaway_get_task_lines(user, wh, task_id, lock=True))
+        payload = self._get_payload()
+        lock = str(payload.get("lock", "1")).strip().lower() not in ("0", "false", "no")
+        return self._handle_request(lambda user, wh, token: self._putaway_get_task_lines(user, wh, task_id, lock=lock))
 
     @http.route(
         "/api/pda/wms/v1/putaway/tasks/<int:task_id>/confirm",
@@ -55,7 +57,9 @@ class WmsPdaPutawayController(WmsPdaBaseController):
             raise ValidationError("请先选择仓库。")
         offset = int(payload.get("offset") or 0)
         limit = min(int(payload.get("limit") or 20), 100)
-        domain = [("warehouse_id", "=", warehouse.id), ("state", "in", ["waiting_putaway", "putaway_ing"])]
+        state = (payload.get("state") or payload.get("status") or "waiting").strip()
+        states = ["putaway_done"] if state in ("done", "putaway_done") else ["waiting_putaway", "putaway_ing"]
+        domain = [("warehouse_id", "=", warehouse.id), ("state", "in", states)]
         Task = request.env["wms.putaway.task"].with_user(user).sudo()
         total = Task.search_count(domain)
         tasks = Task.search(domain, offset=offset, limit=limit, order="id desc")
@@ -137,6 +141,13 @@ class WmsPdaPutawayController(WmsPdaBaseController):
             return {"task_state": task.state, "summary": summary}
         if task.state not in ("waiting_putaway", "putaway_ing"):
             return self._error(self.ERR_STATE_CONFLICT, "当前状态不能完成上架。", status=400, tts="状态不允许")
+        remaining_moves = [
+            source_move
+            for source_move in self._putaway_task_moves(task)
+            if self._putaway_remaining_qty(task, source_move.product_id) > 0
+        ]
+        if remaining_moves:
+            return self._error(self.ERR_STATE_CONFLICT, "还有商品未上架完成，不能完成上架。", status=400, tts="还有商品未上架")
         task.action_mark_done()
         request.env["wms.task.lock"].sudo().release(task._name, task.id, user_id=user.id)
         return self._success({"task_state": task.state, "summary": self._putaway_summary(task)}, tts="上架完成")
@@ -217,6 +228,8 @@ class WmsPdaPutawayController(WmsPdaBaseController):
             "picking_name": task.stock_picking_id.name if task.stock_picking_id else "",
             "source_location": task.source_location_id.display_name if task.source_location_id else "",
             "dest_location": task.dest_location_id.display_name if task.dest_location_id else "",
+            "source_location_barcode": task.source_location_id.barcode if task.source_location_id else "",
+            "dest_location_barcode": task.dest_location_id.barcode if task.dest_location_id else "",
             "create_date": task.create_date,
         }
         if include_summary:
@@ -226,6 +239,7 @@ class WmsPdaPutawayController(WmsPdaBaseController):
                     "product_summary": self._putaway_product_summary(moves),
                     "total_qty": sum(moves.mapped("product_uom_qty")),
                     "putaway_qty": sum(self._putaway_putaway_qty(task, move.product_id) for move in moves),
+                    "lines": [self._putaway_format_move(move, task) for move in moves],
                 }
             )
         return result
@@ -244,6 +258,8 @@ class WmsPdaPutawayController(WmsPdaBaseController):
             "putaway_qty": putaway_qty,
             "remaining_qty": max(demand_qty - putaway_qty, 0.0),
             "uom": move.product_uom.name if move.product_uom else "",
+            "dest_location": task.dest_location_id.display_name if task.dest_location_id else "",
+            "dest_location_barcode": task.dest_location_id.barcode if task.dest_location_id else "",
         }
 
     def _putaway_summary(self, task):

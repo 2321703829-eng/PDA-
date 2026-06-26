@@ -4,6 +4,7 @@ from . import check
 from . import config
 from . import handover
 from . import h5
+from . import inbound
 from . import inventory
 from . import offline
 from . import pick

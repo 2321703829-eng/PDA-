@@ -10,6 +10,7 @@ WMS_RECEIPT_TASK_STATUS_SELECTION = [
     ("waiting_receipt", "待收货"),
     ("receiving", "收货中"),
     ("received", "已收货"),
+    ("closed", "已关单"),
     ("receipt_exception", "收货异常"),
 ]
 
