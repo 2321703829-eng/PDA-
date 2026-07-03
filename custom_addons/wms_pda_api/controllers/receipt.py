@@ -384,6 +384,8 @@ class WmsPdaReceiptController(WmsPdaBaseController):
         }
 
     def _receipt_read_done_qty(self, move):
+        if "picked" in move._fields and not move.picked:
+            return 0.0
         if "quantity" in move._fields:
             return move.quantity or 0.0
         if "quantity_done" in move._fields:
@@ -399,10 +401,16 @@ class WmsPdaReceiptController(WmsPdaBaseController):
 
     def _receipt_write_done_qty(self, move, qty):
         if "quantity" in move._fields:
-            move.write({"quantity": qty})
+            vals = {"quantity": qty}
+            if "picked" in move._fields:
+                vals["picked"] = qty > 0
+            move.write(vals)
             return
         if "quantity_done" in move._fields:
-            move.write({"quantity_done": qty})
+            vals = {"quantity_done": qty}
+            if "picked" in move._fields:
+                vals["picked"] = qty > 0
+            move.write(vals)
             return
         raise ValidationError("当前库存明细没有可写入的实收数量字段。")
 
